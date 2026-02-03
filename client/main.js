@@ -10,6 +10,9 @@ const discordSdk = new DiscordSDK(
   import.meta.env.VITE_DISCORD_CLIENT_ID
 );
 
+let audioPlayer;
+let volumeSlider;
+
 setupDiscordSdk().then(async () => {
   logToServer("Discord SDK is authenticated");
 
@@ -82,6 +85,24 @@ async function setupDiscordSdk() {
   if (registration.isHost) {
     showHostUI();
   }
+
+  audioPlayer = document.querySelector('#global-player');
+  volumeSlider = document.querySelector('#volume-slider');
+
+  // Set initial volume to 50%
+  audioPlayer.volume = 0.5;
+
+  // Listen for slider changes
+  volumeSlider.oninput = (e) => {
+    const newVolume = e.target.value;
+    audioPlayer.volume = newVolume;
+  };
+
+  document.querySelector('#sync-audio').onclick = () => {
+    syncMusic(audioPlayer);
+    setInterval(() => syncMusic(audioPlayer), 5000);
+    document.querySelector('#sync-audio').textContent = "Syncing...";
+  };
 }
 
 async function appendVoiceChannelName() {
@@ -183,7 +204,72 @@ function showHostUI() {
   const hostDiv = document.querySelector('#host-controls');
   if (hostDiv) {
     hostDiv.style.display = 'block';
-    logToServer("UI updated for Host permissions.");
+    
+    // Create a play button for the host
+    const playBtn = document.createElement('button');
+    playBtn.textContent = "▶️ Play track001.mp3 for everyone";
+    playBtn.onclick = async () => {
+      await fetch("/api/play-local", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: "track001.mp3",
+          instanceId: discordSdk.instanceId,
+          userId: auth.user.id
+        })
+      });
+      // After setting the track on server, start playing locally
+      syncMusic(audioPlayer);
+    };
+    hostDiv.appendChild(playBtn);
+
+    const playBtn2 = document.createElement('button');
+    playBtn2.textContent = "▶️ Play track002.mp3 for everyone";
+    playBtn2.onclick = async () => {
+      await fetch("/api/play-local", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileName: "track002.mp3",
+          instanceId: discordSdk.instanceId,
+          userId: auth.user.id
+        })
+      });
+      // After setting the track on server, start playing locally
+      syncMusic(audioPlayer);
+    };
+    hostDiv.appendChild(playBtn2);
+    
+    logToServer("Host UI initialized with Play controls.");
+  }
+}
+
+async function syncMusic(player) {
+  try {
+    const response = await fetch(`/api/current-track?instanceId=${discordSdk.instanceId}`);
+    const data = await response.json();
+    
+    if (!data.url) return;
+
+    // Check if we need to load a new source
+    if (player.src !== window.location.origin + data.url) {
+      player.src = data.url;
+    }
+    
+    // Sync timing
+    const serverTimeMs = data.startTime;
+    const elapsedSeconds = (Date.now() - serverTimeMs) / 1000;
+    
+    // If we are more than 2 seconds out of sync, snap to server time
+    if (Math.abs(player.currentTime - elapsedSeconds) > 2) {
+      player.currentTime = elapsedSeconds;
+    }
+    
+    if (player.paused) {
+      player.play().catch(e => console.log("Waiting for user interaction..."));
+    }
+  } catch (err) {
+    console.error("Sync error:", err);
   }
 }
 
@@ -205,6 +291,14 @@ document.querySelector('#app').innerHTML = `
     <div id="participant-list"></div>
     <div id="host-controls" style="display: none;">
        <button id="admin-button">Start Game</button>
+    </div>
+    <div id="music-controls">
+       <button id="sync-audio">Join Audio Circle</button>
+       <div style="margin-top: 10px;">
+         <label for="volume-slider" style="font-size: 0.8em; display: block;">Volume</label>
+         <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100px;">
+       </div>
+       <audio id="global-player"></audio>
     </div>
   </div>
 `;

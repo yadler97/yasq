@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
           secure: false,
           ws: true,
         },
+        '/music': 'http://localhost:3001',
       },
       hmr: {
         clientPort: 443,

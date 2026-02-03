@@ -1,15 +1,21 @@
 import express from "express";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
+import path from "path";
+import { fileURLToPath } from 'url';
 dotenv.config({ path: "../.env" });
 
 const app = express();
 const port = 3001;
 
 const instanceHosts = {};
+const instanceTracks = {};
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Allow express to parse JSON bodies
 app.use(express.json());
+app.use('/music', express.static(path.join(__dirname, 'music')));
 
 app.post("/api/token", async (req, res) => {
   
@@ -55,6 +61,31 @@ app.post("/api/register", (req, res) => {
 
   const isHost = instanceHosts[instanceId] === userId;
   res.send({ isHost });
+});
+
+app.post("/api/play-local", (req, res) => {
+  const { fileName, instanceId, userId } = req.body;
+
+  // Security check: Only the host of this specific instance can change the music
+  if (instanceHosts[instanceId] !== userId) {
+    return res.status(403).send({ error: "Only the host can change tracks." });
+  }
+  
+  // Save track data specifically for this instance
+  instanceTracks[instanceId] = {
+    url: `/music/${fileName}`,
+    startTime: Date.now()
+  };
+  
+  console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
+  res.send({ status: "playing", track: instanceTracks[instanceId] });
+});
+
+app.get("/api/current-track", (req, res) => {
+  const { instanceId } = req.query; 
+  
+  const track = instanceTracks[instanceId] || { url: null, startTime: 0 };
+  res.send(track);
 });
 
 app.listen(port, () => {
