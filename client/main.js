@@ -6,6 +6,7 @@ import "./style.css";
 // Will eventually store the authenticated user's access_token
 let auth;
 let currentHostId = null;
+let isReady = false;
 
 const discordSdk = new DiscordSDK(
   import.meta.env.VITE_DISCORD_CLIENT_ID
@@ -29,6 +30,30 @@ setupDiscordSdk().then(async () => {
 
   appendVoiceChannelName();
   appendGuildAvatar();
+
+  setInterval(async () => {
+    const response = await fetch(`/api/game-status?instanceId=${discordSdk.instanceId}`);
+    const { state, readyUsers } = await response.json();
+    
+    const pData = await discordSdk.commands.getInstanceConnectedParticipants();
+
+    const playersExcludingHost = pData.participants.filter(p => p.id !== currentHostId);
+    const allPlayersReady = playersExcludingHost.every(p => readyUsers.includes(p.id));
+
+    const startBtn = document.querySelector('#btn-start');
+    if (startBtn) {
+      // The host can start if all OTHER players are ready
+      startBtn.disabled = !allPlayersReady || state === 'PLAYING';
+      
+      if (state !== 'PLAYING') {
+        startBtn.textContent = allPlayersReady 
+          ? "Start Game" 
+          : `Waiting for Players... (${readyUsers.length}/${playersExcludingHost.length})`;
+      }
+    }
+
+    renderParticipants(pData.participants, readyUsers);
+  }, 2000);
 
   // We can now make API calls within the scopes we requested in setupDiscordSDK()
   // Note: the access_token returned is a sensitive secret and should be treated as such
@@ -83,10 +108,25 @@ async function setupDiscordSdk() {
     }),
   }).then(res => res.json());
 
+  document.querySelector('#btn-ready').onclick = toggleReady;
+
+  document.querySelector('#btn-start').onclick = async () => {
+    await fetch("/api/start-game", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        instanceId: discordSdk.instanceId,
+        userId: auth.user.id
+      })
+    });
+  };
+
   currentHostId = registration.hostId;
 
   if (registration.isHost) {
     showHostUI();
+  } else {
+    showParticipantUI();
   }
 
   audioPlayer = document.querySelector('#global-player');
@@ -164,7 +204,7 @@ async function appendGuildAvatar() {
   }
 }
 
-function renderParticipants(participants) {
+function renderParticipants(participants, readyUsers = []) {
   const listContainer = document.querySelector('#participant-list');
   
   // Clear the current list
@@ -196,11 +236,17 @@ function renderParticipants(participants) {
     nameTag.textContent = displayName;
 
     // Add host label if this participant is the host
+    // Or ready label if they are marked as ready
     if (p.id === currentHostId) {
       const hostLabel = document.createElement('span');
-      hostLabel.className = 'host-label';
+      hostLabel.className = 'host-badge';
       hostLabel.textContent = 'HOST';
       nameTag.appendChild(hostLabel);
+    } else if (readyUsers.includes(p.id)) {
+      const readyLabel = document.createElement('span');
+      readyLabel.className = 'ready-badge';
+      readyLabel.textContent = 'READY';
+      nameTag.appendChild(readyLabel);
     }
 
     wrapper.appendChild(avatar);
@@ -209,6 +255,23 @@ function renderParticipants(participants) {
   });
 
   listContainer.appendChild(fragment);
+}
+
+async function toggleReady() {
+  isReady = !isReady;
+  const btn = document.querySelector('#btn-ready');
+  btn.textContent = isReady ? "I'm Ready! ✅" : "Ready Up";
+  btn.style.background = isReady ? "#3ba55e" : "";
+
+  await fetch("/api/ready", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      instanceId: discordSdk.instanceId,
+      userId: auth.user.id,
+      ready: isReady
+    }),
+  });
 }
 
 function showHostUI() {
@@ -253,6 +316,11 @@ function showHostUI() {
     
     logToServer("Host UI initialized with Play controls.");
   }
+}
+
+function showParticipantUI() {
+  const lobbyDiv = document.querySelector('#lobby-controls');
+  if (lobbyDiv) lobbyDiv.style.display = 'block';
 }
 
 async function syncMusic(player) {
@@ -302,7 +370,10 @@ document.querySelector('#app').innerHTML = `
       <h1>Welcome to YASQ!</h1>
       
       <div id="host-controls" style="display: none;">
-        <button id="admin-button">Start Game</button>
+        <button id="btn-start">Start Game</button>
+      </div>
+      <div id="lobby-controls" style="display: none;">
+        <button id="btn-ready" class="lobby-btn">Ready Up</button>
       </div>
       <div id="music-controls">
         <button id="sync-audio">Join Audio Circle</button>

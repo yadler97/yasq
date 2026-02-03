@@ -78,19 +78,31 @@ button:focus-visible {
   display: flex;
 }
 
-.host-label {
+.host-badge {
   display: inline-flex;
-  align-items: center;
-  margin-left: 8px;
+  margin-left: 5px;
   font-size: 10px;
   background-color: #5865f2; /* Discord Blurple */
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: bold;
-  text-transform: uppercase;
-  vertical-align: middle;
-  line-height: 1;
+}
+
+.ready-badge {
+  display: inline-flex;
+  margin-left: 5px;
+  font-size: 10px;
+  background-color: #248046; /* Discord Green */
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+#admin-button:disabled {
+  background-color: #4f545c;
+  cursor: not-allowed;
 }
 
 @media (prefers-color-scheme: light) {

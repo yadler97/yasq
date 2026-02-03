@@ -10,6 +10,8 @@ const port = 3001;
 
 const instanceHosts = {};
 const instanceTracks = {};
+const instanceReadyStates = {};
+const instanceStates = {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -62,6 +64,51 @@ app.post("/api/register", (req, res) => {
   res.send({ 
     isHost: instanceHosts[instanceId] === userId,
     hostId: instanceHosts[instanceId] 
+  });
+});
+
+app.post("/api/ready", (req, res) => {
+  const { instanceId, userId, ready } = req.body;
+  
+  if (!instanceReadyStates[instanceId]) {
+    instanceReadyStates[instanceId] = {};
+  }
+  
+  if (ready) {
+    instanceReadyStates[instanceId][userId] = true;
+  } else {
+    delete instanceReadyStates[instanceId][userId];
+  }
+  
+  res.send({ 
+    readyUsers: Object.keys(instanceReadyStates[instanceId]) 
+  });
+});
+
+app.get("/api/ready-status", (req, res) => {
+  const { instanceId } = req.query;
+  const readyUsers = instanceReadyStates[instanceId] ? Object.keys(instanceReadyStates[instanceId]) : [];
+  res.send({ readyUsers });
+});
+
+app.post("/api/start-game", (req, res) => {
+  const { instanceId, userId } = req.body;
+
+  // Security check: only host can start
+  if (instanceHosts[instanceId] !== userId) {
+    return res.status(403).send({ error: "Only host can start" });
+  }
+
+  instanceStates[instanceId] = 'PLAYING';
+  console.log(`[GAME] Instance ${instanceId} has started!`);
+  res.send({ status: 'PLAYING' });
+});
+
+app.get("/api/game-status", (req, res) => {
+  const { instanceId } = req.query;
+  res.send({
+    state: instanceStates[instanceId] || 'LOBBY',
+    readyUsers: Object.keys(instanceReadyStates[instanceId] || {})
   });
 });
 
