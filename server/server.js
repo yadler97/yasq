@@ -59,8 +59,10 @@ app.post("/api/register", (req, res) => {
     console.log(`[HOST ASSIGNED] ${username} is the host of instance ${instanceId}`);
   }
 
-  const isHost = instanceHosts[instanceId] === userId;
-  res.send({ isHost });
+  res.send({ 
+    isHost: instanceHosts[instanceId] === userId,
+    hostId: instanceHosts[instanceId] 
+  });
 });
 
 app.post("/api/play-local", (req, res) => {

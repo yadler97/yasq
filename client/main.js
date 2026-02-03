@@ -5,6 +5,7 @@ import "./style.css";
 
 // Will eventually store the authenticated user's access_token
 let auth;
+let currentHostId = null;
 
 const discordSdk = new DiscordSDK(
   import.meta.env.VITE_DISCORD_CLIENT_ID
@@ -81,6 +82,8 @@ async function setupDiscordSdk() {
       username: auth.user.username
     }),
   }).then(res => res.json());
+
+  currentHostId = registration.hostId;
 
   if (registration.isHost) {
     showHostUI();
@@ -165,7 +168,7 @@ function renderParticipants(participants) {
   const listContainer = document.querySelector('#participant-list');
   
   // Clear the current list
-  listContainer.innerHTML = '<h3>Users in Activity:</h3>';
+  listContainer.innerHTML = '';
 
   // Create a fragment to improve performance during DOM manipulation
   const fragment = document.createDocumentFragment();
@@ -191,6 +194,14 @@ function renderParticipants(participants) {
 
     const nameTag = document.createElement('span');
     nameTag.textContent = displayName;
+
+    // Add host label if this participant is the host
+    if (p.id === currentHostId) {
+      const hostLabel = document.createElement('span');
+      hostLabel.className = 'host-label';
+      hostLabel.textContent = 'HOST';
+      nameTag.appendChild(hostLabel);
+    }
 
     wrapper.appendChild(avatar);
     wrapper.appendChild(nameTag);
@@ -285,20 +296,28 @@ async function logToServer(message) {
 }
 
 document.querySelector('#app').innerHTML = `
-  <div>
-    <img src="${rocketLogo}" class="logo" alt="Discord" />
-    <h1>Hello, World!</h1>
-    <div id="participant-list"></div>
-    <div id="host-controls" style="display: none;">
-       <button id="admin-button">Start Game</button>
+  <div class="container">
+    <div>
+      <img src="${rocketLogo}" class="logo" alt="Discord" />
+      <h1>Welcome to YASQ!</h1>
+      
+      <div id="host-controls" style="display: none;">
+        <button id="admin-button">Start Game</button>
+      </div>
+      <div id="music-controls">
+        <button id="sync-audio">Join Audio Circle</button>
+        <div style="margin-top: 10px;">
+          <label for="volume-slider" style="font-size: 0.8em; display: block;">Volume</label>
+          <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100px;">
+        </div>
+        <audio id="global-player"></audio>
+      </div>
     </div>
-    <div id="music-controls">
-       <button id="sync-audio">Join Audio Circle</button>
-       <div style="margin-top: 10px;">
-         <label for="volume-slider" style="font-size: 0.8em; display: block;">Volume</label>
-         <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100px;">
-       </div>
-       <audio id="global-player"></audio>
+    <div>
+      <h3>Participating Players:</h3>
+      <div id="participant-list">
+        
+      </div>
     </div>
   </div>
 `;
