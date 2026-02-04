@@ -1,4 +1,5 @@
 import { DiscordSDK } from "@discord/embedded-app-sdk";
+import * as backend from "./backend.js";
 
 import rocketLogo from '/rocket.png';
 import "./style.css";
@@ -16,7 +17,7 @@ let audioPlayer;
 let volumeSlider;
 
 setupDiscordSdk().then(async () => {
-  logToServer("Discord SDK is authenticated");
+  backend.logToServer("Discord SDK is authenticated");
 
   // 1. Initial User Fetch
   const initialData = await discordSdk.commands.getInstanceConnectedParticipants();
@@ -32,8 +33,7 @@ setupDiscordSdk().then(async () => {
   appendGuildAvatar();
 
   setInterval(async () => {
-    const response = await fetch(`/api/game-status?instanceId=${discordSdk.instanceId}`);
-    const { state, readyUsers } = await response.json();
+    const { state, readyUsers } = await backend.getGameStatus(discordSdk.instanceId);
     
     const pData = await discordSdk.commands.getInstanceConnectedParticipants();
 
@@ -77,16 +77,7 @@ async function setupDiscordSdk() {
   });
 
   // Retrieve an access_token from your activity's server
-  const response = await fetch("/api/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      code,
-    }),
-  });
-  const { access_token } = await response.json();
+  const { access_token } = await backend.getToken(code);
 
   // Authenticate with Discord client (using the access_token)
   auth = await discordSdk.commands.authenticate({
@@ -98,27 +89,12 @@ async function setupDiscordSdk() {
   }
 
   // Register with our backend
-  const registration = await fetch("/api/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      instanceId: discordSdk.instanceId,
-      userId: auth.user.id,
-      username: auth.user.username
-    }),
-  }).then(res => res.json());
+  const registration = await backend.registerUser(discordSdk.instanceId, auth.user.id, auth.user.username);
 
   document.querySelector('#btn-ready').onclick = toggleReady;
 
   document.querySelector('#btn-start').onclick = async () => {
-    await fetch("/api/start-game", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        instanceId: discordSdk.instanceId,
-        userId: auth.user.id
-      })
-    });
+    await backend.startGame(discordSdk.instanceId, auth.user.id);
   };
 
   currentHostId = registration.hostId;
@@ -263,15 +239,7 @@ async function toggleReady() {
   btn.textContent = isReady ? "I'm Ready! ✅" : "Ready Up";
   btn.style.background = isReady ? "#3ba55e" : "";
 
-  await fetch("/api/ready", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      instanceId: discordSdk.instanceId,
-      userId: auth.user.id,
-      ready: isReady
-    }),
-  });
+  await backend.updateReadyStatus(discordSdk.instanceId, auth.user.id, isReady);
 }
 
 function showHostUI() {
@@ -283,15 +251,7 @@ function showHostUI() {
     const playBtn = document.createElement('button');
     playBtn.textContent = "▶️ Play track001.mp3 for everyone";
     playBtn.onclick = async () => {
-      await fetch("/api/play-local", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fileName: "track001.mp3",
-          instanceId: discordSdk.instanceId,
-          userId: auth.user.id
-        })
-      });
+      await backend.playTrack("track001.mp3", discordSdk.instanceId, auth.user.id);
       // After setting the track on server, start playing locally
       syncMusic(audioPlayer);
     };
@@ -300,21 +260,13 @@ function showHostUI() {
     const playBtn2 = document.createElement('button');
     playBtn2.textContent = "▶️ Play track002.mp3 for everyone";
     playBtn2.onclick = async () => {
-      await fetch("/api/play-local", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fileName: "track002.mp3",
-          instanceId: discordSdk.instanceId,
-          userId: auth.user.id
-        })
-      });
+      await backend.playTrack("track002.mp3", discordSdk.instanceId, auth.user.id);
       // After setting the track on server, start playing locally
       syncMusic(audioPlayer);
     };
     hostDiv.appendChild(playBtn2);
     
-    logToServer("Host UI initialized with Play controls.");
+    backend.logToServer("Host UI initialized with Play controls.");
   }
 }
 
@@ -325,18 +277,17 @@ function showParticipantUI() {
 
 async function syncMusic(player) {
   try {
-    const response = await fetch(`/api/current-track?instanceId=${discordSdk.instanceId}`);
-    const data = await response.json();
-    
-    if (!data.url) return;
+    const { url, startTime } = await backend.getCurrentTrack(discordSdk.instanceId);
+
+    if (!url) return;
 
     // Check if we need to load a new source
-    if (player.src !== window.location.origin + data.url) {
-      player.src = data.url;
+    if (player.src !== window.location.origin + url) {
+      player.src = url;
     }
     
     // Sync timing
-    const serverTimeMs = data.startTime;
+    const serverTimeMs = startTime;
     const elapsedSeconds = (Date.now() - serverTimeMs) / 1000;
     
     // If we are more than 2 seconds out of sync, snap to server time
@@ -350,17 +301,6 @@ async function syncMusic(player) {
   } catch (err) {
     console.error("Sync error:", err);
   }
-}
-
-async function logToServer(message) {
-  await fetch("/api/log", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ 
-      message, 
-      user: auth.user.username
-    }),
-  });
 }
 
 document.querySelector('#app').innerHTML = `
