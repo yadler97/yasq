@@ -146,9 +146,12 @@ app.post("/api/guess", (req, res) => {
   if (!instanceGuesses[instanceId]) instanceGuesses[instanceId] = {};
   if (!instanceGuesses[instanceId][currentRound]) instanceGuesses[instanceId][currentRound] = {};
 
+  const timeTaken = Date.now() - instanceTracks[instanceId].startTime;
+
   instanceGuesses[instanceId][currentRound][userId] = {
     text: guess,
-    isCorrect: false
+    isCorrect: false,
+    timeTaken: timeTaken
   };
 
   const readyUsers = Object.keys(instanceReadyStates[instanceId] || {});
