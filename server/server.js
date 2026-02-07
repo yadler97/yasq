@@ -108,8 +108,14 @@ app.get("/api/game-status", (req, res) => {
   const { instanceId } = req.query;
   res.send({
     state: instanceStates[instanceId] || 'LOBBY',
-    readyUsers: Object.keys(instanceReadyStates[instanceId] || {})
+    readyUsers: Object.keys(instanceReadyStates[instanceId] || {}),
+    currentRound: 1 // Placeholder
   });
+});
+
+app.post("/api/guess", (req, res) => {
+  const { instanceId, userId, guess } = req.body;
+  console.log(`[GAME] Instance ${instanceId} received guess "${guess}" from user ${userId}`);
 });
 
 app.post("/api/play-local", (req, res) => {

@@ -31,3 +31,4 @@ dist-ssr
 
 # Application specific ignores
 server/music/*
+client/public/tracks.json

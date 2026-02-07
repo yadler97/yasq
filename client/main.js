@@ -8,6 +8,8 @@ import "./style.css";
 let auth;
 let currentHostId = null;
 let isReady = false;
+let registration;
+let localLastRound = null;
 
 const discordSdk = new DiscordSDK(
   import.meta.env.VITE_DISCORD_CLIENT_ID
@@ -17,7 +19,7 @@ let audioPlayer;
 let volumeSlider;
 
 setupDiscordSdk().then(async () => {
-  backend.logToServer("Discord SDK is authenticated");
+  backend.logToServer("Discord SDK is authenticated", auth.user.username);
 
   // 1. Initial User Fetch
   const initialData = await discordSdk.commands.getInstanceConnectedParticipants();
@@ -33,27 +35,25 @@ setupDiscordSdk().then(async () => {
   appendGuildAvatar();
 
   setInterval(async () => {
-    const { state, readyUsers } = await backend.getGameStatus(discordSdk.instanceId);
-    
+    const { state, readyUsers, currentRound } = await backend.getGameStatus(discordSdk.instanceId);
     const pData = await discordSdk.commands.getInstanceConnectedParticipants();
 
-    const playersExcludingHost = pData.participants.filter(p => p.id !== currentHostId);
-    const allPlayersReady = playersExcludingHost.every(p => readyUsers.includes(p.id));
-
-    const startBtn = document.querySelector('#btn-start');
-    if (startBtn) {
-      // The host can start if all OTHER players are ready
-      startBtn.disabled = !allPlayersReady || state === 'PLAYING';
-      
-      if (state !== 'PLAYING') {
-        startBtn.textContent = allPlayersReady 
-          ? "Start Game" 
-          : `Waiting for Players... (${readyUsers.length}/${playersExcludingHost.length})`;
-      }
-    }
-
+    // 1. Always update participants
     renderParticipants(pData.participants, readyUsers);
-  }, 2000);
+
+    // 2. Handle State Transitions
+    switch (state) {
+      case 'LOBBY':
+        handleLobbyUI(pData.participants, readyUsers, registration.isHost);
+        break;
+      case 'PLAYING':
+        handlePlayingUI(currentRound, registration.isHost);
+        break;
+      case 'RESULTS':
+        handleResultsUI();
+        break;
+    }
+  }, 1000);
 
   // We can now make API calls within the scopes we requested in setupDiscordSDK()
   // Note: the access_token returned is a sensitive secret and should be treated as such
@@ -89,21 +89,19 @@ async function setupDiscordSdk() {
   }
 
   // Register with our backend
-  const registration = await backend.registerUser(discordSdk.instanceId, auth.user.id, auth.user.username);
+  registration = await backend.registerUser(discordSdk.instanceId, auth.user.id, auth.user.username);
 
   document.querySelector('#btn-ready').onclick = toggleReady;
+
+  document.querySelector('#btn-submit').onclick = async () => {
+    await backend.submitGuess(discordSdk.instanceId, auth.user.id, document.querySelector('#guess-input').value);
+  };
 
   document.querySelector('#btn-start').onclick = async () => {
     await backend.startGame(discordSdk.instanceId, auth.user.id);
   };
 
   currentHostId = registration.hostId;
-
-  if (registration.isHost) {
-    showHostUI();
-  } else {
-    showParticipantUI();
-  }
 
   audioPlayer = document.querySelector('#global-player');
   volumeSlider = document.querySelector('#volume-slider');
@@ -115,12 +113,6 @@ async function setupDiscordSdk() {
   volumeSlider.oninput = (e) => {
     const newVolume = e.target.value;
     audioPlayer.volume = newVolume;
-  };
-
-  document.querySelector('#sync-audio').onclick = () => {
-    syncMusic(audioPlayer);
-    setInterval(() => syncMusic(audioPlayer), 5000);
-    document.querySelector('#sync-audio').textContent = "Syncing...";
   };
 }
 
@@ -242,37 +234,105 @@ async function toggleReady() {
   await backend.updateReadyStatus(discordSdk.instanceId, auth.user.id, isReady);
 }
 
-function showHostUI() {
-  const hostDiv = document.querySelector('#host-controls');
-  if (hostDiv) {
-    hostDiv.style.display = 'block';
-    
-    // Create a play button for the host
-    const playBtn = document.createElement('button');
-    playBtn.textContent = "▶️ Play track001.mp3 for everyone";
-    playBtn.onclick = async () => {
-      await backend.playTrack("track001.mp3", discordSdk.instanceId, auth.user.id);
-      // After setting the track on server, start playing locally
-      syncMusic(audioPlayer);
-    };
-    hostDiv.appendChild(playBtn);
-
-    const playBtn2 = document.createElement('button');
-    playBtn2.textContent = "▶️ Play track002.mp3 for everyone";
-    playBtn2.onclick = async () => {
-      await backend.playTrack("track002.mp3", discordSdk.instanceId, auth.user.id);
-      // After setting the track on server, start playing locally
-      syncMusic(audioPlayer);
-    };
-    hostDiv.appendChild(playBtn2);
-    
-    backend.logToServer("Host UI initialized with Play controls.");
-  }
+function showLobbyHostUI() {
+  const hostDiv = document.querySelector('#lobby-host-ui');
+  if (hostDiv) hostDiv.style.display = 'block';
 }
 
-function showParticipantUI() {
-  const lobbyDiv = document.querySelector('#lobby-controls');
+function showLobbyGuesserUI() {
+  const lobbyDiv = document.querySelector('#lobby-guesser-ui');
   if (lobbyDiv) lobbyDiv.style.display = 'block';
+}
+
+function handleLobbyUI(participants, readyUsers, isHost) {
+  if (isHost) {
+    showLobbyHostUI();
+  } else {
+    showLobbyGuesserUI();
+  }
+
+  const startBtn = document.querySelector('#btn-start');
+  if (!startBtn) return;
+
+  const playersExcludingHost = participants.filter(p => p.id !== currentHostId);
+  // Ensure there is at least 1 player and they are all ready
+  const allPlayersReady = playersExcludingHost.length > 0 && 
+                   playersExcludingHost.every(p => readyUsers.includes(p.id));
+
+  startBtn.disabled = !allPlayersReady;
+  startBtn.textContent = allPlayersReady 
+    ? "Start Game" 
+    : `Waiting... (${readyUsers.length}/${playersExcludingHost.length})`;
+}
+
+async function handlePlayingUI(currentRound, isHost) {
+  const arena = document.querySelector('#game-arena');
+  arena.style.display = 'block';
+  document.querySelector('#lobby').style.display = 'none';
+  
+  // Toggle visibility based on role
+  document.querySelector('#game-guesser-ui').style.display = isHost ? 'none' : 'block';
+  document.querySelector('#game-host-ui').style.display = isHost ? 'block' : 'none';
+
+  document.querySelector('#round-display').textContent = `Round ${currentRound}`;
+
+  // 1. Sync Music
+  syncMusic(audioPlayer);
+  setInterval(() => syncMusic(audioPlayer), 5000);
+
+  // 2. Host-Specific: Build the track list once per round
+  if (isHost && localLastRound !== currentRound) {
+    renderHostTrackPicker();
+    localLastRound = currentRound;
+  }
+
+  // 3. Guesser-Specific: Reset input on new round
+  //if (!isHost && localLastRound !== currentRound) {
+  //  resetGuesserInput();
+  //  localLastRound = currentRound;
+  //}
+
+  // const input = document.querySelector('#guess-input');
+  // if (document.activeElement !== input && !input.disabled) {
+  //   input.focus();
+  // }
+}
+
+async function renderHostTrackPicker() {
+  const list = document.querySelector('#track-selection-list');
+  list.innerHTML = 'Loading tracks...';
+
+  try {
+    // Vite serves files in /public at the root path '/'
+    const response = await fetch('/tracks.json');
+    const tracks = await response.json();
+
+    list.innerHTML = ''; // Clear loading text
+
+    tracks.forEach(track => {
+      const btn = document.createElement('button');
+      btn.textContent = track.name;
+      btn.onclick = async () => {
+        const allButtons = list.querySelectorAll('button');
+        allButtons.forEach(b => {
+          b.disabled = true;
+          b.style.opacity = "0.5";
+          b.style.cursor = "not-allowed";
+        });
+
+        // Logic: Host picks track -> Backend updates trackInfo -> All clients sync
+        await backend.playTrack(track.file, discordSdk.instanceId, auth.user.id);
+        
+        // Feedback for host
+        btn.style.background = "#3ba55e";
+        console.log(`Now playing: ${track.name}`);
+      };
+      list.appendChild(btn);
+    });
+  } catch (err) {
+    console.error("Failed to load track list:", err);
+    list.innerHTML = 'Error loading tracks. Check public/tracks.json';
+  }
 }
 
 async function syncMusic(player) {
@@ -308,15 +368,32 @@ document.querySelector('#app').innerHTML = `
     <div>
       <img src="${rocketLogo}" class="logo" alt="Discord" />
       <h1>Welcome to YASQ!</h1>
-      
-      <div id="host-controls" style="display: none;">
-        <button id="btn-start">Start Game</button>
+
+      <div id="lobby">
+        <div id="lobby-host-ui" style="display: none;">
+          <button id="btn-start">Start Game</button>
+        </div>
+        <div id="lobby-guesser-ui" style="display: none;">
+          <button id="btn-ready" class="lobby-btn">Ready Up</button>
+        </div>
       </div>
-      <div id="lobby-controls" style="display: none;">
-        <button id="btn-ready" class="lobby-btn">Ready Up</button>
+
+      <div id="game-arena" style="display: none;">
+        <h2 id="round-display"></h2>
+
+        <div id="game-guesser-ui" style="display: none;">
+          <input type="text" id="guess-input" placeholder="Enter game title..." />
+          <button id="btn-submit">Submit Guess</button>
+        </div>
+
+        <div id="game-host-ui" style="display: none;">
+          <p>Select the next track to challenge players:</p>
+          <div id="track-selection-list">
+          </div>
+        </div>
       </div>
+
       <div id="music-controls">
-        <button id="sync-audio">Join Audio Circle</button>
         <div style="margin-top: 10px;">
           <label for="volume-slider" style="font-size: 0.8em; display: block;">Volume</label>
           <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100px;">

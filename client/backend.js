@@ -37,6 +37,19 @@ export async function startGame(instanceId, userId) {
   });
 }
 
+export async function submitGuess(instanceId, userId, guess) {
+  return fetch("/api/guess", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      instanceId,
+      userId,
+      guess,
+      clientTimestamp: Date.now()
+    }),
+  });
+}
+
 export async function playTrack(fileName, instanceId, userId) {
   return fetch("/api/play-local", {
     method: "POST",
