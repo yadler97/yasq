@@ -55,7 +55,7 @@ setupDiscordSdk().then(async () => {
         handleRoundCompletedUI(pData.participants, registration.isHost);
         break;
       case GameState.RESULTS:
-        handleResultsUI(registration.isHost);
+        handleResultsUI(pData.participants, readyUsers, registration.isHost);
         break;
     }
   }, 1000);
@@ -105,6 +105,10 @@ async function setupDiscordSdk() {
 
   document.querySelector('#btn-start').onclick = async () => {
     await backend.startGame(discordSdk.instanceId, auth.user.id);
+  };
+
+  document.querySelector('#btn-next-round').onclick = async () => {
+    await backend.startNextRound(discordSdk.instanceId, auth.user.id);
   };
 
   currentHostId = registration.hostId;
@@ -275,7 +279,8 @@ async function handlePlayingUI(currentRound, isHost) {
   const arena = document.querySelector('#game-arena');
   arena.style.display = 'block';
   document.querySelector('#lobby').style.display = 'none';
-  
+  document.querySelector('#results').style.display = 'none';
+
   // Toggle visibility based on role
   document.querySelector('#game-guesser-ui').style.display = isHost ? 'none' : 'block';
   document.querySelector('#game-host-ui').style.display = isHost ? 'block' : 'none';
@@ -394,7 +399,7 @@ async function handleRoundCompletedUI(participants, isHost) {
             <li class="guess-item">
               <img src="${avatarUrl}" class="avatar-small" alt="${user.username}" />
               <span class="username">${user.username}</span>
-              <span class="guess-text">"${guess}"</span>
+              <span class="guess-text">"${guess.text}"</span>
               <label class="checkbox-container">
                 <input type="checkbox" class="correct-checkbox" data-user-id="${userId}" />
                 Mark Correct
@@ -422,12 +427,49 @@ async function handleRoundCompletedUI(participants, isHost) {
   }
 }
 
-async function handleResultsUI(isHost) {
+async function handleResultsUI(participants, readyUsers, isHost) {
   const container = document.querySelector('#results');
   container.style.display = 'block';
   document.querySelector('#game-arena').style.display = 'none';
+  document.querySelector('#lobby').style.display = 'block';
 
-  container.innerHTML = `<h2>Results available!</h2>`;
+  if (lastState === GameState.ROUND_COMPLETED) {
+    isReady = false; // Reset ready status for next round
+    document.querySelector('#btn-ready').textContent = "Ready Up";
+    document.querySelector('#btn-ready').style.background = "";
+    document.querySelector('#guess-input').value = "";
+  }
+  lastState = GameState.RESULTS;
+
+  if (isHost) {
+    container.innerHTML = `<h2>Waiting for players to review results...</h2>`;
+
+    const startBtn = document.querySelector('#btn-next-round');
+    if (!startBtn) return;
+
+    document.querySelector('#lobby-host-ui-next-round').style.display = 'block';
+    document.querySelector('#lobby-host-ui').style.display = 'none';
+
+    const playersExcludingHost = participants.filter(p => p.id !== currentHostId);
+    // Ensure there is at least 1 player and they are all ready
+    const allPlayersReady = playersExcludingHost.length > 0 && 
+                    playersExcludingHost.every(p => readyUsers.includes(p.id));
+
+    startBtn.disabled = !allPlayersReady;
+    startBtn.textContent = allPlayersReady 
+      ? "Next Round" 
+      : `Waiting... (${readyUsers.length}/${playersExcludingHost.length})`;
+  } else {
+    const data = await backend.getRoundResults(discordSdk.instanceId, auth.user.id);
+
+    container.innerHTML = `
+      <h2>Round ${data.round} Results</h2>
+      <p>Your guess: <strong>"${data.guess.text || 'No guess submitted'}"</strong></p>
+      <p>${data.guess.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}</p>
+    `;
+
+    showLobbyGuesserUI();
+  }
 }
 
 document.querySelector('#app').innerHTML = `
@@ -436,9 +478,15 @@ document.querySelector('#app').innerHTML = `
       <img src="${rocketLogo}" class="logo" alt="Discord" />
       <h1>Welcome to YASQ!</h1>
 
+      <div id="results" style="display: none;">
+      </div>
+
       <div id="lobby">
         <div id="lobby-host-ui" style="display: none;">
           <button id="btn-start">Start Game</button>
+        </div>
+        <div id="lobby-host-ui-next-round" style="display: none;">
+          <button id="btn-next-round">Next Round</button>
         </div>
         <div id="lobby-guesser-ui" style="display: none;">
           <button id="btn-ready" class="lobby-btn">Ready Up</button>
@@ -461,9 +509,6 @@ document.querySelector('#app').innerHTML = `
           <div id="track-selection-list">
           </div>
         </div>
-      </div>
-
-      <div id="results" style="display: none;">
       </div>
 
       <div id="music-controls">

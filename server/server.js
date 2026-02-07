@@ -115,7 +115,7 @@ app.get("/api/game-status", (req, res) => {
   res.send({
     state: instanceStates[instanceId] || 'LOBBY',
     readyUsers: Object.keys(instanceReadyStates[instanceId] || {}),
-    currentRound: 1 // Placeholder
+    currentRound: instanceRounds[instanceId] || 1
   });
 });
 
@@ -142,7 +142,10 @@ app.post("/api/guess", (req, res) => {
   if (!instanceGuesses[instanceId]) instanceGuesses[instanceId] = {};
   if (!instanceGuesses[instanceId][currentRound]) instanceGuesses[instanceId][currentRound] = {};
 
-  instanceGuesses[instanceId][currentRound][userId] = guess;
+  instanceGuesses[instanceId][currentRound][userId] = {
+    text: guess,
+    isCorrect: false
+  };
 
   const readyUsers = Object.keys(instanceReadyStates[instanceId] || {});
   const guessers = Object.keys(instanceGuesses[instanceId]);
@@ -184,9 +187,53 @@ app.post("/api/submit-round-results", (req, res) => {
     return res.status(403).send({ error: "Only host can submit results." });
   }
 
+  const currentRound = instanceRounds[instanceId];
+
+  if (instanceGuesses[instanceId] && instanceGuesses[instanceId][currentRound]) {
+    Object.entries(corrections).forEach(([userId, isCorrect]) => {
+      if (instanceGuesses[instanceId][currentRound][userId]) {
+        instanceGuesses[instanceId][currentRound][userId].isCorrect = isCorrect;
+      }
+    });
+  }
+
   instanceStates[instanceId] = 'RESULTS';
+  instanceReadyStates[instanceId] = {}; // Reset ready states for next round
 
   console.log(`[RESULTS] Host submitted corrections for instance ${instanceId}:`, corrections);
+  res.send({ status: "success" });
+});
+
+app.get("/api/get-results", (req, res) => {
+  const { instanceId, userId } = req.query;
+
+  const state = instanceStates[instanceId];
+  if (state !== "RESULTS") {
+    return res.status(400).send({ error: "Results not ready yet" });
+  }
+
+  const round = instanceRounds[instanceId];
+  const roundGuesses = instanceGuesses[instanceId]?.[round] || {};
+  const userGuess = roundGuesses[userId];
+
+  res.send({
+    round: round,
+    guess: userGuess
+  });
+});
+
+app.post("/api/start-next-round", (req, res) => {
+  const { instanceId, userId } = req.body;
+
+  // Security check: only host can start
+  if (instanceHosts[instanceId] !== userId) {
+    return res.status(403).send({ error: "Only host can start" });
+  }
+
+  instanceRounds[instanceId] = instanceRounds[instanceId] + 1;
+  instanceStates[instanceId] = 'PLAYING';
+  console.log(`[GAME] Instance ${instanceId} has started!`);
+  res.send({ status: 'PLAYING' });
 });
 
 app.post("/api/play-local", (req, res) => {

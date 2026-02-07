@@ -68,6 +68,19 @@ export async function submitRoundResults(instanceId, userId, corrections) {
   });
 }
 
+export async function getRoundResults(instanceId, userId) {
+  const response = await fetch(`/api/get-results?instanceId=${instanceId}&userId=${userId}`);
+  return response.json();
+}
+
+export async function startNextRound(instanceId, userId) {
+  return fetch("/api/start-next-round", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ instanceId, userId })
+  });
+}
+
 export async function playTrack(fileName, instanceId, userId) {
   return fetch("/api/play-local", {
     method: "POST",
