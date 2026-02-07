@@ -89,6 +89,22 @@ button:focus-visible {
   display: flex;
 }
 
+#progress-container {
+  width: 100%;
+  height: 12px;
+  background-color: #4f545c; /* Muted gray */
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+#progress-bar {
+  width: 0%;
+  height: 100%;
+  background-color: #5865f2; /* Discord Blurple */
+  transition: width 1s linear; 
+}
+
 .avatar-small {
   width: 32px;
   height: 32px;

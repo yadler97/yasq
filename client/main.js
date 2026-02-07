@@ -48,6 +48,9 @@ setupDiscordSdk().then(async () => {
       case GameState.LOBBY:
         handleLobbyUI(pData.participants, readyUsers, registration.isHost);
         break;
+      case GameState.TRACK_SELECTION:
+        handleTrackSelectionUI(currentRound, registration.isHost);
+        break;
       case GameState.PLAYING:
         handlePlayingUI(currentRound, registration.isHost);
         break;
@@ -275,11 +278,23 @@ function handleLobbyUI(participants, readyUsers, isHost) {
     : `Waiting... (${readyUsers.length}/${playersExcludingHost.length})`;
 }
 
-async function handlePlayingUI(currentRound, isHost) {
-  const arena = document.querySelector('#game-arena');
-  arena.style.display = 'block';
+async function handleTrackSelectionUI(currentRound, isHost) {
   document.querySelector('#lobby').style.display = 'none';
   document.querySelector('#results').style.display = 'none';
+  document.querySelector('#selection').style.display = 'block';
+
+  document.querySelector('#selection-guesser-ui').style.display = isHost ? 'none' : 'block';
+  document.querySelector('#selection-host-ui').style.display = isHost ? 'block' : 'none';
+
+  if (isHost && localLastRound !== currentRound) {
+    renderHostTrackPicker();
+    localLastRound = currentRound;
+  }
+}
+
+async function handlePlayingUI(currentRound, isHost) {
+  document.querySelector('#game-arena').style.display = 'block';
+  document.querySelector('#selection').style.display = 'none';
 
   // Toggle visibility based on role
   document.querySelector('#game-guesser-ui').style.display = isHost ? 'none' : 'block';
@@ -289,13 +304,6 @@ async function handlePlayingUI(currentRound, isHost) {
 
   // 1. Sync Music
   syncMusic(audioPlayer);
-  setInterval(() => syncMusic(audioPlayer), 5000);
-
-  // 2. Host-Specific: Build the track list once per round
-  if (isHost && localLastRound !== currentRound) {
-    renderHostTrackPicker();
-    localLastRound = currentRound;
-  }
 
   // 3. Guesser-Specific: Reset input on new round
   //if (!isHost && localLastRound !== currentRound) {
@@ -346,9 +354,25 @@ async function renderHostTrackPicker() {
 
 async function syncMusic(player) {
   try {
-    const { url, startTime } = await backend.getCurrentTrack(discordSdk.instanceId);
+    const { url, startTime, endTime } = await backend.getCurrentTrack(discordSdk.instanceId);
 
     if (!url) return;
+
+    const now = Date.now();
+    const totalDuration = endTime - startTime;
+    const timePassed = now - startTime;
+
+    let percentage = 100 - (timePassed / totalDuration * 100);
+    percentage = Math.max(0, Math.min(100, percentage));
+
+    const progressBar = document.querySelector('#progress-bar');
+    progressBar.style.width = `${percentage}%`;
+
+    if (percentage < 20) {
+      progressBar.style.backgroundColor = '#f04747'; // Red
+    } else {
+      progressBar.style.backgroundColor = '#5865f2'; // Blurple
+    }
 
     // Check if we need to load a new source
     if (player.src !== window.location.origin + url) {
@@ -438,6 +462,8 @@ async function handleResultsUI(participants, readyUsers, isHost) {
     document.querySelector('#btn-ready').textContent = "Ready Up";
     document.querySelector('#btn-ready').style.background = "";
     document.querySelector('#guess-input').value = "";
+    document.querySelector('#progress-bar').style.width = `0%`;
+    document.querySelector('#progress-bar').style.backgroundColor = '#5865f2';
   }
   lastState = GameState.RESULTS;
 
@@ -464,8 +490,8 @@ async function handleResultsUI(participants, readyUsers, isHost) {
 
     container.innerHTML = `
       <h2>Round ${data.round} Results</h2>
-      <p>Your guess: <strong>"${data.guess.text || 'No guess submitted'}"</strong></p>
-      <p>${data.guess.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}</p>
+      <p>Your guess: <strong>"${data.guess?.text || 'No guess submitted'}"</strong></p>
+      <p>${data.guess?.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}</p>
     `;
 
     showLobbyGuesserUI();
@@ -493,6 +519,18 @@ document.querySelector('#app').innerHTML = `
         </div>
       </div>
 
+      <div id="selection" style="display: none;">
+        <div id="selection-guesser-ui" style="display: none;">
+          <h2>Waiting for host to select a track...</h2>
+        </div>
+
+        <div id="selection-host-ui" style="display: none;">
+          <h2>Select the next track to challenge players:</h2>
+          <div id="track-selection-list">
+          </div>
+        </div>
+      </div>
+
       <div id="game-arena" style="display: none;">
         <h2 id="round-display"></h2>
 
@@ -500,14 +538,15 @@ document.querySelector('#app').innerHTML = `
           <form id="game-guesser-form">
             <input type="text" id="guess-input" placeholder="Enter game title..." />
             <button type="submit" id="btn-submit">Submit Guess</button>
-            <p id="feedback-message"></p>
           </form>
         </div>
 
         <div id="game-host-ui" style="display: none;">
-          <p>Select the next track to challenge players:</p>
-          <div id="track-selection-list">
-          </div>
+          <h2>Waiting for players to submit their guesses...</h2>
+        </div>
+
+        <div id="progress-container">
+          <div id="progress-bar"></div>
         </div>
       </div>
 

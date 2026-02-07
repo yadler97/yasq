@@ -4,6 +4,8 @@ import fetch from "node-fetch";
 import path from "path";
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { GameState } from './constants.js';
+
 dotenv.config({ path: "../.env" });
 
 const app = express();
@@ -19,6 +21,8 @@ const instanceRounds = {};
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tracksRaw = fs.readFileSync(path.join(__dirname, 'tracks.json'), 'utf-8');
 const allTracks = JSON.parse(tracksRaw);
+
+const ROUND_DURATION = 30000;
 
 // Allow express to parse JSON bodies
 app.use(express.json());
@@ -104,16 +108,16 @@ app.post("/api/start-game", (req, res) => {
     return res.status(403).send({ error: "Only host can start" });
   }
 
-  instanceStates[instanceId] = 'PLAYING';
+  instanceStates[instanceId] = GameState.TRACK_SELECTION;
   instanceRounds[instanceId] = 1;
   console.log(`[GAME] Instance ${instanceId} has started!`);
-  res.send({ status: 'PLAYING' });
+  res.send({ status: GameState.TRACK_SELECTION });
 });
 
 app.get("/api/game-status", (req, res) => {
   const { instanceId } = req.query;
   res.send({
-    state: instanceStates[instanceId] || 'LOBBY',
+    state: instanceStates[instanceId] || GameState.LOBBY,
     readyUsers: Object.keys(instanceReadyStates[instanceId] || {}),
     currentRound: instanceRounds[instanceId] || 1
   });
@@ -153,7 +157,7 @@ app.post("/api/guess", (req, res) => {
   console.log(`[GUESS] ${guessers.length}/${readyUsers.length} players have guessed.`);
 
   if (guessers.length >= readyUsers.length) {
-    instanceStates[instanceId] = 'ROUND_COMPLETED';
+    instanceStates[instanceId] = GameState.ROUND_COMPLETED;
     console.log(`[STATE] Instance ${instanceId} moved to ROUND_COMPLETED`);
   }
 
@@ -197,7 +201,7 @@ app.post("/api/submit-round-results", (req, res) => {
     });
   }
 
-  instanceStates[instanceId] = 'RESULTS';
+  instanceStates[instanceId] = GameState.RESULTS;
   instanceReadyStates[instanceId] = {}; // Reset ready states for next round
 
   console.log(`[RESULTS] Host submitted corrections for instance ${instanceId}:`, corrections);
@@ -208,7 +212,7 @@ app.get("/api/get-results", (req, res) => {
   const { instanceId, userId } = req.query;
 
   const state = instanceStates[instanceId];
-  if (state !== "RESULTS") {
+  if (state !== GameState.RESULTS) {
     return res.status(400).send({ error: "Results not ready yet" });
   }
 
@@ -231,9 +235,9 @@ app.post("/api/start-next-round", (req, res) => {
   }
 
   instanceRounds[instanceId] = instanceRounds[instanceId] + 1;
-  instanceStates[instanceId] = 'PLAYING';
+  instanceStates[instanceId] = GameState.TRACK_SELECTION;
   console.log(`[GAME] Instance ${instanceId} has started!`);
-  res.send({ status: 'PLAYING' });
+  res.send({ status: GameState.TRACK_SELECTION });
 });
 
 app.post("/api/play-local", (req, res) => {
@@ -245,16 +249,30 @@ app.post("/api/play-local", (req, res) => {
   }
 
   const trackInfo = allTracks.find(t => t.file === fileName);
-  
+
+  const startTime = Date.now();
+  const endTime = startTime + ROUND_DURATION;
+
   // Save track data specifically for this instance
   instanceTracks[instanceId] = {
     url: `/music/${fileName}`,
-    startTime: Date.now(),
+    startTime: startTime,
+    endTime: endTime,
     answer: trackInfo ? trackInfo.name : null
   };
-  
+
+  instanceStates[instanceId] = GameState.PLAYING
+  const currentRoundAtStart = instanceRounds[instanceId];
+
+  setTimeout(() => {
+    if (instanceStates[instanceId] === GameState.PLAYING && instanceRounds[instanceId] === currentRoundAtStart) {
+      instanceStates[instanceId] = GameState.ROUND_COMPLETED;
+      console.log(`[TIMER] Round ${currentRoundAtStart} expired for ${instanceId}`);
+    }
+  }, ROUND_DURATION);
+
   console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
-  res.send({ status: "playing", track: instanceTracks[instanceId] });
+  res.send({ status: "playing", track: instanceTracks[instanceId], endTime: endTime });
 });
 
 app.get("/api/current-track", (req, res) => {
@@ -262,7 +280,7 @@ app.get("/api/current-track", (req, res) => {
 
   const currentState = instanceStates[instanceId];
 
-  if (currentState === "PLAYING") {
+  if (currentState === GameState.PLAYING) {
     const track = instanceTracks[instanceId] || { url: null, startTime: 0 };
     return res.send(track);
   }
