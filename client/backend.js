@@ -29,11 +29,11 @@ export async function getGameStatus(instanceId) {
   return response.json();
 }
 
-export async function startGame(instanceId, userId) {
+export async function startGame(instanceId, userId, rounds = 5, trackDuration = 30) {
   return fetch("/api/start-game", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ instanceId, userId })
+    body: JSON.stringify({ instanceId, userId, rounds, trackDuration }),
   });
 }
 

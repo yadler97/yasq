@@ -17,12 +17,14 @@ const instanceReadyStates = {};
 const instanceStates = {};
 const instanceGuesses = {};
 const instanceRounds = {};
+const instanceSettings = {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tracksRaw = fs.readFileSync(path.join(__dirname, 'tracks.json'), 'utf-8');
 const allTracks = JSON.parse(tracksRaw);
 
-const ROUND_DURATION = 30000;
+const DEFAULT_TRACK_DURATION = 30000;
+const DEFAULT_ROUNDS = 5;
 
 // Allow express to parse JSON bodies
 app.use(express.json());
@@ -101,16 +103,20 @@ app.get("/api/ready-status", (req, res) => {
 });
 
 app.post("/api/start-game", (req, res) => {
-  const { instanceId, userId } = req.body;
+  const { instanceId, userId, rounds, trackDuration } = req.body;
 
   // Security check: only host can start
   if (instanceHosts[instanceId] !== userId) {
     return res.status(403).send({ error: "Only host can start" });
   }
 
+  instanceSettings[instanceId] = {
+    rounds: rounds || DEFAULT_ROUNDS,
+    trackDuration: trackDuration * 1000 || DEFAULT_TRACK_DURATION
+  };
   instanceStates[instanceId] = GameState.TRACK_SELECTION;
   instanceRounds[instanceId] = 1;
-  console.log(`[GAME] Instance ${instanceId} has started!`);
+  console.log(`[GAME] Instance ${instanceId} has started with settings: rounds: ${instanceSettings[instanceId].rounds}, trackDuration: ${instanceSettings[instanceId].trackDuration}!`);
   res.send({ status: GameState.TRACK_SELECTION });
 });
 
@@ -237,6 +243,12 @@ app.post("/api/start-next-round", (req, res) => {
     return res.status(403).send({ error: "Only host can start" });
   }
 
+  if (instanceRounds[instanceId] >= instanceSettings[instanceId].rounds) {
+    instanceStates[instanceId] = GameState.GAME_FINISHED;
+    console.log(`[GAME] Instance ${instanceId} has ended!`);
+    return res.send({ status: GameState.GAME_FINISHED });
+  }
+
   instanceRounds[instanceId] = instanceRounds[instanceId] + 1;
   instanceStates[instanceId] = GameState.TRACK_SELECTION;
   console.log(`[GAME] Instance ${instanceId} has started!`);
@@ -254,7 +266,7 @@ app.post("/api/play-local", (req, res) => {
   const trackInfo = allTracks.find(t => t.file === fileName);
 
   const startTime = Date.now();
-  const endTime = startTime + ROUND_DURATION;
+  const endTime = startTime + instanceSettings[instanceId].trackDuration;
 
   // Save track data specifically for this instance
   instanceTracks[instanceId] = {
@@ -272,7 +284,7 @@ app.post("/api/play-local", (req, res) => {
       instanceStates[instanceId] = GameState.ROUND_COMPLETED;
       console.log(`[TIMER] Round ${currentRoundAtStart} expired for ${instanceId}`);
     }
-  }, ROUND_DURATION);
+  }, instanceSettings[instanceId].trackDuration);
 
   console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
   res.send({ status: "playing", track: instanceTracks[instanceId], endTime: endTime });

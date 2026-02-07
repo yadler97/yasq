@@ -55,7 +55,32 @@ h1 {
   filter: drop-shadow(0 0 2em #f7df1eaa);
 }
 
-input[type="text"] {
+.host-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #2f3136;
+  border-radius: 8px;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.setting-item span {
+  color: #b9bbbe; /* Discord muted text color */
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+input[type="text"], input[type="number"] {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
