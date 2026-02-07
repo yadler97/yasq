@@ -303,9 +303,7 @@ async function renderHostTrackPicker() {
   list.innerHTML = 'Loading tracks...';
 
   try {
-    // Vite serves files in /public at the root path '/'
-    const response = await fetch('/tracks.json');
-    const tracks = await response.json();
+    const tracks = await backend.getTrackList(discordSdk.instanceId, auth.user.id);
 
     list.innerHTML = ''; // Clear loading text
 

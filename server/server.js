@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 import path from "path";
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 dotenv.config({ path: "../.env" });
 
@@ -14,6 +15,8 @@ const instanceReadyStates = {};
 const instanceStates = {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const tracksRaw = fs.readFileSync(path.join(__dirname, 'tracks.json'), 'utf-8');
+const allTracks = JSON.parse(tracksRaw);
 
 // Allow express to parse JSON bodies
 app.use(express.json());
@@ -111,6 +114,21 @@ app.get("/api/game-status", (req, res) => {
     readyUsers: Object.keys(instanceReadyStates[instanceId] || {}),
     currentRound: 1 // Placeholder
   });
+});
+
+app.get("/api/track-list", (req, res) => {
+  const { instanceId, userId } = req.query;
+
+  if (instanceHosts[instanceId] !== userId) {
+    return res.status(403).send({ error: "Only the host can get track list." });
+  }
+
+  const trackList = allTracks.map((t, index) => ({
+    id: index,
+    name: t.name,
+    file: t.file
+  }));
+  res.json(trackList);
 });
 
 app.post("/api/guess", (req, res) => {

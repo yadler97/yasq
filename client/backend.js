@@ -37,6 +37,11 @@ export async function startGame(instanceId, userId) {
   });
 }
 
+export async function getTrackList(instanceId, userId) {
+  const response = await fetch(`/api/track-list?instanceId=${instanceId}&userId=${userId}`);
+  return response.json();
+}
+
 export async function submitGuess(instanceId, userId, guess) {
   return fetch("/api/guess", {
     method: "POST",
