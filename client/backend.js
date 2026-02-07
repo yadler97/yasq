@@ -55,6 +55,19 @@ export async function submitGuess(instanceId, userId, guess) {
   });
 }
 
+export async function getGuesses(instanceId, userId) {
+  const response = await fetch(`/api/get-guesses?instanceId=${instanceId}&userId=${userId}`);
+  return response.json();
+}
+
+export async function submitRoundResults(instanceId, userId, corrections) {
+  return fetch("/api/submit-round-results", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ instanceId, userId, corrections }),
+  });
+}
+
 export async function playTrack(fileName, instanceId, userId) {
   return fetch("/api/play-local", {
     method: "POST",

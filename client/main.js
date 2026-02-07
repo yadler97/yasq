@@ -1,5 +1,6 @@
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 import * as backend from "./backend.js";
+import { GameState } from './constants.js';
 
 import rocketLogo from '/rocket.png';
 import "./style.css";
@@ -10,6 +11,7 @@ let currentHostId = null;
 let isReady = false;
 let registration;
 let localLastRound = null;
+let lastState = null;
 
 const discordSdk = new DiscordSDK(
   import.meta.env.VITE_DISCORD_CLIENT_ID
@@ -43,14 +45,17 @@ setupDiscordSdk().then(async () => {
 
     // 2. Handle State Transitions
     switch (state) {
-      case 'LOBBY':
+      case GameState.LOBBY:
         handleLobbyUI(pData.participants, readyUsers, registration.isHost);
         break;
-      case 'PLAYING':
+      case GameState.PLAYING:
         handlePlayingUI(currentRound, registration.isHost);
         break;
-      case 'RESULTS':
-        handleResultsUI();
+      case GameState.ROUND_COMPLETED:
+        handleRoundCompletedUI(pData.participants, registration.isHost);
+        break;
+      case GameState.RESULTS:
+        handleResultsUI(registration.isHost);
         break;
     }
   }, 1000);
@@ -93,7 +98,8 @@ async function setupDiscordSdk() {
 
   document.querySelector('#btn-ready').onclick = toggleReady;
 
-  document.querySelector('#btn-submit').onclick = async () => {
+  document.querySelector('#game-guesser-form').onsubmit = async (e) => {
+    e.preventDefault();
     await backend.submitGuess(discordSdk.instanceId, auth.user.id, document.querySelector('#guess-input').value);
   };
 
@@ -361,6 +367,69 @@ async function syncMusic(player) {
   }
 }
 
+async function handleRoundCompletedUI(participants, isHost) {
+  const container = document.querySelector('#results');
+  container.style.display = 'block';
+  document.querySelector('#game-arena').style.display = 'none';
+
+  if (lastState === GameState.ROUND_COMPLETED) return; // Prevent duplicate rendering
+  lastState = GameState.ROUND_COMPLETED;
+
+  if (isHost) {
+    const data = await backend.getGuesses(discordSdk.instanceId, auth.user.id);
+
+    const findUser = (id) => participants.find(p => p.id === id) || { username: 'Unknown', avatar: null };
+
+    container.innerHTML = `
+      <h2>Round ${data.round} Results</h2>
+      <p>The correct answer was: <strong>${data.answer}</strong></p>
+      <ul id="guess-list">
+        ${Object.entries(data.guesses).map(([userId, guess]) => {
+          const user = findUser(userId);
+          const avatarUrl = user.avatar 
+            ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+            : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+
+          return `
+            <li class="guess-item">
+              <img src="${avatarUrl}" class="avatar-small" alt="${user.username}" />
+              <span class="username">${user.username}</span>
+              <span class="guess-text">"${guess}"</span>
+              <label class="checkbox-container">
+                <input type="checkbox" class="correct-checkbox" data-user-id="${userId}" />
+                Mark Correct
+              </label>
+            </li>
+          `;
+        }).join('')}
+      </ul>
+      <button id="btn-submit-corrected-results">Submit Corrected Results</button>
+    `;
+
+    document.querySelector('#btn-submit-corrected-results').onclick = async () => {
+      const checkboxes = document.querySelectorAll('.correct-checkbox');
+
+      const corrections = {};
+      checkboxes.forEach(cb => {
+        const userId = cb.getAttribute('data-user-id');
+        corrections[userId] = cb.checked; 
+      });
+
+      await backend.submitRoundResults(discordSdk.instanceId, auth.user.id, corrections);
+    };
+  } else {
+    container.innerHTML = `<h2>Waiting for host to correct answers...</h2>`;
+  }
+}
+
+async function handleResultsUI(isHost) {
+  const container = document.querySelector('#results');
+  container.style.display = 'block';
+  document.querySelector('#game-arena').style.display = 'none';
+
+  container.innerHTML = `<h2>Results available!</h2>`;
+}
+
 document.querySelector('#app').innerHTML = `
   <div class="container">
     <div>
@@ -380,8 +449,11 @@ document.querySelector('#app').innerHTML = `
         <h2 id="round-display"></h2>
 
         <div id="game-guesser-ui" style="display: none;">
-          <input type="text" id="guess-input" placeholder="Enter game title..." />
-          <button id="btn-submit">Submit Guess</button>
+          <form id="game-guesser-form">
+            <input type="text" id="guess-input" placeholder="Enter game title..." />
+            <button type="submit" id="btn-submit">Submit Guess</button>
+            <p id="feedback-message"></p>
+          </form>
         </div>
 
         <div id="game-host-ui" style="display: none;">
@@ -389,6 +461,9 @@ document.querySelector('#app').innerHTML = `
           <div id="track-selection-list">
           </div>
         </div>
+      </div>
+
+      <div id="results" style="display: none;">
       </div>
 
       <div id="music-controls">

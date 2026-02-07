@@ -89,6 +89,31 @@ button:focus-visible {
   display: flex;
 }
 
+.avatar-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.guess-item {
+  display: grid;
+  /* Columns: 32px (Avatar), 150px (Name), 1fr (Guess), auto (Checkbox) */
+  grid-template-columns: 32px 150px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+  padding: 8px 0;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.guess-item .username {
+  font-weight: bold;
+}
+
 .host-badge {
   display: inline-flex;
   margin-left: 5px;

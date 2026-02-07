@@ -13,6 +13,8 @@ const instanceHosts = {};
 const instanceTracks = {};
 const instanceReadyStates = {};
 const instanceStates = {};
+const instanceGuesses = {};
+const instanceRounds = {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tracksRaw = fs.readFileSync(path.join(__dirname, 'tracks.json'), 'utf-8');
@@ -103,6 +105,7 @@ app.post("/api/start-game", (req, res) => {
   }
 
   instanceStates[instanceId] = 'PLAYING';
+  instanceRounds[instanceId] = 1;
   console.log(`[GAME] Instance ${instanceId} has started!`);
   res.send({ status: 'PLAYING' });
 });
@@ -133,7 +136,57 @@ app.get("/api/track-list", (req, res) => {
 
 app.post("/api/guess", (req, res) => {
   const { instanceId, userId, guess } = req.body;
-  console.log(`[GAME] Instance ${instanceId} received guess "${guess}" from user ${userId}`);
+
+  const currentRound = instanceRounds[instanceId];
+
+  if (!instanceGuesses[instanceId]) instanceGuesses[instanceId] = {};
+  if (!instanceGuesses[instanceId][currentRound]) instanceGuesses[instanceId][currentRound] = {};
+
+  instanceGuesses[instanceId][currentRound][userId] = guess;
+
+  const readyUsers = Object.keys(instanceReadyStates[instanceId] || {});
+  const guessers = Object.keys(instanceGuesses[instanceId]);
+
+  console.log(`[GUESS] ${guessers.length}/${readyUsers.length} players have guessed.`);
+
+  if (guessers.length >= readyUsers.length) {
+    instanceStates[instanceId] = 'ROUND_COMPLETED';
+    console.log(`[STATE] Instance ${instanceId} moved to ROUND_COMPLETED`);
+  }
+
+  res.send({ status: "submitted" });
+});
+
+app.get("/api/get-guesses", (req, res) => {
+  const { instanceId, userId } = req.query;
+
+  // Security: Only the host should be able to pull the summary early
+  if (instanceHosts[instanceId] !== userId) {
+    return res.status(403).send({ error: "Unauthorized" });
+  }
+
+  const round = instanceRounds[instanceId];
+  const roundData = instanceTracks[instanceId];
+  const guesses = instanceGuesses[instanceId]?.[round] || {};
+
+  res.send({
+    round: round,
+    answer: roundData.answer,
+    guesses: guesses,
+  });
+});
+
+app.post("/api/submit-round-results", (req, res) => {
+  const { instanceId, userId, corrections } = req.body;
+
+  // Security: Only host can submit final results
+  if (instanceHosts[instanceId] !== userId) {
+    return res.status(403).send({ error: "Only host can submit results." });
+  }
+
+  instanceStates[instanceId] = 'RESULTS';
+
+  console.log(`[RESULTS] Host submitted corrections for instance ${instanceId}:`, corrections);
 });
 
 app.post("/api/play-local", (req, res) => {
@@ -143,11 +196,14 @@ app.post("/api/play-local", (req, res) => {
   if (instanceHosts[instanceId] !== userId) {
     return res.status(403).send({ error: "Only the host can change tracks." });
   }
+
+  const trackInfo = allTracks.find(t => t.file === fileName);
   
   // Save track data specifically for this instance
   instanceTracks[instanceId] = {
     url: `/music/${fileName}`,
-    startTime: Date.now()
+    startTime: Date.now(),
+    answer: trackInfo ? trackInfo.name : null
   };
   
   console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
@@ -155,10 +211,16 @@ app.post("/api/play-local", (req, res) => {
 });
 
 app.get("/api/current-track", (req, res) => {
-  const { instanceId } = req.query; 
-  
-  const track = instanceTracks[instanceId] || { url: null, startTime: 0 };
-  res.send(track);
+  const { instanceId } = req.query;
+
+  const currentState = instanceStates[instanceId];
+
+  if (currentState === "PLAYING") {
+    const track = instanceTracks[instanceId] || { url: null, startTime: 0 };
+    return res.send(track);
+  }
+
+  res.send({ url: null, startTime: 0 });
 });
 
 app.listen(port, () => {
