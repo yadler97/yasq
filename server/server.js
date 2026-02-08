@@ -183,12 +183,12 @@ app.get("/api/get-guesses", (req, res) => {
   }
 
   const round = instanceRounds[instanceId];
-  const roundData = instanceTracks[instanceId];
+  const track = instanceTracks[instanceId];
   const guesses = instanceGuesses[instanceId]?.[round] || {};
 
   res.send({
     round: round,
-    answer: roundData.answer,
+    answer: track.answer,
     guesses: guesses,
   });
 });
@@ -229,10 +229,12 @@ app.get("/api/get-results", (req, res) => {
   const round = instanceRounds[instanceId];
   const roundGuesses = instanceGuesses[instanceId]?.[round] || {};
   const userGuess = roundGuesses[userId];
+  const track = instanceTracks[instanceId];
 
   res.send({
     round: round,
-    guess: userGuess
+    guess: userGuess,
+    correctAnswer: track.answer
   });
 });
 

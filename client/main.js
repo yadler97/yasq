@@ -436,8 +436,9 @@ async function handleResultsUI(participants, readyUsers, isHost) {
 
     container.innerHTML = `
       <h2>Round ${data.round} Results</h2>
-      <p>Your guess: <strong>"${data.guess?.text || 'No guess submitted'}"</strong></p>
+      <p>Your guess: <strong>${data.guess?.text || 'No guess submitted'}</strong></p>
       <p>${data.guess?.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}</p>
+      <p>The correct answer was: <strong>${data.correctAnswer}</strong></p>
     `;
 
     showLobbyGuesserUI();
