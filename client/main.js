@@ -58,7 +58,7 @@ setupDiscordSdk().then(async () => {
         handleResultsUI(pData.participants, readyUsers, registration.isHost);
         break;
       case GameState.GAME_FINISHED:
-        // TODO: Show final results screen
+        handleFinalResultsUI(registration.isHost);
         break;
     }
   }, 1000);
@@ -442,6 +442,13 @@ async function handleResultsUI(participants, readyUsers, isHost) {
 
     showLobbyGuesserUI();
   }
+}
+
+async function handleFinalResultsUI(isHost) {
+  const data = await backend.getFinalResults(discordSdk.instanceId);
+  document.querySelector('#lobby').style.display = 'none';
+  document.querySelector('#results').style.display = 'block';
+  document.querySelector('#results').innerHTML = JSON.stringify(data);
 }
 
 document.querySelector('#app').innerHTML = `

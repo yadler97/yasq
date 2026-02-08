@@ -81,6 +81,11 @@ export async function startNextRound(instanceId, userId) {
   });
 }
 
+export async function getFinalResults(instanceId) {
+  const response = await fetch(`/api/get-final-results?instanceId=${instanceId}`);
+  return response.json();
+}
+
 export async function playTrack(fileName, instanceId, userId) {
   return fetch("/api/play-local", {
     method: "POST",

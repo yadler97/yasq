@@ -18,6 +18,7 @@ const instanceStates = {};
 const instanceGuesses = {};
 const instanceRounds = {};
 const instanceSettings = {};
+const instanceFinalResults = {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tracksRaw = fs.readFileSync(path.join(__dirname, 'tracks.json'), 'utf-8');
@@ -245,6 +246,7 @@ app.post("/api/start-next-round", (req, res) => {
 
   if (instanceRounds[instanceId] >= instanceSettings[instanceId].rounds) {
     instanceStates[instanceId] = GameState.GAME_FINISHED;
+    calculateFinalResults(instanceId);
     console.log(`[GAME] Instance ${instanceId} has ended!`);
     return res.send({ status: GameState.GAME_FINISHED });
   }
@@ -302,6 +304,68 @@ app.get("/api/current-track", (req, res) => {
 
   res.send({ url: null, startTime: 0 });
 });
+
+app.get("/api/get-final-results", (req, res) => {
+  const { instanceId } = req.query;
+
+  if (instanceStates[instanceId] !== 'GAME_FINISHED') {
+    return res.status(400).send({ error: "Game has not finished yet." });
+  }
+
+  res.send({ leaderboard: instanceFinalResults[instanceId] || [] });
+});
+
+function calculateFinalResults(instanceId) {
+  const allRounds = instanceGuesses[instanceId] || {};
+  const trackDuration = instanceSettings[instanceId]?.trackDuration || DEFAULT_TRACK_DURATION;
+  const totalRoundsCount = instanceSettings[instanceId]?.rounds || 0;
+
+  // Get the list of all users who actually played (ready states not perfect TODO later))
+  const allUsers = Object.keys(instanceReadyStates[instanceId] || {});
+  const userStats = {};
+
+  // Initialize stats for every user to ensure they exist in the results
+  allUsers.forEach(userId => {
+    userStats[userId] = { total: 0, rounds: [] };
+  });
+
+  // 1. Iterate through every round that SHOULD have happened
+  for (let r = 1; r <= totalRoundsCount; r++) {
+    const roundGuesses = allRounds[r] || {};
+
+    allUsers.forEach(userId => {
+      const data = roundGuesses[userId]; // Might be undefined
+      let pointsEarned = 0;
+
+      if (data && data.isCorrect) {
+        const timeTaken = data.timeTaken || trackDuration;
+        const multiplier = Math.max(1, 2 - (timeTaken / trackDuration));
+        pointsEarned = Math.round(100 * multiplier);
+      }
+
+      userStats[userId].total += pointsEarned;
+      userStats[userId].rounds.push({
+        round: r,
+        guess: data ? data.text : "No guess submitted",
+        points: pointsEarned,
+        isCorrect: data ? data.isCorrect : false,
+        time: data ? (data.timeTaken / 1000).toFixed(1) : (trackDuration / 1000).toFixed(1)
+      });
+    });
+  }
+
+  // 2. Format and Sort
+  const sortedLeaderboard = Object.entries(userStats)
+    .map(([userId, stats]) => ({
+      userId,
+      totalScore: stats.total,
+      roundHistory: stats.rounds
+    }))
+    .sort((a, b) => b.totalScore - a.totalScore);
+
+  instanceFinalResults[instanceId] = sortedLeaderboard;
+  console.log(`[FINAL RESULTS] Instance ${instanceId} final leaderboard:`, JSON.stringify(instanceFinalResults[instanceId]));
+}
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
