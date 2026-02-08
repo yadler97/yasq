@@ -58,7 +58,7 @@ setupDiscordSdk().then(async () => {
         handleResultsUI(pData.participants, readyUsers, registration.isHost);
         break;
       case GameState.GAME_FINISHED:
-        handleFinalResultsUI(registration.isHost);
+        handleFinalResultsUI(pData.participants, registration.isHost);
         break;
     }
   }, 1000);
@@ -445,11 +445,62 @@ async function handleResultsUI(participants, readyUsers, isHost) {
   }
 }
 
-async function handleFinalResultsUI(isHost) {
-  const data = await backend.getFinalResults(discordSdk.instanceId);
+async function handleFinalResultsUI(participants, isHost) {
+  const { leaderboard } = await backend.getFinalResults(discordSdk.instanceId);
+  const resultsContainer = document.querySelector('#results');
+  
   document.querySelector('#lobby').style.display = 'none';
-  document.querySelector('#results').style.display = 'block';
-  document.querySelector('#results').innerHTML = JSON.stringify(data);
+  resultsContainer.style.display = 'block';
+
+  resultsContainer.innerHTML = `
+    <div class="final-leaderboard">
+      <h1 class="results-title">🏆 Final Results</h1>
+      
+      <div class="leaderboard-container">
+        ${leaderboard.map((player, index) => {
+          const discordUser = participants.find(p => p.id === player.userId) || 
+                              { username: player.userId || 'Unknown' };
+          return renderPlayerRow(player, index, discordUser);
+        }).join('')}
+      </div>
+
+      ${isHost ? '<button id="btn-restart">Play Again</button>' : '<p class="waiting-msg">Waiting for host to restart...</p>'}
+    </div>
+  `;
+
+  if (isHost) {
+    document.querySelector('#btn-restart').onclick = () => backend.restartGame(discordSdk.instanceId);
+  }
+}
+
+function renderPlayerRow(player, index, discordUser) {
+  const isWinner = index === 0;
+
+  const avatarUrl = discordUser.avatar 
+    ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=64`
+    : `https://cdn.discordapp.com/embed/avatars/${index % 5}.png`;
+
+  return `
+    <div class="player-card ${isWinner ? 'winner' : ''}">
+      <div class="player-main-info">
+        <div class="rank">#${index + 1}</div>
+        <img src="${avatarUrl}" class="avatar-small" alt="${discordUser.username}" />
+        <div class="name">${isWinner ? '👑 ' : ''}${discordUser.username}</div>
+        <div class="total-score">${player.totalScore} pts</div>
+      </div>
+      
+      <div class="history-grid">
+        <div class="history-label">Round Breakdown:</div>
+        <div class="round-bubbles">
+          ${player.roundHistory.map(r => `
+            <div class="round-bubble ${r.isCorrect ? 'correct' : 'incorrect'}" title="Round ${r.round}: ${r.guess}">
+              ${r.points}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 document.querySelector('#app').innerHTML = `

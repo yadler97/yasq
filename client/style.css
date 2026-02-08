@@ -159,6 +159,73 @@ ul {
   font-weight: bold;
 }
 
+.final-leaderboard {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  color: white;
+  font-family: sans-serif;
+}
+
+.results-title {
+  text-align: center;
+  color: #ffffff;
+  margin-bottom: 30px;
+}
+
+.player-card {
+  background: #2f3136;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+  border: 2px solid transparent;
+}
+
+.player-card.winner {
+  border-color: #f1c40f;
+  background: linear-gradient(145deg, #2f3136, #36393f);
+}
+
+.player-main-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.rank { color: #b9bbbe; width: 30px; }
+.total-score { margin-left: auto; color: #43b581; }
+
+.history-grid {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #444;
+}
+
+.history-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #b9bbbe;
+  margin-bottom: 5px;
+}
+
+.round-bubbles {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.round-bubble {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #202225;
+}
+
+.round-bubble.correct { border: 1px solid #43b581; color: #43b581; }
+.round-bubble.incorrect { border: 1px solid #f04747; color: #f04747; opacity: 0.6; }
+
 .host-badge {
   display: inline-flex;
   margin-left: 5px;
