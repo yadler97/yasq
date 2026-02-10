@@ -335,15 +335,33 @@ function calculateFinalResults(instanceId) {
   for (let r = 1; r <= totalRoundsCount; r++) {
     const roundGuesses = allRounds[r] || {};
 
+    // Identify the fastest correct guess for this round
+    let fastestUserId = null;
+    let minTime = Infinity;
+
+    Object.entries(roundGuesses).forEach(([userId, data]) => {
+      if (data.isCorrect && data.timeTaken < minTime) {
+        minTime = data.timeTaken;
+        fastestUserId = userId;
+      }
+    });
+
     allUsers.forEach(userId => {
       const data = roundGuesses[userId]; // Might be undefined
       let pointsEarned = 0;
+      let isFirst = userId === fastestUserId;
 
       if (data && data.isCorrect) {
         const timeTaken = data.timeTaken || trackDuration;
         const multiplier = Math.max(1, 2 - (timeTaken / trackDuration));
         pointsEarned = Math.round(100 * multiplier);
+        if (isFirst) {
+          pointsEarned *= 1.2; // 20% bonus for being first
+        }
       }
+
+      // Round to avoid fractional points and ensure it's an integer
+      pointsEarned = Math.round(pointsEarned);
 
       userStats[userId].total += pointsEarned;
       userStats[userId].rounds.push({
@@ -351,6 +369,7 @@ function calculateFinalResults(instanceId) {
         guess: data ? data.text : "No guess submitted",
         points: pointsEarned,
         isCorrect: data ? data.isCorrect : false,
+        isFirst: isFirst,
         time: data ? (data.timeTaken / 1000).toFixed(1) : (trackDuration / 1000).toFixed(1)
       });
     });

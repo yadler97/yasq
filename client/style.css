@@ -221,10 +221,19 @@ ul {
   padding: 4px 8px;
   border-radius: 4px;
   background: #202225;
+  cursor: default;
 }
 
 .round-bubble.correct { border: 1px solid #43b581; color: #43b581; }
+.round-bubble.correct:hover {
+  background: rgba(67, 181, 129, 0.2);
+  transform: scale(1.05);
+}
 .round-bubble.incorrect { border: 1px solid #f04747; color: #f04747; opacity: 0.6; }
+.round-bubble.correct.first { border: 1px solid #f1c40f; color: #f1c40f; font-weight: bold; }
+.round-bubble.correct.first:hover {
+  background: rgba(241, 196, 15, 0.2);
+}
 
 .host-badge {
   display: inline-flex;

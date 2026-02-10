@@ -492,11 +492,16 @@ function renderPlayerRow(player, index, discordUser) {
       <div class="history-grid">
         <div class="history-label">Round Breakdown:</div>
         <div class="round-bubbles">
-          ${player.roundHistory.map(r => `
-            <div class="round-bubble ${r.isCorrect ? 'correct' : 'incorrect'}" title="Round ${r.round}: ${r.guess}">
-              ${r.points}
-            </div>
-          `).join('')}
+          ${player.roundHistory.map(r => {
+            const isFirstClass = r.isFirst ? 'first' : '';
+            const statusClass = r.isCorrect ? 'correct' : 'incorrect';
+
+            return `
+              <div class="round-bubble ${statusClass} ${isFirstClass}" title="Round ${r.round}: ${r.guess}">
+                ${r.points}
+              </div>
+            `;
+          }).join('')}
         </div>
       </div>
     </div>
