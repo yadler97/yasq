@@ -34,7 +34,7 @@ setupDiscordSdk().then(async () => {
   });
 
   setInterval(async () => {
-    const { state, readyUsers, currentRound } = await backend.getGameStatus(discordSdk.instanceId);
+    const { state, readyUsers, currentRound, isFinalRound } = await backend.getGameStatus(discordSdk.instanceId);
     const pData = await discordSdk.commands.getInstanceConnectedParticipants();
 
     // 1. Always update participants
@@ -55,7 +55,7 @@ setupDiscordSdk().then(async () => {
         handleRoundCompletedUI(pData.participants, registration.isHost);
         break;
       case GameState.RESULTS:
-        handleResultsUI(pData.participants, readyUsers, registration.isHost);
+        handleResultsUI(pData.participants, readyUsers, isFinalRound, registration.isHost);
         break;
       case GameState.GAME_FINISHED:
         handleFinalResultsUI(pData.participants, registration.isHost);
@@ -397,7 +397,7 @@ async function handleRoundCompletedUI(participants, isHost) {
   }
 }
 
-async function handleResultsUI(participants, readyUsers, isHost) {
+async function handleResultsUI(participants, readyUsers, isFinalRound, isHost) {
   const container = document.querySelector('#results');
   container.style.display = 'block';
   document.querySelector('#game-arena').style.display = 'none';
@@ -428,8 +428,9 @@ async function handleResultsUI(participants, readyUsers, isHost) {
                     playersExcludingHost.every(p => readyUsers.includes(p.id));
 
     startBtn.disabled = !allPlayersReady;
+    let buttonText = isFinalRound ? "Show Final Results" : "Next Round";
     startBtn.textContent = allPlayersReady 
-      ? "Next Round" 
+      ? buttonText 
       : `Waiting... (${readyUsers.length}/${playersExcludingHost.length})`;
   } else {
     const data = await backend.getRoundResults(discordSdk.instanceId, auth.user.id);

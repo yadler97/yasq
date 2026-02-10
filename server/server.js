@@ -126,7 +126,8 @@ app.get("/api/game-status", (req, res) => {
   res.send({
     state: instanceStates[instanceId] || GameState.LOBBY,
     readyUsers: Object.keys(instanceReadyStates[instanceId] || {}),
-    currentRound: instanceRounds[instanceId] || 1
+    currentRound: instanceRounds[instanceId] || 1,
+    isFinalRound: instanceRounds[instanceId] >= instanceSettings[instanceId]?.rounds
   });
 });
 
@@ -162,7 +163,7 @@ app.post("/api/guess", (req, res) => {
   };
 
   const readyUsers = Object.keys(instanceReadyStates[instanceId] || {});
-  const guessers = Object.keys(instanceGuesses[instanceId]);
+  const guessers = Object.keys(instanceGuesses[instanceId][currentRound]);
 
   console.log(`[GUESS] ${guessers.length}/${readyUsers.length} players have guessed.`);
 
