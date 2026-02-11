@@ -24,6 +24,14 @@ export async function updateReadyStatus(instanceId, userId, isReady) {
   });
 }
 
+export async function assignNewHost(instanceId, userId, newHostId) {
+  return fetch("/api/assign-host", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ instanceId, userId, newHostId }),
+  });
+}
+
 export async function getGameStatus(instanceId) {
   const response = await fetch(`/api/game-status?instanceId=${instanceId}`);
   return response.json();

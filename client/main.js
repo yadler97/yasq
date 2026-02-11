@@ -8,10 +8,11 @@ import "./style.css";
 // Will eventually store the authenticated user's access_token
 let auth;
 let currentHostId = null;
+let isHost = false;
 let isReady = false;
-let registration;
 let localLastRound = null;
 let lastState = null;
+let lastParticipantsSnapshot = null;
 
 const discordSdk = new DiscordSDK(
   import.meta.env.VITE_DISCORD_CLIENT_ID
@@ -34,7 +35,10 @@ setupDiscordSdk().then(async () => {
   });
 
   setInterval(async () => {
-    const { state, readyUsers, currentRound, isFinalRound } = await backend.getGameStatus(discordSdk.instanceId);
+    const { state, hostId, readyUsers, currentRound, isFinalRound } = await backend.getGameStatus(discordSdk.instanceId);
+    isHost = String(auth.user.id) === String(hostId);
+    currentHostId = hostId;
+
     const pData = await discordSdk.commands.getInstanceConnectedParticipants();
 
     // 1. Always update participants
@@ -43,22 +47,22 @@ setupDiscordSdk().then(async () => {
     // 2. Handle State Transitions
     switch (state) {
       case GameState.LOBBY:
-        handleLobbyUI(pData.participants, readyUsers, registration.isHost);
+        handleLobbyUI(pData.participants, readyUsers, isHost);
         break;
       case GameState.TRACK_SELECTION:
-        handleTrackSelectionUI(currentRound, registration.isHost);
+        handleTrackSelectionUI(currentRound, isHost);
         break;
       case GameState.PLAYING:
-        handlePlayingUI(currentRound, registration.isHost);
+        handlePlayingUI(currentRound, isHost);
         break;
       case GameState.ROUND_COMPLETED:
-        handleRoundCompletedUI(pData.participants, registration.isHost);
+        handleRoundCompletedUI(pData.participants, isHost);
         break;
       case GameState.RESULTS:
-        handleResultsUI(pData.participants, readyUsers, isFinalRound, registration.isHost);
+        handleResultsUI(pData.participants, readyUsers, isFinalRound, isHost);
         break;
       case GameState.GAME_FINISHED:
-        handleFinalResultsUI(pData.participants, registration.isHost);
+        handleFinalResultsUI(pData.participants, isHost);
         break;
     }
   }, 1000);
@@ -97,7 +101,7 @@ async function setupDiscordSdk() {
   }
 
   // Register with our backend
-  registration = await backend.registerUser(discordSdk.instanceId, auth.user.id, auth.user.username);
+  await backend.registerUser(discordSdk.instanceId, auth.user.id, auth.user.username);
 
   document.querySelector('#btn-ready').onclick = toggleReady;
 
@@ -115,8 +119,6 @@ async function setupDiscordSdk() {
   document.querySelector('#btn-next-round').onclick = async () => {
     await backend.startNextRound(discordSdk.instanceId, auth.user.id);
   };
-
-  currentHostId = registration.hostId;
 
   audioPlayer = document.querySelector('#global-player');
   volumeSlider = document.querySelector('#volume-slider');
@@ -196,16 +198,97 @@ async function toggleReady() {
 function showLobbyHostUI() {
   const hostDiv = document.querySelector('#lobby-host-ui');
   if (hostDiv) hostDiv.style.display = 'block';
+  const lobbyDiv = document.querySelector('#lobby-guesser-ui');
+  if (lobbyDiv) lobbyDiv.style.display = 'none';
 }
 
 function showLobbyGuesserUI() {
   const lobbyDiv = document.querySelector('#lobby-guesser-ui');
   if (lobbyDiv) lobbyDiv.style.display = 'block';
+  const hostDiv = document.querySelector('#lobby-host-ui');
+  if (hostDiv) hostDiv.style.display = 'none';
+}
+
+function renderHostChangeUI(participants) {
+  const listContainer = document.querySelector('#dropdown-list');
+  const header = document.querySelector('#dropdown-header');
+  const transferBtn = document.querySelector('#btn-confirm-transfer');
+  
+  // Toggle menu visibility
+  header.onclick = (e) => {
+    e.stopPropagation();
+    const isVisible = listContainer.style.display === 'block';
+    listContainer.style.display = isVisible ? 'none' : 'block';
+  };
+
+  // Close menu if clicking anywhere else
+  window.onclick = () => { listContainer.style.display = 'none'; };
+
+  const currentSnapshot = participants.map(p => p.id).sort().join(',');
+
+  if (listContainer && currentSnapshot !== lastParticipantsSnapshot) {
+    lastParticipantsSnapshot = currentSnapshot;
+    const playersExcludingHost = participants.filter(p => p.id !== currentHostId);
+
+    listContainer.innerHTML = playersExcludingHost.map(p => {
+      const avatarUrl = p.avatar 
+        ? `https://cdn.discordapp.com/avatars/${p.id}/${p.avatar}.png?size=32`
+        : `https://cdn.discordapp.com/embed/avatars/${parseInt(p.id) % 5}.png`;
+      return `
+        <div class="dropdown-item" data-id="${p.id}" data-name="${p.nickname || p.username}" data-avatar="${avatarUrl}">
+          <img src="${avatarUrl}" class="avatar-tiny" />
+          <span>${p.nickname || p.username}</span>
+        </div>
+      `;
+    }).join('');
+
+    // Handle Selecting a Player
+    listContainer.querySelectorAll('.dropdown-item').forEach(item => {
+      item.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const { id, name, avatar } = item.dataset;
+
+        header.innerHTML = `
+          <img src="${avatar}" class="avatar-tiny" />
+          <span>${name}</span>
+        `;
+        
+        transferBtn.dataset.selectedId = id;
+        transferBtn.disabled = false;
+        listContainer.style.display = 'none';
+      };
+    });
+  }
+
+  // Handle the actual Transfer Button Click
+  transferBtn.onclick = async () => {
+    const newHostId = transferBtn.dataset.selectedId;
+    if (!newHostId) return;
+
+    transferBtn.textContent = "Transferring...";
+    transferBtn.disabled = true;
+
+    try {
+      await backend.assignNewHost(discordSdk.instanceId, auth.user.id, newHostId);
+      header.textContent = "Select a player...";
+      lastParticipantsSnapshot = ""; 
+    } catch (err) {
+      console.error(err);
+      transferBtn.textContent = "Error!";
+      setTimeout(() => { 
+        transferBtn.textContent = "Transfer 👑"; 
+        transferBtn.disabled = false; 
+      }, 2000);
+    }
+  };
 }
 
 function handleLobbyUI(participants, readyUsers, isHost) {
   if (isHost) {
     showLobbyHostUI();
+    renderHostChangeUI(participants);
   } else {
     showLobbyGuesserUI();
   }
@@ -487,7 +570,7 @@ function renderPlayerRow(player, index, discordUser) {
 
   const avatarUrl = discordUser.avatar 
     ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=64`
-    : `https://cdn.discordapp.com/embed/avatars/${index % 5}.png`;
+    : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
 
   return `
     <div class="player-card ${isWinner ? 'winner' : ''}">
@@ -538,6 +621,19 @@ document.querySelector('#app').innerHTML = `
               <input type="number" id="duration-input" min="10" max="120" value="30" />
             </label>
             <button id="btn-start">Start Game</button>
+            <div class="setting-group">
+              <div class="setting-item">
+                <label for="host-dropdown" class="setting-label"><span>Transfer Host</span></label>
+                <div class="transfer-controls-row">
+                  <div class="custom-dropdown" id="host-dropdown">
+                    <div class="dropdown-header" id="dropdown-header">Select a player...</div>
+                    <div class="dropdown-list" id="dropdown-list" style="display: none;">
+                      </div>
+                  </div>
+                  <button id="btn-confirm-transfer" disabled>Transfer</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div id="lobby-host-ui-next-round" style="display: none;">

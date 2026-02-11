@@ -105,6 +105,19 @@ app.get("/api/ready-status", (req, res) => {
   res.send({ readyUsers });
 });
 
+app.post("/api/assign-host", (req, res) => {
+  const { instanceId, userId, newHostId } = req.body;
+
+  // Security: Check if the requester is the actual current host
+  if (instanceHosts[instanceId] !== userId) {
+    return res.status(403).send({ error: "Unauthorized" });
+  }
+
+  instanceHosts[instanceId] = newHostId;
+  console.log(`[HOST ASSIGNED] Host changed to ${newHostId} in instance ${instanceId}`);
+  res.send({ status: "success" });
+});
+
 app.post("/api/start-game", (req, res) => {
   const { instanceId, userId, rounds, trackDuration } = req.body;
 
@@ -127,6 +140,7 @@ app.get("/api/game-status", (req, res) => {
   const { instanceId } = req.query;
   res.send({
     state: instanceStates[instanceId] || GameState.LOBBY,
+    hostId: instanceHosts[instanceId] || null,
     readyUsers: Object.keys(instanceReadyStates[instanceId] || {}),
     currentRound: instanceRounds[instanceId] || 1,
     isFinalRound: instanceRounds[instanceId] >= instanceSettings[instanceId]?.rounds
