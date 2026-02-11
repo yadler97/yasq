@@ -358,7 +358,7 @@ async function handleRoundCompletedUI(participants, isHost) {
     container.innerHTML = `
       <h2>Round ${data.round} Results</h2>
       <p>The correct answer was: <strong>${data.answer}</strong></p>
-      <ul id="guess-list">
+      <div id="guess-list">
         ${Object.entries(data.guesses).map(([userId, guess]) => {
           const user = findUser(userId);
           const avatarUrl = user.avatar 
@@ -366,34 +366,42 @@ async function handleRoundCompletedUI(participants, isHost) {
             : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
 
           return `
-            <li class="guess-item">
-              <img src="${avatarUrl}" class="avatar-small" alt="${user.username}" />
-              <span class="username">${user.username}</span>
-              <span class="guess-text">"${guess.text}"</span>
-              <label class="checkbox-container">
-                <input type="checkbox" class="correct-checkbox" data-user-id="${userId}" />
-                Mark Correct
-              </label>
-            </li>
+            <div class="guess-item" data-user-id="${userId}">
+              <div class="user-info">
+                <img src="${avatarUrl}" class="avatar-small" alt="${user.username}" />
+                <span class="username">${user.username}</span>
+                <span class="guess-text">"${guess.text}"</span>
+              </div>
+              
+              <div class="button-group">
+                <input type="radio" id="wrong-${userId}" name="score-${userId}" value="0" checked>
+                <label for="wrong-${userId}" class="btn-radio wrong">Wrong</label>
+
+                <input type="radio" id="partial-${userId}" name="score-${userId}" value="0.5">
+                <label for="partial-${userId}" class="btn-radio partial">Partial</label>
+
+                <input type="radio" id="correct-${userId}" name="score-${userId}" value="1">
+                <label for="correct-${userId}" class="btn-radio correct">Correct</label>
+              </div>
+            </div>
           `;
         }).join('')}
-      </ul>
-      <button id="btn-submit-corrected-results">Submit Corrected Results</button>
+      </div>
+      <button id="btn-submit-reviewed-results">Submit Reviewed Results</button>
     `;
 
-    document.querySelector('#btn-submit-corrected-results').onclick = async () => {
-      const checkboxes = document.querySelectorAll('.correct-checkbox');
-
+    document.querySelector('#btn-submit-reviewed-results').onclick = async () => {
       const corrections = {};
-      checkboxes.forEach(cb => {
-        const userId = cb.getAttribute('data-user-id');
-        corrections[userId] = cb.checked; 
+      document.querySelectorAll('.guess-item').forEach(item => {
+        const userId = item.getAttribute('data-user-id');
+        const selectedValue = item.querySelector(`input[name="score-${userId}"]:checked`).value;
+        corrections[userId] = parseFloat(selectedValue);
       });
 
       await backend.submitRoundResults(discordSdk.instanceId, auth.user.id, corrections);
     };
   } else {
-    container.innerHTML = `<h2>Waiting for host to correct answers...</h2>`;
+    container.innerHTML = `<h2>Waiting for host to review answers...</h2>`;
   }
 }
 

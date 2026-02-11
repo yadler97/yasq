@@ -26,6 +26,8 @@ const allTracks = JSON.parse(tracksRaw);
 
 const DEFAULT_TRACK_DURATION = 30000;
 const DEFAULT_ROUNDS = 5;
+const BASE_POINTS = 100;
+const FIRST_BONUS_MULTIPLIER = 1.2;
 
 // Allow express to parse JSON bodies
 app.use(express.json());
@@ -205,9 +207,11 @@ app.post("/api/submit-round-results", (req, res) => {
   const currentRound = instanceRounds[instanceId];
 
   if (instanceGuesses[instanceId] && instanceGuesses[instanceId][currentRound]) {
-    Object.entries(corrections).forEach(([userId, isCorrect]) => {
-      if (instanceGuesses[instanceId][currentRound][userId]) {
-        instanceGuesses[instanceId][currentRound][userId].isCorrect = isCorrect;
+    Object.entries(corrections).forEach(([userId, scoreValue]) => {
+      const userGuess = instanceGuesses[instanceId][currentRound][userId];
+      if (userGuess) {
+        userGuess.scoreValue = scoreValue;
+        userGuess.isCorrect = scoreValue > 0;
       }
     });
   }
@@ -341,7 +345,7 @@ function calculateFinalResults(instanceId) {
     let minTime = Infinity;
 
     Object.entries(roundGuesses).forEach(([userId, data]) => {
-      if (data.isCorrect && data.timeTaken < minTime) {
+      if (data.scoreValue === 1 && data.timeTaken < minTime) {
         minTime = data.timeTaken;
         fastestUserId = userId;
       }
@@ -355,9 +359,10 @@ function calculateFinalResults(instanceId) {
       if (data && data.isCorrect) {
         const timeTaken = data.timeTaken || trackDuration;
         const multiplier = Math.max(1, 2 - (timeTaken / trackDuration));
-        pointsEarned = Math.round(100 * multiplier);
+        let basePoints = BASE_POINTS * data.scoreValue;
+        pointsEarned = Math.round(basePoints * multiplier);
         if (isFirst) {
-          pointsEarned *= 1.2; // 20% bonus for being first
+          pointsEarned *= FIRST_BONUS_MULTIPLIER;
         }
       }
 

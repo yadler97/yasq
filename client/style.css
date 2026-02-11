@@ -138,25 +138,77 @@ button:focus-visible {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  margin-right: 8px;
 }
 
 .guess-item {
-  display: grid;
-  /* Columns: 32px (Avatar), 150px (Name), 1fr (Guess), auto (Checkbox) */
-  grid-template-columns: 32px 150px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  list-style: none;
-  padding: 8px 0;
+  background: #2f3136;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-ul {
-  list-style-type: none;
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .guess-item .username {
   font-weight: bold;
+}
+
+.button-group {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 4px;
+  background: #202225;
+  border-radius: 8px;
+  gap: 4px;
+}
+
+.button-group input[type="radio"] {
+  display: none;
+}
+
+.btn-radio {
+  flex: 1;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  color: #b9bbbe;
+  text-transform: uppercase;
+}
+
+.btn-radio:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+input[value="0"]:checked + .btn-radio.wrong {
+  background: #f04747;
+  color: white;
+}
+
+input[value="0.5"]:checked + .btn-radio.partial {
+  background: #faa61a;
+  color: white;
+}
+
+input[value="1"]:checked + .btn-radio.correct {
+  background: #43b581;
+  color: white;
 }
 
 .final-leaderboard {
