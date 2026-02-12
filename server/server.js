@@ -336,6 +336,25 @@ app.get("/api/get-final-results", (req, res) => {
   res.send({ leaderboard: instanceFinalResults[instanceId] || [] });
 });
 
+app.post('/api/restart-game', (req, res) => {
+  const { instanceId, userId } = req.body;
+
+  if (instanceHosts[instanceId] !== userId) {
+    return res.status(403).json({ error: "Only the host can restart the game." });
+  }
+
+  // Reset all game-related data for this instance
+  instanceStates[instanceId] = GameState.LOBBY;
+  instanceRounds[instanceId] = 1;
+  instanceReadyStates[instanceId] = {};
+  instanceTracks[instanceId] = {};
+  instanceGuesses[instanceId] = {};
+  instanceSettings[instanceId] = {};
+  instanceFinalResults[instanceId] = {};
+
+  res.send({ success: true });
+});
+
 function calculateFinalResults(instanceId) {
   const allRounds = instanceGuesses[instanceId] || {};
   const trackDuration = instanceSettings[instanceId]?.trackDuration || DEFAULT_TRACK_DURATION;

@@ -37,6 +37,11 @@ setupDiscordSdk().then(async () => {
   setInterval(async () => {
     const { state, hostId, readyUsers, currentRound, isFinalRound } = await backend.getGameStatus(discordSdk.instanceId);
     isHost = String(auth.user.id) === String(hostId);
+    isReady = readyUsers.includes(auth.user.id);
+    if (!isHost) {
+      document.querySelector('#btn-ready').textContent = isReady ? "I'm Ready! ✅" : "Ready Up";
+      document.querySelector('#btn-ready').style.background = isReady ? "#3ba55e" : "";
+    }
     currentHostId = hostId;
 
     const pData = await discordSdk.commands.getInstanceConnectedParticipants();
@@ -188,10 +193,6 @@ function renderParticipants(participants, readyUsers = []) {
 
 async function toggleReady() {
   isReady = !isReady;
-  const btn = document.querySelector('#btn-ready');
-  btn.textContent = isReady ? "I'm Ready! ✅" : "Ready Up";
-  btn.style.background = isReady ? "#3ba55e" : "";
-
   await backend.updateReadyStatus(discordSdk.instanceId, auth.user.id, isReady);
 }
 
@@ -286,6 +287,8 @@ function renderHostChangeUI(participants) {
 }
 
 function handleLobbyUI(participants, readyUsers, isHost) {
+  document.querySelector('#lobby').style.display = 'block';
+  document.querySelector('#results').style.display = 'none';
   if (isHost) {
     showLobbyHostUI();
     renderHostChangeUI(participants);
@@ -495,9 +498,6 @@ async function handleResultsUI(participants, readyUsers, isFinalRound, isHost) {
   document.querySelector('#lobby').style.display = 'block';
 
   if (lastState === GameState.ROUND_COMPLETED) {
-    isReady = false; // Reset ready status for next round
-    document.querySelector('#btn-ready').textContent = "Ready Up";
-    document.querySelector('#btn-ready').style.background = "";
     document.querySelector('#guess-input').value = "";
     document.querySelector('#progress-bar').style.width = `0%`;
     document.querySelector('#progress-bar').style.backgroundColor = '#5865f2';
@@ -540,7 +540,7 @@ async function handleResultsUI(participants, readyUsers, isFinalRound, isHost) {
 async function handleFinalResultsUI(participants, isHost) {
   const { leaderboard } = await backend.getFinalResults(discordSdk.instanceId);
   const resultsContainer = document.querySelector('#results');
-  
+
   document.querySelector('#lobby').style.display = 'none';
   resultsContainer.style.display = 'block';
 
@@ -561,7 +561,7 @@ async function handleFinalResultsUI(participants, isHost) {
   `;
 
   if (isHost) {
-    document.querySelector('#btn-restart').onclick = () => backend.restartGame(discordSdk.instanceId);
+    document.querySelector('#btn-restart').onclick = () => backend.restartGame(discordSdk.instanceId, auth.user.id);
   }
 }
 
@@ -570,7 +570,7 @@ function renderPlayerRow(player, index, discordUser) {
 
   const avatarUrl = discordUser.avatar 
     ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=64`
-    : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+    : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.id) % 5}.png`;
 
   return `
     <div class="player-card ${isWinner ? 'winner' : ''}">

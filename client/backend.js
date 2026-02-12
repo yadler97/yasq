@@ -94,8 +94,12 @@ export async function getFinalResults(instanceId) {
   return response.json();
 }
 
-export async function restartGame(instanceId) {
-  // TODO
+export async function restartGame(instanceId, userId) {
+  return fetch("/api/restart-game", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ instanceId, userId })
+  });
 }
 
 export async function playTrack(fileName, instanceId, userId) {
