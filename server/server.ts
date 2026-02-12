@@ -5,20 +5,21 @@ import path from "path";
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { GameState } from './constants.js';
+import type { InstanceQuery, InstanceUserQuery } from "./types.js";
 
 dotenv.config({ path: "../.env" });
 
 const app = express();
 const port = 3001;
 
-const instanceHosts = {};
-const instanceTracks = {};
-const instanceReadyStates = {};
-const instanceStates = {};
-const instanceGuesses = {};
-const instanceRounds = {};
-const instanceSettings = {};
-const instanceFinalResults = {};
+const instanceHosts: Record<string, string> = {};
+const instanceTracks: Record<string, any> = {};
+const instanceReadyStates: Record<string, Record<string, boolean>> = {};
+const instanceStates: Record<string, string> = {};
+const instanceGuesses: Record<string, Record<number, Record<string, any>>> = {};
+const instanceRounds: Record<string, number> = {};
+const instanceSettings: Record<string, any> = {};
+const instanceFinalResults: Record<string, any> = {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tracksRaw = fs.readFileSync(path.join(__dirname, 'tracks.json'), 'utf-8');
@@ -34,26 +35,34 @@ app.use(express.json());
 app.use('/music', express.static(path.join(__dirname, 'music')));
 
 app.post("/api/token", async (req, res) => {
-  
-  // Exchange the code for an access_token
+  const { code } = req.body;
+
+  // 1. Validate that we actually have the required data
+  if (!code) {
+    return res.status(400).send({ error: "Missing code" });
+  }
+
+  // 2. Cast or provide fallbacks for process.env
+  const params = new URLSearchParams({
+    client_id: process.env.VITE_DISCORD_CLIENT_ID || '',
+    client_secret: process.env.DISCORD_CLIENT_SECRET || '',
+    grant_type: "authorization_code",
+    code: String(code),
+  });
+
+  // 3. Exchange the code for an access_token
   const response = await fetch(`https://discord.com/api/oauth2/token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: new URLSearchParams({
-      client_id: process.env.VITE_DISCORD_CLIENT_ID,
-      client_secret: process.env.DISCORD_CLIENT_SECRET,
-      grant_type: "authorization_code",
-      code: req.body.code,
-    }),
+    body: params,
   });
 
-  // Retrieve the access_token from the response
-  const { access_token } = await response.json();
+  // 4. Return the access_token to our client as { access_token: "..."}
+  const data = (await response.json()) as { access_token: string };
 
-  // Return the access_token to our client as { access_token: "..."}
-  res.send({access_token});
+  res.send({ access_token: data.access_token });
 });
 
 app.post("/api/log", (req, res) => {
@@ -100,7 +109,7 @@ app.post("/api/ready", (req, res) => {
 });
 
 app.get("/api/ready-status", (req, res) => {
-  const { instanceId } = req.query;
+  const { instanceId } = req.query as InstanceQuery;
   const readyUsers = instanceReadyStates[instanceId] ? Object.keys(instanceReadyStates[instanceId]) : [];
   res.send({ readyUsers });
 });
@@ -137,24 +146,24 @@ app.post("/api/start-game", (req, res) => {
 });
 
 app.get("/api/game-status", (req, res) => {
-  const { instanceId } = req.query;
+  const { instanceId } = req.query as InstanceQuery;
   res.send({
     state: instanceStates[instanceId] || GameState.LOBBY,
     hostId: instanceHosts[instanceId] || null,
     readyUsers: Object.keys(instanceReadyStates[instanceId] || {}),
     currentRound: instanceRounds[instanceId] || 1,
-    isFinalRound: instanceRounds[instanceId] >= instanceSettings[instanceId]?.rounds
+    isFinalRound: instanceRounds[instanceId] || 1 >= instanceSettings[instanceId]?.rounds
   });
 });
 
 app.get("/api/track-list", (req, res) => {
-  const { instanceId, userId } = req.query;
+  const { instanceId, userId } = req.query as InstanceUserQuery;
 
   if (instanceHosts[instanceId] !== userId) {
     return res.status(403).send({ error: "Only the host can get track list." });
   }
 
-  const trackList = allTracks.map((t, index) => ({
+  const trackList = allTracks.map((t: { name: string; file: string }, index: number) => ({
     id: index,
     name: t.name,
     file: t.file
@@ -165,7 +174,7 @@ app.get("/api/track-list", (req, res) => {
 app.post("/api/guess", (req, res) => {
   const { instanceId, userId, guess } = req.body;
 
-  const currentRound = instanceRounds[instanceId];
+  const currentRound = instanceRounds[instanceId] || 1;
 
   if (!instanceGuesses[instanceId]) instanceGuesses[instanceId] = {};
   if (!instanceGuesses[instanceId][currentRound]) instanceGuesses[instanceId][currentRound] = {};
@@ -192,14 +201,14 @@ app.post("/api/guess", (req, res) => {
 });
 
 app.get("/api/get-guesses", (req, res) => {
-  const { instanceId, userId } = req.query;
+  const { instanceId, userId } = req.query as InstanceUserQuery;
 
   // Security: Only the host should be able to pull the summary early
   if (instanceHosts[instanceId] !== userId) {
     return res.status(403).send({ error: "Unauthorized" });
   }
 
-  const round = instanceRounds[instanceId];
+  const round = instanceRounds[instanceId] || 1;
   const track = instanceTracks[instanceId];
   const guesses = instanceGuesses[instanceId]?.[round] || {};
 
@@ -218,7 +227,7 @@ app.post("/api/submit-round-results", (req, res) => {
     return res.status(403).send({ error: "Only host can submit results." });
   }
 
-  const currentRound = instanceRounds[instanceId];
+  const currentRound = instanceRounds[instanceId] || 1;
 
   if (instanceGuesses[instanceId] && instanceGuesses[instanceId][currentRound]) {
     Object.entries(corrections).forEach(([userId, scoreValue]) => {
@@ -238,14 +247,14 @@ app.post("/api/submit-round-results", (req, res) => {
 });
 
 app.get("/api/get-results", (req, res) => {
-  const { instanceId, userId } = req.query;
+  const { instanceId, userId } = req.query as InstanceUserQuery;
 
   const state = instanceStates[instanceId];
   if (state !== GameState.RESULTS) {
     return res.status(400).send({ error: "Results not ready yet" });
   }
 
-  const round = instanceRounds[instanceId];
+  const round = instanceRounds[instanceId] || 1;
   const roundGuesses = instanceGuesses[instanceId]?.[round] || {};
   const userGuess = roundGuesses[userId];
   const track = instanceTracks[instanceId];
@@ -314,7 +323,7 @@ app.post("/api/play-local", (req, res) => {
 });
 
 app.get("/api/current-track", (req, res) => {
-  const { instanceId } = req.query;
+  const { instanceId } = req.query as InstanceQuery;
 
   const currentState = instanceStates[instanceId];
 
@@ -327,7 +336,7 @@ app.get("/api/current-track", (req, res) => {
 });
 
 app.get("/api/get-final-results", (req, res) => {
-  const { instanceId } = req.query;
+  const { instanceId } = req.query as InstanceQuery;
 
   if (instanceStates[instanceId] !== 'GAME_FINISHED') {
     return res.status(400).send({ error: "Game has not finished yet." });
@@ -355,7 +364,7 @@ app.post('/api/restart-game', (req, res) => {
   res.send({ success: true });
 });
 
-function calculateFinalResults(instanceId) {
+function calculateFinalResults(instanceId: string) {
   const allRounds = instanceGuesses[instanceId] || {};
   const trackDuration = instanceSettings[instanceId]?.trackDuration || DEFAULT_TRACK_DURATION;
   const totalRoundsCount = instanceSettings[instanceId]?.rounds || 0;
@@ -374,7 +383,7 @@ function calculateFinalResults(instanceId) {
     const roundGuesses = allRounds[r] || {};
 
     // Identify the fastest correct guess for this round
-    let fastestUserId = null;
+    let fastestUserId: string = "";
     let minTime = Infinity;
 
     Object.entries(roundGuesses).forEach(([userId, data]) => {
