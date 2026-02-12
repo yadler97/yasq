@@ -542,6 +542,7 @@ async function handleFinalResultsUI(participants, isHost) {
   const resultsContainer = document.querySelector('#results');
 
   document.querySelector('#lobby').style.display = 'none';
+  document.querySelector('#lobby-host-ui-next-round').style.display = 'none';
   resultsContainer.style.display = 'block';
 
   resultsContainer.innerHTML = `

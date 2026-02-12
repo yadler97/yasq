@@ -6,3 +6,8 @@ export enum GameState {
   RESULTS = 'RESULTS',
   GAME_FINISHED = 'GAME_FINISHED'
 }
+
+export const DEFAULT_TRACK_DURATION = 30000;
+export const DEFAULT_ROUNDS = 5;
+export const BASE_POINTS = 100;
+export const FIRST_BONUS_MULTIPLIER = 1.2;

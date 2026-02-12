@@ -4,31 +4,40 @@ import fetch from "node-fetch";
 import path from "path";
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { GameState } from './constants.js';
-import type { InstanceQuery, InstanceUserQuery } from "./types.js";
+
+import {
+  GameState,
+  DEFAULT_TRACK_DURATION,
+  DEFAULT_ROUNDS,
+  BASE_POINTS,
+  FIRST_BONUS_MULTIPLIER
+} from './constants.js';
+
+import {
+  GameInstance,
+  RoundResult,
+  LeaderboardEntry,
+  Leaderboard,
+  Settings,
+  UserGuess,
+  TrackInfo
+} from './models.js';
+
+import type {
+  InstanceQuery,
+  InstanceUserQuery
+} from "./types.js";
 
 dotenv.config({ path: "../.env" });
 
 const app = express();
 const port = 3001;
 
-const instanceHosts: Record<string, string> = {};
-const instanceTracks: Record<string, any> = {};
-const instanceReadyStates: Record<string, Record<string, boolean>> = {};
-const instanceStates: Record<string, string> = {};
-const instanceGuesses: Record<string, Record<number, Record<string, any>>> = {};
-const instanceRounds: Record<string, number> = {};
-const instanceSettings: Record<string, any> = {};
-const instanceFinalResults: Record<string, any> = {};
+const instances: Record<string, GameInstance> = {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tracksRaw = fs.readFileSync(path.join(__dirname, 'tracks.json'), 'utf-8');
 const allTracks = JSON.parse(tracksRaw);
-
-const DEFAULT_TRACK_DURATION = 30000;
-const DEFAULT_ROUNDS = 5;
-const BASE_POINTS = 100;
-const FIRST_BONUS_MULTIPLIER = 1.2;
 
 // Allow express to parse JSON bodies
 app.use(express.json());
@@ -79,87 +88,104 @@ app.post("/api/register", (req, res) => {
   }
 
   // If no one has registered for this instance yet, this user is the host
-  if (!instanceHosts[instanceId]) {
-    instanceHosts[instanceId] = userId;
-    console.log(`[HOST ASSIGNED] ${username} is the host of instance ${instanceId}`);
+  if (!instances[instanceId]) {
+    instances[instanceId] = new GameInstance(userId);
+    console.log(`[HOST ASSIGNED] ${username} is the host of new instance ${instanceId}`);
   }
 
+  const game = instances[instanceId];
+
   res.send({ 
-    isHost: instanceHosts[instanceId] === userId,
-    hostId: instanceHosts[instanceId] 
+    isHost: game.isHost(userId),
+    hostId: game.hostId
   });
 });
 
 app.post("/api/ready", (req, res) => {
   const { instanceId, userId, ready } = req.body;
-  
-  if (!instanceReadyStates[instanceId]) {
-    instanceReadyStates[instanceId] = {};
+
+  const game = instances[instanceId];
+
+  if (!game) {
+    return res.status(400).send({ error: "Instance not found" });
   }
-  
+
   if (ready) {
-    instanceReadyStates[instanceId][userId] = true;
+    game.readyUsers.add(userId);
   } else {
-    delete instanceReadyStates[instanceId][userId];
+    game.readyUsers.delete(userId);
   }
-  
+
   res.send({ 
-    readyUsers: Object.keys(instanceReadyStates[instanceId]) 
+    readyUsers: [...game.readyUsers]
   });
 });
 
 app.get("/api/ready-status", (req, res) => {
   const { instanceId } = req.query as InstanceQuery;
-  const readyUsers = instanceReadyStates[instanceId] ? Object.keys(instanceReadyStates[instanceId]) : [];
-  res.send({ readyUsers });
+  const game = instances[instanceId];
+
+  if (!game) {
+    return res.status(400).send({ error: "Instance not found" });
+  }
+
+  res.send({ 
+    readyUsers: [...game.readyUsers]
+  });
 });
 
 app.post("/api/assign-host", (req, res) => {
   const { instanceId, userId, newHostId } = req.body;
+  const game = instances[instanceId];
 
   // Security: Check if the requester is the actual current host
-  if (instanceHosts[instanceId] !== userId) {
+  if (!game?.isHost(userId)) {
     return res.status(403).send({ error: "Unauthorized" });
   }
 
-  instanceHosts[instanceId] = newHostId;
+  game.hostId = newHostId;
   console.log(`[HOST ASSIGNED] Host changed to ${newHostId} in instance ${instanceId}`);
   res.send({ status: "success" });
 });
 
 app.post("/api/start-game", (req, res) => {
   const { instanceId, userId, rounds, trackDuration } = req.body;
+  const game = instances[instanceId];
 
   // Security check: only host can start
-  if (instanceHosts[instanceId] !== userId) {
+  if (!game?.isHost(userId)) {
     return res.status(403).send({ error: "Only host can start" });
   }
 
-  instanceSettings[instanceId] = {
-    rounds: rounds || DEFAULT_ROUNDS,
-    trackDuration: trackDuration * 1000 || DEFAULT_TRACK_DURATION
-  };
-  instanceStates[instanceId] = GameState.TRACK_SELECTION;
-  instanceRounds[instanceId] = 1;
-  console.log(`[GAME] Instance ${instanceId} has started with settings: rounds: ${instanceSettings[instanceId].rounds}, trackDuration: ${instanceSettings[instanceId].trackDuration}!`);
+  game.settings = new Settings(rounds || DEFAULT_ROUNDS, (trackDuration * 1000) || DEFAULT_TRACK_DURATION);
+  game.state = GameState.TRACK_SELECTION;
+  game.currentRound = 1;
+  console.log(`[GAME] Instance ${instanceId} has started with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}!`);
   res.send({ status: GameState.TRACK_SELECTION });
 });
 
 app.get("/api/game-status", (req, res) => {
   const { instanceId } = req.query as InstanceQuery;
+  const game = instances[instanceId];
+
+  if (!game) {
+    return res.status(400).send({ error: "Instance not found" });
+  }
+
   res.send({
-    state: instanceStates[instanceId] || GameState.LOBBY,
-    hostId: instanceHosts[instanceId] || null,
-    readyUsers: Object.keys(instanceReadyStates[instanceId] || {}),
-    currentRound: instanceRounds[instanceId] || 1,
-    isFinalRound: instanceRounds[instanceId] || 1 >= instanceSettings[instanceId]?.rounds
+    state: game?.state || GameState.LOBBY,
+    hostId: game?.hostId || null,
+    readyUsers: [...game.readyUsers] ,
+    currentRound: game?.currentRound || 1,
+    isFinalRound: (game?.currentRound || 1) >= (game?.settings?.rounds || DEFAULT_ROUNDS)
   });
 });
 
 app.get("/api/track-list", (req, res) => {
   const { instanceId, userId } = req.query as InstanceUserQuery;
+  const game = instances[instanceId];
 
-  if (instanceHosts[instanceId] !== userId) {
+  if (!game?.isHost(userId)) {
     return res.status(403).send({ error: "Only the host can get track list." });
   }
 
@@ -173,27 +199,28 @@ app.get("/api/track-list", (req, res) => {
 
 app.post("/api/guess", (req, res) => {
   const { instanceId, userId, guess } = req.body;
+  const game = instances[instanceId];
 
-  const currentRound = instanceRounds[instanceId] || 1;
+  if (!game) {
+    return res.status(400).send({ error: "Instance not found" });
+  }
 
-  if (!instanceGuesses[instanceId]) instanceGuesses[instanceId] = {};
-  if (!instanceGuesses[instanceId][currentRound]) instanceGuesses[instanceId][currentRound] = {};
+  const currentRound = game.currentRound || 1;
 
-  const timeTaken = Date.now() - instanceTracks[instanceId].startTime;
+  if (!game.guesses[currentRound]) {
+    game.guesses[currentRound] = {};
+  }
 
-  instanceGuesses[instanceId][currentRound][userId] = {
-    text: guess,
-    isCorrect: false,
-    timeTaken: timeTaken
-  };
+  const timeTaken = Date.now() - game?.trackInfo.startTime;
 
-  const readyUsers = Object.keys(instanceReadyStates[instanceId] || {});
-  const guessers = Object.keys(instanceGuesses[instanceId][currentRound]);
+  game.guesses[currentRound][userId] = new UserGuess(guess, timeTaken);
+  const totalPlayers = game?.readyUsers.size;
+  const guessersCount = Object.keys(game?.guesses[currentRound]).length;
 
-  console.log(`[GUESS] ${guessers.length}/${readyUsers.length} players have guessed.`);
+  console.log(`[GUESS] ${guessersCount}/${totalPlayers} players have guessed.`);
 
-  if (guessers.length >= readyUsers.length) {
-    instanceStates[instanceId] = GameState.ROUND_COMPLETED;
+  if (guessersCount >= totalPlayers) {
+    game.state = GameState.ROUND_COMPLETED;
     console.log(`[STATE] Instance ${instanceId} moved to ROUND_COMPLETED`);
   }
 
@@ -202,45 +229,42 @@ app.post("/api/guess", (req, res) => {
 
 app.get("/api/get-guesses", (req, res) => {
   const { instanceId, userId } = req.query as InstanceUserQuery;
+  const game = instances[instanceId];
 
   // Security: Only the host should be able to pull the summary early
-  if (instanceHosts[instanceId] !== userId) {
+  if (!game?.isHost(userId)) {
     return res.status(403).send({ error: "Unauthorized" });
   }
 
-  const round = instanceRounds[instanceId] || 1;
-  const track = instanceTracks[instanceId];
-  const guesses = instanceGuesses[instanceId]?.[round] || {};
-
   res.send({
-    round: round,
-    answer: track.answer,
-    guesses: guesses,
+    round: game.currentRound,
+    answer: game.trackInfo.answer,
+    guesses: game.guesses[game.currentRound] || {},
   });
 });
 
 app.post("/api/submit-round-results", (req, res) => {
   const { instanceId, userId, corrections } = req.body;
+  const game = instances[instanceId];
 
   // Security: Only host can submit final results
-  if (instanceHosts[instanceId] !== userId) {
+  if (!game?.isHost(userId)) {
     return res.status(403).send({ error: "Only host can submit results." });
   }
 
-  const currentRound = instanceRounds[instanceId] || 1;
-
-  if (instanceGuesses[instanceId] && instanceGuesses[instanceId][currentRound]) {
+  if (game.guesses[game.currentRound]) {
     Object.entries(corrections).forEach(([userId, scoreValue]) => {
-      const userGuess = instanceGuesses[instanceId][currentRound][userId];
+      const roundGuesses = game.guesses[game.currentRound] || {};
+      const userGuess = roundGuesses[userId];
       if (userGuess) {
-        userGuess.scoreValue = scoreValue;
-        userGuess.isCorrect = scoreValue > 0;
+        userGuess.scoreValue = Number(scoreValue);
+        userGuess.isCorrect = Number(scoreValue) > 0;
       }
     });
   }
 
-  instanceStates[instanceId] = GameState.RESULTS;
-  instanceReadyStates[instanceId] = {}; // Reset ready states for next round
+  game.state = GameState.RESULTS;
+  game.readyUsers = new Set(); // Reset ready states for next round
 
   console.log(`[RESULTS] Host submitted corrections for instance ${instanceId}:`, corrections);
   res.send({ status: "success" });
@@ -248,87 +272,81 @@ app.post("/api/submit-round-results", (req, res) => {
 
 app.get("/api/get-results", (req, res) => {
   const { instanceId, userId } = req.query as InstanceUserQuery;
+  const game = instances[instanceId];
 
-  const state = instanceStates[instanceId];
-  if (state !== GameState.RESULTS) {
+  if (game?.state !== GameState.RESULTS) {
     return res.status(400).send({ error: "Results not ready yet" });
   }
 
-  const round = instanceRounds[instanceId] || 1;
-  const roundGuesses = instanceGuesses[instanceId]?.[round] || {};
+  const roundGuesses = game.guesses[game.currentRound] || {};
   const userGuess = roundGuesses[userId];
-  const track = instanceTracks[instanceId];
 
   res.send({
-    round: round,
+    round: game.currentRound,
     guess: userGuess,
-    correctAnswer: track.answer
+    correctAnswer: game.trackInfo.answer
   });
 });
 
 app.post("/api/start-next-round", (req, res) => {
   const { instanceId, userId } = req.body;
+  const game = instances[instanceId];
 
   // Security check: only host can start
-  if (instanceHosts[instanceId] !== userId) {
+  if (!game?.isHost(userId)) {
     return res.status(403).send({ error: "Only host can start" });
   }
 
-  if (instanceRounds[instanceId] >= instanceSettings[instanceId].rounds) {
-    instanceStates[instanceId] = GameState.GAME_FINISHED;
+  if (game.currentRound >= game.settings.rounds) {
+    game.state = GameState.GAME_FINISHED;
     calculateFinalResults(instanceId);
     console.log(`[GAME] Instance ${instanceId} has ended!`);
     return res.send({ status: GameState.GAME_FINISHED });
   }
 
-  instanceRounds[instanceId] = instanceRounds[instanceId] + 1;
-  instanceStates[instanceId] = GameState.TRACK_SELECTION;
+  game.currentRound += 1;
+  game.state = GameState.TRACK_SELECTION;
   console.log(`[GAME] Instance ${instanceId} has started!`);
   res.send({ status: GameState.TRACK_SELECTION });
 });
 
 app.post("/api/play-local", (req, res) => {
   const { fileName, instanceId, userId } = req.body;
+  const game = instances[instanceId];
 
   // Security check: Only the host of this specific instance can change the music
-  if (instanceHosts[instanceId] !== userId) {
+  if (!game?.isHost(userId)) {
     return res.status(403).send({ error: "Only the host can change tracks." });
   }
 
-  const trackInfo = allTracks.find(t => t.file === fileName);
+  const trackInfo = allTracks.find((t: { name: string; file: string }) => t.file === fileName);
 
   const startTime = Date.now();
-  const endTime = startTime + instanceSettings[instanceId].trackDuration;
+  const endTime = startTime + game.settings.trackDuration;
 
   // Save track data specifically for this instance
-  instanceTracks[instanceId] = {
-    url: `/music/${fileName}`,
-    startTime: startTime,
-    endTime: endTime,
-    answer: trackInfo ? trackInfo.name : null
-  };
+  game.trackInfo = new TrackInfo(`/music/${fileName}`, startTime, endTime, trackInfo ? trackInfo.name : null);
 
-  instanceStates[instanceId] = GameState.PLAYING
-  const currentRoundAtStart = instanceRounds[instanceId];
+  game.state = GameState.PLAYING
+  const currentRoundAtStart = game.currentRound;
 
   setTimeout(() => {
-    if (instanceStates[instanceId] === GameState.PLAYING && instanceRounds[instanceId] === currentRoundAtStart) {
-      instanceStates[instanceId] = GameState.ROUND_COMPLETED;
+    if (game.state === GameState.PLAYING && game.currentRound === currentRoundAtStart) {
+      game.state = GameState.ROUND_COMPLETED;
       console.log(`[TIMER] Round ${currentRoundAtStart} expired for ${instanceId}`);
     }
-  }, instanceSettings[instanceId].trackDuration);
+  }, game.settings.trackDuration);
 
   console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
-  res.send({ status: "playing", track: instanceTracks[instanceId], endTime: endTime });
+  res.send({ status: "playing", track: game.trackInfo, endTime: endTime });
 });
 
 app.get("/api/current-track", (req, res) => {
   const { instanceId } = req.query as InstanceQuery;
+  const game = instances[instanceId];
 
-  const currentState = instanceStates[instanceId];
-
-  if (currentState === GameState.PLAYING) {
-    const track = instanceTracks[instanceId] || { url: null, startTime: 0 };
+  if (game?.state === GameState.PLAYING) {
+    const track = game.trackInfo || new TrackInfo("", 0, 0, "");
     return res.send(track);
   }
 
@@ -337,72 +355,70 @@ app.get("/api/current-track", (req, res) => {
 
 app.get("/api/get-final-results", (req, res) => {
   const { instanceId } = req.query as InstanceQuery;
+  const game = instances[instanceId];
 
-  if (instanceStates[instanceId] !== 'GAME_FINISHED') {
+  if (game?.state !== GameState.GAME_FINISHED) {
     return res.status(400).send({ error: "Game has not finished yet." });
   }
 
-  res.send({ leaderboard: instanceFinalResults[instanceId] || [] });
+  res.send({ leaderboard: game.leaderboard.getAll() || [] });
 });
 
 app.post('/api/restart-game', (req, res) => {
   const { instanceId, userId } = req.body;
+  const game = instances[instanceId];
 
-  if (instanceHosts[instanceId] !== userId) {
+  if (!game?.isHost(userId)) {
     return res.status(403).json({ error: "Only the host can restart the game." });
   }
 
+  const currentGame = game.currentGame;
+
   // Reset all game-related data for this instance
-  instanceStates[instanceId] = GameState.LOBBY;
-  instanceRounds[instanceId] = 1;
-  instanceReadyStates[instanceId] = {};
-  instanceTracks[instanceId] = {};
-  instanceGuesses[instanceId] = {};
-  instanceSettings[instanceId] = {};
-  instanceFinalResults[instanceId] = {};
+  const newGame = new GameInstance(game.hostId);
+  newGame.currentGame = currentGame + 1; // Increment game number to differentiate between sessions
+
+  instances[instanceId] = newGame
 
   res.send({ success: true });
 });
 
 function calculateFinalResults(instanceId: string) {
-  const allRounds = instanceGuesses[instanceId] || {};
-  const trackDuration = instanceSettings[instanceId]?.trackDuration || DEFAULT_TRACK_DURATION;
-  const totalRoundsCount = instanceSettings[instanceId]?.rounds || 0;
+  const game = instances[instanceId];
+  if (!game) return;
 
   // Get the list of all users who actually played (ready states not perfect TODO later))
-  const allUsers = Object.keys(instanceReadyStates[instanceId] || {});
-  const userStats = {};
+  const allUsers = [...game.readyUsers];
 
-  // Initialize stats for every user to ensure they exist in the results
+  const leaderboard = new Leaderboard();
+
+  // Calculate everything for each user one by one
   allUsers.forEach(userId => {
-    userStats[userId] = { total: 0, rounds: [] };
-  });
+    const entry = new LeaderboardEntry(userId);
 
-  // 1. Iterate through every round that SHOULD have happened
-  for (let r = 1; r <= totalRoundsCount; r++) {
-    const roundGuesses = allRounds[r] || {};
+    // 1. Iterate through every round that SHOULD have happened
+    for (let r = 1; r <= game.settings.rounds; r++) {
+      const roundGuesses = game.guesses[r] || {};
 
-    // Identify the fastest correct guess for this round
-    let fastestUserId: string = "";
-    let minTime = Infinity;
+      // Identify the fastest correct guess for this round
+      let fastestUserId = "";
+      let minTime = Infinity;
 
-    Object.entries(roundGuesses).forEach(([userId, data]) => {
-      if (data.scoreValue === 1 && data.timeTaken < minTime) {
-        minTime = data.timeTaken;
-        fastestUserId = userId;
-      }
-    });
+      Object.entries(roundGuesses).forEach(([userId, data]) => {
+        if (data.scoreValue === 1 && data.timeTaken < minTime) {
+          minTime = data.timeTaken;
+          fastestUserId = userId;
+        }
+      });
 
-    allUsers.forEach(userId => {
-      const data = roundGuesses[userId]; // Might be undefined
+      const data = roundGuesses[userId];
+      const isFirst = userId === fastestUserId;
       let pointsEarned = 0;
-      let isFirst = userId === fastestUserId;
 
-      if (data && data.isCorrect) {
-        const timeTaken = data.timeTaken || trackDuration;
-        const multiplier = Math.max(1, 2 - (timeTaken / trackDuration));
-        let basePoints = BASE_POINTS * data.scoreValue;
-        pointsEarned = Math.round(basePoints * multiplier);
+      if (data?.isCorrect) {
+        const timeTaken = data.timeTaken || game.settings.trackDuration; // Fallback to max duration if missing
+        const multiplier = Math.max(1, 2 - (timeTaken / game.settings.trackDuration));
+        pointsEarned = BASE_POINTS * data.scoreValue * multiplier;
         if (isFirst) {
           pointsEarned *= FIRST_BONUS_MULTIPLIER;
         }
@@ -411,29 +427,23 @@ function calculateFinalResults(instanceId: string) {
       // Round to avoid fractional points and ensure it's an integer
       pointsEarned = Math.round(pointsEarned);
 
-      userStats[userId].total += pointsEarned;
-      userStats[userId].rounds.push({
-        round: r,
-        guess: data ? data.text : "No guess submitted",
-        points: pointsEarned,
-        isCorrect: data ? data.isCorrect : false,
-        isFirst: isFirst,
-        time: data ? (data.timeTaken / 1000).toFixed(1) : (trackDuration / 1000).toFixed(1)
-      });
-    });
-  }
+      entry.addRound(new RoundResult(
+        r,
+        data?.text,
+        pointsEarned,
+        data?.isCorrect || false,
+        isFirst,
+        data ? (data.timeTaken / 1000).toFixed(1) : (game.settings.trackDuration / 1000).toFixed(1)
+      ));
+    }
 
-  // 2. Format and Sort
-  const sortedLeaderboard = Object.entries(userStats)
-    .map(([userId, stats]) => ({
-      userId,
-      totalScore: stats.total,
-      roundHistory: stats.rounds
-    }))
-    .sort((a, b) => b.totalScore - a.totalScore);
+    // 3. Add the fully calculated entry directly to the leaderboard
+    leaderboard.addEntry(entry);
+  });
 
-  instanceFinalResults[instanceId] = sortedLeaderboard;
-  console.log(`[FINAL RESULTS] Instance ${instanceId} final leaderboard:`, JSON.stringify(instanceFinalResults[instanceId]));
+  // 4. Store the final sorted result
+  game.leaderboard = leaderboard;
+  console.log(`[FINAL RESULTS] Instance ${instanceId} final leaderboard:`, JSON.stringify(game.leaderboard.getAll()));
 }
 
 app.listen(port, () => {
