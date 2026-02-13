@@ -157,7 +157,7 @@ function renderParticipants(participants, readyUsers = []) {
     const wrapper = document.createElement('div');
     wrapper.style.display = 'flex';
     wrapper.style.alignItems = 'center';
-    wrapper.style.margin = '5px 0';
+    wrapper.style.margin = '10px 0';
 
     // Get the display name (nickname first, then username)
     const displayName = p.nickname || p.username;
@@ -340,19 +340,15 @@ async function handlePlayingUI(currentRound, isHost) {
 
   document.querySelector('#round-display').textContent = `Round ${currentRound}`;
 
-  // 1. Sync Music
   syncMusic(audioPlayer);
 
-  // 3. Guesser-Specific: Reset input on new round
-  //if (!isHost && localLastRound !== currentRound) {
-  //  resetGuesserInput();
-  //  localLastRound = currentRound;
-  //}
-
-  // const input = document.querySelector('#guess-input');
-  // if (document.activeElement !== input && !input.disabled) {
-  //   input.focus();
-  // }
+  if (lastState === GameState.TRACK_SELECTION) {
+    const input = document.querySelector('#guess-input');
+    if (document.activeElement !== input && !input.disabled) {
+      input.focus();
+    }
+    lastState = GameState.PLAYING;
+  }
 }
 
 async function renderHostTrackPicker() {
@@ -613,7 +609,7 @@ function renderPlayerRow(player, index, discordUser) {
 
 document.querySelector('#app').innerHTML = `
   <div class="container">
-    <div>
+    <div class="game-area">
       <img src="${rocketLogo}" class="logo" alt="Discord" />
       <h1>Welcome to YASQ!</h1>
 
@@ -694,8 +690,8 @@ document.querySelector('#app').innerHTML = `
         <audio id="global-player"></audio>
       </div>
     </div>
-    <div>
-      <h3>Participating Players:</h3>
+    <div class="sidebar">
+      <h3>Participating Players</h3>
       <div id="participant-list">
         
       </div>

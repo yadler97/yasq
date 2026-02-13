@@ -24,10 +24,11 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  height: 100vh;
+  width: 100vw;
+  display: block;
+  overflow: hidden;
+  background-color: #242424;
 }
 
 h1 {
@@ -36,10 +37,10 @@ h1 {
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .logo {
@@ -111,7 +112,42 @@ button:focus-visible {
 }
 
 .container {
-  display: flex;
+display: flex;
+  flex-direction: row;
+  align-items: stretch; 
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.container .game-area {
+  padding: 20px;
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  text-align: center;
+}
+
+.container .sidebar {
+  margin: 20px;
+  width: 250px;
+  background: #2f3136;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.container > div::-webkit-scrollbar {
+  width: 8px;
+}
+.container > div::-webkit-scrollbar-track {
+  background: transparent;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.container > div::-webkit-scrollbar-thumb {
+  background-color: #1e1f22;
+  border-radius: 4px;
 }
 
 .setting-group {
@@ -217,6 +253,14 @@ button:focus-visible {
   height: 100%;
   background-color: #5865f2; /* Discord Blurple */
   transition: width 1s linear; 
+}
+
+#track-selection-list {
+  display: flex;
+  flex-flow: column;
+  max-width: 400px;
+  margin: 0 auto;
+  gap: 10px;
 }
 
 .avatar-small {
