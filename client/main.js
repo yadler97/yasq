@@ -13,6 +13,7 @@ let isReady = false;
 let localLastRound = null;
 let lastState = null;
 let lastParticipantsSnapshot = null;
+let gameNumber = 1;
 
 const discordSdk = new DiscordSDK(
   import.meta.env.VITE_DISCORD_CLIENT_ID
@@ -35,7 +36,7 @@ setupDiscordSdk().then(async () => {
   });
 
   setInterval(async () => {
-    const { state, hostId, readyUsers, currentRound, isFinalRound } = await backend.getGameStatus(discordSdk.instanceId);
+    const { state, hostId, readyUsers, currentRound, isFinalRound, currentGame } = await backend.getGameStatus(discordSdk.instanceId);
     isHost = String(auth.user.id) === String(hostId);
     isReady = readyUsers.includes(auth.user.id);
     if (!isHost) {
@@ -43,6 +44,11 @@ setupDiscordSdk().then(async () => {
       document.querySelector('#btn-ready').style.background = isReady ? "#3ba55e" : "";
     }
     currentHostId = hostId;
+    if (gameNumber !== currentGame) {
+      localLastRound = null;
+      lastState = null;
+      gameNumber = currentGame;
+    }
 
     const pData = await discordSdk.commands.getInstanceConnectedParticipants();
 
@@ -70,7 +76,7 @@ setupDiscordSdk().then(async () => {
         handleFinalResultsUI(pData.participants, isHost);
         break;
     }
-  }, 1000);
+  }, 500);
 
   // We can now make API calls within the scopes we requested in setupDiscordSDK()
   // Note: the access_token returned is a sensitive secret and should be treated as such
@@ -538,12 +544,16 @@ async function handleResultsUI(participants, readyUsers, isFinalRound, isHost) {
 }
 
 async function handleFinalResultsUI(participants, isHost) {
-  const { leaderboard } = await backend.getFinalResults(discordSdk.instanceId);
   const resultsContainer = document.querySelector('#results');
 
   document.querySelector('#lobby').style.display = 'none';
   document.querySelector('#lobby-host-ui-next-round').style.display = 'none';
   resultsContainer.style.display = 'block';
+
+  if (lastState === GameState.GAME_FINISHED) return; // Prevent duplicate rendering
+  lastState = GameState.GAME_FINISHED;
+
+  const { leaderboard } = await backend.getFinalResults(discordSdk.instanceId);
 
   resultsContainer.innerHTML = `
     <div class="final-leaderboard">

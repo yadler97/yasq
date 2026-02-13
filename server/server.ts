@@ -175,9 +175,10 @@ app.get("/api/game-status", (req, res) => {
   res.send({
     state: game?.state || GameState.LOBBY,
     hostId: game?.hostId || null,
-    readyUsers: [...game.readyUsers] ,
+    readyUsers: [...game.readyUsers],
     currentRound: game?.currentRound || 1,
-    isFinalRound: (game?.currentRound || 1) >= (game?.settings?.rounds || DEFAULT_ROUNDS)
+    isFinalRound: (game?.currentRound || 1) >= (game?.settings?.rounds || DEFAULT_ROUNDS),
+    currentGame: game?.currentGame || 1
   });
 });
 
