@@ -5,23 +5,8 @@ import path from "path";
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-import {
-  GameState,
-  DEFAULT_TRACK_DURATION,
-  DEFAULT_ROUNDS,
-  BASE_POINTS,
-  FIRST_BONUS_MULTIPLIER
-} from './constants.js';
-
-import {
-  GameInstance,
-  RoundResult,
-  LeaderboardEntry,
-  Leaderboard,
-  Settings,
-  UserGuess,
-  TrackInfo
-} from './models.js';
+import { GameState } from './constants.js';
+import { GameInstance } from './models.js';
 
 import type {
   InstanceQuery,
@@ -157,9 +142,7 @@ app.post("/api/start-game", (req, res) => {
     return res.status(403).send({ error: "Only host can start" });
   }
 
-  game.settings = new Settings(rounds || DEFAULT_ROUNDS, (trackDuration * 1000) || DEFAULT_TRACK_DURATION);
-  game.state = GameState.TRACK_SELECTION;
-  game.currentRound = 1;
+  game.startGame(rounds, trackDuration);
   console.log(`[GAME] Instance ${instanceId} has started with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}!`);
   res.send({ status: GameState.TRACK_SELECTION });
 });
@@ -173,12 +156,12 @@ app.get("/api/game-status", (req, res) => {
   }
 
   res.send({
-    state: game?.state || GameState.LOBBY,
-    hostId: game?.hostId || null,
+    state: game.state,
+    hostId: game.hostId,
     readyUsers: [...game.readyUsers],
-    currentRound: game?.currentRound || 1,
-    isFinalRound: (game?.currentRound || 1) >= (game?.settings?.rounds || DEFAULT_ROUNDS),
-    currentGame: game?.currentGame || 1
+    currentRound: game.currentRound,
+    isFinalRound: game.isFinalRound(),
+    currentGame: game.currentGame
   });
 });
 
@@ -206,22 +189,10 @@ app.post("/api/guess", (req, res) => {
     return res.status(400).send({ error: "Instance not found" });
   }
 
-  const currentRound = game.currentRound || 1;
+  const { current, total } = game.submitGuess(userId, guess);
+  console.log(`[GUESS] ${current}/${total} players have guessed.`);
 
-  if (!game.guesses[currentRound]) {
-    game.guesses[currentRound] = {};
-  }
-
-  const timeTaken = Date.now() - game?.trackInfo.startTime;
-
-  game.guesses[currentRound][userId] = new UserGuess(guess, timeTaken);
-  const totalPlayers = game?.readyUsers.size;
-  const guessersCount = Object.keys(game?.guesses[currentRound]).length;
-
-  console.log(`[GUESS] ${guessersCount}/${totalPlayers} players have guessed.`);
-
-  if (guessersCount >= totalPlayers) {
-    game.state = GameState.ROUND_COMPLETED;
+  if (game.state === GameState.ROUND_COMPLETED) {
     console.log(`[STATE] Instance ${instanceId} moved to ROUND_COMPLETED`);
   }
 
@@ -253,19 +224,7 @@ app.post("/api/submit-round-results", (req, res) => {
     return res.status(403).send({ error: "Only host can submit results." });
   }
 
-  if (game.guesses[game.currentRound]) {
-    Object.entries(corrections).forEach(([userId, scoreValue]) => {
-      const roundGuesses = game.guesses[game.currentRound] || {};
-      const userGuess = roundGuesses[userId];
-      if (userGuess) {
-        userGuess.scoreValue = Number(scoreValue);
-        userGuess.isCorrect = Number(scoreValue) > 0;
-      }
-    });
-  }
-
-  game.state = GameState.RESULTS;
-  game.readyUsers = new Set(); // Reset ready states for next round
+  game.submitResults(corrections);
 
   console.log(`[RESULTS] Host submitted corrections for instance ${instanceId}:`, corrections);
   res.send({ status: "success" });
@@ -298,17 +257,18 @@ app.post("/api/start-next-round", (req, res) => {
     return res.status(403).send({ error: "Only host can start" });
   }
 
-  if (game.currentRound >= game.settings.rounds) {
-    game.state = GameState.GAME_FINISHED;
-    calculateFinalResults(instanceId);
+  const newState = game.advanceRound();
+
+  if (newState === GameState.GAME_FINISHED) {
     console.log(`[GAME] Instance ${instanceId} has ended!`);
-    return res.send({ status: GameState.GAME_FINISHED });
+    console.log(`[FINAL RESULTS] Instance ${instanceId} final leaderboard:`, JSON.stringify(game.leaderboard.getAll()));
   }
 
-  game.currentRound += 1;
-  game.state = GameState.TRACK_SELECTION;
-  console.log(`[GAME] Instance ${instanceId} has started!`);
-  res.send({ status: GameState.TRACK_SELECTION });
+  if (newState === GameState.TRACK_SELECTION) {
+    console.log(`[GAME] Instance ${instanceId} has advanced to next round!`);
+  }
+
+  res.send({ status: newState });
 });
 
 app.post("/api/play-local", (req, res) => {
@@ -320,26 +280,16 @@ app.post("/api/play-local", (req, res) => {
     return res.status(403).send({ error: "Only the host can change tracks." });
   }
 
-  const trackInfo = allTracks.find((t: { name: string; file: string }) => t.file === fileName);
+  const track = allTracks.find((t: { name: string; file: string }) => t.file === fileName);
+  const trackName = track ? track.name : null;
 
-  const startTime = Date.now();
-  const endTime = startTime + game.settings.trackDuration;
-
-  // Save track data specifically for this instance
-  game.trackInfo = new TrackInfo(`/music/${fileName}`, startTime, endTime, trackInfo ? trackInfo.name : null);
-
-  game.state = GameState.PLAYING
-  const currentRoundAtStart = game.currentRound;
-
-  setTimeout(() => {
-    if (game.state === GameState.PLAYING && game.currentRound === currentRoundAtStart) {
-      game.state = GameState.ROUND_COMPLETED;
-      console.log(`[TIMER] Round ${currentRoundAtStart} expired for ${instanceId}`);
-    }
-  }, game.settings.trackDuration);
+  game.playTrack(fileName, trackName);
 
   console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
-  res.send({ status: "playing", track: game.trackInfo, endTime: endTime });
+  res.send({
+    status: "playing",
+    track: game.trackInfo
+  });
 });
 
 app.get("/api/current-track", (req, res) => {
@@ -347,11 +297,15 @@ app.get("/api/current-track", (req, res) => {
   const game = instances[instanceId];
 
   if (game?.state === GameState.PLAYING) {
-    const track = game.trackInfo || new TrackInfo("", 0, 0, "");
-    return res.send(track);
+    const track = game.trackInfo;
+    return res.send({
+      url: track.url,
+      startTime: track.startTime,
+      endTime: track.endTime
+    });
   }
 
-  res.send({ url: null, startTime: 0 });
+  res.send({ url: null, startTime: 0, endTime: 0 });
 });
 
 app.get("/api/get-final-results", (req, res) => {
@@ -383,69 +337,6 @@ app.post('/api/restart-game', (req, res) => {
 
   res.send({ success: true });
 });
-
-function calculateFinalResults(instanceId: string) {
-  const game = instances[instanceId];
-  if (!game) return;
-
-  // Get the list of all users who actually played (ready states not perfect TODO later))
-  const allUsers = [...game.readyUsers];
-
-  const leaderboard = new Leaderboard();
-
-  // Calculate everything for each user one by one
-  allUsers.forEach(userId => {
-    const entry = new LeaderboardEntry(userId);
-
-    // 1. Iterate through every round that SHOULD have happened
-    for (let r = 1; r <= game.settings.rounds; r++) {
-      const roundGuesses = game.guesses[r] || {};
-
-      // Identify the fastest correct guess for this round
-      let fastestUserId = "";
-      let minTime = Infinity;
-
-      Object.entries(roundGuesses).forEach(([userId, data]) => {
-        if (data.scoreValue === 1 && data.timeTaken < minTime) {
-          minTime = data.timeTaken;
-          fastestUserId = userId;
-        }
-      });
-
-      const data = roundGuesses[userId];
-      const isFirst = userId === fastestUserId;
-      let pointsEarned = 0;
-
-      if (data?.isCorrect) {
-        const timeTaken = data.timeTaken || game.settings.trackDuration; // Fallback to max duration if missing
-        const multiplier = Math.max(1, 2 - (timeTaken / game.settings.trackDuration));
-        pointsEarned = BASE_POINTS * data.scoreValue * multiplier;
-        if (isFirst) {
-          pointsEarned *= FIRST_BONUS_MULTIPLIER;
-        }
-      }
-
-      // Round to avoid fractional points and ensure it's an integer
-      pointsEarned = Math.round(pointsEarned);
-
-      entry.addRound(new RoundResult(
-        r,
-        data?.text,
-        pointsEarned,
-        data?.isCorrect || false,
-        isFirst,
-        data ? (data.timeTaken / 1000).toFixed(1) : (game.settings.trackDuration / 1000).toFixed(1)
-      ));
-    }
-
-    // 3. Add the fully calculated entry directly to the leaderboard
-    leaderboard.addEntry(entry);
-  });
-
-  // 4. Store the final sorted result
-  game.leaderboard = leaderboard;
-  console.log(`[FINAL RESULTS] Instance ${instanceId} final leaderboard:`, JSON.stringify(game.leaderboard.getAll()));
-}
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
