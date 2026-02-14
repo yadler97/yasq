@@ -83,12 +83,15 @@ export class GameInstance {
   }
 
   public playTrack(fileName: string, trackName: string): void {
-    const startTime = Date.now();
+    const countdownDuration = 4000; 
+    const startTime = Date.now() + countdownDuration;
     const endTime = startTime + this.settings.trackDuration;
 
     this.trackInfo = new TrackInfo(`/music/${fileName}`, startTime, endTime, trackName);
     this.state = GameState.PLAYING;
     const roundAtStart = this.currentRound;
+
+    const totalWaitTime = countdownDuration + this.settings.trackDuration;
 
     // Set a timer to automatically transition to ROUND_COMPLETED after trackDuration
     setTimeout(() => {
@@ -96,7 +99,7 @@ export class GameInstance {
         this.state = GameState.ROUND_COMPLETED;
         console.log(`[TIMER] Round ${roundAtStart} expired.`);
       }
-    }, this.settings.trackDuration);
+    }, totalWaitTime);
   }
 
   public calculateFinalResults(): void {

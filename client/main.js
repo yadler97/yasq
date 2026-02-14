@@ -341,14 +341,6 @@ async function handlePlayingUI(currentRound, isHost) {
   document.querySelector('#round-display').textContent = `Round ${currentRound}`;
 
   syncMusic(audioPlayer);
-
-  if (lastState === GameState.TRACK_SELECTION) {
-    const input = document.querySelector('#guess-input');
-    if (document.activeElement !== input && !input.disabled) {
-      input.focus();
-    }
-    lastState = GameState.PLAYING;
-  }
 }
 
 async function renderHostTrackPicker() {
@@ -392,14 +384,35 @@ async function syncMusic(player) {
 
     if (!url) return;
 
+    const countdownOverlay = document.querySelector('#countdown-overlay');
+    const countdownNumber = document.querySelector('#countdown-number');
+    const progressBar = document.querySelector('#progress-bar');
+
     const now = Date.now();
     const totalDuration = endTime - startTime;
     const timePassed = now - startTime;
 
+    // 1. Countdown Phase (before startTime)
+    if (timePassed < 0) {
+      const remainingSeconds = Math.abs(Math.ceil(timePassed / 1000));
+
+      countdownOverlay.style.display = 'flex';
+      countdownNumber.innerText = remainingSeconds > 0 ? remainingSeconds : "GO!";
+
+      // Ensure player is paused and ready at the start
+      player.pause();
+      player.currentTime = 0;
+      if (player.src !== window.location.origin + url) player.src = url;
+
+      progressBar.style.width = '100%';
+      return; // Don't play the track until the countdown finishes
+    }
+
+    // 2. Playing Phase
+    countdownOverlay.style.display = 'none';
+
     let percentage = 100 - (timePassed / totalDuration * 100);
     percentage = Math.max(0, Math.min(100, percentage));
-
-    const progressBar = document.querySelector('#progress-bar');
     progressBar.style.width = `${percentage}%`;
 
     if (percentage < 20) {
@@ -412,18 +425,25 @@ async function syncMusic(player) {
     if (player.src !== window.location.origin + url) {
       player.src = url;
     }
-    
+
     // Sync timing
-    const serverTimeMs = startTime;
-    const elapsedSeconds = (Date.now() - serverTimeMs) / 1000;
-    
+    const elapsedSeconds = (Date.now() - startTime) / 1000;
+
     // If we are more than 2 seconds out of sync, snap to server time
     if (Math.abs(player.currentTime - elapsedSeconds) > 2) {
       player.currentTime = elapsedSeconds;
     }
-    
+
     if (player.paused) {
       player.play().catch(e => console.log("Waiting for user interaction..."));
+    }
+
+    if (lastState !== GameState.PLAYING) {
+      const input = document.querySelector('#guess-input');
+      if (document.activeElement !== input && !input.disabled) {
+          input.focus();
+      }
+      lastState = GameState.PLAYING;
     }
   } catch (err) {
     console.error("Sync error:", err);
@@ -667,6 +687,9 @@ document.querySelector('#app').innerHTML = `
         <h2 id="round-display"></h2>
 
         <div id="game-guesser-ui" style="display: none;">
+          <div id="countdown-overlay" style="display: none;">
+            <div id="countdown-number">3</div>
+          </div>
           <form id="game-guesser-form">
             <input type="text" id="guess-input" placeholder="Enter game title..." />
             <button type="submit" id="btn-submit">Submit Guess</button>
