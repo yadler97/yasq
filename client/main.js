@@ -22,6 +22,9 @@ const discordSdk = new DiscordSDK(
 let audioPlayer;
 let volumeSlider;
 
+const version = import.meta.env.VERSION; 
+document.querySelector('.version').innerText = `Ver. ${version}`;
+
 setupDiscordSdk().then(async () => {
   backend.logToServer("Discord SDK is authenticated", auth.user.username);
 
