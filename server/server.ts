@@ -79,6 +79,7 @@ app.post("/api/register", (req, res) => {
   }
 
   const game = instances[instanceId];
+  game.registeredUsers.add(userId);
 
   res.send({ 
     isHost: game.isHost(userId),
@@ -208,10 +209,16 @@ app.get("/api/get-guesses", (req, res) => {
     return res.status(403).send({ error: "Unauthorized" });
   }
 
+  const timedOutPlayers = game.getTimedOutPlayers();
+  if (timedOutPlayers.length > 0) {
+    console.log(`[TIMED OUT] The following players have not submitted a guess: ${timedOutPlayers}`);
+  }
+
   res.send({
     round: game.currentRound,
     answer: game.trackInfo.answer,
     guesses: game.guesses[game.currentRound] || {},
+    timedOut: timedOutPlayers
   });
 });
 

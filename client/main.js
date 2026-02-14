@@ -459,15 +459,15 @@ async function handleRoundCompletedUI(participants, isHost) {
   lastState = GameState.ROUND_COMPLETED;
 
   if (isHost) {
-    const data = await backend.getGuesses(discordSdk.instanceId, auth.user.id);
+    const { round, answer, guesses, timedOut } = await backend.getGuesses(discordSdk.instanceId, auth.user.id);
 
     const findUser = (id) => participants.find(p => p.id === id) || { username: 'Unknown', avatar: null };
 
     container.innerHTML = `
-      <h2>Round ${data.round} Results</h2>
-      <p>The correct answer was: <strong>${data.answer}</strong></p>
+      <h2>Round ${round} Results</h2>
+      <p>The correct answer was: <strong>${answer}</strong></p>
       <div id="guess-list">
-        ${Object.entries(data.guesses).map(([userId, guess]) => {
+        ${Object.entries(guesses).map(([userId, guess]) => {
           const user = findUser(userId);
           const avatarUrl = user.avatar 
             ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
@@ -495,6 +495,16 @@ async function handleRoundCompletedUI(participants, isHost) {
           `;
         }).join('')}
       </div>
+      ${timedOut.length > 0 ? `
+        <div class="timed-out-section">
+          <p>No Guess submitted:
+            ${timedOut.map(userId => {
+              const user = findUser(userId);
+              return user ? user.username : 'Unknown';
+            }).join(', ')}
+          </p>
+        </div>
+      ` : ''}
       <button id="btn-submit-reviewed-results">Submit Reviewed Results</button>
     `;
 

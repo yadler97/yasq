@@ -7,6 +7,7 @@ import {
 } from "./constants.js";
 
 export class GameInstance {
+  public registeredUsers: Set<string> = new Set();
   public hostId: string;
   public state: string = GameState.LOBBY;
   public currentRound: number = 0;
@@ -48,6 +49,13 @@ export class GameInstance {
     }
 
     return { current: guessersCount, total: totalPlayers };
+  }
+
+  public getTimedOutPlayers(): string[] {
+    const currentGuesses = this.guesses[this.currentRound] || {};
+
+    // Convert Set to Array to use filter
+    return Array.from(this.registeredUsers).filter(userId => !currentGuesses[userId] && !this.isHost(userId));
   }
 
   public submitResults(corrections: Record<string, number>): void {
@@ -143,7 +151,7 @@ export class GameInstance {
 
         entry.addRound(new RoundResult(
           r,
-          data?.text,
+          data?.text || "No Guess Submitted",
           pointsEarned,
           data?.isCorrect || false,
           isFirst,
