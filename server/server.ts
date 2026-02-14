@@ -129,7 +129,12 @@ app.post("/api/assign-host", (req, res) => {
     return res.status(403).send({ error: "Unauthorized" });
   }
 
+  if (!game.registeredUsers.has(newHostId)) {
+    return res.status(400).send({ error: "New host must be a registered user" });
+  }
+
   game.hostId = newHostId;
+  game.readyUsers.delete(newHostId); // New host not required to be ready
   console.log(`[HOST ASSIGNED] Host changed to ${newHostId} in instance ${instanceId}`);
   res.send({ status: "success" });
 });
@@ -141,6 +146,10 @@ app.post("/api/start-game", (req, res) => {
   // Security check: only host can start
   if (!game?.isHost(userId)) {
     return res.status(403).send({ error: "Only host can start" });
+  }
+
+  if (rounds <= 0 || trackDuration <= 0) {
+    return res.status(400).send({ error: "Rounds and track duration must be greater than 0." });
   }
 
   game.startGame(rounds, trackDuration);
@@ -188,6 +197,10 @@ app.post("/api/guess", (req, res) => {
 
   if (!game) {
     return res.status(400).send({ error: "Instance not found" });
+  }
+
+  if (!game.registeredUsers.has(userId)) {
+    return res.status(403).send({ error: "User not registered in this instance." });
   }
 
   const { current, total } = game.submitGuess(userId, guess);
@@ -245,6 +258,10 @@ app.get("/api/get-results", (req, res) => {
     return res.status(400).send({ error: "Results not ready yet" });
   }
 
+  if (!game.registeredUsers.has(userId)) {
+    return res.status(403).send({ error: "User not registered in this instance." });
+  }
+
   const roundGuesses = game.guesses[game.currentRound] || {};
   const userGuess = roundGuesses[userId];
 
@@ -288,9 +305,12 @@ app.post("/api/play-local", (req, res) => {
   }
 
   const track = allTracks.find((t: { name: string; file: string }) => t.file === fileName);
-  const trackName = track ? track.name : null;
 
-  game.playTrack(fileName, trackName);
+  if (!track) {
+    return res.status(400).send({ error: "Track not found." });
+  }
+
+  game.playTrack(fileName, track.name);
 
   console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
   res.send({

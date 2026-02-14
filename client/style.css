@@ -301,6 +301,11 @@ display: flex;
   border-radius: 50%;
 }
 
+#guess-list {
+  max-width: 1000px;
+  margin: auto;
+}
+
 .guess-item {
   background: #2f3136;
   padding: 12px;
