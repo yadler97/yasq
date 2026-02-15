@@ -240,36 +240,44 @@ function renderHostChangeUI(participants) {
     lastParticipantsSnapshot = currentSnapshot;
     const playersExcludingHost = participants.filter(p => p.id !== currentHostId);
 
-    listContainer.innerHTML = playersExcludingHost.map(p => {
-      const avatarUrl = p.avatar 
-        ? `https://cdn.discordapp.com/avatars/${p.id}/${p.avatar}.png?size=32`
-        : `https://cdn.discordapp.com/embed/avatars/${parseInt(p.id) % 5}.png`;
-      return `
-        <div class="dropdown-item" data-id="${p.id}" data-name="${p.nickname || p.username}" data-avatar="${avatarUrl}">
-          <img src="${avatarUrl}" class="avatar-tiny" />
-          <span>${p.nickname || p.username}</span>
+    if (playersExcludingHost.length === 0) {
+      listContainer.innerHTML = `
+        <div class="dropdown-item dropdown-item-empty">
+          No other players in room
         </div>
       `;
-    }).join('');
-
-    // Handle Selecting a Player
-    listContainer.querySelectorAll('.dropdown-item').forEach(item => {
-      item.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const { id, name, avatar } = item.dataset;
-
-        header.innerHTML = `
-          <img src="${avatar}" class="avatar-tiny" />
-          <span>${name}</span>
+    } else {
+      listContainer.innerHTML = playersExcludingHost.map(p => {
+        const avatarUrl = p.avatar 
+          ? `https://cdn.discordapp.com/avatars/${p.id}/${p.avatar}.png?size=32`
+          : `https://cdn.discordapp.com/embed/avatars/${parseInt(p.id) % 5}.png`;
+        return `
+          <div class="dropdown-item" data-id="${p.id}" data-name="${p.nickname || p.username}" data-avatar="${avatarUrl}">
+            <img src="${avatarUrl}" class="avatar-tiny" />
+            <span>${p.nickname || p.username}</span>
+          </div>
         `;
-        
-        transferBtn.dataset.selectedId = id;
-        transferBtn.disabled = false;
-        listContainer.style.display = 'none';
-      };
-    });
+      }).join('');
+
+      // Handle Selecting a Player
+      listContainer.querySelectorAll('.dropdown-item').forEach(item => {
+        item.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const { id, name, avatar } = item.dataset;
+
+          header.innerHTML = `
+            <img src="${avatar}" class="avatar-tiny" />
+            <span>${name}</span>
+          `;
+
+          transferBtn.dataset.selectedId = id;
+          transferBtn.disabled = false;
+          listContainer.style.display = 'none';
+        };
+      });
+    }
   }
 
   // Handle the actual Transfer Button Click

@@ -227,6 +227,12 @@ display: flex;
   cursor: pointer;
 }
 
+.dropdown-item-empty {
+  cursor: default;
+  color: #b9bbbe;
+  font-style: italic;
+}
+
 .dropdown-item:hover {
   background: #35373c;
 }
