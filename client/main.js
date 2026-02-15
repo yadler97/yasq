@@ -1,5 +1,6 @@
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 import * as backend from "./backend.js";
+import { getAvatarUrl, getDisplayName } from "./helper.js";
 import { GameState } from './constants.js';
 
 import rocketLogo from '/rocket.png';
@@ -163,14 +164,11 @@ function renderParticipants(participants, readyUsers = []) {
     wrapper.style.margin = '10px 0';
 
     // Get the display name (nickname first, then username)
-    const displayName = p.nickname || p.username;
+    const displayName = getDisplayName(p);
 
     // Create a small avatar
     const avatar = document.createElement('img');
-    const avatarHash = p.avatar;
-    avatar.src = avatarHash 
-      ? `https://cdn.discordapp.com/avatars/${p.id}/${avatarHash}.webp?size=32`
-      : `https://cdn.discordapp.com/embed/avatars/${parseInt(p.id) % 5}.png`;
+    avatar.src = getAvatarUrl(p);
     avatar.style.width = '24px';
     avatar.style.borderRadius = '50%';
     avatar.style.marginRight = '8px';
@@ -248,13 +246,13 @@ function renderHostChangeUI(participants) {
       `;
     } else {
       listContainer.innerHTML = playersExcludingHost.map(p => {
-        const avatarUrl = p.avatar 
-          ? `https://cdn.discordapp.com/avatars/${p.id}/${p.avatar}.png?size=32`
-          : `https://cdn.discordapp.com/embed/avatars/${parseInt(p.id) % 5}.png`;
+        const avatarUrl = getAvatarUrl(p);
+        const displayName = getDisplayName(p);
+
         return `
-          <div class="dropdown-item" data-id="${p.id}" data-name="${p.nickname || p.username}" data-avatar="${avatarUrl}">
+          <div class="dropdown-item" data-id="${p.id}" data-name="${displayName}" data-avatar="${avatarUrl}">
             <img src="${avatarUrl}" class="avatar-tiny" />
-            <span>${p.nickname || p.username}</span>
+            <span>${displayName}</span>
           </div>
         `;
       }).join('');
@@ -480,15 +478,14 @@ async function handleRoundCompletedUI(participants, isHost) {
       <div id="guess-list">
         ${Object.entries(guesses).map(([userId, guess]) => {
           const user = findUser(userId);
-          const avatarUrl = user.avatar 
-            ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
-            : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+          const displayName = getDisplayName(user);
+          const avatarUrl = getAvatarUrl(user);
 
           return `
             <div class="guess-item" data-user-id="${userId}">
               <div class="user-info">
-                <img src="${avatarUrl}" class="avatar-small" alt="${user.username}" />
-                <span class="username">${user.username}</span>
+                <img src="${avatarUrl}" class="avatar-small" alt="${displayName}" />
+                <span class="username">${displayName}</span>
                 <span class="guess-text">"${guess.text}"</span>
               </div>
               
@@ -511,7 +508,7 @@ async function handleRoundCompletedUI(participants, isHost) {
           <p>No Guess submitted:
             ${timedOut.map(userId => {
               const user = findUser(userId);
-              return user ? user.username : 'Unknown';
+              return user ? getDisplayName(user) : 'Unknown';
             }).join(', ')}
           </p>
         </div>
@@ -615,17 +612,15 @@ async function handleFinalResultsUI(participants, isHost) {
 
 function renderPlayerRow(player, index, discordUser) {
   const isWinner = index === 0;
-
-  const avatarUrl = discordUser.avatar 
-    ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=64`
-    : `https://cdn.discordapp.com/embed/avatars/${parseInt(discordUser.id) % 5}.png`;
+  const avatarUrl = getAvatarUrl(discordUser);
+  const displayName = getDisplayName(discordUser);
 
   return `
     <div class="player-card ${isWinner ? 'winner' : ''}">
       <div class="player-main-info">
         <div class="rank">#${index + 1}</div>
-        <img src="${avatarUrl}" class="avatar-small" alt="${discordUser.username}" />
-        <div class="name">${isWinner ? '👑 ' : ''}${discordUser.username}</div>
+        <img src="${avatarUrl}" class="avatar-small" alt="${displayName}" />
+        <div class="name">${isWinner ? '👑 ' : ''}${displayName}</div>
         <div class="total-score">${player.totalScore} pts</div>
       </div>
       
