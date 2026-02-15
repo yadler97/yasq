@@ -364,6 +364,13 @@ async function renderHostTrackPicker() {
     tracks.forEach(track => {
       const btn = document.createElement('button');
       btn.textContent = track.name;
+
+      if (track.played) {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+      }
+
       btn.onclick = async () => {
         const allButtons = list.querySelectorAll('button');
         allButtons.forEach(b => {

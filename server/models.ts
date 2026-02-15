@@ -17,6 +17,7 @@ export class GameInstance {
   public guesses: Record<number, Record<string, UserGuess>> = {};
   public leaderboard: Leaderboard = new Leaderboard();
   public currentGame: number = 1;
+  public trackHistory: string[] = [];
 
   constructor(hostId: string) {
     this.hostId = hostId;
@@ -91,12 +92,13 @@ export class GameInstance {
   }
 
   public playTrack(fileName: string, trackName: string): void {
-    const countdownDuration = 4000; 
+    const countdownDuration = 4000;
     const startTime = Date.now() + countdownDuration;
     const endTime = startTime + this.settings.trackDuration;
 
     this.trackInfo = new TrackInfo(`/music/${fileName}`, startTime, endTime, trackName);
     this.state = GameState.PLAYING;
+    this.trackHistory.push(fileName);
     const roundAtStart = this.currentRound;
 
     const totalWaitTime = countdownDuration + this.settings.trackDuration;

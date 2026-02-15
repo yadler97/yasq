@@ -183,10 +183,15 @@ app.get("/api/track-list", (req, res) => {
     return res.status(403).send({ error: "Only the host can get track list." });
   }
 
+  if (allTracks.length === game.trackHistory.length) {
+    game.trackHistory = []; // Reset history if all tracks have been played
+  }
+
   const trackList = allTracks.map((t: { name: string; file: string }, index: number) => ({
     id: index,
     name: t.name,
-    file: t.file
+    file: t.file,
+    played: game.trackHistory.includes(t.file)
   }));
   res.json(trackList);
 });
