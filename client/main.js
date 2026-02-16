@@ -574,10 +574,13 @@ async function handleResultsUI(participants, readyUsers, isFinalRound, isHost) {
     const data = await backend.getRoundResults(discordSdk.instanceId, auth.user.id);
 
     container.innerHTML = `
-      <h2>Round ${data.round} Results</h2>
-      <p>Your guess: <strong>${data.guess?.text || 'No guess submitted'}</strong></p>
-      <p>${data.guess?.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}</p>
-      <p>The correct answer was: <strong>${data.correctAnswer}</strong></p>
+      <div class="round-result-summary">
+        <h2>Round ${data.round} Results</h2>
+        <p>Your guess: <strong>${data.result?.guess || 'No guess submitted'}</strong></p>
+        <p>${data.result?.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}</p>
+        <p>You earned <strong>${data.result?.points || 0}</strong> points this round.</p>
+        <p>The correct answer was: <strong>${data.correctAnswer}</strong></p>
+      </div>
     `;
 
     showLobbyGuesserUI();

@@ -30,6 +30,12 @@ export class GameInstance {
 
   public startGame(rounds: number, trackDuration: number): void {
     this.settings = new Settings(rounds || DEFAULT_ROUNDS, (trackDuration * 1000) || DEFAULT_TRACK_DURATION);
+    this.registeredUsers.forEach(userId => {
+      if (this.isHost(userId)) return; // Skip host
+      if (!this.leaderboard.hasEntry(userId)) {
+        this.leaderboard.addEntry(new LeaderboardEntry(userId));
+      }
+    });
     this.state = GameState.TRACK_SELECTION;
     this.currentRound = 1;
   }
@@ -60,16 +66,58 @@ export class GameInstance {
   }
 
   public submitResults(corrections: Record<string, number>): void {
-    if (this.guesses[this.currentRound]) {
-      Object.entries(corrections).forEach(([userId, scoreValue]) => {
-        const roundGuesses = this.guesses[this.currentRound] || {};
-        const userGuess = roundGuesses[userId];
-        if (userGuess) {
-          userGuess.scoreValue = Number(scoreValue);
-          userGuess.isCorrect = Number(scoreValue) > 0;
-        }
-      });
-    }
+    const roundGuesses = this.guesses[this.currentRound] || {};
+
+    // 1. Update the guesses with host corrections
+    Object.entries(corrections).forEach(([userId, scoreValue]) => {
+      const userGuess = roundGuesses[userId];
+      if (userGuess) {
+        userGuess.scoreValue = Number(scoreValue);
+        userGuess.isCorrect = Number(scoreValue) > 0;
+      }
+    });
+
+    // 2. Identify the fastest correct guess for this round
+    let fastestUserId = "";
+    let minTime = Infinity;
+    Object.entries(roundGuesses).forEach(([userId, data]) => {
+      if (data.scoreValue === 1 && data.timeTaken < minTime) {
+        minTime = data.timeTaken;
+        fastestUserId = userId;
+      }
+    });
+
+    // 3. Calculate and add RoundResult for every registered user
+    this.registeredUsers.forEach(userId => {
+      if (this.isHost(userId)) return; // Skip host
+
+      const data = roundGuesses[userId];
+      const isFirst = userId === fastestUserId;
+      let pointsEarned = 0;
+
+      if (data?.isCorrect) {
+        const timeTaken = data.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
+        const multiplier = Math.max(1, 2 - (timeTaken / this.settings.trackDuration));
+        pointsEarned = BASE_POINTS * data.scoreValue * multiplier;
+        if (isFirst) pointsEarned *= FIRST_BONUS_MULTIPLIER;
+      }
+
+      // Round to avoid fractional points and ensure it's an integer
+      pointsEarned = Math.round(pointsEarned);
+
+      // Find the user's existing entry and add this round
+      const entry = this.leaderboard.getEntry(userId);
+      if (entry) {
+        entry.addRound(new RoundResult(
+          this.currentRound,
+          data?.text || "No Guess Submitted",
+          pointsEarned,
+          data?.isCorrect || false,
+          isFirst,
+          data ? (data.timeTaken / 1000).toFixed(1) : (this.settings.trackDuration / 1000).toFixed(1)
+        ));
+      }
+    });
 
     this.state = GameState.RESULTS;
     this.readyUsers = new Set(); // Reset ready states for next round
@@ -78,7 +126,6 @@ export class GameInstance {
   public advanceRound(): string {
     if (this.currentRound >= this.settings.rounds) {
       this.state = GameState.GAME_FINISHED;
-      this.calculateFinalResults();
     } else {
       this.state = GameState.TRACK_SELECTION;
       this.currentRound += 1;
@@ -110,60 +157,6 @@ export class GameInstance {
         console.log(`[TIMER] Round ${roundAtStart} expired.`);
       }
     }, totalWaitTime);
-  }
-
-  public calculateFinalResults(): void {
-    const allUsers = [...this.readyUsers];
-    const newLeaderboard = new Leaderboard();
-
-    // Calculate everything for each user one by one
-    allUsers.forEach(userId => {
-      const entry = new LeaderboardEntry(userId);
-
-      // Iterate through every round that SHOULD have happened
-      for (let r = 1; r <= this.settings.rounds; r++) {
-        const roundGuesses = this.guesses[r] || {};
-
-        // Identify the fastest correct guess for this round
-        let fastestUserId = "";
-        let minTime = Infinity;
-
-        Object.entries(roundGuesses).forEach(([userId, data]) => {
-          if (data.scoreValue === 1 && data.timeTaken < minTime) {
-            minTime = data.timeTaken;
-            fastestUserId = userId;
-          }
-        });
-
-        const data = roundGuesses[userId];
-        const isFirst = userId === fastestUserId;
-        let pointsEarned = 0;
-
-        if (data?.isCorrect) {
-          const timeTaken = data.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
-          const multiplier = Math.max(1, 2 - (timeTaken / this.settings.trackDuration));
-          pointsEarned = BASE_POINTS * data.scoreValue * multiplier;
-          if (isFirst) {
-            pointsEarned *= FIRST_BONUS_MULTIPLIER;
-          }
-        }
-
-        // Round to avoid fractional points and ensure it's an integer
-        pointsEarned = Math.round(pointsEarned);
-
-        entry.addRound(new RoundResult(
-          r,
-          data?.text || "No Guess Submitted",
-          pointsEarned,
-          data?.isCorrect || false,
-          isFirst,
-          data ? (data.timeTaken / 1000).toFixed(1) : (this.settings.trackDuration / 1000).toFixed(1)
-        ));
-      }
-      newLeaderboard.addEntry(entry);
-    });
-
-    this.leaderboard = newLeaderboard;
   }
 }
 
@@ -226,6 +219,14 @@ export class Leaderboard {
     this.sort();
   }
 
+  public hasEntry(userId: string): boolean {
+    return this.entries.some(e => e.userId === userId);
+  }
+
+  public getEntry(userId: string): LeaderboardEntry | undefined {
+    return this.entries.find(e => e.userId === userId);
+  }
+
   // Add an entry and maintain the sorted order
   public addEntry(entry: LeaderboardEntry): void {
     this.entries.push(entry);
@@ -238,5 +239,12 @@ export class Leaderboard {
 
   public getAll(): LeaderboardEntry[] {
     return this.entries;
+  }
+
+  public getRoundResults(round: number): { userId: string; points: number }[] {
+    return this.entries.map(entry => {
+      const roundResult = entry.roundHistory.find(r => r.round === round);
+      return { userId: entry.userId, points: roundResult?.points || 0 };
+    });
   }
 }

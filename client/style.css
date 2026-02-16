@@ -383,6 +383,21 @@ input[value="1"]:checked + .btn-radio.correct {
   color: white;
 }
 
+.round-result-summary {
+  background: #2f3136;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.round-result-summary h2 {
+  margin-top: 0;
+  border-bottom: 1px solid #444;
+}
+
 .final-leaderboard {
   max-width: 500px;
   margin: 0 auto;

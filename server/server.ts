@@ -249,9 +249,10 @@ app.post("/api/submit-round-results", (req, res) => {
     return res.status(403).send({ error: "Only host can submit results." });
   }
 
+  console.log(`[RESULTS] Host submitted corrections for instance ${instanceId}:`, corrections);
   game.submitResults(corrections);
 
-  console.log(`[RESULTS] Host submitted corrections for instance ${instanceId}:`, corrections);
+  console.log(`[RESULTS] Results calculated for instance ${instanceId}: ${JSON.stringify(game.leaderboard.getRoundResults(game.currentRound))}.`);
   res.send({ status: "success" });
 });
 
@@ -263,16 +264,17 @@ app.get("/api/get-results", (req, res) => {
     return res.status(400).send({ error: "Results not ready yet" });
   }
 
-  if (!game.registeredUsers.has(userId)) {
-    return res.status(403).send({ error: "User not registered in this instance." });
+  const entry = game.leaderboard.getEntry(userId);
+  if (!entry) {
+    return res.status(403).send({ error: "User not found in leaderboard." });
   }
 
-  const roundGuesses = game.guesses[game.currentRound] || {};
-  const userGuess = roundGuesses[userId];
+  // Get the most recent round result from the user's round history
+  const roundResult = entry.roundHistory.find(r => r.round === game.currentRound);
 
   res.send({
     round: game.currentRound,
-    guess: userGuess,
+    result: roundResult,
     correctAnswer: game.trackInfo.answer
   });
 });
@@ -364,6 +366,7 @@ app.post('/api/restart-game', (req, res) => {
   // Reset all game-related data for this instance
   const newGame = new GameInstance(game.hostId);
   newGame.currentGame = currentGame + 1; // Increment game number to differentiate between sessions
+  newGame.registeredUsers = new Set(game.registeredUsers); // Keep the same registered users
 
   instances[instanceId] = newGame
 
