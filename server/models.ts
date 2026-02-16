@@ -219,6 +219,9 @@ export class LeaderboardEntry {
   }
 
   addRound(result: RoundResult) {
+    const alreadyExists = this.roundHistory.some(r => r.round === result.round);
+    if (alreadyExists) return;
+
     this.roundHistory.push(result);
     this.totalScore += result.points;
   }
