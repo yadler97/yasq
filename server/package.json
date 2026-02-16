@@ -1,11 +1,12 @@
 {
-  "name": "getting-starter-activity-server",
+  "name": "yasq",
   "version": "0.1.0-dev",
   "description": "",
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "npm start"
+    "dev": "npm start",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "@types/node-fetch": "^2.6.13",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

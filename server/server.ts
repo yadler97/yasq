@@ -235,7 +235,7 @@ app.get("/api/get-guesses", (req, res) => {
 
   res.send({
     round: game.currentRound,
-    answer: game.trackInfo.answer,
+    answer: game.trackInfo?.answer,
     guesses: game.guesses[game.currentRound] || {},
     timedOut: timedOutPlayers
   });
@@ -276,7 +276,7 @@ app.get("/api/get-results", (req, res) => {
   res.send({
     round: game.currentRound,
     result: roundResult,
-    correctAnswer: game.trackInfo.answer
+    correctAnswer: game.trackInfo?.answer
   });
 });
 
@@ -334,9 +334,9 @@ app.get("/api/current-track", (req, res) => {
   if (game?.state === GameState.PLAYING) {
     const track = game.trackInfo;
     return res.send({
-      url: track.url,
-      startTime: track.startTime,
-      endTime: track.endTime
+      url: track?.url,
+      startTime: track?.startTime,
+      endTime: track?.endTime
     });
   }
 
@@ -362,15 +362,7 @@ app.post('/api/restart-game', (req, res) => {
     return res.status(403).json({ error: "Only the host can restart the game." });
   }
 
-  const currentGame = game.currentGame;
-
-  // Reset all game-related data for this instance
-  const newGame = new GameInstance(game.hostId);
-  newGame.currentGame = currentGame + 1; // Increment game number to differentiate between sessions
-  newGame.registeredUsers = new Set(game.registeredUsers); // Keep the same registered users
-  newGame.lastWinnerId = game.lastWinnerId;
-
-  instances[instanceId] = newGame
+  game.restart();
 
   res.send({ success: true });
 });

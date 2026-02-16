@@ -13,7 +13,7 @@ export class GameInstance {
   public currentRound: number = 0;
   public readyUsers: Set<string> = new Set();
   public settings: Settings;
-  public trackInfo: TrackInfo = new TrackInfo("", 0, 0, "");
+  public trackInfo: TrackInfo | null = null;
   public guesses: Record<number, Record<string, UserGuess>> = {};
   public leaderboard: Leaderboard = new Leaderboard();
   public currentGame: number = 1;
@@ -22,7 +22,7 @@ export class GameInstance {
 
   constructor(hostId: string) {
     this.hostId = hostId;
-    this.settings = { rounds: 5, trackDuration: 30000 };
+    this.settings = { rounds: DEFAULT_ROUNDS, trackDuration: DEFAULT_TRACK_DURATION };
   }
 
   public isHost(userId: string): boolean {
@@ -46,7 +46,7 @@ export class GameInstance {
       this.guesses[this.currentRound] = {};
     }
 
-    const timeTaken = Date.now() - this.trackInfo.startTime;
+    const timeTaken = this.trackInfo ? Date.now() - this.trackInfo.startTime : this.settings.trackDuration;
 
     this.guesses[this.currentRound]![userId] = new UserGuess(guessText, timeTaken);
     const totalPlayers = this.readyUsers.size;
@@ -159,6 +159,17 @@ export class GameInstance {
         console.log(`[TIMER] Round ${roundAtStart} expired.`);
       }
     }, totalWaitTime);
+  }
+
+  public restart() {
+    this.state = GameState.LOBBY;
+    this.currentRound = 0;
+    this.readyUsers = new Set();
+    this.guesses = {};
+    this.trackInfo = null;
+    this.trackHistory = [];
+    this.leaderboard = new Leaderboard();
+    this.currentGame += 1;
   }
 }
 
