@@ -171,7 +171,8 @@ app.get("/api/game-status", (req, res) => {
     readyUsers: [...game.readyUsers],
     currentRound: game.currentRound,
     isFinalRound: game.isFinalRound(),
-    currentGame: game.currentGame
+    currentGame: game.currentGame,
+    lastWinnerId: game.lastWinnerId
   });
 });
 
@@ -367,6 +368,7 @@ app.post('/api/restart-game', (req, res) => {
   const newGame = new GameInstance(game.hostId);
   newGame.currentGame = currentGame + 1; // Increment game number to differentiate between sessions
   newGame.registeredUsers = new Set(game.registeredUsers); // Keep the same registered users
+  newGame.lastWinnerId = game.lastWinnerId;
 
   instances[instanceId] = newGame
 

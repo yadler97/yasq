@@ -18,6 +18,7 @@ export class GameInstance {
   public leaderboard: Leaderboard = new Leaderboard();
   public currentGame: number = 1;
   public trackHistory: string[] = [];
+  public lastWinnerId: string | null = null;
 
   constructor(hostId: string) {
     this.hostId = hostId;
@@ -126,6 +127,7 @@ export class GameInstance {
   public advanceRound(): string {
     if (this.currentRound >= this.settings.rounds) {
       this.state = GameState.GAME_FINISHED;
+      this.lastWinnerId = this.leaderboard.getWinnerId();
     } else {
       this.state = GameState.TRACK_SELECTION;
       this.currentRound += 1;
@@ -246,5 +248,9 @@ export class Leaderboard {
       const roundResult = entry.roundHistory.find(r => r.round === round);
       return { userId: entry.userId, points: roundResult?.points || 0 };
     });
+  }
+
+  public getWinnerId(): string | null {
+    return this.entries[0]?.userId || null;
   }
 }

@@ -40,7 +40,16 @@ setupDiscordSdk().then(async () => {
   });
 
   setInterval(async () => {
-    const { state, hostId, readyUsers, currentRound, isFinalRound, currentGame } = await backend.getGameStatus(discordSdk.instanceId);
+    const {
+      state,
+      hostId,
+      readyUsers,
+      currentRound,
+      isFinalRound,
+      currentGame,
+      lastWinnerId
+    } = await backend.getGameStatus(discordSdk.instanceId);
+
     isHost = String(auth.user.id) === String(hostId);
     isReady = readyUsers.includes(auth.user.id);
     if (!isHost) {
@@ -57,7 +66,7 @@ setupDiscordSdk().then(async () => {
     const pData = await discordSdk.commands.getInstanceConnectedParticipants();
 
     // 1. Always update participants
-    renderParticipants(pData.participants, readyUsers);
+    renderParticipants(pData.participants, readyUsers, lastWinnerId);
 
     // 2. Handle State Transitions
     switch (state) {
@@ -148,7 +157,7 @@ async function setupDiscordSdk() {
   };
 }
 
-function renderParticipants(participants, readyUsers = []) {
+function renderParticipants(participants, readyUsers = [], lastWinnerId = null) {
   const listContainer = document.querySelector('#participant-list');
   
   // Clear the current list
@@ -180,14 +189,21 @@ function renderParticipants(participants, readyUsers = []) {
     // Or ready label if they are marked as ready
     if (p.id === currentHostId) {
       const hostLabel = document.createElement('span');
-      hostLabel.className = 'host-badge';
+      hostLabel.className = 'badge host';
       hostLabel.textContent = 'HOST';
       nameTag.appendChild(hostLabel);
     } else if (readyUsers.includes(p.id)) {
       const readyLabel = document.createElement('span');
-      readyLabel.className = 'ready-badge';
+      readyLabel.className = 'badge ready';
       readyLabel.textContent = 'READY';
       nameTag.appendChild(readyLabel);
+    }
+
+    if (p.id === lastWinnerId) {
+      const winnerLabel = document.createElement('span');
+      winnerLabel.className = 'badge winner';
+      winnerLabel.textContent = '👑';
+      nameTag.appendChild(winnerLabel);
     }
 
     wrapper.appendChild(avatar);
