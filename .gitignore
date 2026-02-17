@@ -31,4 +31,5 @@ dist-ssr
 
 # Application specific ignores
 server/music/*
+server/game_covers/*
 server/tracks.json

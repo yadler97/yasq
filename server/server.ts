@@ -27,6 +27,7 @@ const allTracks = JSON.parse(tracksRaw);
 // Allow express to parse JSON bodies
 app.use(express.json());
 app.use('/music', express.static(path.join(__dirname, 'music')));
+app.use('/game_covers', express.static(path.join(__dirname, 'game_covers')));
 
 app.post("/api/token", async (req, res) => {
   const { code } = req.body;
@@ -235,7 +236,7 @@ app.get("/api/get-guesses", (req, res) => {
 
   res.send({
     round: game.currentRound,
-    answer: game.trackInfo?.answer,
+    answer: game.trackInfo?.gameTitle,
     guesses: game.guesses[game.currentRound] || {},
     timedOut: timedOutPlayers
   });
@@ -276,7 +277,9 @@ app.get("/api/get-results", (req, res) => {
   res.send({
     round: game.currentRound,
     result: roundResult,
-    correctAnswer: game.trackInfo?.answer
+    correctAnswer: game.trackInfo?.gameTitle,
+    trackTitle: game.trackInfo?.trackTitle,
+    gameCover: game.trackInfo?.gameCoverUrl
   });
 });
 
@@ -312,13 +315,13 @@ app.post("/api/play-local", (req, res) => {
     return res.status(403).send({ error: "Only the host can change tracks." });
   }
 
-  const track = allTracks.find((t: { name: string; file: string }) => t.file === fileName);
+  const track = allTracks.find((t: { name: string; title: string; file: string }) => t.file === fileName);
 
   if (!track) {
     return res.status(400).send({ error: "Track not found." });
   }
 
-  game.playTrack(fileName, track.name);
+  game.playTrack(fileName, track.name, track.title);
 
   console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
   res.send({

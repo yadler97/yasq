@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
           ws: true,
         },
         '/music': 'http://localhost:3001',
+        '/game_covers': 'http://localhost:3001',
       },
       hmr: {
         clientPort: 443,

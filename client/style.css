@@ -395,7 +395,47 @@ input[value="1"]:checked + .btn-radio.correct {
 
 .round-result-summary h2 {
   margin-top: 0;
+  margin-bottom: 0;
   border-bottom: 1px solid #444;
+}
+
+.track-details {
+  padding: 10px;
+  display: flex;
+  gap: 20px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+.track-details img {
+  width: 150px;
+  height: 150px;
+  border-radius: 8px;
+  background: white;
+}
+
+.own-results {
+  margin-top: 10px;
+  padding: 5px;
+}
+
+.own-results .result {
+  border-radius: 8px;
+  font-weight: bolder;
+  font-size: larger;
+  height: 50px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.own-results .result.correct {
+  background: #43b581;
+}
+
+.own-results .result.incorrect {
+  background: #f04747;
 }
 
 .final-leaderboard {

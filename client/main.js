@@ -582,7 +582,6 @@ async function handleResultsUI(participants, readyUsers, isFinalRound, isHost) {
     document.querySelector('#progress-bar').style.width = `0%`;
     document.querySelector('#progress-bar').style.backgroundColor = '#5865f2';
   }
-  lastState = GameState.RESULTS;
 
   if (isHost) {
     container.innerHTML = `<h2>Waiting for players to review results...</h2>`;
@@ -604,20 +603,34 @@ async function handleResultsUI(participants, readyUsers, isFinalRound, isHost) {
       ? buttonText 
       : `Waiting... (${readyUsers.length}/${playersExcludingHost.length})`;
   } else {
-    const data = await backend.getRoundResults(discordSdk.instanceId, auth.user.id);
+    if (lastState === GameState.ROUND_COMPLETED) {
+      const data = await backend.getRoundResults(discordSdk.instanceId, auth.user.id);
 
-    container.innerHTML = `
-      <div class="round-result-summary">
-        <h2>Round ${data.round} Results</h2>
-        <p>Your guess: <strong>${data.result?.guess || 'No guess submitted'}</strong></p>
-        <p>${data.result?.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}</p>
-        <p>You earned <strong>${data.result?.points || 0}</strong> points this round.</p>
-        <p>The correct answer was: <strong>${data.correctAnswer}</strong></p>
-      </div>
-    `;
+      const statusClass = data.result?.isCorrect ? 'correct' : 'incorrect';
+
+      container.innerHTML = `
+        <div class="round-result-summary">
+          <h2>Round ${data.round} Results</h2>
+          <div class="track-details">
+            <img src=${data.gameCover} alt="Game Cover of ${data.correctAnswer}" />
+            <div>
+              <p><strong>${data.correctAnswer}</strong></p>
+              <p><i>${data.trackTitle}</i></p>
+            </div>
+          </div>
+          <div class="own-results">
+            <p class="result ${statusClass}">${data.result?.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}</p>
+            <p>Your guess: <strong>${data.result?.guess || 'No guess submitted'}</strong></p>
+            <p>You earned <strong>${data.result?.points || 0}</strong> points this round.</p>
+          </div>
+        </div>
+      `;
+    }
 
     showLobbyGuesserUI();
   }
+
+  lastState = GameState.RESULTS;
 }
 
 async function handleFinalResultsUI(participants, isHost) {

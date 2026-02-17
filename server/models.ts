@@ -140,12 +140,12 @@ export class GameInstance {
     return this.currentRound >= this.settings.rounds;
   }
 
-  public playTrack(fileName: string, trackName: string): void {
+  public playTrack(fileName: string, gameTitle: string, trackTitle: string): void {
     const countdownDuration = 4000;
     const startTime = Date.now() + countdownDuration;
     const endTime = startTime + this.settings.trackDuration;
 
-    this.trackInfo = new TrackInfo(`/music/${fileName}`, startTime, endTime, trackName);
+    this.trackInfo = new TrackInfo(`/music/${fileName}.mp3`, startTime, endTime, gameTitle, trackTitle, `/game_covers/${fileName}.png`);
     this.state = GameState.PLAYING;
     this.trackHistory.push(fileName);
     const roundAtStart = this.currentRound;
@@ -185,7 +185,9 @@ export class TrackInfo {
     public url: string,
     public startTime: number,
     public endTime: number,
-    public answer: string
+    public gameTitle: string,
+    public trackTitle: string,
+    public gameCoverUrl: string
   ) {}
 }
 
