@@ -131,7 +131,19 @@ async function setupDiscordSdk() {
 
   document.querySelector('#game-guesser-form').onsubmit = async (e) => {
     e.preventDefault();
+    const form = e.currentTarget;
+    const submitBtn = form.querySelector('#btn-submit');
+    const input = form.querySelector('#guess-input');
+
+    submitBtn.disabled = true;
+    input.disabled = true;
+
     await backend.submitGuess(discordSdk.instanceId, auth.user.id, document.querySelector('#guess-input').value);
+
+    setTimeout(() => {
+      submitBtn.disabled = false;
+      input.disabled = false;
+    }, 2000);
   };
 
   document.querySelector('#btn-start').onclick = async () => {
@@ -237,7 +249,9 @@ function renderHostChangeUI(participants) {
   const listContainer = document.querySelector('#dropdown-list');
   const header = document.querySelector('#dropdown-header');
   const transferBtn = document.querySelector('#btn-confirm-transfer');
-  
+
+  transferBtn.disabled = !transferBtn.dataset.selectedId;
+
   // Toggle menu visibility
   header.onclick = (e) => {
     e.stopPropagation();
@@ -304,16 +318,17 @@ function renderHostChangeUI(participants) {
 
     try {
       await backend.assignNewHost(discordSdk.instanceId, auth.user.id, newHostId);
-      header.textContent = "Select a player...";
-      lastParticipantsSnapshot = ""; 
     } catch (err) {
       console.error(err);
       transferBtn.textContent = "Error!";
-      setTimeout(() => { 
-        transferBtn.textContent = "Transfer 👑"; 
-        transferBtn.disabled = false; 
-      }, 2000);
     }
+
+    setTimeout(() => {
+      transferBtn.textContent = "Transfer";
+      header.textContent = "Select a player...";
+      lastParticipantsSnapshot = "";
+      delete transferBtn.dataset.selectedId;
+    }, 2000);
   };
 }
 
@@ -378,16 +393,16 @@ async function renderHostTrackPicker() {
     list.innerHTML = ''; // Clear loading text
 
     tracks.forEach(track => {
-      const btn = document.createElement('button');
-      btn.textContent = track.name;
+      const playTrackBtn = document.createElement('button');
+      playTrackBtn.textContent = track.name;
 
       if (track.played) {
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
+        playTrackBtn.disabled = true;
+        playTrackBtn.style.opacity = "0.5";
+        playTrackBtn.style.cursor = "not-allowed";
       }
 
-      btn.onclick = async () => {
+      playTrackBtn.onclick = async () => {
         const allButtons = list.querySelectorAll('button');
         allButtons.forEach(b => {
           b.disabled = true;
@@ -399,10 +414,10 @@ async function renderHostTrackPicker() {
         await backend.playTrack(track.file, discordSdk.instanceId, auth.user.id);
         
         // Feedback for host
-        btn.style.background = "#3ba55e";
+        playTrackBtn.style.background = "#3ba55e";
         console.log(`Now playing: ${track.name}`);
       };
-      list.appendChild(btn);
+      list.appendChild(playTrackBtn);
     });
   } catch (err) {
     console.error("Failed to load track list:", err);
@@ -539,7 +554,9 @@ async function handleRoundCompletedUI(participants, isHost) {
       <button id="btn-submit-reviewed-results">Submit Reviewed Results</button>
     `;
 
-    document.querySelector('#btn-submit-reviewed-results').onclick = async () => {
+    const submitReviewedResultsBtn = document.querySelector('#btn-submit-reviewed-results');
+    submitReviewedResultsBtn.onclick = async () => {
+      submitReviewedResultsBtn.disabled = true;
       const corrections = {};
       document.querySelectorAll('.guess-item').forEach(item => {
         const userId = item.getAttribute('data-user-id');
@@ -632,7 +649,11 @@ async function handleFinalResultsUI(participants, isHost) {
   `;
 
   if (isHost) {
-    document.querySelector('#btn-restart').onclick = () => backend.restartGame(discordSdk.instanceId, auth.user.id);
+    const restartBtn = document.querySelector('#btn-restart');
+    restartBtn.onclick = async () => {
+      restartBtn.disabled = true;
+      backend.restartGame(discordSdk.instanceId, auth.user.id);
+    };
   }
 }
 
