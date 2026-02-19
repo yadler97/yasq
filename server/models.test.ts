@@ -59,7 +59,7 @@ describe('GameInstance - submitGuess', () => {
     // Simulate game already started and in selection state
     game.readyUsers = new Set([PLAYER_1, PLAYER_2]);
     game.currentRound = 1;
-    game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10000, "answer")
+    game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10000, "answer", "title", "cover")
   });
 
   it('should calculate timeTaken correctly using fake timers', () => {

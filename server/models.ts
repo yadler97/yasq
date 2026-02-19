@@ -127,6 +127,7 @@ export class GameInstance {
   public advanceRound(): string {
     if (this.currentRound >= this.settings.rounds) {
       this.state = GameState.GAME_FINISHED;
+      this.leaderboard.sort();
       this.lastWinnerId = this.leaderboard.getWinnerId();
     } else {
       this.state = GameState.TRACK_SELECTION;
@@ -234,7 +235,6 @@ export class Leaderboard {
 
   constructor(entries: LeaderboardEntry[] = []) {
     this.entries = entries;
-    this.sort();
   }
 
   public hasEntry(userId: string): boolean {
@@ -248,10 +248,9 @@ export class Leaderboard {
   // Add an entry and maintain the sorted order
   public addEntry(entry: LeaderboardEntry): void {
     this.entries.push(entry);
-    this.sort();
   }
 
-  private sort(): void {
+  public sort(): void {
     this.entries.sort((a, b) => b.totalScore - a.totalScore);
   }
 
