@@ -15,8 +15,8 @@ export const mockDiscordSdk = {
     authenticate: async () => ({
       access_token: 'mock_token',
       user: {
-        id: '999999999',
-        username: 'MockTester',
+        id: window.__MOCK_USER_ID__ || '999999999', 
+        username: window.__MOCK_USER_NAME__ || 'MockPlayer1',
         avatar: null,
       },
       scopes: ['identify', 'guilds'],
@@ -26,7 +26,7 @@ export const mockDiscordSdk = {
 
     // Mock Participants
     getInstanceConnectedParticipants: async () => ({
-      participants: [
+      participants: window.__MOCK_PARTICIPANTS__ || [
         { id: '999999999', username: 'MockPlayer1' },
         { id: '111111111', username: 'MockPlayer2' }
       ]
