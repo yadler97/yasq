@@ -1,12 +1,12 @@
 {
-  "name": "yasq",
+  "name": "yasq-server",
   "version": "0.1.0-dev",
   "description": "",
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "npm start",
-    "test": "vitest"
+    "dev": "cross-env NODE_ENV=development tsx watch server.ts",
+    "test": "cross-env NODE_ENV=test vitest"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.2.3",
     "@types/node-fetch": "^2.6.13",
+    "cross-env": "^10.1.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",

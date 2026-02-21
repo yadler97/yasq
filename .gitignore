@@ -33,3 +33,7 @@ dist-ssr
 server/music/*
 server/game_covers/*
 server/tracks.json
+
+# Playwright
+playwright-report/*
+test-results/*

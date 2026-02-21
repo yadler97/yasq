@@ -32,6 +32,11 @@ app.use('/game_covers', express.static(path.join(__dirname, 'game_covers')));
 app.post("/api/token", async (req, res) => {
   const { code } = req.body;
 
+  if (process.env.NODE_ENV === 'development' && code === 'mock_code') {
+    console.log("DEV MODE")
+    return res.send({ access_token: 'mock_token_for_dev' });
+  }
+
   // 1. Validate that we actually have the required data
   if (!code) {
     return res.status(400).send({ error: "Missing code" });

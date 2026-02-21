@@ -2,6 +2,7 @@ import { DiscordSDK } from "@discord/embedded-app-sdk";
 import * as backend from "./backend.js";
 import { getAvatarUrl, getDisplayName } from "./helper.js";
 import { GameState } from './constants.js';
+import { mockDiscordSdk } from "../mock_data/mockDiscordSdk.js"
 
 import rocketLogo from '/rocket.png';
 import "./style.css";
@@ -16,9 +17,11 @@ let lastState = null;
 let lastParticipantsSnapshot = null;
 let gameNumber = 1;
 
-const discordSdk = new DiscordSDK(
-  import.meta.env.VITE_DISCORD_CLIENT_ID
-);
+const isDev = import.meta.env.DEV
+
+export const discordSdk = isDev 
+  ? mockDiscordSdk 
+  : new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
 let audioPlayer;
 let volumeSlider;
