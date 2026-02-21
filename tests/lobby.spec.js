@@ -68,4 +68,29 @@ test.describe('Host UI', () => {
     // Button disabled again
     await expect(startBtn).toBeDisabled();
   });
+
+  test('should display correct badges for host and ready status', async ({ page, request }) => {
+    const host = players[0];
+    const guest = players[1];
+
+    // Check for the HOST badge
+    const hostEntry = page.locator(`.player-entry:has-text("${host.username}")`);
+    await expect(hostEntry.locator('.badge.host')).toBeVisible();
+    await expect(hostEntry.locator('.badge.host')).toHaveText('HOST');
+
+    // Check for the READY badge
+    await request.post('http://localhost:3001/api/ready', {
+      data: { instanceId: INSTANCE_ID, userId: guest.id, ready: true }
+    });
+    
+    const playerEntry = page.locator(`.player-entry:has-text("${guest.username}")`);
+    await expect(playerEntry.locator('.badge.ready')).toBeVisible();
+    await expect(playerEntry.locator('.badge.ready')).toHaveText('READY');
+
+    await request.post('http://localhost:3001/api/ready', {
+      data: { instanceId: INSTANCE_ID, userId: guest.id, ready: false }
+    });
+
+    await expect(playerEntry.locator('.badge.ready')).toBeHidden();
+  });
 });

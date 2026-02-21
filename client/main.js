@@ -174,7 +174,7 @@ async function setupDiscordSdk() {
 
 function renderParticipants(participants, readyUsers = [], lastWinnerId = null) {
   const listContainer = document.querySelector('#participant-list');
-  
+
   // Clear the current list
   listContainer.innerHTML = '';
 
@@ -183,46 +183,47 @@ function renderParticipants(participants, readyUsers = [], lastWinnerId = null) 
 
   participants.forEach((p) => {
     const wrapper = document.createElement('div');
-    wrapper.style.display = 'flex';
-    wrapper.style.alignItems = 'center';
-    wrapper.style.margin = '10px 0';
-
-    // Get the display name (nickname first, then username)
-    const displayName = getDisplayName(p);
+    wrapper.className = 'player-entry';
 
     // Create a small avatar
     const avatar = document.createElement('img');
     avatar.src = getAvatarUrl(p);
-    avatar.style.width = '24px';
-    avatar.style.borderRadius = '50%';
-    avatar.style.marginRight = '8px';
+    avatar.className = 'avatar-tiny';
+    avatar.style.marginTop = '2px';
+
+    const infoContainer = document.createElement('div');
+    infoContainer.className = 'player-info-container';
 
     const nameTag = document.createElement('span');
-    nameTag.textContent = displayName;
+    nameTag.className = 'player-name';
+    nameTag.textContent = getDisplayName(p);
 
-    // Add host label if this participant is the host
-    // Or ready label if they are marked as ready
+    const badgeContainer = document.createElement('div');
+    badgeContainer.className = 'badge-container';
+
     if (p.id === currentHostId) {
       const hostLabel = document.createElement('span');
       hostLabel.className = 'badge host';
       hostLabel.textContent = 'HOST';
-      nameTag.appendChild(hostLabel);
+      badgeContainer.appendChild(hostLabel);
     } else if (readyUsers.includes(p.id)) {
       const readyLabel = document.createElement('span');
       readyLabel.className = 'badge ready';
       readyLabel.textContent = 'READY';
-      nameTag.appendChild(readyLabel);
+      badgeContainer.appendChild(readyLabel);
     }
 
     if (p.id === lastWinnerId) {
       const winnerLabel = document.createElement('span');
       winnerLabel.className = 'badge winner';
       winnerLabel.textContent = '👑';
-      nameTag.appendChild(winnerLabel);
+      badgeContainer.appendChild(winnerLabel);
     }
 
+    infoContainer.appendChild(nameTag);
+    infoContainer.appendChild(badgeContainer);
     wrapper.appendChild(avatar);
-    wrapper.appendChild(nameTag);
+    wrapper.appendChild(infoContainer);
     fragment.appendChild(wrapper);
   });
 
