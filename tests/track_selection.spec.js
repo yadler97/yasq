@@ -1,26 +1,27 @@
 import { test, expect } from '@playwright/test';
 import { generatePlayers } from './helper.js'
 
-const INSTANCE_ID = '123456789';
-
 test.describe('Host UI', () => {
 
   let players = [];
+  let currentInstanceId;
 
-  test.beforeEach(async ({ page, request }) => {
+  test.beforeEach(async ({ page, request }, testInfo) => {
+    currentInstanceId = `test-instance-${testInfo.testId}`;
     const playerCount = 3;
     players = generatePlayers(playerCount);
-    const host = players[0];
+    const user = players[0];
 
-    await page.addInitScript(({ allPlayers, host }) => {
+    await page.addInitScript(({ allPlayers, user, instanceId }) => {
       window.__MOCK_PARTICIPANTS__ = allPlayers;
-      window.__MOCK_USER_ID__ = host.id;
-      window.__MOCK_USER_NAME__ = host.username;
-    }, { allPlayers: players, host: host });
+      window.__MOCK_USER_ID__ = user.id;
+      window.__MOCK_USER_NAME__ = user.username;
+      window.__MOCK_INSTANCE_ID__ = instanceId;
+    }, { allPlayers: players, user: user, instanceId: currentInstanceId });
 
     await request.post('http://localhost:3001/api/test/setup-session', {
       data: { 
-        instanceId: INSTANCE_ID,
+        instanceId: currentInstanceId,
         hostId: players[0].id,
         registeredUsers: players,
         state: 'TRACK_SELECTION',
@@ -30,6 +31,10 @@ test.describe('Host UI', () => {
 
     // Navigate to the app
     await page.goto('/?mock=true');
+  });
+
+  test.afterEach(async ({ request }) => {
+    await request.delete(`http://localhost:3001/api/test/instance/${currentInstanceId}`);
   });
 
   test('should show track selection', async ({ page }) => {

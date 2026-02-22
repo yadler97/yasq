@@ -1,5 +1,5 @@
 export const mockDiscordSdk = {
-  instanceId: '123456789',
+  instanceId: window.__MOCK_INSTANCE_ID__ || '123456789',
   // Mocking the ready promise
   ready: () => Promise.resolve(),
 

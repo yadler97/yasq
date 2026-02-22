@@ -1,26 +1,27 @@
 import { test, expect } from '@playwright/test';
 import { generatePlayers } from './helper.js'
 
-const INSTANCE_ID = '123456789';
-
 test.describe('Host UI', () => {
 
   let players = [];
+  let currentInstanceId;
 
-  test.beforeEach(async ({ page, request }) => {
+  test.beforeEach(async ({ page, request }, testInfo) => {
+    currentInstanceId = `test-instance-${testInfo.testId}`;
     const playerCount = 3;
     players = generatePlayers(playerCount);
-    const host = players[0];
+    const user = players[0];
 
-    await page.addInitScript(({ allPlayers, host }) => {
+    await page.addInitScript(({ allPlayers, user, instanceId }) => {
       window.__MOCK_PARTICIPANTS__ = allPlayers;
-      window.__MOCK_USER_ID__ = host.id;
-      window.__MOCK_USER_NAME__ = host.username;
-    }, { allPlayers: players, host: host });
+      window.__MOCK_USER_ID__ = user.id;
+      window.__MOCK_USER_NAME__ = user.username;
+      window.__MOCK_INSTANCE_ID__ = instanceId;
+    }, { allPlayers: players, user: user, instanceId: currentInstanceId });
 
     await request.post('http://localhost:3001/api/test/setup-session', {
       data: { 
-        instanceId: INSTANCE_ID,
+        instanceId: currentInstanceId,
         hostId: players[0].id,
         registeredUsers: players,
         state: 'LOBBY',
@@ -32,6 +33,10 @@ test.describe('Host UI', () => {
     await page.goto('/?mock=true');
   });
 
+  test.afterEach(async ({ request }) => {
+    await request.delete(`http://localhost:3001/api/test/instance/${currentInstanceId}`);
+  });
+
   test('should toggle start button based on participant ready-state updates', async ({ page }) => {
     // Check for the Start Game button
     const startBtn = page.locator('#btn-start');
@@ -40,7 +45,7 @@ test.describe('Host UI', () => {
 
     // MockPlayer1 is ready
     await page.request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: INSTANCE_ID, userId: players[1].id, ready: true }
+      data: { instanceId: currentInstanceId, userId: players[1].id, ready: true }
     });
 
     // Not all players ready yet
@@ -48,7 +53,7 @@ test.describe('Host UI', () => {
 
     // MockPlayer2 is ready
     await page.request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: INSTANCE_ID, userId: players[2].id, ready: true }
+      data: { instanceId: currentInstanceId, userId: players[2].id, ready: true }
     });
 
     // Button enabled when all players are ready
@@ -56,7 +61,7 @@ test.describe('Host UI', () => {
 
     // MockPlayer2 is no longer ready
     await page.request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: INSTANCE_ID, userId: players[2].id, ready: false }
+      data: { instanceId: currentInstanceId, userId: players[2].id, ready: false }
     });
 
     // Button disabled again
@@ -74,7 +79,7 @@ test.describe('Host UI', () => {
 
     // Check for the READY badge
     await request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: INSTANCE_ID, userId: guest.id, ready: true }
+      data: { instanceId: currentInstanceId, userId: guest.id, ready: true }
     });
     
     const playerEntry = page.locator(`.player-entry:has-text("${guest.username}")`);
@@ -82,7 +87,7 @@ test.describe('Host UI', () => {
     await expect(playerEntry.locator('.badge.ready')).toHaveText('READY');
 
     await request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: INSTANCE_ID, userId: guest.id, ready: false }
+      data: { instanceId: currentInstanceId, userId: guest.id, ready: false }
     });
 
     await expect(playerEntry.locator('.badge.ready')).toBeHidden();
@@ -92,21 +97,24 @@ test.describe('Host UI', () => {
 test.describe('Player UI', () => {
 
   let players = [];
+  let currentInstanceId;
 
-  test.beforeEach(async ({ page, request }) => {
+  test.beforeEach(async ({ page, request }, testInfo) => {
+    currentInstanceId = `test-instance-${testInfo.testId}`;
     const playerCount = 3;
     players = generatePlayers(playerCount);
     const user = players[1];
 
-    await page.addInitScript(({ allPlayers, user }) => {
+    await page.addInitScript(({ allPlayers, user, instanceId }) => {
       window.__MOCK_PARTICIPANTS__ = allPlayers;
       window.__MOCK_USER_ID__ = user.id;
       window.__MOCK_USER_NAME__ = user.username;
-    }, { allPlayers: players, user: user });
+      window.__MOCK_INSTANCE_ID__ = instanceId;
+    }, { allPlayers: players, user: user, instanceId: currentInstanceId });
 
     await request.post('http://localhost:3001/api/test/setup-session', {
       data: { 
-        instanceId: INSTANCE_ID,
+        instanceId: currentInstanceId,
         hostId: players[0].id,
         registeredUsers: players,
         state: 'LOBBY',

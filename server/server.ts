@@ -416,6 +416,18 @@ app.post("/api/test/setup-session", (req, res) => {
   res.status(200).send({ message: "Mock data loaded", instance: instances[instanceId] });
 });
 
+app.delete("/api/test/instance/:instanceId", (req, res) => {
+  const { instanceId } = req.params;
+
+  if (instances[instanceId]) {
+    delete instances[instanceId];
+    console.log(`Successfully purged test instance: ${instanceId}`);
+    return res.status(200).send({ message: `Instance ${instanceId} deleted` });
+  }
+
+  res.status(204).send();
+});
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
