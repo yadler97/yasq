@@ -32,8 +32,8 @@ app.use('/game_covers', express.static(path.join(__dirname, 'game_covers')));
 app.post("/api/token", async (req, res) => {
   const { code } = req.body;
 
-  if (process.env.NODE_ENV === 'development' && code === 'mock_code') {
-    console.log("DEV MODE")
+  if (process.env.VITE_MOCK_MODE === 'true' && code === 'mock_code') {
+    console.log("MOCK MODE")
     return res.send({ access_token: 'mock_token_for_dev' });
   }
 

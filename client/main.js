@@ -17,9 +17,9 @@ let lastState = null;
 let lastParticipantsSnapshot = null;
 let gameNumber = 1;
 
-const isDev = import.meta.env.DEV
+const isMockMode = import.meta.env.VITE_MOCK_MODE
 
-export const discordSdk = isDev 
+export const discordSdk = isMockMode 
   ? mockDiscordSdk 
   : new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 

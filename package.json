@@ -9,8 +9,9 @@
     "dev:server": "npm run dev -w server",
     "dev:client": "npm run dev -w client",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "dev:mock": "cross-env VITE_MOCK_MODE=true npm run dev",
+    "test:e2e": "cross-env VITE_MOCK_MODE=true playwright test",
+    "test:e2e:ui": "cross-env VITE_MOCK_MODE=true playwright test --ui"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
