@@ -18,21 +18,15 @@ test.describe('Host UI', () => {
       window.__MOCK_USER_NAME__ = host.username;
     }, { allPlayers: players, host: host });
 
-    // Register all players on the Backend
-    for (const player of players) {
-      await request.post('http://localhost:3001/api/register', {
-        data: { 
-          instanceId: INSTANCE_ID, 
-          userId: player.id, 
-          username: player.username 
-        }
-      });
-
-      // Ensure they all start as 'not ready'
-      await request.post('http://localhost:3001/api/ready', {
-        data: { instanceId: INSTANCE_ID, userId: player.id, ready: false }
-      });
-    }
+    await request.post('http://localhost:3001/api/test/setup-session', {
+      data: { 
+        instanceId: INSTANCE_ID,
+        hostId: players[0].id,
+        registeredUsers: players,
+        state: 'LOBBY',
+        readyUserIds: [] 
+      }
+    });
 
     // Navigate to the app
     await page.goto('/?mock=true');
@@ -92,5 +86,61 @@ test.describe('Host UI', () => {
     });
 
     await expect(playerEntry.locator('.badge.ready')).toBeHidden();
+  });
+});
+
+test.describe('Player UI', () => {
+
+  let players = [];
+
+  test.beforeEach(async ({ page, request }) => {
+    const playerCount = 3;
+    players = generatePlayers(playerCount);
+    const user = players[1];
+
+    await page.addInitScript(({ allPlayers, user }) => {
+      window.__MOCK_PARTICIPANTS__ = allPlayers;
+      window.__MOCK_USER_ID__ = user.id;
+      window.__MOCK_USER_NAME__ = user.username;
+    }, { allPlayers: players, user: user });
+
+    await request.post('http://localhost:3001/api/test/setup-session', {
+      data: { 
+        instanceId: INSTANCE_ID,
+        hostId: players[0].id,
+        registeredUsers: players,
+        state: 'LOBBY',
+        readyUserIds: [] 
+      }
+    });
+
+    // Navigate to the app
+    await page.goto('/?mock=true');
+  });
+
+  test('should display ready button and toggle status', async ({ page, request }) => {
+    // Verify Ready Button Visible
+    const readyBtn = page.locator('#btn-ready'); 
+    await expect(readyBtn).toBeVisible();
+    await expect(readyBtn).toHaveText('Ready Up');
+
+    // Click the Ready button
+    await readyBtn.click();
+
+    // Verify the button text changes
+    await expect(readyBtn).toHaveText("I'm Ready! ✅");
+
+    // Verify the Badge appears in the player list
+    const localPlayerRow = page.locator(`.player-entry:has-text("${players[1].username}")`);
+    await expect(localPlayerRow.locator('.badge.ready')).toBeVisible();
+
+    // Click the Ready button again
+    await readyBtn.click();
+
+    // Verify the button text changes
+    await expect(readyBtn).toHaveText("Ready Up");
+
+    // Verify the Badge disappears in the player list
+    await expect(localPlayerRow.locator('.badge.ready')).toBeHidden();
   });
 });

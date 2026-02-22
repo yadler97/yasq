@@ -6,7 +6,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 import { GameState } from './constants.js';
-import { GameInstance } from './models.js';
+import { GameInstance, Leaderboard, Settings } from './models.js';
 
 import type {
   InstanceQuery,
@@ -373,6 +373,47 @@ app.post('/api/restart-game', (req, res) => {
   game.restart();
 
   res.send({ success: true });
+});
+
+app.post("/api/test/setup-session", (req, res) => {
+  const {
+    instanceId,
+    registeredUsers = [],
+    hostId = registeredUsers[0]?.id, // Default host is the first player in the list
+    state = 'LOBBY',
+    currentRound = 1,
+    readyUserIds = [],
+    settings = new Settings(5, 30),
+    trackInfo = null,
+    guesses = {},
+    leaderboard = new Leaderboard(),
+    currentGame = 1,
+    trackHistory = [],
+    lastWinnerId
+  } = req.body;
+
+  if (!instanceId) {
+    return res.status(400).send({ error: "instanceId is required" });
+  }
+
+  // Set the mock state
+  const game = new GameInstance(hostId);
+  const registeredUserIds = registeredUsers.map((u: { id: string; }) => u.id);
+  game.registeredUsers = new Set(registeredUserIds);
+  game.state = state;
+  game.currentRound = currentRound;
+  game.readyUsers = new Set(readyUserIds);
+  game.settings = settings;
+  game.trackInfo = trackInfo;
+  game.guesses = guesses;
+  game.leaderboard = leaderboard;
+  game.currentGame = currentGame;
+  game.trackHistory = trackHistory;
+  game.lastWinnerId = lastWinnerId;
+
+  instances[instanceId] = game;
+
+  res.status(200).send({ message: "Mock data loaded", instance: instances[instanceId] });
 });
 
 app.listen(port, () => {

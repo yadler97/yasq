@@ -1,0 +1,64 @@
+import { test, expect } from '@playwright/test';
+import { generatePlayers } from './helper.js'
+
+const INSTANCE_ID = '123456789';
+
+test.describe('Host UI', () => {
+
+  let players = [];
+
+  test.beforeEach(async ({ page, request }) => {
+    const playerCount = 3;
+    players = generatePlayers(playerCount);
+    const host = players[0];
+
+    await page.addInitScript(({ allPlayers, host }) => {
+      window.__MOCK_PARTICIPANTS__ = allPlayers;
+      window.__MOCK_USER_ID__ = host.id;
+      window.__MOCK_USER_NAME__ = host.username;
+    }, { allPlayers: players, host: host });
+
+    await request.post('http://localhost:3001/api/test/setup-session', {
+      data: { 
+        instanceId: INSTANCE_ID,
+        hostId: players[0].id,
+        registeredUsers: players,
+        state: 'TRACK_SELECTION',
+        readyUserIds: [] 
+      }
+    });
+
+    // Navigate to the app
+    await page.goto('/?mock=true');
+  });
+
+  test('should show track selection', async ({ page }) => {
+    const selectionTitle = page.locator('h2:has-text("Select the next track to challenge players:")');
+    await expect(selectionTitle).toBeVisible();
+
+    // Verify the list of tracks is rendered
+    const trackList = page.locator('#track-selection-list');
+    await expect(trackList).toBeVisible();
+
+    // Verify there are track items
+    const trackItems = trackList.locator('button');
+    const count = await trackItems.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
+  test('should move to next state when clicking on track', async ({ page }) => {
+    const trackButtons = page.locator('#track-selection-list button');
+    await expect(trackButtons.first()).toBeVisible();
+
+    // Click the first track
+    await trackButtons.first().click();
+
+    // Verify the state transition in the UI
+    const selectionTitle = page.locator('h2:has-text("Select the next track to challenge players:")');
+    await expect(selectionTitle).toBeHidden();
+    const waitingTitle = page.locator('h2:has-text("Waiting for players to submit their guesses...")');
+    await expect(waitingTitle).toBeVisible();
+    const progressBar = page.locator('#progress-bar');
+    await expect(progressBar).toBeVisible();
+  });
+});
