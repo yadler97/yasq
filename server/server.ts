@@ -194,9 +194,10 @@ app.get("/api/track-list", (req, res) => {
     game.trackHistory = []; // Reset history if all tracks have been played
   }
 
-  const trackList = allTracks.map((t: { name: string; file: string }, index: number) => ({
+  const trackList = allTracks.map((t: { name: string; title: string, file: string }, index: number) => ({
     id: index,
     name: t.name,
+    title: t.title,
     file: t.file,
     played: game.trackHistory.includes(t.file)
   }));

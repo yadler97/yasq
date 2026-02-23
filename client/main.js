@@ -16,6 +16,7 @@ let localLastRound = null;
 let lastState = null;
 let lastParticipantsSnapshot = null;
 let gameNumber = 1;
+let tracks = [];
 
 const isMockMode = import.meta.env.VITE_MOCK_MODE
 
@@ -388,45 +389,74 @@ async function handlePlayingUI(currentRound, isHost) {
 }
 
 async function renderHostTrackPicker() {
-  const list = document.querySelector('#track-selection-list');
-  list.innerHTML = 'Loading tracks...';
+  const grid = document.querySelector('#track-selection-grid');
+  const searchInput = document.querySelector('#track-search');
+  const hidePlayedCheckbox = document.querySelector('#hide-played');
+
+  grid.innerHTML = '<p class="loading">Loading tracks...</p>';
 
   try {
-    const tracks = await backend.getTrackList(discordSdk.instanceId, auth.user.id);
+    tracks = await backend.getTrackList(discordSdk.instanceId, auth.user.id);
 
-    list.innerHTML = ''; // Clear loading text
+    // Set up listeners for search and filter
+    const updateView = () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      const hidePlayed = hidePlayedCheckbox.checked;
 
-    tracks.forEach(track => {
-      const playTrackBtn = document.createElement('button');
-      playTrackBtn.textContent = track.name;
+      const filtered = tracks.filter(track => {
+        const matchesSearch = track.name.toLowerCase().includes(searchTerm) || 
+                              track.title.toLowerCase().includes(searchTerm);
+        const matchesPlayed = hidePlayed ? !track.played : true;
+        return matchesSearch && matchesPlayed;
+      });
 
-      if (track.played) {
-        playTrackBtn.disabled = true;
-        playTrackBtn.style.opacity = "0.5";
-        playTrackBtn.style.cursor = "not-allowed";
-      }
+      renderGrid(filtered, grid);
+    };
 
-      playTrackBtn.onclick = async () => {
-        const allButtons = list.querySelectorAll('button');
-        allButtons.forEach(b => {
-          b.disabled = true;
-          b.style.opacity = "0.5";
-          b.style.cursor = "not-allowed";
-        });
+    searchInput.oninput = updateView;
+    hidePlayedCheckbox.onchange = updateView;
 
-        // Logic: Host picks track -> Backend updates trackInfo -> All clients sync
-        await backend.playTrack(track.file, discordSdk.instanceId, auth.user.id);
-        
-        // Feedback for host
-        playTrackBtn.style.background = "#3ba55e";
-        console.log(`Now playing: ${track.name}`);
-      };
-      list.appendChild(playTrackBtn);
-    });
+    updateView(); // Initial render
+
   } catch (err) {
-    console.error("Failed to load track list:", err);
-    list.innerHTML = 'Error loading tracks. Check public/tracks.json';
+    console.error("Failed to load tracks:", err);
+    grid.innerHTML = 'Error loading tracks.';
   }
+}
+
+function renderGrid(tracks, container) {
+  container.innerHTML = '';
+
+  tracks.forEach(track => {
+    const card = document.createElement('div');
+    card.className = `track-card ${track.played ? 'played' : ''}`;
+    const coverUrl = `/game_covers/${track.file}.png`;
+
+    card.innerHTML = `
+      <div class="cover-wrapper">
+        <img src="${coverUrl}" alt="${track.name}" onerror="this.src='/game_covers/default.png'">
+        ${track.played ? '<span class="played-overlay">PLAYED</span>' : ''}
+      </div>
+      <div class="track-info">
+        <span class="game-name">${track.name}</span>
+        <span class="track-title"><i>${track.title}</i></span>
+      </div>
+      <button class="select-btn" ${track.played ? 'disabled' : ''}>
+        ${track.played ? 'Already Played' : 'Select Track'}
+      </button>
+    `;
+
+    const btn = card.querySelector('button');
+    btn.onclick = async () => {
+      // Disable all buttons in the grid to prevent double-clicks
+      document.querySelectorAll('.select-btn').forEach(b => b.disabled = true);
+      
+      await backend.playTrack(track.file, discordSdk.instanceId, auth.user.id);
+      console.log(`Now playing: ${track.name}`);
+    };
+
+    container.appendChild(card);
+  });
 }
 
 async function syncMusic(player) {
@@ -758,7 +788,14 @@ document.querySelector('#app').innerHTML = `
 
         <div id="selection-host-ui" style="display: none;">
           <h2>Select the next track to challenge players:</h2>
-          <div id="track-selection-list">
+          <div id="track-picker-container">
+            <div class="controls">
+              <input type="text" id="track-search" placeholder="Search game or track name...">
+              <label>
+                <input type="checkbox" id="hide-played"> Hide played tracks
+              </label>
+            </div>
+            <div id="track-selection-grid" class="grid-container"></div>
           </div>
         </div>
       </div>
