@@ -4,6 +4,8 @@ import pkg from './package.json';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '../');
 
+  const isMockMode = env.VITE_MOCK_MODE === 'true';
+
   return {
     envDir: '../',
     define: {
@@ -24,7 +26,7 @@ export default defineConfig(({ mode }) => {
         '/game_covers': 'http://localhost:3001',
       },
       hmr: {
-        clientPort: 443,
+        clientPort: isMockMode ? 5173 : 443,
       },
     },
   };
