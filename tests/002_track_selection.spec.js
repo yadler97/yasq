@@ -20,7 +20,7 @@ test.describe('Host UI', () => {
     }, { allPlayers: players, user: user, instanceId: currentInstanceId });
 
     await request.post('http://localhost:3001/api/test/setup-session', {
-      data: { 
+      data: {
         instanceId: currentInstanceId,
         hostId: players[0].id,
         registeredUsers: players,
@@ -42,7 +42,7 @@ test.describe('Host UI', () => {
     await expect(selectionTitle).toBeVisible();
 
     // Verify the list of tracks is rendered
-    const trackList = page.locator('#track-selection-list');
+    const trackList = page.locator('#track-selection-grid');
     await expect(trackList).toBeVisible();
 
     // Verify there are track items
@@ -52,7 +52,7 @@ test.describe('Host UI', () => {
   });
 
   test('should move to next state when clicking on track', async ({ page }) => {
-    const trackButtons = page.locator('#track-selection-list button');
+    const trackButtons = page.locator('#track-selection-grid button');
     await expect(trackButtons.first()).toBeVisible();
 
     // Click the first track

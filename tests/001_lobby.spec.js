@@ -20,7 +20,7 @@ test.describe('Host UI', () => {
     }, { allPlayers: players, user: user, instanceId: currentInstanceId });
 
     await request.post('http://localhost:3001/api/test/setup-session', {
-      data: { 
+      data: {
         instanceId: currentInstanceId,
         hostId: players[0].id,
         registeredUsers: players,
@@ -113,7 +113,7 @@ test.describe('Player UI', () => {
     }, { allPlayers: players, user: user, instanceId: currentInstanceId });
 
     await request.post('http://localhost:3001/api/test/setup-session', {
-      data: { 
+      data: {
         instanceId: currentInstanceId,
         hostId: players[0].id,
         registeredUsers: players,

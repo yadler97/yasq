@@ -49,7 +49,7 @@ export class GameInstance {
     const timeTaken = this.trackInfo ? Date.now() - this.trackInfo.startTime : this.settings.trackDuration;
 
     this.guesses[this.currentRound]![userId] = new UserGuess(guessText, timeTaken);
-    const totalPlayers = this.readyUsers.size;
+    const totalPlayers = Array.from(this.registeredUsers).filter(userId => !this.isHost(userId)).length;
     const guessersCount = Object.keys(this.guesses[this.currentRound] ?? {}).length;
 
     if (guessersCount >= totalPlayers) {

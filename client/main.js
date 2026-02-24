@@ -136,18 +136,14 @@ async function setupDiscordSdk() {
   document.querySelector('#game-guesser-form').onsubmit = async (e) => {
     e.preventDefault();
     const form = e.currentTarget;
-    const submitBtn = form.querySelector('#btn-submit');
     const input = form.querySelector('#guess-input');
+    const waitMessage = document.querySelector('#waiting-msg');
 
-    submitBtn.disabled = true;
-    input.disabled = true;
+    form.style.display = 'none';
 
-    await backend.submitGuess(discordSdk.instanceId, auth.user.id, document.querySelector('#guess-input').value);
+    await backend.submitGuess(discordSdk.instanceId, auth.user.id, input.value);
 
-    setTimeout(() => {
-      submitBtn.disabled = false;
-      input.disabled = false;
-    }, 2000);
+    waitMessage.style.display = 'block';
   };
 
   document.querySelector('#btn-start').onclick = async () => {
@@ -387,6 +383,16 @@ async function handlePlayingUI(currentRound, isHost) {
   document.querySelector('#round-display').textContent = `Round ${currentRound}`;
 
   syncMusic(audioPlayer);
+
+  if (!isHost && localLastRound !== currentRound) {
+    const form = document.querySelector('#game-guesser-form');
+    const waitMessage = document.querySelector('#waiting-msg');
+
+    waitMessage.style.display = 'none';
+    form.style.display = 'block';
+
+    localLastRound = currentRound;
+  }
 }
 
 async function renderHostTrackPicker() {
@@ -812,6 +818,7 @@ document.querySelector('#app').innerHTML = `
             <input type="text" id="guess-input" placeholder="Enter game title..." />
             <button type="submit" id="btn-submit">Submit Guess</button>
           </form>
+          <p class="waiting-msg" id="waiting-msg" style="display: none;">Wait for others to submit their guess...</p>
         </div>
 
         <div id="game-host-ui" style="display: none;">
