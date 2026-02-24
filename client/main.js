@@ -822,19 +822,22 @@ document.querySelector('#app').innerHTML = `
           <div id="progress-bar"></div>
         </div>
       </div>
-
-      <div id="music-controls">
-        <div style="margin-top: 10px;">
-          <label for="volume-slider" style="font-size: 0.8em; display: block;">Volume</label>
-          <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" style="width: 100px;">
-        </div>
-        <audio id="global-player"></audio>
-      </div>
     </div>
     <div class="sidebar">
-      <h3>Participating Players</h3>
-      <div id="participant-list">
-        
+      <div class="sidebar-box participants">
+        <h3>Participating Players</h3>
+        <div id="participant-list">
+          
+        </div>
+      </div>
+      <div class="sidebar-box">
+        <div id="music-controls">
+          <div>
+            <label for="volume-slider">Volume</label>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5">
+          </div>
+          <audio id="global-player"></audio>
+        </div>
       </div>
     </div>
   </div>
