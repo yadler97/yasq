@@ -15,13 +15,19 @@ import type {
 
 dotenv.config({ path: "../.env" });
 
+const isMockMode = process.env.VITE_MOCK_MODE === 'true'
+
 const app = express();
 const port = 3001;
 
 const instances: Record<string, GameInstance> = {};
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const tracksRaw = fs.readFileSync(path.join(__dirname, 'tracks.json'), 'utf-8');
+const tracksPath = isMockMode 
+  ? path.join(__dirname, '..', 'mock_data', 'mockTracks.json')
+  : path.join(__dirname, 'tracks.json');
+
+const tracksRaw = fs.readFileSync(tracksPath, 'utf-8');
 const allTracks = JSON.parse(tracksRaw);
 
 // Allow express to parse JSON bodies
@@ -32,7 +38,7 @@ app.use('/game_covers', express.static(path.join(__dirname, 'game_covers')));
 app.post("/api/token", async (req, res) => {
   const { code } = req.body;
 
-  if (process.env.VITE_MOCK_MODE === 'true' && code === 'mock_code') {
+  if (isMockMode && code === 'mock_code') {
     console.log("MOCK MODE")
     return res.send({ access_token: 'mock_token_for_dev' });
   }

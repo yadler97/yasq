@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Game A",
+        "title": "Track A",
+        "file": "track001"
+    },
+    {
+        "name": "Game B",
+        "title": "Track B",
+        "file": "track002"
+    },
+    {
+        "name": "Game C",
+        "title": "Track C",
+        "file": "track003"
+    }
+]

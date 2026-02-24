@@ -25,7 +25,8 @@ test.describe('Host UI', () => {
         hostId: players[0].id,
         registeredUsers: players,
         state: 'TRACK_SELECTION',
-        readyUserIds: [] 
+        readyUserIds: [],
+        trackHistory: ["track003"]
       }
     });
 
@@ -65,5 +66,41 @@ test.describe('Host UI', () => {
     await expect(waitingTitle).toBeVisible();
     const progressBar = page.locator('#progress-bar');
     await expect(progressBar).toBeVisible();
+  });
+
+  test('should filter tracks when searching', async ({ page }) => {
+    const trackList = page.locator('#track-selection-grid');
+    await expect(trackList).toBeVisible();
+    const trackItems = trackList.locator('button');
+
+    // Initial mock track count
+    let count = await trackItems.count();
+    expect(count).toBe(3);
+
+    // Search for all tracks with "B" in name or title
+    const searchInput = page.locator('#track-search');
+    await searchInput.fill('B');
+
+    // Find exactly one game ("Game B")
+    count = await trackItems.count();
+    expect(count).toBe(1);
+  });
+
+  test('should filter tracks when hiding played tracks', async ({ page }) => {
+    const trackList = page.locator('#track-selection-grid');
+    await expect(trackList).toBeVisible();
+    const trackItems = trackList.locator('button');
+
+    // Initial mock track count
+    let count = await trackItems.count();
+    expect(count).toBe(3);
+
+    // Hide all played tracks
+    const hidePlayedCheckbox = page.locator('#hide-played');
+    await hidePlayedCheckbox.check();
+
+    // Find exactly two games (excluding "Game C")
+    count = await trackItems.count();
+    expect(count).toBe(2);
   });
 });

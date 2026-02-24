@@ -25,7 +25,7 @@ test.describe('Player UI', () => {
         hostId: players[0].id,
         registeredUsers: players,
         state: 'PLAYING',
-        readyUserIds: [] 
+        readyUserIds: []
       }
     });
 

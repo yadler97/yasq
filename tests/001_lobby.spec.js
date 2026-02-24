@@ -25,7 +25,7 @@ test.describe('Host UI', () => {
         hostId: players[0].id,
         registeredUsers: players,
         state: 'LOBBY',
-        readyUserIds: [] 
+        readyUserIds: []
       }
     });
 
@@ -92,6 +92,42 @@ test.describe('Host UI', () => {
 
     await expect(playerEntry.locator('.badge.ready')).toBeHidden();
   });
+
+  test('should allow host to select another player and transfer host role', async ({ page }) => {
+    await expect(page.locator('#lobby-host-ui')).toBeVisible();
+    await expect(page.locator('#lobby-guesser-ui')).toBeHidden();
+
+    const targetPlayer = players[2];
+    const header = page.locator('#dropdown-header');
+    const listContainer = page.locator('#dropdown-list');
+    const transferBtn = page.locator('#btn-confirm-transfer');
+
+    // Open the dropdown
+    await header.click();
+    await expect(listContainer).toBeVisible();
+
+    // Select the target player from the list
+    const playerItem = listContainer.locator(`.dropdown-item[data-id="${targetPlayer.id}"]`);
+    await playerItem.click();
+
+    // Verify selection state
+    await expect(listContainer).toBeHidden();
+    await expect(transferBtn).toBeEnabled();
+    await expect(transferBtn).toHaveAttribute('data-selected-id', targetPlayer.id);
+    
+    // Verify the header updated with the selected player's name
+    await expect(header).toContainText(targetPlayer.username);
+
+    // Execute the transfer
+    await transferBtn.click();
+
+    // Assertions for the "After" state
+    await expect(transferBtn).toHaveText(/transferring/i);
+    
+    // Once the backend processes this, the host UI is replaced by the guesser UI
+    await expect(page.locator('#lobby-host-ui')).toBeHidden();
+    await expect(page.locator('#lobby-guesser-ui')).toBeVisible();
+  });
 });
 
 test.describe('Player UI', () => {
@@ -118,7 +154,7 @@ test.describe('Player UI', () => {
         hostId: players[0].id,
         registeredUsers: players,
         state: 'LOBBY',
-        readyUserIds: [] 
+        readyUserIds: []
       }
     });
 
