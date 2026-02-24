@@ -1,7 +1,7 @@
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 import * as backend from "./backend.js";
 import { getAvatarUrl, getDisplayName } from "./helper.js";
-import { GameState } from './constants.js';
+import { GameState, MAX_VOLUME, DEFAULT_VOLUME_SLIDER_VAL } from './constants.js';
 import { mockDiscordSdk } from "../mock_data/mockDiscordSdk.js"
 
 import rocketLogo from '/rocket.png';
@@ -164,11 +164,12 @@ async function setupDiscordSdk() {
   volumeSlider = document.querySelector('#volume-slider');
 
   // Set initial volume to 50%
-  audioPlayer.volume = 0.5;
+  audioPlayer.volume = DEFAULT_VOLUME_SLIDER_VAL * MAX_VOLUME;
 
   // Listen for slider changes
   volumeSlider.oninput = (e) => {
-    const newVolume = e.target.value;
+    const sliderValue = parseFloat(e.target.value);
+    const newVolume = sliderValue * MAX_VOLUME;
     audioPlayer.volume = newVolume;
   };
 }

@@ -6,3 +6,6 @@ export const GameState = {
   RESULTS: 'RESULTS',
   GAME_FINISHED: 'GAME_FINISHED'
 };
+
+export const MAX_VOLUME = 0.25;
+export const DEFAULT_VOLUME_SLIDER_VAL = 0.5;
