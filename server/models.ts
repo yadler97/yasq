@@ -172,6 +172,15 @@ export class GameInstance {
     this.leaderboard = new Leaderboard();
     this.currentGame += 1;
   }
+
+  toJSON() {
+    return {
+      ...this,
+      // Convert Sets to Arrays (Sets serialize to {})
+      registeredUsers: Array.from(this.registeredUsers),
+      readyUsers: Array.from(this.readyUsers),
+    };
+  }
 }
 
 export class Settings {
