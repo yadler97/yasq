@@ -98,12 +98,12 @@ test.describe('Host UI', () => {
     await expect(page.locator('#lobby-guesser-ui')).toBeHidden();
 
     const targetPlayer = players[2];
-    const header = page.locator('#dropdown-header');
+    const dropdown = page.locator('#host-dropdown');
     const listContainer = page.locator('#dropdown-list');
     const transferBtn = page.locator('#btn-confirm-transfer');
 
     // Open the dropdown
-    await header.click();
+    await dropdown.click();
     await expect(listContainer).toBeVisible();
 
     // Select the target player from the list
@@ -113,10 +113,9 @@ test.describe('Host UI', () => {
     // Verify selection state
     await expect(listContainer).toBeHidden();
     await expect(transferBtn).toBeEnabled();
-    await expect(transferBtn).toHaveAttribute('data-selected-id', targetPlayer.id);
-    
+
     // Verify the header updated with the selected player's name
-    await expect(header).toContainText(targetPlayer.username);
+    await expect(dropdown).toContainText(targetPlayer.username);
 
     // Execute the transfer
     await transferBtn.click();

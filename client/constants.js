@@ -9,3 +9,4 @@ export const GameState = {
 
 export const MAX_VOLUME = 0.25;
 export const DEFAULT_VOLUME_SLIDER_VAL = 0.5;
+export const POLLING_INTERVAL = 500;

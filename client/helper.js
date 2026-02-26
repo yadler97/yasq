@@ -7,3 +7,10 @@ export function getAvatarUrl(participant) {
 export function getDisplayName(participant) {
   return participant.nickname || participant.username;
 }
+
+export function getUserId(auth) {
+  if (!auth || !auth.user) {
+    return null;
+  }
+  return auth.user.id;
+}

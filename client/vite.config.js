@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv } from 'vite';
+import preact from '@preact/preset-vite';
 import pkg from './package.json';
 
 export default defineConfig(({ mode }) => {
@@ -7,6 +8,7 @@ export default defineConfig(({ mode }) => {
   const isMockMode = env.VITE_MOCK_MODE === 'true';
 
   return {
+    plugins: [preact()],
     envDir: '../',
     define: {
       'import.meta.env.VERSION': JSON.stringify(pkg.version),
