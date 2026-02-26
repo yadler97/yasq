@@ -228,6 +228,15 @@ export class LeaderboardEntry {
     this.roundHistory.push(result);
     this.totalScore += result.points;
   }
+
+  static fromJSON(data: any): LeaderboardEntry {
+    const entry = new LeaderboardEntry(data.userId);
+    entry.totalScore = data.totalScore || 0;
+    entry.roundHistory = (data.roundHistory || []).map((r: any) => 
+      new RoundResult(r.round, r.guess, r.points, r.isCorrect, r.isFirst, r.time)
+    );
+    return entry;
+  }
 }
 
 export class Leaderboard {
@@ -267,5 +276,10 @@ export class Leaderboard {
 
   public getWinnerId(): string | null {
     return this.entries[0]?.userId || null;
+  }
+
+  static fromJSON(data: any): Leaderboard {
+    const entries = (data?.entries || []).map((e: any) => LeaderboardEntry.fromJSON(e));
+    return new Leaderboard(entries);
   }
 }
