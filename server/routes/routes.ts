@@ -10,7 +10,6 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     const { code } = req.body;
 
     if (isMockMode && code === 'mock_code') {
-      console.log("MOCK MODE")
       return res.send({ access_token: 'mock_token_for_dev' });
     }
 

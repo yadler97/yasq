@@ -43,7 +43,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   return (
     <div id="track-picker-container">
       <h2>Select the next track to challenge players:</h2>
-      <div class="controls">
+      <div className="controls">
         <input type="text" id="track-search" placeholder="Search game or track name..." value={searchTerm.value}
           onInput={(e) => (searchTerm.value = (e.currentTarget as HTMLInputElement).value)} />
         <label>

@@ -36,6 +36,7 @@ app.use('/api', setupRoutes(instances, isMockMode, allTracks));
 
 // Only register mock routes when server is started in mock mode
 if (isMockMode) {
+  console.log('[MODE] Server is running in mock mode')
   app.use('/api/test', setupMockRoutes(instances));
 }
 

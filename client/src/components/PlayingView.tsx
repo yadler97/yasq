@@ -104,7 +104,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
           {!hasSubmitted.value ? (
             <form 
               id="game-guesser-form" 
-              class="game-guesser-form"
+              className="game-guesser-form"
               onSubmit={async (e) => {
                 e.preventDefault();
                 const form = e.currentTarget;

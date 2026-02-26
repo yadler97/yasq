@@ -64,15 +64,15 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
               <div className="button-group">
                 <input type="radio" id={`wrong-${userId}`} name={`score-${userId}`} value="0" checked
                   onChange={() => { corrections.value = { ...corrections.value, [userId]: 0 }; }} />
-                <label for={`wrong-${userId}`} class="btn-radio wrong">Wrong</label>
+                <label for={`wrong-${userId}`} className="btn-radio wrong">Wrong</label>
 
                 <input type="radio" id={`partial-${userId}`} name={`score-${userId}`} value="0.5"
                   onChange={() => { corrections.value = { ...corrections.value, [userId]: 0.5 }; }} />
-                <label for={`partial-${userId}`} class="btn-radio partial">Partial</label>
+                <label for={`partial-${userId}`} className="btn-radio partial">Partial</label>
 
                 <input type="radio" id={`correct-${userId}`} name={`score-${userId}`} value="1"
                   onChange={() => { corrections.value = { ...corrections.value, [userId]: 1 }; }} />
-                <label for={`correct-${userId}`} class="btn-radio correct">Correct</label>
+                <label for={`correct-${userId}`} className="btn-radio correct">Correct</label>
               </div>
             </div>
           );

@@ -46,14 +46,17 @@ const App = () => {
   const isHost = String(getUserId(auth.value)) === String(gameState.value.hostId);
 
   return (
-    <div className="container">
-      <div className="game-area">
-        <img src="/rocket.png" className="logo" alt="Discord" />
-        <h1>Welcome to YASQ!</h1>
-        {renderView(isHost)}
+    <>
+      <div className="container">
+        <div className="game-area">
+          <img src="/rocket.png" className="logo" alt="Discord" />
+          <h1>Welcome to YASQ!</h1>
+          {renderView(isHost)}
+        </div>
+        <Sidebar />
       </div>
-      <Sidebar />
-    </div>
+      <p className="version">Ver. {import.meta.env.VERSION}</p>
+    </>
   );
 };
 

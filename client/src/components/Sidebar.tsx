@@ -28,7 +28,7 @@ export const Sidebar = ({ }) => (
         })}
       </div>
     </div>
-    <div class="sidebar-box">
+    <div className="sidebar-box">
       <div id="music-controls">
         <div>
           <label for="volume-slider">Volume</label>
