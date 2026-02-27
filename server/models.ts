@@ -167,7 +167,7 @@ export class GameInstance {
   }
 
   public restart() {
-    this.state = GameState.LOBBY;
+    this.state = GameState.SETUP;
     this.currentRound = 0;
     this.readyUsers = new Set();
     this.guesses = {};
