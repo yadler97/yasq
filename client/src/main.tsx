@@ -13,6 +13,7 @@ import { ArenaView } from "./components/PlayingView.js";
 import { HostReviewView } from "./components/RoundCompletedView.js";
 import { RoundResultsView } from "./components/ResultsView.js";
 import { FinalResultsView } from "./components/GameFinishedView.js";
+import { GameHeader } from './components/GameHeader.js';
 import { Sidebar } from './components/Sidebar';
 
 import { Participant, GameStatus } from "./types";
@@ -51,8 +52,11 @@ const App = () => {
   return (
     <>
       <div className="container">
-        <div className="game-area">
-          {renderView(isHost)}
+        <div className="game-column">
+          <GameHeader />
+          <div className="game-area">
+            {renderView(isHost)}
+          </div>
         </div>
         <Sidebar />
       </div>

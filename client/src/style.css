@@ -145,22 +145,48 @@ button:focus-visible {
 
 .container {
   display: flex;
-  flex-direction: row;
-  align-items: stretch; 
-  flex: 1;
-  min-height: 0;
+  height: 100%;
   overflow: hidden;
 }
 
-.container .game-area {
+.game-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-header-stats {
+  margin-left: 20px;
+  margin-right: 20px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #444;
+  flex-shrink: 0;
+}
+
+.round-indicator {
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.game-area {
   padding: 20px;
   flex: 1;
   min-width: 0;
   overflow-y: auto;
   text-align: center;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
 }
 
-.container .sidebar {
+.sidebar {
   margin: 20px;
   width: 250px;
   gap: 20px;
@@ -234,15 +260,15 @@ button:focus-visible {
   border-radius: 4px;
 }
 
-.container > div::-webkit-scrollbar {
+.game-column > div::-webkit-scrollbar {
   width: 8px;
 }
-.container > div::-webkit-scrollbar-track {
+.game-column > div::-webkit-scrollbar-track {
   background: transparent;
   margin-top: 20px;
   margin-bottom: 20px;
 }
-.container > div::-webkit-scrollbar-thumb {
+.game-column > div::-webkit-scrollbar-thumb {
   background-color: #1e1f22;
   border-radius: 4px;
 }
