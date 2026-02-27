@@ -6,6 +6,7 @@ import { getUserId } from "../helper.js";
 import { GameState, MAX_VOLUME, DEFAULT_VOLUME_SLIDER_VAL, POLLING_INTERVAL } from '../constants.js';
 import { mockDiscordSdk } from "../../mock_data/mockDiscordSdk.js";
 
+import { SetupView } from './components/SetupView.js';
 import { LobbyView } from "./components/LobbyView";
 import { SelectionView } from "./components/TrackSelectionView.js";
 import { ArenaView } from "./components/PlayingView.js";
@@ -28,7 +29,9 @@ export const gameState = signal<GameStatus>({
   readyUsers: [],
   currentRound: 0,
   isFinalRound: false,
-  lastWinnerId: null
+  lastWinnerId: null,
+  rounds: 0,
+  trackDuration: 0
 });
 export const participants = signal<Participant[]>([]);
 export const volume = signal(DEFAULT_VOLUME_SLIDER_VAL);
@@ -49,8 +52,6 @@ const App = () => {
     <>
       <div className="container">
         <div className="game-area">
-          <img src="/rocket.png" className="logo" alt="Discord" />
-          <h1>Welcome to YASQ!</h1>
           {renderView(isHost)}
         </div>
         <Sidebar />
@@ -62,6 +63,8 @@ const App = () => {
 
 const renderView = (isHost: boolean) => {
   switch (gameState.value.state) {
+    case GameState.SETUP:
+      return <SetupView isHost={isHost} />
     case GameState.LOBBY:
       return <LobbyView isHost={isHost} />;
     case GameState.TRACK_SELECTION:

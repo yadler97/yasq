@@ -121,21 +121,35 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({ status: "success" });
   });
 
-  router.post("/start-game", (req, res) => {
+  router.post("/setup-game", (req, res) => {
     const { instanceId, userId, rounds, trackDuration } = req.body;
     const game = instances[instanceId];
 
-    // Security check: only host can start
+    // Security check: only host can setup a game
     if (!game?.isHost(userId)) {
-      return res.status(403).send({ error: "Only host can start" });
+      return res.status(403).send({ error: "Only host can setup a game" });
     }
 
     if (rounds <= 0 || trackDuration <= 0) {
       return res.status(400).send({ error: "Rounds and track duration must be greater than 0." });
     }
 
-    game.startGame(rounds, trackDuration);
-    console.log(`[GAME] Instance ${instanceId} has started with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}!`);
+    game.setupGame(rounds, trackDuration);
+    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}!`);
+    res.send({ status: GameState.LOBBY });
+  });
+
+  router.post("/start-game", (req, res) => {
+    const { instanceId, userId } = req.body;
+    const game = instances[instanceId];
+
+    // Security check: only host can start a game
+    if (!game?.isHost(userId)) {
+      return res.status(403).send({ error: "Only host can start a game" });
+    }
+
+    game.startGame();
+    console.log(`[GAME] Instance ${instanceId} has started!`);
     res.send({ status: GameState.TRACK_SELECTION });
   });
 
@@ -154,7 +168,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       currentRound: game.currentRound,
       isFinalRound: game.isFinalRound(),
       currentGame: game.currentGame,
-      lastWinnerId: game.lastWinnerId
+      lastWinnerId: game.lastWinnerId,
+      rounds: game.settings.rounds,
+      trackDuration: game.settings.trackDuration
     });
   });
 

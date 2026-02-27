@@ -12,6 +12,8 @@ export interface GameStatus {
   currentRound: number;
   isFinalRound: boolean;
   lastWinnerId: string | null;
+  rounds: number;
+  trackDuration: number;
 }
 
 export interface Track {

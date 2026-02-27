@@ -9,7 +9,7 @@ import {
 export class GameInstance {
   public registeredUsers: Set<string> = new Set();
   public hostId: string;
-  public state: string = GameState.LOBBY;
+  public state: string = GameState.SETUP;
   public currentRound: number = 0;
   public readyUsers: Set<string> = new Set();
   public settings: Settings;
@@ -29,8 +29,12 @@ export class GameInstance {
     return this.hostId === userId;
   }
 
-  public startGame(rounds: number, trackDuration: number): void {
+  public setupGame(rounds: number, trackDuration: number): void {
     this.settings = new Settings(rounds || DEFAULT_ROUNDS, (trackDuration * 1000) || DEFAULT_TRACK_DURATION);
+    this.state = GameState.LOBBY;
+  }
+
+  public startGame(): void {
     this.registeredUsers.forEach(userId => {
       if (this.isHost(userId)) return; // Skip host
       if (!this.leaderboard.hasEntry(userId)) {

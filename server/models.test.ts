@@ -19,8 +19,9 @@ describe('GameInstance - startGame', () => {
   });
 
   it('should initialize settings and transition state', () => {
-    // Atart game with 5 rounds and 15 seconds
-    game.startGame(5, 15);
+    // Start game with 5 rounds and 15 seconds
+    game.setupGame(5, 15);
+    game.startGame();
 
     // Assert state and current round
     expect(game.state).toBe(GameState.TRACK_SELECTION);
@@ -32,7 +33,8 @@ describe('GameInstance - startGame', () => {
   });
 
   it('should add players to leaderboard but exclude the host', () => {
-    game.startGame(10, 30);
+    game.setupGame(5, 15);
+    game.startGame();
 
     const entries = game.leaderboard.getAll();
     
@@ -108,7 +110,8 @@ describe('GameInstance - submitResults', () => {
     game = new GameInstance(HOST);
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
-    game.startGame(10, 20); // 20s duration = 20000ms
+    game.setupGame(10, 20); // 20s duration = 20000ms
+    game.startGame();
 
     // Manually inject some guesses into the current round
     // Player 1: Correct, took 5s (Multiplier should be 1.75)
@@ -187,7 +190,8 @@ describe('GameInstance - advanceRound', () => {
 
   beforeEach(() => {
     game = new GameInstance(HOST);
-    game.startGame(3, 20); // 3 rounds
+    game.setupGame(3, 20); // 3 rounds
+    game.startGame();
 
     const entry1 = new LeaderboardEntry(PLAYER_1);
     entry1.totalScore = 500;

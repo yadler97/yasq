@@ -1,4 +1,5 @@
 export const GameState = {
+  SETUP: 'SETUP',
   LOBBY: 'LOBBY',
   TRACK_SELECTION: 'TRACK_SELECTION',
   PLAYING: 'PLAYING',

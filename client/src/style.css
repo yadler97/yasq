@@ -120,6 +120,24 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.settings-info {
+  display: flex;
+  flex-flow: column;
+  gap: 20px;
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #2f3136;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.settings-info h2, .host-settings h2 {
+  margin-top: 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid #444;
+}
+
 .lobby-btn.ready {
   background-color: #3ba55e; /* Discord Green */
   color: white;
