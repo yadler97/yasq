@@ -29,7 +29,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
   if (isHost) {
     return (
-      <div id="results">
+      <div id="results" className="centered">
         <h2>Waiting for players to review results...</h2>
         <div id="lobby-host-ui-next-round">
           <button 
@@ -52,7 +52,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const statusClass = roundData.value.result?.isCorrect ? 'correct' : 'incorrect';
 
   return (
-    <div id="results">
+    <div id="results" className="centered">
       <div className="round-result-summary">
         <h2>Round {roundData.value.round} Results</h2>
         <div className="track-details">

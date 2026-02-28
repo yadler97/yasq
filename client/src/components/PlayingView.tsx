@@ -86,7 +86,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   }, [isHost]);
 
   return (
-    <div id="game-arena">
+    <div id="game-arena" className="centered">
       <h2 id="round-display">Round {gameState.value.currentRound}</h2>
 
       {countdown.value !== null && (

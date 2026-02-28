@@ -29,7 +29,11 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   }, [isHost]);
 
   if (!isHost) {
-    return <div id="results"><h2>Waiting for host to review answers...</h2></div>;
+    return (
+      <div id="results" className="centered">
+        <h2>Waiting for host to review answers...</h2>
+      </div>
+    );
   }
 
   if (!reviewData.value) return <div id="results"><h2>Loading guesses...</h2></div>;
@@ -43,7 +47,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const findUser = (id: string) => participants.value.find(p => p.id === id);
 
   return (
-    <div id="results" style={{ display: 'block' }}>
+    <div id="results" className="centered">
       <h2>Round {reviewData.value.round} Results</h2>
       <p>The correct answer was: <strong>{reviewData.value.answer}</strong></p>
       

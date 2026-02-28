@@ -20,7 +20,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   };
 
   return (
-    <div className="final-leaderboard">
+    <div className="final-leaderboard centered">
       <h1 className="results-title">🏆 Final Results</h1>
 
       <div className="leaderboard-container">

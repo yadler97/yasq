@@ -24,7 +24,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
   };
 
   return (
-    <div className="view-container">
+    <div className="view-container centered">
       <img src="/rocket.png" className="logo" alt="Discord" />
       <h1>Welcome to YASQ!</h1>
 

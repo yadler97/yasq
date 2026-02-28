@@ -34,7 +34,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
   if (!isHost) {
     return (
-      <div>
+      <div class="centered">
         <h2>Waiting for host to select a track...</h2>
       </div>
     );

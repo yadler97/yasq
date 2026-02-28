@@ -12,7 +12,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   };
 
   return (
-    <div id="lobby">
+    <div id="lobby" className="centered">
       <div className="settings-info">
         <h2>Game Settings</h2>
         <span>📋 <strong>{gameState.value.rounds}</strong> Rounds</span>
