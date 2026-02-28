@@ -221,3 +221,20 @@ describe('GameInstance - advanceRound', () => {
     expect(game.state).toBe(GameState.GAME_FINISHED);
   });
 });
+
+describe('GameInstance - getPartialHint', () => {
+  let game: GameInstance;
+
+  beforeEach(() => {
+    game = new GameInstance(HOST);
+  });
+
+  it('should return a string of underscores and spaces matching the title length', () => {
+    game.playTrack("", "Game A", "");
+    const hint = game.getPartialHint();
+
+    expect(hint.length).toBe(6);
+    expect(hint).toContain('_');
+    expect(hint[4]).toBe(' ');
+  });
+});

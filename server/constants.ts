@@ -8,6 +8,10 @@ export enum GameState {
   GAME_FINISHED = 'GAME_FINISHED'
 }
 
+export enum Joker {
+  OBFUSCATION = 'OBFUSCATION'
+}
+
 export const DEFAULT_TRACK_DURATION = 30000;
 export const DEFAULT_ROUNDS = 5;
 export const BASE_POINTS = 100;

@@ -3,12 +3,33 @@ import { useEffect, useRef } from "preact/hooks";
 import * as backend from "../../backend.js";
 import { gameState, auth, discordSdk, audioPlayer } from "../main.js";
 import { getUserId } from "../../helper.js";
-import { POLLING_INTERVAL } from "../../constants.js";
+import { Joker, POLLING_INTERVAL } from "../../constants.js";
 
 export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const hasSubmitted = useSignal(false);
   const countdown = useSignal<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const hintText = useSignal<string | null>(null);
+  const availableJokers = useSignal<string[]>([]);
+
+  useEffect(() => {
+    if (isHost) return;
+    backend.getAvailableJokers(discordSdk.instanceId, getUserId(auth.value)).then((data) => {
+      availableJokers.value = data.available;
+    })
+  }, [gameState.value.currentRound]);
+
+  const handleUseObfuscation = async () => {
+    try {
+      const data = await backend.useJokerObfuscation(discordSdk.instanceId, getUserId(auth.value));
+      if (data.hint) {
+        hintText.value = data.hint;
+        availableJokers.value = availableJokers.value.filter(j => j !== Joker.OBFUSCATION);
+      }
+    } catch (err) {
+      console.error("Failed to use joker:", err);
+    }
+  };
 
   useEffect(() => {
     const roundStarted = countdown.value === null;
@@ -64,7 +85,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
 
         // Sync timing
         const elapsedSeconds = timePassedMs / 1000;
-        
+
         // If we are more than 2 seconds out of sync, snap to server time
         if (Math.abs(audioPlayer.currentTime - elapsedSeconds) > 2) {
           audioPlayer.currentTime = elapsedSeconds;
@@ -101,32 +122,48 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         </div>
       ) : (
         <div id="game-guesser-ui">
-          {!hasSubmitted.value ? (
-            <form 
-              id="game-guesser-form" 
-              className="game-guesser-form"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const form = e.currentTarget;
-                const input = form.elements.namedItem('guess-input') as HTMLInputElement;
-                const guess = input.value.trim();
-                if (!guess) return;
+          {hintText.value && (
+            <div className="hint-container">
+              <p className="obfuscated-title">{hintText.value}</p>
+            </div>
+          )}
 
-                hasSubmitted.value = true;
-                await backend.submitGuess(discordSdk.instanceId, getUserId(auth.value), guess);
-              }}
-            >
-              <input 
-                type="text"
-                ref={inputRef}
-                id="guess-input"
-                name="guess-input"
-                placeholder="Enter game title..."
-                autoFocus
-                autoComplete="off"
-              />
-              <button type="submit" id="btn-submit">Submit Guess</button>
-            </form>
+          {!hasSubmitted.value ? (
+            <div>
+              <form 
+                id="game-guesser-form" 
+                className="game-guesser-form"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const input = form.elements.namedItem('guess-input') as HTMLInputElement;
+                  const guess = input.value.trim();
+                  if (!guess) return;
+
+                  hasSubmitted.value = true;
+                  await backend.submitGuess(discordSdk.instanceId, getUserId(auth.value), guess);
+                }}
+              >
+                <input 
+                  type="text"
+                  ref={inputRef}
+                  id="guess-input"
+                  name="guess-input"
+                  placeholder="Enter game title..."
+                  autoFocus
+                  autoComplete="off"
+                />
+                <button type="submit" id="btn-submit">Submit Guess</button>
+              </form>
+
+              <button 
+                className="joker-button"
+                onClick={handleUseObfuscation}
+                disabled={!availableJokers.value.includes(Joker.OBFUSCATION) || !!hintText.value}
+              >
+                {hintText.value ? "Joker Used" : "Reveal Title Hint"}
+              </button>
+            </div>
           ) : (
             <div className="waiting-container">
               <p className="waiting-msg" id="waiting-msg">Guess submitted! Waiting for others...</p>

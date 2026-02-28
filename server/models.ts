@@ -3,7 +3,8 @@ import {
   DEFAULT_TRACK_DURATION,
   BASE_POINTS,
   FIRST_BONUS_MULTIPLIER,
-  GameState
+  GameState,
+  Joker
 } from "./constants.js";
 
 export class GameInstance {
@@ -19,6 +20,7 @@ export class GameInstance {
   public currentGame: number = 1;
   public trackHistory: string[] = [];
   public lastWinnerId: string | null = null;
+  public usedJokers: Record<string, Set<Joker>> = {};
 
   constructor(hostId: string) {
     this.hostId = hostId;
@@ -175,6 +177,40 @@ export class GameInstance {
     this.trackHistory = [];
     this.leaderboard = new Leaderboard();
     this.currentGame += 1;
+    this.usedJokers = {};
+  }
+
+  public canUseJoker(userId: string, jokerType: Joker): boolean {
+    if (!this.usedJokers[userId]) {
+      this.usedJokers[userId] = new Set<Joker>();
+    }
+
+    if (this.usedJokers[userId].has(jokerType)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public getPartialHint(revealPercent: number = 0.2): string {
+    const title = this.trackInfo?.gameTitle;
+    if (!title) return "";
+
+    return title.split("").map(c => {
+      // Keep special characters
+      if (!/[a-zA-Z0-9]/.test(c)) return c;
+      
+      // Obfuscate the rest, but keep a few characters
+      return Math.random() < revealPercent ? c : "_";
+    }).join("");
+  }
+
+  public markJokerUsed(userId: string, joker: Joker): void {
+    if (!this.usedJokers[userId]) {
+      this.usedJokers[userId] = new Set<Joker>();
+    }
+    
+    this.usedJokers[userId].add(joker);
   }
 
   toJSON() {

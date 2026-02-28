@@ -110,6 +110,20 @@ export async function restartGame(instanceId, userId) {
   });
 }
 
+export async function getAvailableJokers(instanceId, userId) {
+  const response = await fetch(`/api/get-available-jokers?instanceId=${instanceId}&userId=${userId}`);
+  return response.json();
+}
+
+export async function useJokerObfuscation(instanceId, userId) {
+  const response = await fetch("/api/use-joker-obfuscation", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ instanceId, userId }),
+  });
+  return response.json();
+}
+
 export async function playTrack(fileName, instanceId, userId) {
   return fetch("/api/play-local", {
     method: "POST",

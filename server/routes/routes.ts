@@ -1,7 +1,7 @@
 import express from 'express';
 import { GameInstance } from '../models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../types.js';
-import { GameState } from '../constants.js';
+import { GameState, Joker } from '../constants.js';
 
 export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode: boolean, allTracks: any) => {
   const router = express.Router();
@@ -366,6 +366,47 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     game.restart();
 
     res.send({ success: true });
+  });
+
+  router.get("/get-available-jokers", (req, res) => {
+    const { instanceId, userId } = req.query as InstanceUserQuery;
+    const game = instances[instanceId];
+
+    if (!game) {
+      return res.status(404).send({ error: "Instance not found" });
+    }
+
+    // Get all possible jokers
+    const allJokers = Object.values(Joker) as Joker[];
+
+    console.log(allJokers)
+
+    // Filter out the ones the user has already used
+    const available = allJokers.filter(joker => game.canUseJoker(userId, joker));
+
+    console.log(available)
+
+    res.send({ 
+      available,
+      used: Array.from(game.usedJokers[userId] || []) 
+    });
+  });
+
+  router.post("/use-joker-obfuscation", (req, res) => {
+    const { instanceId, userId } = req.body;
+    const game = instances[instanceId];
+
+    if (!game) {
+      return res.status(400).send({ error: "Instance not found" });
+    }
+
+    if (game.canUseJoker(userId, Joker.OBFUSCATION)) {
+      const hint = game.getPartialHint();
+      game.markJokerUsed(userId, Joker.OBFUSCATION);
+      return res.send({ hint });
+    }
+
+    res.status(403).send({ error: "Joker already used" });
   });
 
   return router;
