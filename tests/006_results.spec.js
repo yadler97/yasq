@@ -27,8 +27,10 @@ test.describe('Player UI', () => {
         state: 'RESULTS',
         currentRound: 1,
         trackInfo: {
-          gameTitle: 'Game A',
-          trackTitle: 'Track A',
+          track: {
+            name: 'Game A',
+            title: 'Track A',
+          }
         },
         readyUserIds: [] 
       }

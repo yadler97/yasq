@@ -1,5 +1,5 @@
 import express from 'express';
-import { GameInstance } from '../models.js';
+import { GameInstance, Track } from '../models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../types.js';
 import { GameState, Joker } from '../constants.js';
 
@@ -234,7 +234,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
 
     res.send({
       round: game.currentRound,
-      answer: game.trackInfo?.gameTitle,
+      answer: game.trackInfo?.track.name,
       guesses: game.guesses[game.currentRound] || {},
       timedOut: timedOutPlayers
     });
@@ -275,8 +275,8 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({
       round: game.currentRound,
       result: roundResult,
-      correctAnswer: game.trackInfo?.gameTitle,
-      trackTitle: game.trackInfo?.trackTitle,
+      correctAnswer: game.trackInfo?.track.name,
+      trackTitle: game.trackInfo?.track.title,
       gameCover: game.trackInfo?.gameCoverUrl
     });
   });
@@ -313,13 +313,13 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(403).send({ error: "Only the host can change tracks." });
     }
 
-    const track = allTracks.find((t: { name: string; title: string; file: string }) => t.file === fileName);
+    const track = allTracks.find((t: Track) => t.file === fileName);
 
     if (!track) {
       return res.status(400).send({ error: "Track not found." });
     }
 
-    game.playTrack(fileName, track.name, track.title);
+    game.playTrack(track);
 
     console.log(`[MUSIC] Instance ${instanceId} started playing ${fileName}`);
     res.send({
@@ -379,12 +379,8 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     // Get all possible jokers
     const allJokers = Object.values(Joker) as Joker[];
 
-    console.log(allJokers)
-
     // Filter out the ones the user has already used
     const available = allJokers.filter(joker => game.canUseJoker(userId, joker));
-
-    console.log(available)
 
     res.send({ 
       available,
@@ -392,21 +388,39 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.post("/use-joker-obfuscation", (req, res) => {
-    const { instanceId, userId } = req.body;
+  router.post("/use-joker", (req, res) => {
+    const { instanceId, userId, jokerType } = req.body;
     const game = instances[instanceId];
 
     if (!game) {
       return res.status(400).send({ error: "Instance not found" });
     }
 
-    if (game.canUseJoker(userId, Joker.OBFUSCATION)) {
-      const hint = game.getPartialHint();
-      game.markJokerUsed(userId, Joker.OBFUSCATION);
-      return res.send({ hint });
+    if (!game.canUseJoker(userId, jokerType)) {
+      return res.status(403).send({ error: "Joker already used" });
     }
 
-    res.status(403).send({ error: "Joker already used" });
+    let hint: any;
+    switch (jokerType) {
+      case Joker.OBFUSCATION:
+        hint = game.getPartialHint();
+        break;
+      case Joker.TAGS:
+        hint = game.getTagHint();
+        break;
+      case Joker.MULTIPLE_CHOICE:
+        hint = game.getMultipleChoiceHint(allTracks);
+        break;
+      default:
+        return res.status(400).send({ error: "Invalid joker type" });
+    }
+
+    game.markJokerUsed(userId, jokerType);
+
+    res.send({ 
+      jokerType, 
+      hint 
+    });
   });
 
   return router;

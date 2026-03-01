@@ -75,7 +75,7 @@ test.describe('Host UI', () => {
 
     // Initial mock track count
     let count = await trackItems.count();
-    expect(count).toBe(3);
+    expect(count).toBe(4);
 
     // Search for all tracks with "B" in name or title
     const searchInput = page.locator('#track-search');
@@ -93,7 +93,7 @@ test.describe('Host UI', () => {
 
     // Initial mock track count
     let count = await trackItems.count();
-    expect(count).toBe(3);
+    expect(count).toBe(4);
 
     // Hide all played tracks
     const hidePlayedCheckbox = page.locator('#hide-played');
@@ -101,6 +101,6 @@ test.describe('Host UI', () => {
 
     // Find exactly two games (excluding "Game C")
     count = await trackItems.count();
-    expect(count).toBe(2);
+    expect(count).toBe(3);
   });
 });

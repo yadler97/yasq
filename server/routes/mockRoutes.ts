@@ -77,8 +77,7 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
         updates.trackInfo.url,
         updates.trackInfo.startTime,
         updates.trackInfo.endTime,
-        updates.trackInfo.gameTitle,
-        updates.trackInfo.trackTitle,
+        updates.trackInfo.track,
         updates.trackInfo.gameCoverUrl
       );
     }

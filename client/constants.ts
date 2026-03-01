@@ -14,7 +14,6 @@ export enum Joker {
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE'
 }
 
-export const DEFAULT_TRACK_DURATION = 30000;
-export const DEFAULT_ROUNDS = 5;
-export const BASE_POINTS = 100;
-export const FIRST_BONUS_MULTIPLIER = 1.2;
+export const MAX_VOLUME = 0.25;
+export const DEFAULT_VOLUME_SLIDER_VAL = 0.5;
+export const POLLING_INTERVAL = 500;

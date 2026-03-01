@@ -13,5 +13,10 @@
         "name": "Game C",
         "title": "Track C",
         "file": "track003"
+    },
+    {
+        "name": "Game D",
+        "title": "Track D",
+        "file": "track004"
     }
 ]

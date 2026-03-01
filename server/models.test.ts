@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { GameInstance, Leaderboard, LeaderboardEntry, RoundResult, TrackInfo, UserGuess } from './models.js';
+import { GameInstance, Leaderboard, LeaderboardEntry, RoundResult, Tag, Track, TrackInfo, UserGuess } from './models.js';
 import { GameState } from './constants.js';
 
 const HOST = "host_123";
@@ -61,7 +61,8 @@ describe('GameInstance - submitGuess', () => {
     // Simulate game already started and in selection state
     game.readyUsers = new Set([PLAYER_1, PLAYER_2]);
     game.currentRound = 1;
-    game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10000, "answer", "title", "cover")
+    const track = new Track("", "Game A", "Track A", [])
+    game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10000, track, "cover")
   });
 
   it('should calculate timeTaken correctly using fake timers', () => {
@@ -230,11 +231,68 @@ describe('GameInstance - getPartialHint', () => {
   });
 
   it('should return a string of underscores and spaces matching the title length', () => {
-    game.playTrack("", "Game A", "");
+    const track = new Track("", "Game A", "", [])
+    game.playTrack(track);
     const hint = game.getPartialHint();
 
     expect(hint.length).toBe(6);
     expect(hint).toContain('_');
     expect(hint[4]).toBe(' ');
+  });
+});
+
+describe('GameInstance - getTagHint', () => {
+  let game: GameInstance;
+
+  beforeEach(() => {
+    game = new GameInstance(HOST);
+  });
+
+  it('should return the coressponding tags', () => {
+    const track = new Track("", "Game A", "", [new Tag("platform", "Platform A"), new Tag("release", "2026")])
+    game.playTrack(track);
+    const hint = game.getTagHint();
+
+    expect(hint.length).toBe(2);
+    expect(hint[0]).toStrictEqual(new Tag("platform", "Platform A"));
+    expect(hint[1]).toStrictEqual(new Tag("release", "2026"));
+  });
+});
+
+describe('GameInstance - getAnswersHint', () => {
+  let game: GameInstance;
+
+  beforeEach(() => {
+    game = new GameInstance(HOST);
+  });
+
+  it('should return a list of four answers (correct + three wrong)', () => {
+    const correctTrack = new Track("1", "Game A", "Track A", [])
+    const wrongTracks = [
+      new Track("2", "Game B", "Track B", []),
+      new Track("3", "Game C", "Track C", []),
+      new Track("4", "Game D", "Track D", []),
+      new Track("5", "Game E", "Track E", [])
+    ];
+    const allTracks = [correctTrack, ...wrongTracks];
+
+    game.playTrack(correctTrack);
+    const hint = game.getMultipleChoiceHint(allTracks);
+
+    expect(hint.length).toBe(4);
+    expect(hint).toContain("Game A");
+
+    // Check if hint contains four unique answers
+    const uniqueCount = new Set(hint).size;
+    expect(uniqueCount).toBe(4);
+
+    // Check if wrong answers are all included in our wrongTracks list
+    const wrongTitles = wrongTracks.map(t => t.name);
+    const selectedWrongAnswers = hint.filter(title => title !== "Game A");
+
+    expect(selectedWrongAnswers.length).toBe(3);
+    selectedWrongAnswers.forEach(title => {
+      expect(wrongTitles).toContain(title);
+    });
   });
 });

@@ -115,11 +115,11 @@ export async function getAvailableJokers(instanceId, userId) {
   return response.json();
 }
 
-export async function useJokerObfuscation(instanceId, userId) {
-  const response = await fetch("/api/use-joker-obfuscation", {
+export async function useJoker(instanceId, userId, jokerType) {
+  const response = await fetch("/api/use-joker", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ instanceId, userId }),
+    body: JSON.stringify({ instanceId, userId, jokerType }),
   });
   return response.json();
 }

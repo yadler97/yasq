@@ -147,14 +147,14 @@ export class GameInstance {
     return this.currentRound >= this.settings.rounds;
   }
 
-  public playTrack(fileName: string, gameTitle: string, trackTitle: string): void {
+  public playTrack(track: Track): void {
     const countdownDuration = 4000;
     const startTime = Date.now() + countdownDuration;
     const endTime = startTime + this.settings.trackDuration;
 
-    this.trackInfo = new TrackInfo(`/music/${fileName}.mp3`, startTime, endTime, gameTitle, trackTitle, `/game_covers/${fileName}.png`);
+    this.trackInfo = new TrackInfo(`/music/${track.file}.mp3`, startTime, endTime, track, `/game_covers/${track.file}.png`);
     this.state = GameState.PLAYING;
-    this.trackHistory.push(fileName);
+    this.trackHistory.push(track.file);
     const roundAtStart = this.currentRound;
 
     const totalWaitTime = countdownDuration + this.settings.trackDuration;
@@ -193,7 +193,7 @@ export class GameInstance {
   }
 
   public getPartialHint(revealPercent: number = 0.2): string {
-    const title = this.trackInfo?.gameTitle;
+    const title = this.trackInfo?.track.name;
     if (!title) return "";
 
     return title.split("").map(c => {
@@ -203,6 +203,33 @@ export class GameInstance {
       // Obfuscate the rest, but keep a few characters
       return Math.random() < revealPercent ? c : "_";
     }).join("");
+  }
+
+  public getTagHint(): Tag[] {
+    return this.trackInfo?.track.tags || [];
+  }
+
+  public getMultipleChoiceHint(tracks: Track[]): string[] {
+    const correctAnswer = this.trackInfo?.track.name;
+    if (!correctAnswer) return [];
+
+    // Get all unique game titles except the correct one
+    const otherTitles = Array.from(new Set(
+      tracks
+        .map(t => t.name)
+        .filter(title => title !== correctAnswer)
+    ));
+
+    // Randomly pick 3 wrong answers
+    // We sort by a random value and take the first 3
+    const wrongAnswers = otherTitles
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 3);
+
+    // Combine with the correct answer and shuffle the final 4
+    const finalChoices = [correctAnswer, ...wrongAnswers];
+    
+    return finalChoices.sort(() => 0.5 - Math.random());
   }
 
   public markJokerUsed(userId: string, joker: Joker): void {
@@ -230,13 +257,28 @@ export class Settings {
   ) {}
 }
 
+export class Track {
+  constructor(
+    public file: string,
+    public name: string,
+    public title: string,
+    public tags: Tag[]
+  ) {}
+}
+
+export class Tag {
+  constructor(
+    public type: string,
+    public value: string
+  ) {}
+}
+
 export class TrackInfo {
   constructor(
     public url: string,
     public startTime: number,
     public endTime: number,
-    public gameTitle: string,
-    public trackTitle: string,
+    public track: Track,
     public gameCoverUrl: string
   ) {}
 }

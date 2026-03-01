@@ -4,12 +4,19 @@ import * as backend from "../../backend.js";
 import { gameState, auth, discordSdk, audioPlayer } from "../main.js";
 import { getUserId } from "../../helper.js";
 import { Joker, POLLING_INTERVAL } from "../../constants.js";
+import { ObfuscationIcon, TagsIcon, MultipleChoiceIcon } from './JokerIcons';
+
+const JOKER_MAP = {
+  [Joker.OBFUSCATION]: ObfuscationIcon,
+  [Joker.TAGS]: TagsIcon,
+  [Joker.MULTIPLE_CHOICE]: MultipleChoiceIcon,
+};
 
 export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const hasSubmitted = useSignal(false);
   const countdown = useSignal<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const hintText = useSignal<string | null>(null);
+  const activeHint = useSignal<{ type: Joker, data: any } | null>(null);
   const availableJokers = useSignal<string[]>([]);
 
   useEffect(() => {
@@ -19,13 +26,11 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
     })
   }, [gameState.value.currentRound]);
 
-  const handleUseObfuscation = async () => {
+  const handleJokerUsage = async (jokerType: Joker) => {
     try {
-      const data = await backend.useJokerObfuscation(discordSdk.instanceId, getUserId(auth.value));
-      if (data.hint) {
-        hintText.value = data.hint;
-        availableJokers.value = availableJokers.value.filter(j => j !== Joker.OBFUSCATION);
-      }
+      const response = await backend.useJoker(discordSdk.instanceId, getUserId(auth.value), jokerType);
+      activeHint.value = { type: jokerType, data: response.hint };
+      availableJokers.value = availableJokers.value.filter(j => j !== jokerType);
     } catch (err) {
       console.error("Failed to use joker:", err);
     }
@@ -108,8 +113,6 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
 
   return (
     <div id="game-arena" className="centered">
-      <h2 id="round-display">Round {gameState.value.currentRound}</h2>
-
       {countdown.value !== null && (
         <div id="countdown-overlay">
           <div id="countdown-number">{countdown.value}</div>
@@ -122,9 +125,39 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         </div>
       ) : (
         <div id="game-guesser-ui">
-          {hintText.value && (
+          {activeHint.value && !hasSubmitted.value && (
             <div className="hint-container">
-              <p className="obfuscated-title">{hintText.value}</p>
+              {activeHint.value.type === Joker.OBFUSCATION && (
+                <p className="obfuscated-text" id="obfuscation-hint-text">{activeHint.value.data}</p>
+              )}
+
+              {activeHint.value.type === Joker.TAGS && (
+                <div className="tags-container">
+                  {activeHint.value.data.map((tag: any) => (
+                    <span key={tag.type} className="tag-badge">
+                      <strong>{tag.type}:</strong> {tag.value}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {activeHint.value.type === Joker.MULTIPLE_CHOICE && (
+                <div className="choices-grid">
+                  {activeHint.value.data.map((choice: string) => (
+                    <button 
+                      key={choice}
+                      className="choice-button"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        hasSubmitted.value = true;
+                        await backend.submitGuess(discordSdk.instanceId, getUserId(auth.value), choice);
+                      }}
+                    >
+                      {choice}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -156,13 +189,33 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                 <button type="submit" id="btn-submit">Submit Guess</button>
               </form>
 
-              <button 
-                className="joker-button"
-                onClick={handleUseObfuscation}
-                disabled={!availableJokers.value.includes(Joker.OBFUSCATION) || !!hintText.value}
-              >
-                {hintText.value ? "Joker Used" : "Reveal Title Hint"}
-              </button>
+              <div className="joker-list">
+                {Object.entries(JOKER_MAP).map(([type, Icon]) => {
+                  const isAvailable = availableJokers.value.includes(type);
+  
+                  // Format name: MULTIPLE_CHOICE -> Multiple Choice
+                  const jokerName = type.toLowerCase()
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+
+                  // Construct the tooltip text
+                  const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
+
+                  return (
+                    <button 
+                      key={type}
+                      className="joker-icon-btn"
+                      id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
+                      title={tooltipText}
+                      onClick={() => handleJokerUsage(type as Joker)}
+                      disabled={!isAvailable}
+                    >
+                      <Icon className="joker-svg" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           ) : (
             <div className="waiting-container">
