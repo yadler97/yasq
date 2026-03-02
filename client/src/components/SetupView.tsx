@@ -2,11 +2,24 @@ import { useSignal } from "@preact/signals";
 import * as backend from "../../backend.js";
 import { participants, discordSdk, auth, gameState } from "../main";
 import { getUserId, getDisplayName, getAvatarUrl } from "../../helper.js";
+import { ALL_JOKER_ICONS } from "./JokerIcons.js";
+import { Joker } from "../../constants.js";
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
   const roundCount = useSignal(5);
   const trackDuration = useSignal(30);
   const isSubmitting = useSignal(false);
+  const activeJokers = useSignal<Set<Joker>>(new Set([Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE]));
+
+  const toggleJoker = (type: Joker) => {
+    const next = new Set(activeJokers.value);
+    if (next.has(type)) {
+      next.delete(type);
+    } else {
+      next.add(type);
+    }
+    activeJokers.value = next;
+  };
 
   const handleConfirmSettings = async () => {
     isSubmitting.value = true;
@@ -15,7 +28,8 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
         discordSdk.instanceId, 
         getUserId(auth.value), 
         roundCount.value, 
-        trackDuration.value
+        trackDuration.value,
+        [...activeJokers.value]
       );
     } catch (e) {
       console.error("Setup failed:", e);
@@ -45,6 +59,33 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
             <input type="number" id="duration-input" min="10" max="120" value={trackDuration.value}
               onInput={(e) => (trackDuration.value = e.currentTarget.valueAsNumber)} />
           </label>
+
+          <div>
+            <label className="setting-item"><span>Active Jokers</span></label>
+            <div className="joker-config-row">
+              {ALL_JOKER_ICONS.map((Icon) => {
+                const isActive = activeJokers.value.has(Icon.jokerType);
+
+                const jokerName = Icon.jokerType.toLowerCase()
+                  .split('_')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ');
+
+                return (
+                  <button
+                    key={Icon.jokerType}
+                    type="button"
+                    id={`config-${Icon.jokerType.toLowerCase().replace(/_/g, '-')}`}
+                    className={`joker-config-btn ${isActive ? 'active' : 'inactive'}`}
+                    onClick={() => toggleJoker(Icon.jokerType)}
+                    title={jokerName}
+                  >
+                    <Icon />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <button id="btn-start" disabled={isSubmitting.value} onClick={handleConfirmSettings}>
             {isSubmitting.value ? "Saving..." : "Confirm"}

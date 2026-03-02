@@ -32,7 +32,8 @@ export const gameState = signal<GameStatus>({
   isFinalRound: false,
   lastWinnerId: null,
   rounds: 0,
-  trackDuration: 0
+  trackDuration: 0,
+  enabledJokers: []
 });
 export const participants = signal<Participant[]>([]);
 export const volume = signal(DEFAULT_VOLUME_SLIDER_VAL);

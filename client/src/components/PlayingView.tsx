@@ -4,13 +4,7 @@ import * as backend from "../../backend.js";
 import { gameState, auth, discordSdk, audioPlayer } from "../main.js";
 import { getUserId } from "../../helper.js";
 import { Joker, POLLING_INTERVAL } from "../../constants.js";
-import { ObfuscationIcon, TagsIcon, MultipleChoiceIcon } from './JokerIcons';
-
-const JOKER_MAP = {
-  [Joker.OBFUSCATION]: ObfuscationIcon,
-  [Joker.TAGS]: TagsIcon,
-  [Joker.MULTIPLE_CHOICE]: MultipleChoiceIcon,
-};
+import { ALL_JOKER_ICONS } from './JokerIcons';
 
 export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const hasSubmitted = useSignal(false);
@@ -131,7 +125,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                 <p className="obfuscated-text" id="obfuscation-hint-text">{activeHint.value.data}</p>
               )}
 
-              {activeHint.value.type === Joker.TAGS && (
+              {activeHint.value.type === Joker.TRIVIA && (
                 <div className="tags-container">
                   {activeHint.value.data.map((tag: any) => (
                     <span key={tag.type} className="tag-badge">
@@ -190,30 +184,34 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               </form>
 
               <div className="joker-list">
-                {Object.entries(JOKER_MAP).map(([type, Icon]) => {
-                  const isAvailable = availableJokers.value.includes(type);
-  
-                  // Format name: MULTIPLE_CHOICE -> Multiple Choice
-                  const jokerName = type.toLowerCase()
-                    .split('_')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
+                {ALL_JOKER_ICONS
+                  // Only show jokers that were enabled by the host during setup
+                  .filter(Icon => gameState.value.enabledJokers.includes(Icon.jokerType))
+                  .map((Icon) => {
+                    const type = Icon.jokerType;
+                    const isAvailable = availableJokers.value.includes(type);
 
-                  // Construct the tooltip text
-                  const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
+                    // Format name: MULTIPLE_CHOICE -> Multiple Choice
+                    const jokerName = Icon.jokerType.toLowerCase()
+                      .split('_')
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(' ');
 
-                  return (
-                    <button 
-                      key={type}
-                      className="joker-icon-btn"
-                      id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
-                      title={tooltipText}
-                      onClick={() => handleJokerUsage(type as Joker)}
-                      disabled={!isAvailable}
-                    >
-                      <Icon className="joker-svg" />
-                    </button>
-                  );
+                    // Construct the tooltip text
+                    const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
+
+                    return (
+                      <button 
+                        key={type}
+                        className="joker-icon-btn"
+                        id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
+                        title={tooltipText}
+                        onClick={() => handleJokerUsage(type)}
+                        disabled={!isAvailable}
+                      >
+                        <Icon className="joker-svg" />
+                      </button>
+                    );
                 })}
               </div>
             </div>

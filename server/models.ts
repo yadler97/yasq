@@ -24,15 +24,19 @@ export class GameInstance {
 
   constructor(hostId: string) {
     this.hostId = hostId;
-    this.settings = { rounds: DEFAULT_ROUNDS, trackDuration: DEFAULT_TRACK_DURATION };
+    this.settings = { rounds: DEFAULT_ROUNDS, trackDuration: DEFAULT_TRACK_DURATION, enabledJokers: new Set() };
   }
 
   public isHost(userId: string): boolean {
     return this.hostId === userId;
   }
 
-  public setupGame(rounds: number, trackDuration: number): void {
-    this.settings = new Settings(rounds || DEFAULT_ROUNDS, (trackDuration * 1000) || DEFAULT_TRACK_DURATION);
+  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[]): void {
+    this.settings = new Settings(
+      rounds || DEFAULT_ROUNDS,
+      (trackDuration * 1000) || DEFAULT_TRACK_DURATION,
+      new Set(enabledJokers)
+    );
     this.state = GameState.LOBBY;
   }
 
@@ -253,7 +257,8 @@ export class GameInstance {
 export class Settings {
   constructor(
     public rounds: number,
-    public trackDuration: number
+    public trackDuration: number,
+    public enabledJokers: Set<Joker>
   ) {}
 }
 

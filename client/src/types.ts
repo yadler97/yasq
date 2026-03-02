@@ -1,3 +1,5 @@
+import { Joker } from "../constants";
+
 export interface Participant {
   id: string;
   username: string;
@@ -14,6 +16,7 @@ export interface GameStatus {
   lastWinnerId: string | null;
   rounds: number;
   trackDuration: number;
+  enabledJokers: Joker[];
 }
 
 export interface Track {

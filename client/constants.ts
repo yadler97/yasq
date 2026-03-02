@@ -10,7 +10,7 @@ export enum GameState {
 
 export enum Joker {
   OBFUSCATION = 'OBFUSCATION',
-  TAGS = 'TAGS',
+  TRIVIA = 'TRIVIA',
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE'
 }
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { GameInstance, Leaderboard, LeaderboardEntry, RoundResult, Tag, Track, TrackInfo, UserGuess } from './models.js';
-import { GameState } from './constants.js';
+import { GameState, Joker } from './constants.js';
 
 const HOST = "host_123";
 const PLAYER_1 = "player_123"
@@ -20,7 +20,7 @@ describe('GameInstance - startGame', () => {
 
   it('should initialize settings and transition state', () => {
     // Start game with 5 rounds and 15 seconds
-    game.setupGame(5, 15);
+    game.setupGame(5, 15, [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE]);
     game.startGame();
 
     // Assert state and current round
@@ -30,10 +30,13 @@ describe('GameInstance - startGame', () => {
     // Assert settings (15s should become 15000ms)
     expect(game.settings.rounds).toBe(5);
     expect(game.settings.trackDuration).toBe(15000);
+    expect(game.settings.enabledJokers.has(Joker.OBFUSCATION)).toBe(true);
+    expect(game.settings.enabledJokers.has(Joker.MULTIPLE_CHOICE)).toBe(true);
+    expect(game.settings.enabledJokers.size).toBe(2);
   });
 
   it('should add players to leaderboard but exclude the host', () => {
-    game.setupGame(5, 15);
+    game.setupGame(5, 15, []);
     game.startGame();
 
     const entries = game.leaderboard.getAll();
@@ -111,7 +114,7 @@ describe('GameInstance - submitResults', () => {
     game = new GameInstance(HOST);
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
-    game.setupGame(10, 20); // 20s duration = 20000ms
+    game.setupGame(10, 20, []); // 20s duration = 20000ms
     game.startGame();
 
     // Manually inject some guesses into the current round
@@ -191,7 +194,7 @@ describe('GameInstance - advanceRound', () => {
 
   beforeEach(() => {
     game = new GameInstance(HOST);
-    game.setupGame(3, 20); // 3 rounds
+    game.setupGame(3, 20, []); // 3 rounds
     game.startGame();
 
     const entry1 = new LeaderboardEntry(PLAYER_1);

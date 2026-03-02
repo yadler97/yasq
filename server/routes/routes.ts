@@ -122,7 +122,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
   });
 
   router.post("/setup-game", (req, res) => {
-    const { instanceId, userId, rounds, trackDuration } = req.body;
+    const { instanceId, userId, rounds, trackDuration, enabledJokers } = req.body;
     const game = instances[instanceId];
 
     // Security check: only host can setup a game
@@ -134,8 +134,8 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(400).send({ error: "Rounds and track duration must be greater than 0." });
     }
 
-    game.setupGame(rounds, trackDuration);
-    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}!`);
+    game.setupGame(rounds, trackDuration, enabledJokers);
+    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}, enabledJokers: ${[...game.settings.enabledJokers]}!`);
     res.send({ status: GameState.LOBBY });
   });
 
@@ -170,7 +170,8 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       currentGame: game.currentGame,
       lastWinnerId: game.lastWinnerId,
       rounds: game.settings.rounds,
-      trackDuration: game.settings.trackDuration
+      trackDuration: game.settings.trackDuration,
+      enabledJokers: [...game.settings.enabledJokers]
     });
   });
 
@@ -376,11 +377,10 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(404).send({ error: "Instance not found" });
     }
 
-    // Get all possible jokers
-    const allJokers = Object.values(Joker) as Joker[];
-
     // Filter out the ones the user has already used
-    const available = allJokers.filter(joker => game.canUseJoker(userId, joker));
+    const available = [...game.settings.enabledJokers].filter(joker => 
+      game.canUseJoker(userId, joker)
+    );
 
     res.send({ 
       available,
@@ -396,6 +396,10 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(400).send({ error: "Instance not found" });
     }
 
+    if (!game.settings.enabledJokers.has(jokerType)) {
+      return res.status(403).send({ error: "Joker not enabled for this game" });
+    }
+
     if (!game.canUseJoker(userId, jokerType)) {
       return res.status(403).send({ error: "Joker already used" });
     }
@@ -405,7 +409,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       case Joker.OBFUSCATION:
         hint = game.getPartialHint();
         break;
-      case Joker.TAGS:
+      case Joker.TRIVIA:
         hint = game.getTagHint();
         break;
       case Joker.MULTIPLE_CHOICE:

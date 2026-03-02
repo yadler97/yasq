@@ -37,11 +37,17 @@ export async function getGameStatus(instanceId) {
   return response.json();
 }
 
-export async function setupGame(instanceId, userId, rounds = 5, trackDuration = 30) {
+export async function setupGame(instanceId, userId, rounds = 5, trackDuration = 30, enabledJokers = []) {
   return fetch("/api/setup-game", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ instanceId, userId, rounds, trackDuration }),
+    body: JSON.stringify({ 
+      instanceId,
+      userId,
+      rounds,
+      trackDuration,
+      enabledJokers: Array.isArray(enabledJokers) ? enabledJokers : [...enabledJokers]
+    }),
   });
 }
 

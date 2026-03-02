@@ -26,6 +26,11 @@ test.describe('Player UI', () => {
         registeredUsers: players,
         state: 'PLAYING',
         readyUserIds: [],
+        settings: {
+          rounds: 5,
+          trackDuration: 30000,
+          enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE'] 
+        },
         trackInfo: {
           track: {
             name: 'Game A',
@@ -107,8 +112,8 @@ test.describe('Player UI', () => {
     await expect(text).toMatch(validChars);
   });
 
-  test('should display tags hint when using tags joker', async ({ page }) => {
-    const jokerBtn = page.locator('#btn-joker-tags');
+  test('should display trivia hint when using tags joker', async ({ page }) => {
+    const jokerBtn = page.locator('#btn-joker-trivia');
     const tagsContainer = page.locator('.tags-container');
     const tagBadges = page.locator('.tag-badge');
 

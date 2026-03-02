@@ -1,6 +1,7 @@
 import * as backend from "../../backend.js";
 import { participants, discordSdk, auth, gameState } from "../main";
 import { getUserId } from "../../helper.js";
+import { getJokerDisplayName } from "./JokerIcons.js";
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
@@ -17,6 +18,13 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
         <h2>Game Settings</h2>
         <span>📋 <strong>{gameState.value.rounds}</strong> Rounds</span>
         <span>⏱️ <strong>{gameState.value.trackDuration / 1000}s</strong> Track Duration</span>
+        <span>
+          ❓ <strong>Jokers:</strong> {
+            gameState.value.enabledJokers.length > 0 
+              ? gameState.value.enabledJokers.map(getJokerDisplayName).join(", ")
+              : "None"
+          }
+        </span>
       </div>
 
       <div className="lobby-footer">

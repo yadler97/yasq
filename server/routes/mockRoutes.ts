@@ -12,7 +12,7 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
       state = 'LOBBY',
       currentRound = 1,
       readyUserIds = [],
-      settings = new Settings(5, 30),
+      settings = new Settings(5, 30, new Set()),
       trackInfo = null,
       guesses = {},
       leaderboard = new Leaderboard(),
@@ -33,6 +33,11 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
     game.currentRound = currentRound;
     game.readyUsers = new Set(readyUserIds);
     game.settings = settings;
+    game.settings = new Settings(
+      settings.rounds,
+      settings.trackDuration,
+      new Set(settings.enabledJokers || [])
+    );
     game.trackInfo = trackInfo;
     game.guesses = guesses;
     game.leaderboard = Leaderboard.fromJSON(leaderboard);
@@ -70,7 +75,11 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
       game.trackHistory = updates.trackHistory;
     }
     if (updates.settings) {
-      game.settings = new Settings(updates.settings.rounds, updates.settings.trackDuration);
+      game.settings = new Settings(
+        updates.settings.rounds,
+        updates.settings.trackDuration,
+        new Set(updates.settings.enabledJokers || [])
+      );
     }
     if (updates.trackInfo) {
       game.trackInfo = new TrackInfo(
