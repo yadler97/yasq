@@ -25,3 +25,8 @@ export interface Track {
   file: string,
   played: boolean
 }
+
+export interface Playlist {
+  name: string;
+  tracks: string[];
+}

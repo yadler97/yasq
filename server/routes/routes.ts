@@ -3,7 +3,7 @@ import { GameInstance, Track } from '../models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../types.js';
 import { GameState, Joker } from '../constants.js';
 
-export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode: boolean, allTracks: any) => {
+export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode: boolean, allTracks: any, allPlaylists: any) => {
   const router = express.Router();
 
   router.post("/token", async (req, res) => {
@@ -187,14 +187,18 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       game.trackHistory = []; // Reset history if all tracks have been played
     }
 
-    const trackList = allTracks.map((t: { name: string; title: string, file: string }, index: number) => ({
+    const tracks = allTracks.map((t: { name: string; title: string, file: string }, index: number) => ({
       id: index,
       name: t.name,
       title: t.title,
       file: t.file,
       played: game.trackHistory.includes(t.file)
     }));
-    res.json(trackList);
+
+    res.json({
+      tracks: tracks,
+      playlists: allPlaylists
+    });
   });
 
   router.post("/guess", (req, res) => {

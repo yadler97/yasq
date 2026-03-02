@@ -148,7 +148,7 @@ h1 {
   background: #36393f;
 }
 
-input[type="text"], input[type="number"] {
+input[type="text"], input[type="number"], select {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
@@ -442,13 +442,29 @@ button:focus-visible {
   gap: 10px;
 }
 
+.controls {
+  display: flex;
+  gap: 20px;
+  background: #2f3136;
+  padding: 10px;
+  border-radius: 8px;
+  margin-left: 100px;
+  margin-right: 100px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.search-wrapper {
+  display: flex;
+  gap: 5px;
+}
+
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 16px;
+  gap: 20px;
   margin-left: 100px;
   margin-right: 100px;
-  padding: 10px;
 }
 
 .grid-container .no-results {
