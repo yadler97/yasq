@@ -103,8 +103,14 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
               </div>
               
               <div className="track-info">
-                <span className="game-name">{track.name}</span>
-                <span className="track-title"><i>{track.title}</i></span>
+                <span className="game-name">
+                  <HighlightText text={track.name} highlight={searchTerm.value} />
+                </span>
+                <span className="track-title">
+                  <i>
+                    <HighlightText text={track.title} highlight={searchTerm.value} />
+                  </i>
+                </span>
               </div>
 
               <button 
@@ -125,5 +131,24 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         )}
       </div>
     </div>
+  );
+};
+
+const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+  if (!highlight.trim()) return <span>{text}</span>;
+
+  // Split text by the highlight term, keeping the delimiter for case sensitivity
+  const parts = text.split(new RegExp(`(${highlight})`, "gi"));
+
+  return (
+    <span>
+      {parts.map((part, i) =>
+        part.toLowerCase() === highlight.toLowerCase() ? (
+          <mark key={i} className="search-highlight">{part}</mark>
+        ) : (
+          part
+        )
+      )}
+    </span>
   );
 };

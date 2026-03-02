@@ -7,7 +7,7 @@ import { Joker } from "../../constants.js";
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
   const roundCount = useSignal(5);
-  const trackDuration = useSignal(30);
+  const trackDuration = useSignal(60);
   const isSubmitting = useSignal(false);
   const activeJokers = useSignal<Set<Joker>>(new Set([Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE]));
 

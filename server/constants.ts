@@ -14,7 +14,7 @@ export enum Joker {
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE'
 }
 
-export const DEFAULT_TRACK_DURATION = 30000;
+export const DEFAULT_TRACK_DURATION = 60000;
 export const DEFAULT_ROUNDS = 5;
 export const BASE_POINTS = 100;
 export const FIRST_BONUS_MULTIPLIER = 1.2;
