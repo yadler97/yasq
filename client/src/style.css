@@ -243,6 +243,7 @@ button:focus-visible {
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+  position: relative;
 }
 
 .sidebar {

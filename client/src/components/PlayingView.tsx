@@ -8,7 +8,7 @@ import { ALL_JOKER_ICONS } from './JokerIcons';
 
 export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const hasSubmitted = useSignal(false);
-  const countdown = useSignal<number | null>(null);
+  const countdown = useSignal<number | null>(3);
   const inputRef = useRef<HTMLInputElement>(null);
   const activeHint = useSignal<{ type: Joker, data: any } | null>(null);
   const availableJokers = useSignal<string[]>([]);
