@@ -23,15 +23,41 @@ const tracksPath = isMockMode
   ? path.join(__dirname, '..', 'mock_data', 'mockTracks.json')
   : path.join(__dirname, 'data', 'tracks.json');
 
-const tracksRaw = fs.readFileSync(tracksPath, 'utf-8');
-const allTracks = JSON.parse(tracksRaw);
+let allTracks = [];
+
+if (fs.existsSync(tracksPath)) {
+  try {
+    const tracksRaw = fs.readFileSync(tracksPath, 'utf-8');
+    allTracks = JSON.parse(tracksRaw);
+  } catch (err) {
+    console.error(`Error parsing JSON from ${tracksPath}:`, err);
+    process.exit(1);
+  }
+} else {
+  console.error(`Tracks file not found at ${tracksPath}.`);
+  process.exit(1);
+}
 
 const playlistsPath = isMockMode 
   ? path.join(__dirname, '..', 'mock_data', 'mockTracks.json')
   : path.join(__dirname, 'data', 'playlists.json');
 
-const playlistsRaw = fs.readFileSync(playlistsPath, 'utf-8');
-const allPlaylists = JSON.parse(playlistsRaw);
+let allPlaylists = [];
+
+if (fs.existsSync(playlistsPath)) {
+  try {
+    const playlistsRaw = fs.readFileSync(playlistsPath, 'utf-8');
+    allPlaylists = JSON.parse(playlistsRaw);
+  } catch (err) {
+    console.error(`Error parsing JSON from ${playlistsPath}:`, err);
+    // Fallback to empty array if JSON is malformed
+    allPlaylists = [];
+  }
+} else {
+  console.log(`Playlists file not found at ${playlistsPath}. Starting with no playlists.`);
+  // Fallback to empty array if file is not existing
+  allPlaylists = [];
+}
 
 // Allow express to parse JSON bodies
 app.use(express.json());

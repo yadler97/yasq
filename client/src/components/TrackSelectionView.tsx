@@ -56,16 +56,18 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     <div id="track-picker-container">
       <h2>Select the next track to challenge players:</h2>
       <div className="controls">
-        <select 
-          className="playlist-select"
-          value={selectedPlaylistName.value} 
-          onChange={(e) => (selectedPlaylistName.value = e.currentTarget.value)}
-        >
-          <option value="All">All Playlists</option>
-          {playlists.value.map(p => (
-            <option key={p.name} value={p.name}>{p.name}</option>
-          ))}
-        </select>
+        {playlists.value.length > 0 && (
+          <select 
+            className="playlist-select"
+            value={selectedPlaylistName.value} 
+            onChange={(e) => (selectedPlaylistName.value = e.currentTarget.value)}
+          >
+            <option value="All">All Playlists</option>
+            {playlists.value.map(p => (
+              <option key={p.name} value={p.name}>{p.name}</option>
+            ))}
+          </select>
+        )}
 
         <div className="search-wrapper">
           <input type="text" id="track-search" placeholder="Search game or track name..." value={searchTerm.value}

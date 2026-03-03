@@ -53,20 +53,36 @@ cloudflared tunnel --url http://localhost:5173
 ### Game Setup
 1. Copy tracks as mp3 into `server/music`
 2. Copy game covers as png into `server/game_covers` (Note: name must be the same as for the corresponding mp3 file: `track001.mp3` -> `track001.png`!)
-3. Create `tracks.json` in `server` with the following format:\
-```
-[
-    {
-        "name": "Game Title 1",
-        "title": "Track Title 1",
-        "file": "File Name 1"
-    },
-    {
-        "name": "Game Title 2",
-        "title": "Track Title 2",
-        "file": "File Name 2"
-    },
-    ...
-]
-```
-(Note: file name must be without file extension: `track001.mp3` -> `track001`)
+3. Create `tracks.json` in `server/data` with the following format:
+
+    ```json
+    [
+        {
+            "name": "Game Title 1",
+            "title": "Track Title 1",
+            "file": "File Name 1"
+        },
+        {
+            "name": "Game Title 2",
+            "title": "Track Title 2",
+            "file": "File Name 2"
+        },
+        ...
+    ]
+    ```
+    (Note: file name must be without file extension: `track001.mp3` -> `track001`)
+4. (Optional) Create `playlists.json` in `server/data` with the following format:
+    ```json
+    [
+        {
+            "name": "Playlist 1",
+            "tracks": ["File Name 1", "File Name 2", "File Name 3", ...]
+        },
+        {
+            "name": "Playlist 2",
+            "tracks": ["File Name 1", "File Name 4", "File Name 5", ...]
+        },
+        ...
+    ]
+    ```
+    (Note: file name must be without file extension: `track001.mp3` -> `track001`)
