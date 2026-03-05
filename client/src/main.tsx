@@ -101,7 +101,7 @@ const renderView = (isHost: boolean) => {
       "applications.commands"
     ],
   });
-  
+
   // Retrieve an access_token from your activity's server
   const { access_token } = await backend.getToken(code);
 
@@ -113,7 +113,7 @@ const renderView = (isHost: boolean) => {
   }
 
   // Register with our backend
-  await backend.registerUser(discordSdk.instanceId, auth.value.user.id, auth.value.user.username);
+  await backend.registerUser(auth.value.access_token, discordSdk.instanceId);
 
   setInterval(async () => {
     gameState.value  = await backend.getGameStatus(discordSdk.instanceId);

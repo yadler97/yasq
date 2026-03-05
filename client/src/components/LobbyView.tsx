@@ -9,7 +9,15 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const allPlayersReady = playersExcludingHost.length > 0 && readyUsers === playersExcludingHost.length;
 
   const handleStart = async () => {
-    await backend.startGame(discordSdk.instanceId, getUserId(auth.value));
+    await backend.startGame(auth.value.access_token, discordSdk.instanceId);
+  };
+
+  const handleReady = async () => {
+    await backend.updateReadyStatus(
+      auth.value.access_token,
+      discordSdk.instanceId,
+      !gameState.value.readyUsers.includes(getUserId(auth.value))
+    )
   };
 
   return (
@@ -37,11 +45,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             <button
               className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''}`}
               id="btn-ready"
-              onClick={() => backend.updateReadyStatus(
-                discordSdk.instanceId,
-                getUserId(auth.value),
-                !gameState.value.readyUsers.includes(getUserId(auth.value))
-              )}
+              onClick={handleReady}
             >
               {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready Up"}
             </button>

@@ -1,5 +1,6 @@
 {
   "name": "yasq",
+  "version": "0.1.0-dev",
   "private": true,
   "workspaces": [
     "client",
@@ -10,6 +11,7 @@
     "dev:client": "npm run dev -w client",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:mock": "cross-env VITE_MOCK_MODE=true npm run dev",
+    "test:unit": "npm run test -w server",
     "test:e2e": "cross-env VITE_MOCK_MODE=true playwright test",
     "test:e2e:ui": "cross-env VITE_MOCK_MODE=true playwright test --ui"
   },

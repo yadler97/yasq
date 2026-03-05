@@ -45,7 +45,11 @@ test.describe('Host UI', () => {
 
     // MockPlayer1 is ready
     await page.request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: currentInstanceId, userId: players[1].id, ready: true }
+      data: { instanceId: currentInstanceId, ready: true },
+      headers: {
+        'Authorization': `Bearer token_${players[1].id}`,
+        'Content-Type': 'application/json'
+      }
     });
 
     // Not all players ready yet
@@ -53,7 +57,11 @@ test.describe('Host UI', () => {
 
     // MockPlayer2 is ready
     await page.request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: currentInstanceId, userId: players[2].id, ready: true }
+      data: { instanceId: currentInstanceId, ready: true },
+      headers: {
+        'Authorization': `Bearer token_${players[2].id}`,
+        'Content-Type': 'application/json'
+      }
     });
 
     // Button enabled when all players are ready
@@ -61,7 +69,11 @@ test.describe('Host UI', () => {
 
     // MockPlayer2 is no longer ready
     await page.request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: currentInstanceId, userId: players[2].id, ready: false }
+      data: { instanceId: currentInstanceId, ready: false },
+      headers: {
+        'Authorization': `Bearer token_${players[2].id}`,
+        'Content-Type': 'application/json'
+      }
     });
 
     // Button disabled again
@@ -79,7 +91,11 @@ test.describe('Host UI', () => {
 
     // Check for the READY badge
     await request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: currentInstanceId, userId: guest.id, ready: true }
+      data: { instanceId: currentInstanceId, ready: true },
+      headers: {
+        'Authorization': `Bearer token_${guest.id}`,
+        'Content-Type': 'application/json'
+      }
     });
     
     const playerEntry = page.locator(`.player-entry:has-text("${guest.username}")`);
@@ -87,7 +103,11 @@ test.describe('Host UI', () => {
     await expect(playerEntry.locator('.badge.ready')).toHaveText('READY');
 
     await request.post('http://localhost:3001/api/ready', {
-      data: { instanceId: currentInstanceId, userId: guest.id, ready: false }
+      data: { instanceId: currentInstanceId, ready: false },
+      headers: {
+        'Authorization': `Bearer token_${guest.id}`,
+        'Content-Type': 'application/json'
+      }
     });
 
     await expect(playerEntry.locator('.badge.ready')).toBeHidden();

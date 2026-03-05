@@ -1,6 +1,5 @@
 {
   "name": "yasq-server",
-  "version": "0.1.0-dev",
   "description": "",
   "main": "server.js",
   "type": "module",

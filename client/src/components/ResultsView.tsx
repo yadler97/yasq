@@ -24,7 +24,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                           playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
 
   const handleNextRound = async () => {
-    await backend.startNextRound(discordSdk.instanceId, getUserId(auth.value));
+    await backend.startNextRound(auth.value.access_token, discordSdk.instanceId);
   };
 
   if (isHost) {
@@ -75,8 +75,8 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         <button 
           className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''}`}
           onClick={() => backend.updateReadyStatus(
-            discordSdk.instanceId, 
-            getUserId(auth.value), 
+            auth.value.access_token,
+            discordSdk.instanceId,
             !gameState.value.readyUsers.includes(getUserId(auth.value))
           )}
         >

@@ -1,7 +1,7 @@
 import { useSignal } from "@preact/signals";
 import * as backend from "../../backend.js";
 import { participants, discordSdk, auth, gameState } from "../main";
-import { getUserId, getDisplayName, getAvatarUrl } from "../../helper.js";
+import { getDisplayName, getAvatarUrl } from "../../helper.js";
 import { ALL_JOKER_ICONS } from "./JokerIcons.js";
 import { Joker } from "../../constants.js";
 
@@ -25,9 +25,9 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     isSubmitting.value = true;
     try {
       await backend.setupGame(
-        discordSdk.instanceId, 
-        getUserId(auth.value), 
-        roundCount.value, 
+        auth.value.access_token,
+        discordSdk.instanceId,
+        roundCount.value,
         trackDuration.value,
         [...activeJokers.value]
       );
@@ -111,7 +111,7 @@ export const HostTransferDropdown = () => {
     if (!selectedPlayer.value) return;
     isTransferring.value = true;
     try {
-      await backend.assignNewHost(discordSdk.instanceId, getUserId(auth.value), selectedPlayer.value.id);
+      await backend.assignNewHost(auth.value.access_token, discordSdk.instanceId, selectedPlayer.value.id);
     } catch (e) {
       console.error(e);
     }

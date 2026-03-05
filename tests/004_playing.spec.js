@@ -32,6 +32,7 @@ test.describe('Player UI', () => {
           enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE'] 
         },
         trackInfo: {
+          url: "some url",
           track: {
             name: 'Game A',
             title: 'Track A',
@@ -80,11 +81,14 @@ test.describe('Player UI', () => {
     const resultsUI = page.locator('#results');
 
     // Other player submits guess
-    await request.post('http://localhost:3001/api/guess', {
+    await request.post('http://localhost:3001/api/submit-guess', {
       data: {
         instanceId: currentInstanceId,
-        userId: players[2].id,
         guess: 'Some Game'
+      },
+      headers: {
+        'Authorization': `Bearer token_${players[2].id}`,
+        'Content-Type': 'application/json'
       }
     });
 

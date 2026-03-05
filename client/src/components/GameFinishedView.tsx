@@ -2,7 +2,7 @@ import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import * as backend from "../../backend.js";
 import { auth, discordSdk, participants } from "../main.js";
-import { getAvatarUrl, getDisplayName, getUserId } from "../../helper.js";
+import { getAvatarUrl, getDisplayName } from "../../helper.js";
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
@@ -16,7 +16,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const handleRestart = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
     btn.disabled = true;
-    await backend.restartGame(discordSdk.instanceId, getUserId(auth.value));
+    await backend.restartGame(auth.value.access_token, discordSdk.instanceId);
   };
 
   return (

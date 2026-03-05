@@ -13,7 +13,7 @@ export const mockDiscordSdk = {
 
     // Mock Authenticate
     authenticate: async () => ({
-      access_token: 'mock_token',
+      access_token: `token_${window.__MOCK_USER_ID__ || '999999999'}`,
       user: {
         id: window.__MOCK_USER_ID__ || '999999999', 
         username: window.__MOCK_USER_NAME__ || 'MockPlayer1',

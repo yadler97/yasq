@@ -1,7 +1,6 @@
 {
   "name": "yasq-client",
   "private": true,
-  "version": "0.1.0-dev",
   "type": "module",
   "scripts": {
     "dev": "vite",

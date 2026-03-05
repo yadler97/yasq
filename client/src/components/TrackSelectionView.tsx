@@ -2,7 +2,6 @@ import { useSignal, computed, signal } from "@preact/signals";
 import { auth } from "../main";
 import { discordSdk } from "../main";
 import * as backend from "../../backend.js";
-import { getUserId } from "../../helper";
 import { useEffect } from "preact/hooks";
 import { Track, Playlist } from "../types";
 
@@ -15,7 +14,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   const playlists = useSignal<Playlist[]>([]);
 
   useEffect(() => {
-    backend.getTrackList(discordSdk.instanceId, getUserId(auth.value)).then((data) => {
+    backend.getTrackList(auth.value.access_token, discordSdk.instanceId).then((data) => {
       tracks.value = data.tracks;
       playlists.value = data.playlists;
     });
@@ -123,7 +122,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
                   // The button becomes disabled because tracks.value will update
                   // or the state will change to 'PLAYING' via the backend call.
                   (e.currentTarget as HTMLButtonElement).disabled = true;
-                  await backend.playTrack(track.file, discordSdk.instanceId, getUserId(auth.value));
+                  await backend.playTrack(auth.value.access_token, track.file, discordSdk.instanceId);
                 }}
               >
                 {track.played ? 'Already Played' : 'Select Track'}

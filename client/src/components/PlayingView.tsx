@@ -2,7 +2,6 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useRef } from "preact/hooks";
 import * as backend from "../../backend.js";
 import { gameState, auth, discordSdk, audioPlayer } from "../main.js";
-import { getUserId } from "../../helper.js";
 import { Joker, POLLING_INTERVAL } from "../../constants.js";
 import { ALL_JOKER_ICONS } from './JokerIcons';
 
@@ -15,14 +14,14 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
 
   useEffect(() => {
     if (isHost) return;
-    backend.getAvailableJokers(discordSdk.instanceId, getUserId(auth.value)).then((data) => {
+    backend.getAvailableJokers(auth.value.access_token, discordSdk.instanceId).then((data) => {
       availableJokers.value = data.available;
     })
   }, [gameState.value.currentRound]);
 
   const handleJokerUsage = async (jokerType: Joker) => {
     try {
-      const response = await backend.useJoker(discordSdk.instanceId, getUserId(auth.value), jokerType);
+      const response = await backend.useJoker(auth.value.access_token, discordSdk.instanceId, jokerType);
       activeHint.value = { type: jokerType, data: response.hint };
       availableJokers.value = availableJokers.value.filter(j => j !== jokerType);
     } catch (err) {
@@ -144,7 +143,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                       onClick={async (e) => {
                         e.preventDefault();
                         hasSubmitted.value = true;
-                        await backend.submitGuess(discordSdk.instanceId, getUserId(auth.value), choice);
+                        await backend.submitGuess(auth.value.access_token, discordSdk.instanceId, choice);
                       }}
                     >
                       {choice}
@@ -168,7 +167,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   if (!guess) return;
 
                   hasSubmitted.value = true;
-                  await backend.submitGuess(discordSdk.instanceId, getUserId(auth.value), guess);
+                  await backend.submitGuess(auth.value.access_token, discordSdk.instanceId, guess);
                 }}
               >
                 <input 

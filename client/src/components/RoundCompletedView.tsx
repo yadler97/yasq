@@ -2,7 +2,7 @@ import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 import * as backend from "../../backend.js";
 import { auth, discordSdk, participants } from "../main.js";
-import { getAvatarUrl, getDisplayName, getUserId } from "../../helper.js";
+import { getAvatarUrl, getDisplayName } from "../../helper.js";
 
 interface ReviewData {
   round: number;
@@ -17,7 +17,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
 
   useEffect(() => {
     if (isHost) {
-      backend.getGuesses(discordSdk.instanceId, getUserId(auth.value))
+      backend.getGuesses(auth.value.access_token, discordSdk.instanceId)
         .then(data => {
           reviewData.value = data;
           // Pre-populate corrections with 0 (Wrong) for everyone who guessed
@@ -41,7 +41,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const handleSubmit = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
     btn.disabled = true;
-    await backend.submitRoundResults(discordSdk.instanceId, getUserId(auth.value), corrections.value);
+    await backend.submitRoundResults(auth.value.access_token, discordSdk.instanceId, corrections.value);
   };
 
   const findUser = (id: string) => participants.value.find(p => p.id === id);
