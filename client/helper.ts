@@ -1,14 +1,16 @@
-export function getAvatarUrl(participant) {
+import { Participant } from "./src/types";
+
+export function getAvatarUrl(participant: Participant) {
   return participant.avatar
     ? `https://cdn.discordapp.com/avatars/${participant.id}/${participant.avatar}.png?size=32`
     : `https://cdn.discordapp.com/embed/avatars/${parseInt(participant.id) % 5}.png`;
 }
 
-export function getDisplayName(participant) {
+export function getDisplayName(participant: Participant) {
   return participant.nickname || participant.username;
 }
 
-export function getUserId(auth) {
+export function getUserId(auth: any) {
   if (!auth || !auth.user) {
     return null;
   }

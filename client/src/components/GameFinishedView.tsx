@@ -26,7 +26,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       <div className="leaderboard-container">
         {leaderboard.value.map((player, index) => {
           const discordUser = participants.value.find(p => p.id === player.userId) || 
-                              { username: 'Unknown' };
+                              { id:"0", username: 'Unknown' };
 
           const isWinner = index === 0;
 

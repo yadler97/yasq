@@ -3,6 +3,7 @@ import { Joker } from "../constants";
 export interface Participant {
   id: string;
   username: string;
+  nickname?: string;
   global_name?: string;
   avatar?: string;
 }
