@@ -189,6 +189,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   .map((Icon) => {
                     const type = Icon.jokerType;
                     const isAvailable = availableJokers.value.includes(type);
+                    const hasUsedJokerThisRound = activeHint.value !== null;
 
                     // Format name: MULTIPLE_CHOICE -> Multiple Choice
                     const jokerName = Icon.jokerType.toLowerCase()
@@ -206,7 +207,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                         id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
                         title={tooltipText}
                         onClick={() => handleJokerUsage(type)}
-                        disabled={!isAvailable}
+                        disabled={!isAvailable || hasUsedJokerThisRound}
                       >
                         <Icon className="joker-svg" />
                       </button>
