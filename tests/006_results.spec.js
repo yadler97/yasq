@@ -30,6 +30,10 @@ test.describe('Player UI', () => {
           track: {
             name: 'Game A',
             title: 'Track A',
+            tags: [
+              { type: "platform", value: "Platform A" },
+              { type: "release", value: "2026" }
+            ]
           }
         },
         readyUserIds: [] 
@@ -59,6 +63,22 @@ test.describe('Player UI', () => {
     // Check for the correct answer text from trackInfo
     await expect(resultsContainer).toContainText('Game A');
     await expect(resultsContainer).toContainText('Track A');
+
+    const tagsContainer = resultsContainer.locator('.tags-container');
+    const tagBadges = tagsContainer.locator('.tag-badge');
+
+    // Verify total tag count
+    await expect(tagBadges).toHaveCount(2);
+
+    // Verify first tag (Platform)
+    const platformTag = tagBadges.first();
+    await expect(platformTag).toHaveText('Platform A');
+    await expect(platformTag).toHaveAttribute('title', 'Platform');
+
+    // Verify second tag (Release)
+    const releaseTag = tagBadges.nth(1);
+    await expect(releaseTag).toHaveText('2026');
+    await expect(releaseTag).toHaveAttribute('title', 'Release');
 
     // Verify own result
     const personalResult = page.locator('.own-results');
@@ -96,6 +116,18 @@ test.describe('Player UI', () => {
   });
 
   test('should display ready button and toggle status', async ({ page, request }) => {
+    // User submitted correct guess
+    await request.patch(`/api/test/instance/${currentInstanceId}`, {
+      data: {
+        leaderboard: {
+          entries: [{
+            userId: players[1].id,
+            roundHistory: [{ round: 1, isCorrect: true, points: 100, guess: "Game A" }]
+          }]
+        }
+      }
+    });
+
     // Ready Up Interaction
     const readyBtn = page.locator('.lobby-btn');
     await expect(readyBtn).toHaveText('Ready Up');

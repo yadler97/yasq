@@ -381,6 +381,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       result: roundResult,
       correctAnswer: game.trackInfo?.track.name,
       trackTitle: game.trackInfo?.track.title,
+      tags: game.trackInfo?.track.tags || [],
       gameCover: game.trackInfo?.gameCoverUrl
     });
   });

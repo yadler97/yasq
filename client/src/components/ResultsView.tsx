@@ -1,11 +1,23 @@
 import { useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import * as backend from "../../backend.js";
 import { gameState, auth, discordSdk, participants } from "../main.js";
-import { getUserId } from "../../helper.js";
+import { capitalize, getUserId } from "../../helper.js";
 
 export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);
+
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const handleReady = async () => {
+    setHasInteracted(true);
+
+    await backend.updateReadyStatus(
+      auth.value.access_token,
+      discordSdk.instanceId,
+      !gameState.value.readyUsers.includes(getUserId(auth.value))
+    )
+  };
 
   useEffect(() => {
     // Players fetch their specific result; Host just waits
@@ -60,6 +72,13 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           <div>
             <p><strong>{roundData.value.correctAnswer}</strong></p>
             <p><i>{roundData.value.trackTitle}</i></p>
+            <div className="tags-container">
+              {roundData.value.tags.map((tag: any) => (
+                <span key={tag.type} title={capitalize(tag.type)} className="tag-badge">
+                  {tag.value}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
         <div className="own-results">
@@ -73,12 +92,8 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
       <div>
         <button 
-          className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''}`}
-          onClick={() => backend.updateReadyStatus(
-            auth.value.access_token,
-            discordSdk.instanceId,
-            !gameState.value.readyUsers.includes(getUserId(auth.value))
-          )}
+          className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+          onClick={handleReady}
         >
           {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready Up"}
         </button>

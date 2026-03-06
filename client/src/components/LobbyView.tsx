@@ -2,17 +2,22 @@ import * as backend from "../../backend.js";
 import { participants, discordSdk, auth, gameState } from "../main";
 import { getUserId } from "../../helper.js";
 import { getJokerDisplayName } from "./JokerIcons.js";
+import { useState } from "preact/hooks";
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
   const readyUsers = playersExcludingHost.filter(p => gameState.value.readyUsers.includes(p.id)).length;
   const allPlayersReady = playersExcludingHost.length > 0 && readyUsers === playersExcludingHost.length;
 
+  const [hasInteracted, setHasInteracted] = useState(false);
+
   const handleStart = async () => {
     await backend.startGame(auth.value.access_token, discordSdk.instanceId);
   };
 
   const handleReady = async () => {
+    setHasInteracted(true);
+
     await backend.updateReadyStatus(
       auth.value.access_token,
       discordSdk.instanceId,
@@ -43,7 +48,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
         ) : (
           <div id="lobby-guesser-ui">
             <button
-              className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''}`}
+              className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
               id="btn-ready"
               onClick={handleReady}
             >

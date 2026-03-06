@@ -215,6 +215,11 @@ button:focus-visible {
 
 .lobby-btn:not(.ready) {
   animation: pulse-glow 2s infinite;
+  animation-delay: 10s;
+}
+
+.lobby-btn.interacted:not(.ready) {
+  animation-delay: 0s;
 }
 
 .container {
