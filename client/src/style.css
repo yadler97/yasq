@@ -202,6 +202,21 @@ button:focus-visible {
   color: white;
 }
 
+.lobby-btn {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(88, 101, 242, 0.4); }
+  50% { box-shadow: 0 0 0 15px rgba(88, 101, 242, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(88, 101, 242, 0); }
+}
+
+.lobby-btn:not(.ready) {
+  animation: pulse-glow 2s infinite;
+}
+
 .container {
   display: flex;
   height: 100%;
@@ -597,7 +612,7 @@ button:focus-visible {
 }
 
 .choice-button:hover {
-  background-color: #4752c4; /* Blurple */
+  background-color: #5865f2; /* Blurple */
   border-color: #5865f2;
   transform: translateY(-2px);
 }
@@ -755,7 +770,7 @@ input[value="0.5"]:checked + .btn-radio.partial {
 }
 
 input[value="1"]:checked + .btn-radio.correct {
-  background: #43b581;
+  background: #3ba55e;
   color: white;
 }
 
@@ -808,7 +823,7 @@ input[value="1"]:checked + .btn-radio.correct {
 }
 
 .own-results .result.correct {
-  background: #43b581;
+  background: #3ba55e;
 }
 
 .own-results .result.incorrect {
@@ -885,7 +900,7 @@ input[value="1"]:checked + .btn-radio.correct {
   cursor: default;
 }
 
-.round-bubble.correct { border: 1px solid #43b581; color: #43b581; }
+.round-bubble.correct { border: 1px solid #3ba55e; color: #3ba55e; }
 .round-bubble.correct:hover {
   background: rgba(67, 181, 129, 0.2);
   transform: scale(1.05);
@@ -910,7 +925,7 @@ input[value="1"]:checked + .btn-radio.correct {
   background-color: #5865f2; /* Discord Blurple */
 }
 .badge.ready {
-  background-color: #248046; /* Discord Green */
+  background-color: #3ba55e; /* Discord Green */
 }
 .badge.winner {
   background-color: #f1c40f; /* Gold */
