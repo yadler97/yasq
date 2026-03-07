@@ -835,6 +835,11 @@ input[value="1"]:checked + .btn-radio.correct {
   background: #3ba55e;
 }
 
+.own-results .result.partial {
+  background: #faa61a;
+}
+
+
 .own-results .result.incorrect {
   background: #f04747;
 }

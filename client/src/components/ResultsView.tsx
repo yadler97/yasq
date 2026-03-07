@@ -61,7 +61,19 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
   if (!roundData.value) return <div id="results"><h2>Loading results...</h2></div>;
 
-  const statusClass = roundData.value.result?.isCorrect ? 'correct' : 'incorrect';
+  const score = roundData.value.result?.scoreValue || 0;
+
+  // Determine status class and message
+  let statusClass = 'incorrect';
+  let statusMessage = 'Incorrect. 😢';
+
+  if (score === 1) {
+    statusClass = 'correct';
+    statusMessage = 'Correct! 🎉';
+  } else if (score > 0) {
+    statusClass = 'partial';
+    statusMessage = 'So close! 🧗';
+  }
 
   return (
     <div id="results" className="centered">
@@ -83,12 +95,13 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         </div>
         <div className="own-results">
           <p className={`result ${statusClass}`}>
-            {roundData.value.result?.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}
+            {statusMessage}
           </p>
           <p>Your guess: <strong>{roundData.value.result?.guess || 'No guess submitted'}</strong></p>
           <p>You earned <strong>
             <RollingNumber target={roundData.value.result?.points || 0} />
           </strong> points this round.</p>
+          <p>Number of correct players: {roundData.value.correctPlayers}</p>
         </div>
       </div>
 

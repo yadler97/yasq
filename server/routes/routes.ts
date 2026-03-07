@@ -376,13 +376,18 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     // Get the most recent round result from the user's round history
     const roundResult = entry.roundHistory.find(r => r.round === game.currentRound);
 
+    const correctPlayersCount = game.leaderboard.getAll().filter(playerEntry => 
+      playerEntry.roundHistory.some(r => r.round === game.currentRound && r.scoreValue === 1)
+    ).length;
+
     res.send({
       round: game.currentRound,
       result: roundResult,
       correctAnswer: game.trackInfo?.track.name,
       trackTitle: game.trackInfo?.track.title,
       tags: game.trackInfo?.track.tags || [],
-      gameCover: game.trackInfo?.gameCoverUrl
+      gameCover: game.trackInfo?.gameCoverUrl,
+      correctPlayers: correctPlayersCount
     });
   });
 

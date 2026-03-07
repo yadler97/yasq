@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { GameInstance, Leaderboard, LeaderboardEntry, RoundResult, Tag, Track, TrackInfo, UserGuess } from './models.js';
-import { GameState, Joker } from './constants.js';
+import { GameState, Joker } from '@yasq/shared';
 
 const HOST = "host_123";
 const PLAYER_1 = "player_123"
 const PLAYER_2 = "player_456"
 
-const TRACK_A = "track_a"
-const TRACK_B = "track_b"
+const GAME_A = "Game A"
+const GAME_B = "Game B"
 
 describe('GameInstance - startGame', () => {
   let game: GameInstance;
@@ -72,21 +72,21 @@ describe('GameInstance - submitGuess', () => {
     // Fast forward time by 4.5 seconds
     vi.advanceTimersByTime(4500);
 
-    game.submitGuess(PLAYER_1, TRACK_A);
+    game.submitGuess(PLAYER_1, GAME_A);
 
     const guess = game.guesses[1]![PLAYER_1];
     expect(guess?.timeTaken).toBe(4500);
-    expect(guess?.text).toBe(TRACK_A);
+    expect(guess?.text).toBe(GAME_A);
   });
 
   it('should transition to ROUND_COMPLETED when the last player guesses', () => {
     // First player guesses
-    const progress1 = game.submitGuess(PLAYER_1, TRACK_A);
+    const progress1 = game.submitGuess(PLAYER_1, GAME_A);
     expect(progress1.current).toBe(1);
     expect(game.state).not.toBe(GameState.ROUND_COMPLETED);
 
     // Second (last) player guesses
-    const progress2 = game.submitGuess(PLAYER_2, TRACK_B);
+    const progress2 = game.submitGuess(PLAYER_2, GAME_B);
     expect(progress2.current).toBe(2);
     expect(progress2.total).toBe(2);
 
@@ -100,7 +100,7 @@ describe('GameInstance - getTimedOutPlayers', () => {
     const game = new GameInstance(HOST);
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
-    game.submitGuess(PLAYER_1, TRACK_A);
+    game.submitGuess(PLAYER_1, GAME_A);
 
     const timedOutPlayers = game.getTimedOutPlayers();
     expect(timedOutPlayers).toStrictEqual([PLAYER_2])
@@ -121,8 +121,8 @@ describe('GameInstance - submitResults', () => {
     // Player 1: Correct, took 5s (Multiplier should be 1.75)
     // Player 2: Correct, took 10s (Multiplier should be 1.5), but slower
     game.guesses[1] = {
-      [PLAYER_1]: new UserGuess(TRACK_A, 5000),
-      [PLAYER_2]: new UserGuess(TRACK_B, 10000)
+      [PLAYER_1]: new UserGuess(GAME_A, 5000),
+      [PLAYER_2]: new UserGuess(GAME_B, 10000)
     };
   });
 
@@ -141,7 +141,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.totalScore).toBe(210);
     expect(entry1!.roundHistory).toHaveLength(1);
     expect(entry1!.roundHistory[0]?.isFirst).toBe(true);
-    expect(entry1!.roundHistory[0]?.isCorrect).toBe(true);
+    expect(entry1!.roundHistory[0]?.scoreValue).toBe(1);
 
     // Math for Player 2:
     // Multiplier = 2 - (10000 / 20000) = 1.5
@@ -151,7 +151,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.totalScore).toBe(150);
     expect(entry2!.roundHistory).toHaveLength(1);
     expect(entry2!.roundHistory[0]?.isFirst).toBe(false);
-    expect(entry2!.roundHistory[0]?.isCorrect).toBe(true);
+    expect(entry2!.roundHistory[0]?.scoreValue).toBe(1);
   });
 
   it('should handle incorrect guesses correctly and assign first bonus to first correct player', () => {
@@ -166,7 +166,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.totalScore).toBe(0);
     expect(entry1!.roundHistory).toHaveLength(1);
     expect(entry1!.roundHistory[0]?.isFirst).toBe(false);
-    expect(entry1!.roundHistory[0]?.isCorrect).toBe(false);
+    expect(entry1!.roundHistory[0]?.scoreValue).toBe(0);
 
     // Math for Player 2:
     // Multiplier = 2 - (10000 / 20000) = 1.5
@@ -176,7 +176,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.totalScore).toBe(180);
     expect(entry2!.roundHistory).toHaveLength(1);
     expect(entry2!.roundHistory[0]?.isFirst).toBe(true);
-    expect(entry2!.roundHistory[0]?.isCorrect).toBe(true);
+    expect(entry2!.roundHistory[0]?.scoreValue).toBe(1);
   });
 
   it('should transition to RESULTS state and reset readyUsers', () => {
@@ -234,7 +234,7 @@ describe('GameInstance - getPartialHint', () => {
   });
 
   it('should return a string of underscores and spaces matching the title length', () => {
-    const track = new Track("", "Game A", "", [])
+    const track = new Track("", GAME_A, "", [])
     game.playTrack(track);
     const hint = game.getPartialHint();
 
@@ -252,7 +252,7 @@ describe('GameInstance - getTagHint', () => {
   });
 
   it('should return the coressponding tags', () => {
-    const track = new Track("", "Game A", "", [new Tag("platform", "Platform A"), new Tag("release", "2026")])
+    const track = new Track("", GAME_A, "", [new Tag("platform", "Platform A"), new Tag("release", "2026")])
     game.playTrack(track);
     const hint = game.getTagHint();
 
@@ -270,7 +270,7 @@ describe('GameInstance - getAnswersHint', () => {
   });
 
   it('should return a list of four answers (correct + three wrong)', () => {
-    const correctTrack = new Track("1", "Game A", "Track A", [])
+    const correctTrack = new Track("1", GAME_A, "Track A", [])
     const wrongTracks = [
       new Track("2", "Game B", "Track B", []),
       new Track("3", "Game C", "Track C", []),
@@ -283,7 +283,7 @@ describe('GameInstance - getAnswersHint', () => {
     const hint = game.getMultipleChoiceHint(allTracks);
 
     expect(hint.length).toBe(4);
-    expect(hint).toContain("Game A");
+    expect(hint).toContain(GAME_A);
 
     // Check if hint contains four unique answers
     const uniqueCount = new Set(hint).size;
@@ -291,7 +291,7 @@ describe('GameInstance - getAnswersHint', () => {
 
     // Check if wrong answers are all included in our wrongTracks list
     const wrongTitles = wrongTracks.map(t => t.name);
-    const selectedWrongAnswers = hint.filter(title => title !== "Game A");
+    const selectedWrongAnswers = hint.filter(title => title !== GAME_A);
 
     expect(selectedWrongAnswers.length).toBe(3);
     selectedWrongAnswers.forEach(title => {

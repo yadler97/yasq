@@ -45,7 +45,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                   {player.roundHistory.map((r: any) => (
                     <div 
                       key={r.round}
-                      className={`round-bubble ${r.isCorrect ? 'correct' : 'incorrect'} ${r.isFirst ? 'first' : ''}`} 
+                      className={`round-bubble ${r.scoreValue > 0 ? 'correct' : 'incorrect'} ${r.isFirst ? 'first' : ''}`} 
                       title={`Round ${r.round}: ${r.guess || 'No guess'}`}
                     >
                       {r.points}

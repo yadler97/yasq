@@ -84,7 +84,6 @@ export class GameInstance {
       const userGuess = roundGuesses[userId];
       if (userGuess) {
         userGuess.scoreValue = Number(scoreValue);
-        userGuess.isCorrect = Number(scoreValue) > 0;
       }
     });
 
@@ -103,13 +102,14 @@ export class GameInstance {
       if (this.isHost(userId)) return; // Skip host
 
       const data = roundGuesses[userId];
+      const score = data?.scoreValue || 0;
       const isFirst = userId === fastestUserId;
       let pointsEarned = 0;
 
-      if (data?.isCorrect) {
-        const timeTaken = data.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
+      if (score > 0) {
+        const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
         const multiplier = Math.max(1, 2 - (timeTaken / this.settings.trackDuration));
-        pointsEarned = BASE_POINTS * data.scoreValue * multiplier;
+        pointsEarned = BASE_POINTS * score * multiplier;
         if (isFirst) pointsEarned *= FIRST_BONUS_MULTIPLIER;
       }
 
@@ -123,7 +123,7 @@ export class GameInstance {
           this.currentRound,
           data?.text || "No Guess Submitted",
           pointsEarned,
-          data?.isCorrect || false,
+          data?.scoreValue || 0,
           isFirst,
           data ? (data.timeTaken / 1000).toFixed(1) : (this.settings.trackDuration / 1000).toFixed(1)
         ));
@@ -292,7 +292,6 @@ export class UserGuess {
   constructor(
     public text: string,
     public timeTaken: number,
-    public isCorrect: boolean = false,
     public scoreValue: number = 0
   ) {}
 }
@@ -302,7 +301,7 @@ export class RoundResult {
     public round: number,
     public guess: string | undefined,
     public points: number,
-    public isCorrect: boolean,
+    public scoreValue: number,
     public isFirst: boolean,
     public time: string
   ) {}
@@ -329,7 +328,7 @@ export class LeaderboardEntry {
     const entry = new LeaderboardEntry(data.userId);
     entry.totalScore = data.totalScore || 0;
     entry.roundHistory = (data.roundHistory || []).map((r: any) => 
-      new RoundResult(r.round, r.guess, r.points, r.isCorrect, r.isFirst, r.time)
+      new RoundResult(r.round, r.guess, r.points, r.scoreValue, r.isFirst, r.time)
     );
     return entry;
   }

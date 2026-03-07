@@ -8,7 +8,7 @@ test.describe('Player UI', () => {
 
   test.beforeEach(async ({ page, request }, testInfo) => {
     currentInstanceId = `test-instance-${testInfo.testId}`;
-    const playerCount = 3;
+    const playerCount = 5;
     players = generatePlayers(playerCount);
     const user = players[1];
 
@@ -50,7 +50,7 @@ test.describe('Player UI', () => {
         leaderboard: {
           entries: [{
             userId: players[1].id,
-            roundHistory: [{ round: 1, isCorrect: true, points: 100, guess: "Game A" }]
+            roundHistory: [{ round: 1, scoreValue: 1, points: 100, guess: "Game A" }]
           }]
         }
       }
@@ -87,6 +87,34 @@ test.describe('Player UI', () => {
     await expect(personalResult).toContainText('You earned 100 points');
   });
 
+  test('should display partial correct status and points earned', async ({ page, request }) => {
+    // User submitted incorrect guess
+    await request.patch(`/api/test/instance/${currentInstanceId}`, {
+      data: {
+        leaderboard: {
+          entries: [{
+            userId: players[1].id,
+            roundHistory: [{ round: 1, scoreValue: 0.5, points: 50, guess: "Game A2" }]
+          }]
+        }
+      }
+    });
+
+    // Verify the Round Summary display
+    const resultsContainer = page.locator('#results');
+    await expect(resultsContainer.locator('h2')).toContainText('Round 1 Results');
+    
+    // Check for the correct answer text from trackInfo
+    await expect(resultsContainer).toContainText('Game A');
+    await expect(resultsContainer).toContainText('Track A');
+
+    // Verify own result
+    const personalResult = page.locator('.own-results');
+    await expect(personalResult.locator('.result.partial')).toContainText('So close! 🧗');
+    await expect(personalResult).toContainText('Your guess: Game A2');
+    await expect(personalResult).toContainText('You earned 50 points');
+  });
+
   test('should display incorrect status and zero points', async ({ page, request }) => {
     // User submitted incorrect guess
     await request.patch(`/api/test/instance/${currentInstanceId}`, {
@@ -94,7 +122,7 @@ test.describe('Player UI', () => {
         leaderboard: {
           entries: [{
             userId: players[1].id,
-            roundHistory: [{ round: 1, isCorrect: false, points: 0, guess: "Game B" }]
+            roundHistory: [{ round: 1, scoreValue: 0, points: 0, guess: "Game B" }]
           }]
         }
       }
@@ -122,7 +150,7 @@ test.describe('Player UI', () => {
         leaderboard: {
           entries: [{
             userId: players[1].id,
-            roundHistory: [{ round: 1, isCorrect: true, points: 100, guess: "Game A" }]
+            roundHistory: [{ round: 1, scoreValue: 1, points: 100, guess: "Game A" }]
           }]
         }
       }
@@ -140,5 +168,39 @@ test.describe('Player UI', () => {
     // Verify badge displayed
     const localPlayerRow = page.locator(`.player-entry:has-text("${players[1].username}")`);
     await expect(localPlayerRow.locator('.badge.ready')).toBeVisible();
+  });
+
+  test('should display correct number of correct guesses', async ({ page, request }) => {
+    await request.patch(`/api/test/instance/${currentInstanceId}`, {
+      data: {
+        leaderboard: {
+          entries: [
+            // Player 1: Correct (scoreValue 1)
+            { 
+              userId: players[1].id, 
+              roundHistory: [{ round: 1, scoreValue: 1, points: 100, guess: "Game A" }] 
+            },
+            // Player 2: Partial (scoreValue 0.5)
+            { 
+              userId: players[2].id, 
+              roundHistory: [{ round: 1, scoreValue: 0.5, points: 50, guess: "Game A2" }] 
+            },
+            // Player 3: Wrong (scoreValue 0)
+            { 
+              userId: players[3].id, 
+              roundHistory: [{ round: 1, scoreValue: 0, points: 0, guess: "Game B" }] 
+            },
+            // Player 4: Correct (scoreValue 1)
+            { 
+              userId: players[4].id, 
+              roundHistory: [{ round: 1, scoreValue: 1, points: 100, guess: "Game A" }] 
+            }
+          ]
+        }
+      }
+    });
+
+    const personalResult = page.locator('.own-results');
+    await expect(personalResult).toContainText('Number of correct players: 2');
   });
 });
