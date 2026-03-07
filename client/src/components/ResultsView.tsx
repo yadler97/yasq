@@ -72,7 +72,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           <div>
             <p><strong>{roundData.value.correctAnswer}</strong></p>
             <p><i>{roundData.value.trackTitle}</i></p>
-            <div className="tags-container">
+            <div className="tags-container left">
               {roundData.value.tags.map((tag: any) => (
                 <span key={tag.type} title={capitalize(tag.type)} className="tag-badge">
                   {tag.value}
@@ -86,7 +86,9 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             {roundData.value.result?.isCorrect ? "Correct! 🎉" : "Incorrect. 😢"}
           </p>
           <p>Your guess: <strong>{roundData.value.result?.guess || 'No guess submitted'}</strong></p>
-          <p>You earned <strong>{roundData.value.result?.points || 0}</strong> points this round.</p>
+          <p>You earned <strong>
+            <RollingNumber target={roundData.value.result?.points || 0} />
+          </strong> points this round.</p>
         </div>
       </div>
 
@@ -100,4 +102,32 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
       </div>
     </div>
   );
+};
+
+export const RollingNumber = ({ target }: { target: number }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    const duration = 2000; // 2 second animation
+    const startTime = performance.now();
+
+    const animate = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Easing function (makes it slow down at the end)
+      const easeOutQuad = (t: number) => t * (2 - t);
+      const currentCount = Math.floor(easeOutQuad(progress) * target);
+
+      setDisplayValue(currentCount);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [target]);
+
+  return <span>{displayValue}</span>;
 };
