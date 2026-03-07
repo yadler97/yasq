@@ -1,0 +1,5 @@
+{
+  "name": "@yasq/shared",
+  "type": "module",
+  "main": "./constants.ts"
+}

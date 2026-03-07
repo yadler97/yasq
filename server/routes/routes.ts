@@ -1,7 +1,7 @@
 import express from 'express';
 import { GameInstance, Track } from '../models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../types.js';
-import { GameState, Joker } from '../constants.js';
+import { GameState, Joker } from '@yasq/shared';
 import { validateToken } from '../helper.js';
 
 export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode: boolean, allTracks: any, allPlaylists: any) => {

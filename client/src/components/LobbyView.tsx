@@ -25,6 +25,10 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
     )
   };
 
+  const handleEditSettings = async () => {
+    await backend.restartGame(auth.value.access_token, discordSdk.instanceId);
+  };
+
   return (
     <div id="lobby" className="centered">
       <div className="settings-info">
@@ -38,6 +42,14 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
               : "None"
           }
         </span>
+        {isHost && (
+          <button
+            onClick={handleEditSettings}
+            title="Edit Game Settings"
+          >
+            ⚙️ Edit
+          </button>
+        )}
       </div>
 
       <div className="lobby-footer">

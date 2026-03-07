@@ -1,4 +1,4 @@
-import { Joker } from "../constants";
+import { Joker } from "@yasq/shared";
 
 export interface Participant {
   id: string;

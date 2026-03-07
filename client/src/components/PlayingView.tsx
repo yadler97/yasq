@@ -2,7 +2,7 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useRef } from "preact/hooks";
 import * as backend from "../../backend.js";
 import { gameState, auth, discordSdk, audioPlayer } from "../main.js";
-import { Joker, POLLING_INTERVAL } from "../../constants.js";
+import { Joker, POLLING_INTERVAL } from "@yasq/shared";
 import { ALL_JOKER_ICONS } from './JokerIcons';
 
 export const ArenaView = ({ isHost }: { isHost: boolean }) => {

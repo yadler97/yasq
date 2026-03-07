@@ -3,7 +3,7 @@ import { signal } from '@preact/signals';
 import { DiscordSDK } from "@discord/embedded-app-sdk";
 import * as backend from "../backend.js";
 import { getUserId } from "../helper.js";
-import { GameState, MAX_VOLUME, DEFAULT_VOLUME_SLIDER_VAL, POLLING_INTERVAL } from '../constants.js';
+import { GameState, MAX_VOLUME, DEFAULT_VOLUME_SLIDER_VAL, POLLING_INTERVAL } from '@yasq/shared';
 import { mockDiscordSdk } from "../../mock_data/mockDiscordSdk.js";
 
 import { SetupView } from './components/SetupView.js';

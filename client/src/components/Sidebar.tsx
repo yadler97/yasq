@@ -1,4 +1,4 @@
-import { MAX_VOLUME } from "../../constants";
+import { MAX_VOLUME } from "@yasq/shared";
 import { getAvatarUrl, getDisplayName } from "../../helper";
 import { audioPlayer, gameState, participants, volume } from "../main";
 

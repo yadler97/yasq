@@ -1,4 +1,4 @@
-import { Joker } from "../../constants";
+import { Joker } from "@yasq/shared";
 
 const ObfuscationIcon = ({ size = 24, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className={className}>

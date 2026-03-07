@@ -5,7 +5,7 @@ import {
   FIRST_BONUS_MULTIPLIER,
   GameState,
   Joker
-} from "./constants.js";
+} from "@yasq/shared";
 
 export class GameInstance {
   public registeredUsers: Set<string> = new Set();

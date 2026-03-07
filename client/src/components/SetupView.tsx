@@ -3,13 +3,21 @@ import * as backend from "../../backend.js";
 import { participants, discordSdk, auth, gameState } from "../main";
 import { getDisplayName, getAvatarUrl } from "../../helper.js";
 import { ALL_JOKER_ICONS } from "./JokerIcons.js";
-import { Joker } from "../../constants.js";
+import { DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION, Joker } from "@yasq/shared";
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
-  const roundCount = useSignal(5);
-  const trackDuration = useSignal(60);
+  const roundCount = useSignal(gameState.value.rounds || DEFAULT_ROUNDS);
+  const trackDuration = useSignal(gameState.value.trackDuration 
+    ? gameState.value.trackDuration / 1000 
+    : DEFAULT_TRACK_DURATION);
   const isSubmitting = useSignal(false);
-  const activeJokers = useSignal<Set<Joker>>(new Set([Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE]));
+  const activeJokers = useSignal<Set<Joker>>(
+    new Set(
+      gameState.value.enabledJokers.length > 0 
+        ? gameState.value.enabledJokers 
+        : [Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE]
+    )
+  );
 
   const toggleJoker = (type: Joker) => {
     const next = new Set(activeJokers.value);

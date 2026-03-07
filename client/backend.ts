@@ -1,4 +1,4 @@
-import { Joker } from "./constants";
+import { Joker } from "@yasq/shared";
 
 export async function getToken(code: string) {
   const response = await fetch("/api/token", {

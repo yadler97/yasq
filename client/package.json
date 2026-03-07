@@ -1,5 +1,5 @@
 {
-  "name": "yasq-client",
+  "name": "@yasq/client",
   "private": true,
   "type": "module",
   "scripts": {

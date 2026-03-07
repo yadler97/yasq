@@ -1,4 +1,4 @@
-import { GameState } from "../../constants";
+import { GameState } from "@yasq/shared";
 import { gameState } from "../main";
 
 export const GameHeader = () => {
