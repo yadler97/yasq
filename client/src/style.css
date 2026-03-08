@@ -268,7 +268,7 @@ button:focus-visible {
 
 .sidebar {
   margin: 20px;
-  width: 250px;
+  width: 300px;
   gap: 20px;
   text-align: center;
   display: flex;
@@ -938,7 +938,7 @@ input[value="1"]:checked + .btn-radio.correct {
 .badge.host {
   background-color: #5865f2; /* Discord Blurple */
 }
-.badge.ready {
+.badge.ready, .badge.guessed {
   background-color: #3ba55e; /* Discord Green */
 }
 .badge.winner {

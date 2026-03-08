@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { GameInstance, Leaderboard, LeaderboardEntry, RoundResult, Tag, Track, TrackInfo, UserGuess } from './models.js';
 import { GameState, Joker } from '@yasq/shared';
 
@@ -62,10 +62,13 @@ describe('GameInstance - submitGuess', () => {
     game.registeredUsers.add(PLAYER_2);
 
     // Simulate game already started and in selection state
-    game.readyUsers = new Set([PLAYER_1, PLAYER_2]);
     game.currentRound = 1;
     const track = new Track("", "Game A", "Track A", [])
     game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10000, track, "cover")
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('should calculate timeTaken correctly using fake timers', () => {
@@ -80,15 +83,19 @@ describe('GameInstance - submitGuess', () => {
   });
 
   it('should transition to ROUND_COMPLETED when the last player guesses', () => {
+    expect(game.guessedPlayers.size).toBe(0);
+
     // First player guesses
     const progress1 = game.submitGuess(PLAYER_1, GAME_A);
     expect(progress1.current).toBe(1);
+    expect(game.guessedPlayers.has(PLAYER_1)).toBe(true);
     expect(game.state).not.toBe(GameState.ROUND_COMPLETED);
 
     // Second (last) player guesses
     const progress2 = game.submitGuess(PLAYER_2, GAME_B);
     expect(progress2.current).toBe(2);
     expect(progress2.total).toBe(2);
+    expect(game.guessedPlayers.has(PLAYER_2)).toBe(true);
 
     // Check state transition
     expect(game.state).toBe(GameState.ROUND_COMPLETED);
@@ -179,13 +186,13 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]?.scoreValue).toBe(1);
   });
 
-  it('should transition to RESULTS state and reset readyUsers', () => {
-    game.readyUsers.add(PLAYER_1);
+  it('should transition to RESULTS state and reset guessedPlayers', () => {
+    game.guessedPlayers.add(PLAYER_1);
     
     game.submitResults({});
 
     expect(game.state).toBe(GameState.RESULTS);
-    expect(game.readyUsers.size).toBe(0);
+    expect(game.guessedPlayers.size).toBe(0);
   });
 });
 
@@ -223,6 +230,68 @@ describe('GameInstance - advanceRound', () => {
     expect(nextState).toBe(GameState.GAME_FINISHED);
     expect(game.lastWinnerId).toBe(PLAYER_2);
     expect(game.state).toBe(GameState.GAME_FINISHED);
+  });
+});
+
+describe('GameInstance - playTrack', () => {
+  let game: GameInstance;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    game = new GameInstance(HOST);
+    game.settings.trackDuration = 10000; // 10 seconds
+    game.readyUsers.add(PLAYER_1);
+    game.readyUsers.add(PLAYER_2);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('should set correct TrackInfo and transition to PLAYING', () => {
+    const track = new Track("file123", GAME_A, "Track A", []);
+    
+    game.playTrack(track);
+
+    const expectedStart = Date.now() + 4000; // now + countdown
+    const expectedEnd = expectedStart + 10000; // start + duration
+
+    expect(game.readyUsers.size).toBe(0);
+    expect(game.state).toBe(GameState.PLAYING);
+    expect(game.trackInfo?.startTime).toBe(expectedStart);
+    expect(game.trackInfo?.endTime).toBe(expectedEnd);
+    expect(game.trackHistory).toContain("file123");
+  });
+
+  it('should transition to ROUND_COMPLETED automatically after time expires', () => {
+    const track = new Track("file123", GAME_A, "Track A", []);
+    game.playTrack(track);
+
+    // Verify we are still playing initially
+    expect(game.state).toBe(GameState.PLAYING);
+
+    // Fast forward time by 13.9 seconds (countdown + duration - 100ms)
+    vi.advanceTimersByTime(13900);
+    expect(game.state).toBe(GameState.PLAYING);
+
+    // Jump past the finish line (14.1 seconds total)
+    vi.advanceTimersByTime(200);
+    
+    expect(game.state).toBe(GameState.ROUND_COMPLETED);
+  });
+
+  it('should not transition if the round has already changed (Race Condition Check)', () => {
+    const track = new Track("file123", GAME_A, "Track A", []);
+    game.playTrack(track);
+
+    // Manually bump the round (simulating all players submitted guess before countdown ends)
+    game.currentRound = 2;
+
+    // Fast forward through the total duration
+    vi.advanceTimersByTime(15000);
+
+    // The state should NOT be ROUND_COMPLETED because the roundAtStart check fails
+    expect(game.state).not.toBe(GameState.ROUND_COMPLETED);
   });
 });
 

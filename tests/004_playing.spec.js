@@ -72,6 +72,11 @@ test.describe('Player UI', () => {
     await expect(submitBtn).toBeHidden();
     await expect(waitMessage).toBeVisible();
     await expect(waitMessage).toHaveText(/wait/i);
+
+    // Check for the GUESSED badge
+    const playerEntry = page.locator(`.player-entry:has-text("${players[1].username}")`);
+    await expect(playerEntry.locator('.badge.guessed')).toBeVisible();
+    await expect(playerEntry.locator('.badge.guessed')).toHaveText('GUESSED');
   });
 
   test('should switch to next state once all players have submitted a guess', async ({ page, request }) => {

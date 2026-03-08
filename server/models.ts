@@ -13,6 +13,7 @@ export class GameInstance {
   public state: string = GameState.SETUP;
   public currentRound: number = 0;
   public readyUsers: Set<string> = new Set();
+  public guessedPlayers: Set<string> = new Set();
   public settings: Settings;
   public trackInfo: TrackInfo | null = null;
   public guesses: Record<number, Record<string, UserGuess>> = {};
@@ -65,6 +66,8 @@ export class GameInstance {
     if (guessersCount >= totalPlayers) {
       this.state = GameState.ROUND_COMPLETED;
     }
+
+    this.guessedPlayers.add(userId);
 
     return { current: guessersCount, total: totalPlayers };
   }
@@ -131,7 +134,7 @@ export class GameInstance {
     });
 
     this.state = GameState.RESULTS;
-    this.readyUsers = new Set(); // Reset ready states for next round
+    this.guessedPlayers = new Set();
   }
 
   public advanceRound(): string {
@@ -152,6 +155,7 @@ export class GameInstance {
   }
 
   public playTrack(track: Track): void {
+    this.readyUsers = new Set();
     const countdownDuration = 4000;
     const startTime = Date.now() + countdownDuration;
     const endTime = startTime + this.settings.trackDuration;

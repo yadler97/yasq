@@ -2,7 +2,7 @@ import { MAX_VOLUME } from "@yasq/shared";
 import { getAvatarUrl, getDisplayName } from "../../helper";
 import { audioPlayer, gameState, participants, volume } from "../main";
 
-export const Sidebar = ({ }) => (
+export const Sidebar = () => (
   <div className="sidebar">
     <div className="sidebar-box participants">
       <h3>Participating Players</h3>
@@ -10,6 +10,7 @@ export const Sidebar = ({ }) => (
         {participants.value.map((p) => {
           const isPlayerHost = p.id === gameState.value.hostId;
           const isPlayerReady = gameState.value.readyUsers.includes(p.id);
+          const hasPlayerGuessed = gameState.value.guessedPlayers.includes(p.id);
           const isLastWinner = p.id === gameState.value.lastWinnerId;
 
           return (
@@ -20,6 +21,7 @@ export const Sidebar = ({ }) => (
                 <div className="badge-container">
                   {isPlayerHost && <span className="badge host">HOST</span>}
                   {isPlayerReady && <span className="badge ready">READY</span>}
+                  {hasPlayerGuessed && <span className="badge guessed">GUESSED</span>}
                   {isLastWinner && <span className="badge winner">👑</span>}
                 </div>
               </div>
@@ -39,7 +41,6 @@ export const Sidebar = ({ }) => (
             audioPlayer.volume = val * MAX_VOLUME;
           }} />
         </div>
-        <audio id="global-player"></audio>
       </div>
     </div>
   </div>

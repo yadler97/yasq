@@ -219,6 +219,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       state: game.state,
       hostId: game.hostId,
       readyUsers: [...game.readyUsers],
+      guessedPlayers: [...game.guessedPlayers],
       currentRound: game.currentRound,
       isFinalRound: game.isFinalRound(),
       currentGame: game.currentGame,

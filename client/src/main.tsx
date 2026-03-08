@@ -28,6 +28,7 @@ export const gameState = signal<GameStatus>({
   state: GameState.LOBBY,
   hostId: null,
   readyUsers: [],
+  guessedPlayers: [],
   currentRound: 0,
   isFinalRound: false,
   lastWinnerId: null,

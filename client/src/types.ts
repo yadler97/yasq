@@ -12,6 +12,7 @@ export interface GameStatus {
   state: string;
   hostId: string | null;
   readyUsers: string[];
+  guessedPlayers: string[],
   currentRound: number;
   isFinalRound: boolean;
   lastWinnerId: string | null;
