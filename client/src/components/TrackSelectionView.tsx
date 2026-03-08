@@ -10,7 +10,7 @@ const searchTerm = signal("");
 const hidePlayed = signal(false);
 
 export const SelectionView = ({ isHost }: { isHost: boolean }) => {
-  const tracks = useSignal<Track[]>([]);
+  const tracks = useSignal<Track[] | null>(null);
   const playlists = useSignal<Playlist[]>([]);
 
   useEffect(() => {
@@ -21,8 +21,10 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   }, []);
 
   // Computed signal: This automatically re-filters whenever tracks, 
-  // searchTerm, or hidePlayed changes.
+  // selectedPlaylistName, searchTerm, or hidePlayed changes.
   const filteredTracks = computed(() => {
+    if (!tracks.value) return [];
+
     return tracks.value.filter(track => {
       // Filter playlist
       let matchesPlaylist = true;
@@ -43,10 +45,27 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     });
   });
 
+  const selectRandom = async () => {
+    // Only pick from tracks that are currently visible and NOT played
+    const eligibleTracks = filteredTracks.value.filter(t => !t.played);
+    if (eligibleTracks.length === 0) return;
+
+    const randomTrack = eligibleTracks[Math.floor(Math.random() * eligibleTracks.length)];
+    await backend.playTrack(auth.value.access_token, randomTrack.file, discordSdk.instanceId);
+  };
+
   if (!isHost) {
     return (
       <div class="centered">
         <h2>Waiting for host to select a track...</h2>
+      </div>
+    );
+  }
+
+  if (tracks.value === null) {
+    return (
+      <div class="centered">
+        <div className="loading-spinner"></div>
       </div>
     );
   }
@@ -81,6 +100,14 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
             </button>
           )}
         </div>
+
+        <button
+          disabled={filteredTracks.value.filter(t => !t.played).length === 0}
+          onClick={selectRandom}
+          title="Select a random track from the current list"
+        >
+          🎲 Random
+        </button>
 
         <label>
           <input type="checkbox" id="hide-played" checked={hidePlayed.value}
