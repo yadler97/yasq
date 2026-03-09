@@ -1,5 +1,5 @@
 # YASQ (Yet Another Soundtrack Quiz)
-A multiplayer music quiz built as a Discord Activity.
+A Multiplayer Soundtrack Quiz built as a Discord Activity.
 
 ## Setup
 
@@ -10,23 +10,16 @@ A multiplayer music quiz built as a Discord Activity.
 - **cloudflared** (or other tunnel service)
 
 ### Installation
-1. **Install Server Dependencies**
+1. **Install Dependencies**
 ```bash
-cd server
 npm install
 ```
 
-2. **Install Client Dependencies**
-```bash
-cd ../client
-npm install
-```
-
-3. **Configure Discord**
+2. **Configure Discord**
 - Go to the [Discord Developer Portal](https://discord.com/developers/applications).
 - Create a new Application.
 
-4. **Set up Environment Variables**\
+3. **Set up Environment Variables**\
 Create a `.env` file in the root directory:
 ```env
 VITE_DISCORD_CLIENT_ID=<Copy Client ID from Discord Developer Portal>
@@ -60,17 +53,26 @@ cloudflared tunnel --url http://localhost:5173
         {
             "name": "Game Title 1",
             "title": "Track Title 1",
-            "file": "File Name 1"
+            "file": "File Name 1",
+            "tags": [
+                { "type": "X", "value": "Y" },
+                ...
+            ]
         },
         {
             "name": "Game Title 2",
             "title": "Track Title 2",
-            "file": "File Name 2"
+            "file": "File Name 2",
+            "tags": [
+                { "type": "X", "value": "Y" },
+                ...
+            ]
         },
         ...
     ]
     ```
-    (Note: file name must be without file extension: `track001.mp3` -> `track001`)
+    (Note: file name must be without file extension: `track001.mp3` -> `track001`)\
+    Tags can be used to provide more information about a specific game (e.g. Release, Platform, Developer)
 4. (Optional) Create `playlists.json` in `server/data` with the following format:
     ```json
     [

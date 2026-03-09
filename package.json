@@ -1,7 +1,12 @@
 {
   "name": "yasq",
-  "version": "0.1.0-dev",
+  "version": "1.0.0",
   "private": true,
+  "description": "A Multiplayer Soundtrack Quiz built as a Discord Activity.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yadler97/yasq.git"
+  },
   "workspaces": [
     "client",
     "server",

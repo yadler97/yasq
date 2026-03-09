@@ -1,7 +1,12 @@
 {
   "name": "@yasq/client",
   "private": true,
+  "description": "The client for YASQ built with Preact",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yadler97/yasq.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
