@@ -80,6 +80,43 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
+  router.post("/deregister", async (req, res) => {
+    const { instanceId } = req.body;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) return res.status(401).send({ error: "No token provided" });
+    const token = authHeader.split(' ')[1] || "";
+
+    const userId = await validateToken(token);
+
+    if (!userId) {
+      return res.status(401).send({ error: "Invalid Discord token" });
+    }
+
+    const game = instances[instanceId];
+
+    if (!game) {
+      return res.status(400).send({ error: "Instance not found" });
+    }
+
+    game.registeredUsers.delete(userId);
+
+    if (game.isHost(userId)) {
+      const isGameActive = game.pickNewHost();
+
+      if (!isGameActive) {
+        console.log(`Terminating empty instance: ${instanceId}`);
+        delete instances[instanceId]; 
+        return res.send({ message: "Instance terminated" });
+      }
+    }
+
+    res.send({ 
+      success: true,
+      hostId: game.hostId
+    });
+  });
+
   router.post("/ready", async (req, res) => {
     const { instanceId, ready } = req.body;
     const authHeader = req.headers.authorization;

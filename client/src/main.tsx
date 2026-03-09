@@ -125,3 +125,7 @@ const renderView = (isHost: boolean) => {
 
   render(<App />, document.getElementById('app')!);
 })();
+
+window.addEventListener('pagehide', () => {
+  backend.deregisterUser(auth.value.access_token, discordSdk.instanceId);
+});

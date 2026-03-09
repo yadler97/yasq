@@ -21,6 +21,18 @@ export async function registerUser(access_token: string, instanceId: string) {
   return response.json();
 }
 
+export async function deregisterUser(access_token: string, instanceId: string) {
+  return fetch("/api/deregister", {
+    method: "POST",
+    keepalive: true,
+    headers: {
+      "Content-Type": "application/json",
+      'Authorization': `Bearer ${access_token}`
+    },
+    body: JSON.stringify({ instanceId }),
+  });
+}
+
 export async function updateReadyStatus(access_token: string, instanceId: string, isReady: boolean) {
   return fetch("/api/ready", {
     method: "POST",
@@ -121,6 +133,14 @@ export async function submitRoundResults(access_token: string, instanceId: strin
 
 export async function getRoundResults(instanceId: string, userId: string) {
   const response = await fetch(`/api/get-results?instanceId=${instanceId}&userId=${userId}`);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    const error = new Error(errorData.error || 'Request failed');
+    (error as any).status = response.status; 
+    throw error;
+  }
+
   return response.json();
 }
 

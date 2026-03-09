@@ -25,6 +25,13 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
       backend.getRoundResults(discordSdk.instanceId, getUserId(auth.value))
         .then(data => {
           roundData.value = data;
+        })
+        .catch(err => {
+          if (err.status === 403) {
+            roundData.value = { error: "NOT_FOUND" };
+          } else {
+            roundData.value = { error: "SERVER_ERROR" };
+          }
         });
     }
   }, [isHost]);
@@ -59,7 +66,35 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
     );
   }
 
-  if (!roundData.value) return <div id="results"><h2>Loading results...</h2></div>;
+  if (!roundData.value) {
+    return (
+      <div class="centered">
+        <div className="loading-spinner"></div>
+      </div>
+    );
+  }
+
+  if (roundData.value.error) {
+    return (
+      <div id="results" className="centered">
+        <h2>Results Unavailable</h2>
+        <p className="error-text">
+          {roundData.value.error === "NOT_FOUND" 
+            ? "You weren't in the leaderboard for this round." 
+            : "A server error occurred."}
+        </p>
+
+        <div>
+          <button 
+            className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+            onClick={handleReady}
+          >
+            {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready Up"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const score = roundData.value.result?.scoreValue || 0;
 

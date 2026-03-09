@@ -368,3 +368,28 @@ describe('GameInstance - getAnswersHint', () => {
     });
   });
 });
+
+describe('GameInstance - pickNewHost', () => {
+  let game: GameInstance;
+
+  beforeEach(() => {
+    game = new GameInstance(HOST);
+  });
+
+  it('should return false if there are no more registered users', () => {
+    game.registeredUsers = new Set();
+
+    const isGameActive = game.pickNewHost();
+
+    expect(isGameActive).toBe(false);
+  });
+
+  it('should pick the first available player and return true', () => {
+    game.registeredUsers = new Set([PLAYER_1, PLAYER_2]);
+
+    const isGameActive = game.pickNewHost();
+
+    expect(isGameActive).toBe(true);
+    expect(game.hostId).toBe(PLAYER_1);
+  });
+});

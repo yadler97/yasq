@@ -9,7 +9,7 @@ import {
 
 export class GameInstance {
   public registeredUsers: Set<string> = new Set();
-  public hostId: string;
+  public hostId: string | null;
   public state: string = GameState.SETUP;
   public currentRound: number = 0;
   public readyUsers: Set<string> = new Set();
@@ -118,6 +118,11 @@ export class GameInstance {
 
       // Round to avoid fractional points and ensure it's an integer
       pointsEarned = Math.round(pointsEarned);
+      
+      // Create new entry if not existing yet
+      if (!this.leaderboard.hasEntry(userId)) {
+        this.leaderboard.addEntry(new LeaderboardEntry(userId));
+      }
 
       // Find the user's existing entry and add this round
       const entry = this.leaderboard.getEntry(userId);
@@ -246,6 +251,17 @@ export class GameInstance {
     }
     
     this.usedJokers[userId].add(joker);
+  }
+
+  public pickNewHost(): boolean {
+    const remainingPlayers = Array.from(this.registeredUsers);
+    
+    if (remainingPlayers.length === 0) {
+      return false;
+    }
+
+    this.hostId = remainingPlayers[0] ?? null;
+    return true;
   }
 
   toJSON() {
