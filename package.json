@@ -18,8 +18,8 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:mock": "cross-env VITE_MOCK_MODE=true npm run dev",
     "test:unit": "npm run test -w server",
-    "test:e2e": "cross-env VITE_MOCK_MODE=true playwright test",
-    "test:e2e:ui": "cross-env VITE_MOCK_MODE=true playwright test --ui"
+    "test:e2e": "cross-env VITE_MOCK_MODE=true playwright test --config=tests/playwright.config.ts",
+    "test:e2e:ui": "cross-env VITE_MOCK_MODE=true playwright test --config=tests/playwright.config.ts --ui"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

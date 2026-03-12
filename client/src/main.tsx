@@ -1,22 +1,22 @@
 import { render } from 'preact';
 import { signal } from '@preact/signals';
 import { DiscordSDK } from "@discord/embedded-app-sdk";
-import * as backend from "../backend.js";
-import { getUserId } from "../helper.js";
+
+import * as backend from "./utils/backend";
+import { getUserId } from "./utils/helper";
+import { Participant, GameStatus } from "./utils/types";
 import { GameState, MAX_VOLUME, DEFAULT_VOLUME_SLIDER_VAL, POLLING_INTERVAL } from '@yasq/shared';
-import { mockDiscordSdk } from "../../mock_data/mockDiscordSdk.js";
+import { mockDiscordSdk } from "../../mock_data/mockDiscordSdk";
 
-import { SetupView } from './components/SetupView.js';
+import { SetupView } from './components/SetupView';
 import { LobbyView } from "./components/LobbyView";
-import { SelectionView } from "./components/TrackSelectionView.js";
-import { ArenaView } from "./components/PlayingView.js";
-import { HostReviewView } from "./components/RoundCompletedView.js";
-import { RoundResultsView } from "./components/ResultsView.js";
-import { FinalResultsView } from "./components/GameFinishedView.js";
-import { GameHeader } from './components/GameHeader.js';
+import { SelectionView } from "./components/TrackSelectionView";
+import { ArenaView } from "./components/PlayingView";
+import { HostReviewView } from "./components/RoundCompletedView";
+import { RoundResultsView } from "./components/ResultsView";
+import { FinalResultsView } from "./components/GameFinishedView";
+import { GameHeader } from './components/GameHeader';
 import { Sidebar } from './components/Sidebar';
-
-import { Participant, GameStatus } from "./types";
 
 import "./style.css";
 

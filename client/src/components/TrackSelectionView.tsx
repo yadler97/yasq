@@ -1,9 +1,10 @@
 import { useSignal, computed, signal } from "@preact/signals";
+import { useEffect } from "preact/hooks";
+
 import { auth } from "../main";
 import { discordSdk } from "../main";
-import * as backend from "../../backend.js";
-import { useEffect } from "preact/hooks";
-import { Track, Playlist } from "../types";
+import * as backend from "../utils/backend";
+import { Track, Playlist } from "../utils/types";
 
 const selectedPlaylistName = signal<string>("All");
 const searchTerm = signal("");

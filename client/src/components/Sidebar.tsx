@@ -1,5 +1,5 @@
 import { MAX_VOLUME } from "@yasq/shared";
-import { getAvatarUrl, getDisplayName } from "../../helper";
+import { getAvatarUrl, getDisplayName } from "../utils/helper";
 import { audioPlayer, gameState, participants, volume } from "../main";
 
 export const Sidebar = () => (

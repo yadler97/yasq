@@ -1,8 +1,8 @@
-import * as backend from "../../backend.js";
-import { participants, discordSdk, auth, gameState } from "../main";
-import { getUserId } from "../../helper.js";
-import { getJokerDisplayName } from "./JokerIcons.js";
 import { useState } from "preact/hooks";
+
+import * as backend from "../utils/backend";
+import { participants, discordSdk, auth, gameState } from "../main";
+import { capitalize, getUserId } from "../utils/helper";
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
@@ -38,7 +38,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
         <span>
           ❓ <strong>Jokers:</strong> {
             gameState.value.enabledJokers.length > 0 
-              ? gameState.value.enabledJokers.map(getJokerDisplayName).join(", ")
+              ? gameState.value.enabledJokers.map(capitalize).join(", ")
               : "None"
           }
         </span>

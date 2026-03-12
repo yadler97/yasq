@@ -1,8 +1,9 @@
 import { useSignal } from "@preact/signals";
-import * as backend from "../../backend.js";
+
+import * as backend from "../utils/backend";
 import { participants, discordSdk, auth, gameState } from "../main";
-import { getDisplayName, getAvatarUrl } from "../../helper.js";
-import { ALL_JOKER_ICONS } from "./JokerIcons.js";
+import { getDisplayName, getAvatarUrl } from "../utils/helper";
+import { ALL_JOKER_ICONS } from "./JokerIcons";
 import { DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION, Joker } from "@yasq/shared";
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {

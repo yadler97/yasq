@@ -1,8 +1,9 @@
 import { useSignal } from "@preact/signals";
 import { useEffect, useState } from "preact/hooks";
-import * as backend from "../../backend.js";
-import { gameState, auth, discordSdk, participants } from "../main.js";
-import { capitalize, getUserId } from "../../helper.js";
+
+import * as backend from "../utils/backend";
+import { gameState, auth, discordSdk, participants } from "../main";
+import { capitalize, getUserId } from "../utils/helper";
 
 export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);

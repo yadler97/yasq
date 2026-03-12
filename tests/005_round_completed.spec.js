@@ -39,6 +39,10 @@ test.describe('Host UI', () => {
     await page.goto('/?mock=true');
   });
 
+  test.afterEach(async ({ request }) => {
+    await request.delete(`http://localhost:3001/api/test/instance/${currentInstanceId}`);
+  });
+
   test('should allow host to correct guesses and submit', async ({ page }) => {
     // Verify host view elements
     await expect(page.locator('#guess-list')).toBeVisible();

@@ -1,4 +1,4 @@
-import { Participant } from "./src/types";
+import { Participant } from "./types";
 
 export function getAvatarUrl(participant: Participant) {
   return participant.avatar
@@ -18,7 +18,8 @@ export function getUserId(auth: any) {
 }
 
 export function capitalize(str: string) {
-  return str.split(' ')
+  return str.toLowerCase()
+    .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }

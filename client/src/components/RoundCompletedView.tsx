@@ -1,8 +1,9 @@
 import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
-import * as backend from "../../backend.js";
-import { auth, discordSdk, participants } from "../main.js";
-import { getAvatarUrl, getDisplayName } from "../../helper.js";
+
+import * as backend from "../utils/backend";
+import { auth, discordSdk, participants } from "../main";
+import { getAvatarUrl, getDisplayName } from "../utils/helper";
 
 interface ReviewData {
   round: number;

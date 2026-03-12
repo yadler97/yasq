@@ -27,10 +27,3 @@ const MultipleChoiceIcon = ({ size = 24, className = "" }) => (
 MultipleChoiceIcon.jokerType = Joker.MULTIPLE_CHOICE;
 
 export const ALL_JOKER_ICONS = [ObfuscationIcon, TriviaIcon, MultipleChoiceIcon];
-
-export function getJokerDisplayName(type: Joker): string {
-  return type.toLowerCase()
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}

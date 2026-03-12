@@ -43,6 +43,10 @@ test.describe('Player UI', () => {
     await page.goto('/?mock=true');
   });
 
+  test.afterEach(async ({ request }) => {
+    await request.delete(`http://localhost:3001/api/test/instance/${currentInstanceId}`);
+  });
+
   test('should display correct status and points earned', async ({ page, request }) => {
     // User submitted correct guess
     await request.patch(`/api/test/instance/${currentInstanceId}`, {

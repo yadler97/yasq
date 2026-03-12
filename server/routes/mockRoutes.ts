@@ -1,5 +1,5 @@
 import express from 'express';
-import { GameInstance, Leaderboard, Settings, TrackInfo } from '../models.js';
+import { GameInstance, Leaderboard, Settings, TrackInfo } from '../src/models.js';
 
 export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
   const router = express.Router();

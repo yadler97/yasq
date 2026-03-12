@@ -35,5 +35,5 @@ server/game_covers/*
 server/data/*
 
 # Playwright
-playwright-report/*
-test-results/*
+tests/playwright-report/*
+tests/test-results/*

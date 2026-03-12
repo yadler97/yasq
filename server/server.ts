@@ -4,7 +4,7 @@ import path from "path";
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-import { GameInstance } from './models.js';
+import { GameInstance } from './src/models.js';
 
 import { setupRoutes } from "./routes/routes.js";
 import { setupMockRoutes } from "./routes/mockRoutes.js";
@@ -61,8 +61,8 @@ if (fs.existsSync(playlistsPath)) {
 
 // Allow express to parse JSON bodies
 app.use(express.json());
-app.use('/music', express.static(path.join(__dirname, 'music')));
-app.use('/game_covers', express.static(path.join(__dirname, 'game_covers')));
+app.use('/music', express.static(path.join(__dirname, 'data/music')));
+app.use('/game_covers', express.static(path.join(__dirname, 'data/game_covers')));
 
 // Register routes
 app.use('/api', setupRoutes(instances, isMockMode, allTracks, allPlaylists));
