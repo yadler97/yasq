@@ -13,9 +13,9 @@ export const mockDiscordSdk = {
 
     // Mock Authenticate
     authenticate: async () => ({
-      access_token: `token_${window.__MOCK_USER_ID__ || '999999999'}`,
+      access_token: `token_${window.__MOCK_USER_ID__ || '0'}`,
       user: {
-        id: window.__MOCK_USER_ID__ || '999999999', 
+        id: window.__MOCK_USER_ID__ || '0', 
         username: window.__MOCK_USER_NAME__ || 'MockPlayer1',
         avatar: null,
       },
@@ -27,8 +27,10 @@ export const mockDiscordSdk = {
     // Mock Participants
     getInstanceConnectedParticipants: async () => ({
       participants: window.__MOCK_PARTICIPANTS__ || [
-        { id: '999999999', username: 'MockPlayer1' },
-        { id: '111111111', username: 'MockPlayer2' }
+        { id: '0', username: 'MockPlayer1' },
+        { id: '1', username: 'MockPlayer2' },
+        { id: '2', username: 'MockPlayer2' },
+        { id: '3', username: 'MockPlayer2' },
       ]
     }),
   },

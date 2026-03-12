@@ -9,7 +9,7 @@ test.describe('Player UI', () => {
 
   test.beforeEach(async ({ page, request }, testInfo) => {
     currentInstanceId = `test-instance-${testInfo.testId}`;
-    const playerCount = 3;
+    const playerCount = 4;
     players = generatePlayers(playerCount);
     const user = players[1];
 
@@ -26,7 +26,8 @@ test.describe('Player UI', () => {
         registeredUsers: players,
         hostId: players[0].id,
         state: 'GAME_FINISHED',
-        leaderboard: mockLeaderboard
+        leaderboard: mockLeaderboard,
+        lastWinnerId: players[1].id
       }
     });
 
@@ -38,11 +39,30 @@ test.describe('Player UI', () => {
     const playerCards = page.locator('.player-card');
     await expect(playerCards).toHaveCount(3);
 
+    // Check the Last Entry (Rank #3)
+    const thirdPlace = playerCards.last();
+    await expect(thirdPlace).not.toHaveClass(/winner/);
+    await expect(thirdPlace.locator('.rank')).toHaveText('#3');
+    await expect(thirdPlace.locator('.name')).toContainText('MockPlayer3');
+    await expect(thirdPlace.locator('.total-score')).toContainText('0 pts');
+    await expect(thirdPlace.locator('.round-bubble.incorrect')).toHaveCount(3);
+
+    const wrongBubble = thirdPlace.locator('.round-bubble').nth(0);
+    await expect(wrongBubble).toHaveClass(/incorrect/);
+    await expect(wrongBubble).toContainText('0');
+
+    // Check the Middle Entry (Rank #2)
+    const secondPlace = playerCards.nth(1);
+    await expect(secondPlace).not.toHaveClass(/winner/);
+    await expect(secondPlace.locator('.rank')).toHaveText('#2');
+    await expect(secondPlace.locator('.name')).toContainText('MockPlayer2');
+    await expect(secondPlace.locator('.total-score')).toContainText('421 pts');
+
     // Check the Winner (Rank #1)
     const firstPlace = playerCards.first();
     await expect(firstPlace).toHaveClass(/winner/);
     await expect(firstPlace.locator('.rank')).toHaveText('#1');
-    await expect(firstPlace.locator('.name')).toContainText('MockPlayer0');
+    await expect(firstPlace.locator('.name')).toContainText('MockPlayer1');
     await expect(firstPlace.locator('.total-score')).toContainText('585 pts');
 
     const winnerBubbles = firstPlace.locator('.round-bubble');
@@ -52,27 +72,15 @@ test.describe('Player UI', () => {
     await expect(winnerBubbles.nth(2)).toHaveClass(/correct/);
     await expect(winnerBubbles.nth(2)).not.toHaveClass(/first/);
 
-    // Check the Middle Entry (Rank #2)
-    const secondPlace = playerCards.nth(1);
-    await expect(secondPlace).not.toHaveClass(/winner/);
-    await expect(secondPlace.locator('.rank')).toHaveText('#2');
-    await expect(secondPlace.locator('.name')).toContainText('MockPlayer1');
-    await expect(secondPlace.locator('.total-score')).toContainText('346 pts');
-
-    const secondBubble = secondPlace.locator('.round-bubble').nth(1);
-    await expect(secondBubble).toHaveClass(/incorrect/);
-    await expect(secondBubble).toContainText('0');
-
-    // Check the Last Entry (Rank #3)
-    const thirdPlace = playerCards.last();
-    await expect(thirdPlace).not.toHaveClass(/winner/);
-    await expect(thirdPlace.locator('.rank')).toHaveText('#3');
-    await expect(thirdPlace.locator('.name')).toContainText('MockPlayer2');
-    await expect(thirdPlace.locator('.total-score')).toContainText('0 pts');
-    await expect(thirdPlace.locator('.round-bubble.incorrect')).toHaveCount(3);
-
     // Verify we don't see the host UI
     await expect(page.locator('.waiting-msg')).toContainText('Waiting for host');
     await expect(page.locator('#btn-restart')).not.toBeVisible();
+  });
+
+  test('should display winner badge in player list', async ({ page }) => {
+    // Check for the WINNER badge
+    const winnerEntry = page.locator(`.player-entry:has-text("${players[1].username}")`);
+    await expect(winnerEntry.locator('.badge.winner')).toBeVisible();
+    await expect(winnerEntry.locator('.badge.winner')).toHaveText('👑');
   });
 });

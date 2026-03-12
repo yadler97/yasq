@@ -449,6 +449,10 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(403).send({ error: "Only host can start next round" });
     }
 
+    if (game.state !== GameState.RESULTS) {
+      return res.status(403).send({ error: "Can only start next round after round results are shown" });
+    }
+
     const newState = game.advanceRound();
 
     if (newState === GameState.GAME_FINISHED) {

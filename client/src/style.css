@@ -852,6 +852,8 @@ input[value="1"]:checked + .btn-radio.correct {
 }
 
 .leaderboard-container {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-width: 500px;
   margin-bottom: 20px;
@@ -861,19 +863,74 @@ input[value="1"]:checked + .btn-radio.correct {
   text-align: center;
   color: #ffffff;
   margin-bottom: 30px;
+  contain: layout;
+}
+
+.player-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  animation: growWrapper 0.8s ease-out forwards;
+}
+
+
+@keyframes growWrapper {
+  0% {
+    grid-template-rows: 0fr;
+    margin-bottom: 0;
+  }
+  100% {
+    grid-template-rows: 1fr;
+    margin-bottom: 12px;
+  }
 }
 
 .player-card {
+  min-height: 0;
   background: #2f3136;
   border-radius: 12px;
   padding: 15px;
-  margin-bottom: 12px;
   border: 2px solid transparent;
+  opacity: 0;
+  animation: fadeInCard 0.4s ease-out forwards;
+}
+
+@keyframes fadeInCard {
+  to {
+    opacity: 1;
+  }
 }
 
 .player-card.winner {
   border-color: #f1c40f;
-  background: linear-gradient(145deg, #2f3136, #36393f);
+  position: relative;
+  z-index: 10;
+}
+
+.player-card.winner::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0) 45%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(45deg);
+  animation: shimmer 5s infinite linear; 
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-150%) rotate(45deg); }
+  40% { transform: translateX(150%) rotate(45deg); }
+  100% { transform: translateX(150%) rotate(45deg); }
 }
 
 .player-main-info {
