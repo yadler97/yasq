@@ -44,8 +44,8 @@ cloudflared tunnel --url http://localhost:5173
 - Create URL Mapping in Discord Developer Portal under the Activities tab.
 
 ### Game Setup
-1. Copy tracks as mp3 into `server/music`
-2. Copy game covers as png into `server/game_covers` (Note: name must be the same as for the corresponding mp3 file: `track001.mp3` -> `track001.png`!)
+1. Copy tracks as mp3 into `server/data/music`
+2. Copy game covers as png into `server/data/game_covers` (Note: name must be the same as for the corresponding mp3 file: `track001.mp3` -> `track001.png`!)
 3. Create `tracks.json` in `server/data` with the following format:
 
     ```json
@@ -88,3 +88,14 @@ cloudflared tunnel --url http://localhost:5173
     ]
     ```
     (Note: file name must be without file extension: `track001.mp3` -> `track001`)
+
+## Author
+**Yannick Adler** - [GitHub Profile](https://github.com/yadler97)
+
+### Special Thanks
+A huge thanks to my beta testers for helping me break the game so I could actually fix it:
+- Deniz
+- Johannes
+- Josch
+- Matthi
+- Noel
