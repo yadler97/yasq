@@ -56,7 +56,7 @@ const App = () => {
       <div className="container">
         <div className="game-column">
           <GameHeader />
-          <div className="game-area">
+          <div className="game-area" key={`view-${isHost}-${gameState.value.state}`}>
             {renderView(isHost)}
           </div>
         </div>
@@ -86,6 +86,8 @@ const renderView = (isHost: boolean) => {
   }
 };
 
+render(<App />, document.getElementById('app')!);
+
 (async () => {
   await discordSdk.ready();
   console.log("Discord SDK is ready");
@@ -113,6 +115,10 @@ const renderView = (isHost: boolean) => {
     throw new Error("Authenticate command failed");
   }
 
+  window.addEventListener('pagehide', () => {
+    backend.deregisterUser(auth.value.access_token, discordSdk.instanceId);
+  });
+
   // Register with our backend
   await backend.registerUser(auth.value.access_token, discordSdk.instanceId);
 
@@ -125,7 +131,3 @@ const renderView = (isHost: boolean) => {
 
   render(<App />, document.getElementById('app')!);
 })();
-
-window.addEventListener('pagehide', () => {
-  backend.deregisterUser(auth.value.access_token, discordSdk.instanceId);
-});

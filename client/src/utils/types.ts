@@ -25,7 +25,13 @@ export interface Track {
   name: string,
   title: string,
   file: string,
-  played: boolean
+  played: boolean,
+  tags: Tag[]
+}
+
+export interface Tag {
+  type: string;
+  value: string;
 }
 
 export interface Playlist {

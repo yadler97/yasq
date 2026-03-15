@@ -270,6 +270,7 @@ export class GameInstance {
       // Convert Sets to Arrays (Sets serialize to {})
       registeredUsers: Array.from(this.registeredUsers),
       readyUsers: Array.from(this.readyUsers),
+      guessedPlayers: Array.from(this.guessedPlayers),
     };
   }
 }

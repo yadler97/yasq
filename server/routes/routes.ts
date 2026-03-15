@@ -291,12 +291,13 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       game.trackHistory = []; // Reset history if all tracks have been played
     }
 
-    const tracks = allTracks.map((t: { name: string; title: string, file: string }, index: number) => ({
+    const tracks = allTracks.map((t: { name: string; title: string, file: string, tags: [] }, index: number) => ({
       id: index,
       name: t.name,
       title: t.title,
       file: t.file,
-      played: game.trackHistory.includes(t.file)
+      played: game.trackHistory.includes(t.file),
+      tags: t.tags
     }));
 
     res.json({

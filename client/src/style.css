@@ -465,6 +465,7 @@ button:focus-visible {
 
 .controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   background: #2f3136;
   padding: 10px;
@@ -478,6 +479,138 @@ button:focus-visible {
 .search-wrapper {
   display: flex;
   gap: 5px;
+}
+
+.filter-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-trigger {
+  padding: 8px 16px;
+  border: 1px solid #4f545c;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 160px;
+}
+
+.arrow.up {
+  transform: rotate(180deg);
+}
+
+.dropdown-trigger.active {
+  border-color: #5865f2;
+  background: rgba(88, 101, 242, 0.1);
+}
+
+.dropdown-menu {
+  position: absolute;
+  z-index: 1000;
+  background: #23272a;
+  border: 1px solid #4f545c;
+  border-radius: 8px;
+  margin-top: 4px;
+  overflow: hidden;
+  width: 250px;
+  padding-left: 8px;
+  padding-right: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.scrollbar-container {
+  display: flex;
+  flex-flow: column;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-right: 8px;
+  overscroll-behavior: contain;
+  gap: 10px;
+}
+
+.dropdown-menu .scrollbar-container::-webkit-scrollbar {
+  width: 8px;
+}
+.dropdown-menu .scrollbar-container::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 8px;
+}
+.dropdown-menu .scrollbar-container::-webkit-scrollbar-thumb {
+  background-color: #1e1f22;
+  border-radius: 4px;
+}
+
+.dropdown-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 999;
+}
+
+.dropdown-group {
+  display: flex;
+  flex-flow: column;
+  gap: 2px;
+}
+
+.group-header {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #b9bbbe;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.item-label-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-count {
+  font-size: 0.7rem;
+  background: #1e1f22;
+  color: #b9bbbe;
+  padding: 2px 6px;
+  border-radius: 8px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.dropdown-item.disabled .tag-count {
+  opacity: 0.3;
+}
+
+.filter-dropdown .dropdown-item {
+  justify-content: space-between;
+  border-radius: 8px;
+}
+
+.filter-dropdown .dropdown-item:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.filter-dropdown .dropdown-item.disabled {
+  cursor: not-allowed;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.filter-dropdown .dropdown-item.disabled input {
+  pointer-events: none;
+}
+
+.dropdown-item.single-select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dropdown-item.single-select.active {
+  background: #5865f2; /* Discord Blurple */
+  color: #fff;
 }
 
 .grid-container {
