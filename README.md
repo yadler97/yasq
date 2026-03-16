@@ -44,25 +44,27 @@ cloudflared tunnel --url http://localhost:5173
 - Create URL Mapping in Discord Developer Portal under the Activities tab.
 
 ### Game Setup
-1. Copy tracks as mp3 into `server/data/music`
-2. Copy game covers as png into `server/data/game_covers` (Note: name must be the same as for the corresponding mp3 file: `track001.mp3` -> `track001.png`!)
+1. Copy track audio files into `server/data/music`
+2. Copy game cover image files into `server/data/game_covers`
 3. Create `tracks.json` in `server/data` with the following format:
 
     ```json
     [
         {
-            "name": "Game Title 1",
+            "game": "Game Title 1",
             "title": "Track Title 1",
-            "file": "File Name 1",
+            "audio": "File Name 1",
+            "cover": "File Name 1",
             "tags": [
                 { "type": "X", "value": "Y" },
                 ...
             ]
         },
         {
-            "name": "Game Title 2",
+            "game": "Game Title 2",
             "title": "Track Title 2",
-            "file": "File Name 2",
+            "audio": "File Name 2",
+            "cover": "File Name 2",
             "tags": [
                 { "type": "X", "value": "Y" },
                 ...
@@ -71,7 +73,6 @@ cloudflared tunnel --url http://localhost:5173
         ...
     ]
     ```
-    (Note: file name must be without file extension: `track001.mp3` -> `track001`)\
     Tags can be used to provide more information about a specific game (e.g. Release, Platform, Developer)
 4. (Optional) Create `playlists.json` in `server/data` with the following format:
     ```json
@@ -87,7 +88,6 @@ cloudflared tunnel --url http://localhost:5173
         ...
     ]
     ```
-    (Note: file name must be without file extension: `track001.mp3` -> `track001`)
 
 ## Author
 **Yannick Adler** - [GitHub Profile](https://github.com/yadler97)

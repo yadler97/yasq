@@ -22,9 +22,10 @@ export interface GameStatus {
 }
 
 export interface Track {
-  name: string,
+  game: string,
   title: string,
-  file: string,
+  audio: string,
+  cover: string,
   played: boolean,
   tags: Tag[]
 }

@@ -34,12 +34,12 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
       let matchesPlaylist = true;
       if (selectedPlaylistName.value !== "All") {
         const activePlaylist = playlists.value.find(p => p.name === selectedPlaylistName.value);
-        matchesPlaylist = activePlaylist ? activePlaylist.tracks.includes(track.file) : false;
+        matchesPlaylist = activePlaylist ? activePlaylist.tracks.includes(track.audio) : false;
       }
 
       // Filter search
       const matchesSearch = 
-        track.name.toLowerCase().includes(searchTerm.value.toLowerCase()) || 
+        track.game.toLowerCase().includes(searchTerm.value.toLowerCase()) || 
         track.title.toLowerCase().includes(searchTerm.value.toLowerCase());
       
       // Filter played status
@@ -68,7 +68,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     if (eligibleTracks.length === 0) return;
 
     const randomTrack = eligibleTracks[Math.floor(Math.random() * eligibleTracks.length)];
-    await backend.playTrack(auth.value.access_token, randomTrack.file, discordSdk.instanceId);
+    await backend.playTrack(auth.value.access_token, randomTrack.audio, discordSdk.instanceId);
   };
 
   const availableTagsByType = computed(() => {
@@ -176,11 +176,11 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
           <p className="no-results">No tracks found matching your search.</p>
         ) : (
           filteredTracks.value.map(track => (
-            <div key={track.file} className={`track-card ${track.played ? 'played' : ''}`}>
+            <div key={track.audio} className={`track-card ${track.played ? 'played' : ''}`}>
               <div className="cover-wrapper">
                 <img 
-                  src={`/game_covers/${track.file}.png`} 
-                  alt={track.name} 
+                  src={`/game_covers/${track.cover}`} 
+                  alt={track.game} 
                   onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/game_covers/default.png'; }}
                 />
                 {track.played && <span className="played-overlay">PLAYED</span>}
@@ -188,7 +188,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
               
               <div className="track-info">
                 <span className="game-name">
-                  <HighlightText text={track.name} highlight={searchTerm.value} />
+                  <HighlightText text={track.game} highlight={searchTerm.value} />
                 </span>
                 <span className="track-title">
                   <i>
@@ -205,7 +205,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
                   // The button becomes disabled because tracks.value will update
                   // or the state will change to 'PLAYING' via the backend call.
                   (e.currentTarget as HTMLButtonElement).disabled = true;
-                  await backend.playTrack(auth.value.access_token, track.file, discordSdk.instanceId);
+                  await backend.playTrack(auth.value.access_token, track.audio, discordSdk.instanceId);
                 }}
               >
                 {track.played ? 'Already Played' : 'Select Track'}

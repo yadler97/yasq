@@ -165,9 +165,9 @@ export class GameInstance {
     const startTime = Date.now() + countdownDuration;
     const endTime = startTime + this.settings.trackDuration;
 
-    this.trackInfo = new TrackInfo(`/music/${track.file}.mp3`, startTime, endTime, track, `/game_covers/${track.file}.png`);
+    this.trackInfo = new TrackInfo(`/music/${track.audio}`, startTime, endTime, track, `/game_covers/${track.cover}`);
     this.state = GameState.PLAYING;
-    this.trackHistory.push(track.file);
+    this.trackHistory.push(track.audio);
     const roundAtStart = this.currentRound;
 
     const totalWaitTime = countdownDuration + this.settings.trackDuration;
@@ -206,7 +206,7 @@ export class GameInstance {
   }
 
   public getPartialHint(revealPercent: number = 0.2): string {
-    const title = this.trackInfo?.track.name;
+    const title = this.trackInfo?.track.game;
     if (!title) return "";
 
     return title.split("").map(c => {
@@ -223,13 +223,13 @@ export class GameInstance {
   }
 
   public getMultipleChoiceHint(tracks: Track[]): string[] {
-    const correctAnswer = this.trackInfo?.track.name;
+    const correctAnswer = this.trackInfo?.track.game;
     if (!correctAnswer) return [];
 
     // Get all unique game titles except the correct one
     const otherTitles = Array.from(new Set(
       tracks
-        .map(t => t.name)
+        .map(t => t.game)
         .filter(title => title !== correctAnswer)
     ));
 
@@ -285,9 +285,10 @@ export class Settings {
 
 export class Track {
   constructor(
-    public file: string,
-    public name: string,
+    public game: string,
     public title: string,
+    public audio: string,
+    public cover: string,
     public tags: Tag[]
   ) {}
 }

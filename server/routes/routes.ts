@@ -291,12 +291,13 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       game.trackHistory = []; // Reset history if all tracks have been played
     }
 
-    const tracks = allTracks.map((t: { name: string; title: string, file: string, tags: [] }, index: number) => ({
+    const tracks = allTracks.map((t: { game: string; title: string, audio: string, cover: string, tags: [] }, index: number) => ({
       id: index,
-      name: t.name,
+      game: t.game,
       title: t.title,
-      file: t.file,
-      played: game.trackHistory.includes(t.file),
+      audio: t.audio,
+      cover: t.cover,
+      played: game.trackHistory.includes(t.audio),
       tags: t.tags
     }));
 
@@ -366,7 +367,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
 
     res.send({
       round: game.currentRound,
-      answer: game.trackInfo?.track.name,
+      answer: game.trackInfo?.track.game,
       guesses: game.guesses[game.currentRound] || {},
       timedOut: timedOutPlayers
     });
@@ -422,7 +423,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({
       round: game.currentRound,
       result: roundResult,
-      correctAnswer: game.trackInfo?.track.name,
+      correctAnswer: game.trackInfo?.track.game,
       trackTitle: game.trackInfo?.track.title,
       tags: game.trackInfo?.track.tags || [],
       gameCover: game.trackInfo?.gameCoverUrl,
@@ -488,7 +489,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(403).send({ error: "Only host can change tracks" });
     }
 
-    const track = allTracks.find((t: Track) => t.file === fileName);
+    const track = allTracks.find((t: Track) => t.audio === fileName);
 
     if (!track) {
       return res.status(400).send({ error: "Track not found." });

@@ -63,7 +63,7 @@ describe('GameInstance - submitGuess', () => {
 
     // Simulate game already started and in selection state
     game.currentRound = 1;
-    const track = new Track("", "Game A", "Track A", [])
+    const track = new Track("Game A", "Track A", "", "", [])
     game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10000, track, "cover")
   });
 
@@ -249,7 +249,7 @@ describe('GameInstance - playTrack', () => {
   });
 
   it('should set correct TrackInfo and transition to PLAYING', () => {
-    const track = new Track("file123", GAME_A, "Track A", []);
+    const track = new Track(GAME_A, "Track A", "file123", "", []);
     
     game.playTrack(track);
 
@@ -264,7 +264,7 @@ describe('GameInstance - playTrack', () => {
   });
 
   it('should transition to ROUND_COMPLETED automatically after time expires', () => {
-    const track = new Track("file123", GAME_A, "Track A", []);
+    const track = new Track(GAME_A, "Track A", "file123", "", []);
     game.playTrack(track);
 
     // Verify we are still playing initially
@@ -281,7 +281,7 @@ describe('GameInstance - playTrack', () => {
   });
 
   it('should not transition if the round has already changed (Race Condition Check)', () => {
-    const track = new Track("file123", GAME_A, "Track A", []);
+    const track = new Track(GAME_A, "Track A", "file123", "", []);
     game.playTrack(track);
 
     // Manually bump the round (simulating all players submitted guess before countdown ends)
@@ -303,7 +303,7 @@ describe('GameInstance - getPartialHint', () => {
   });
 
   it('should return a string of underscores and spaces matching the title length', () => {
-    const track = new Track("", GAME_A, "", [])
+    const track = new Track(GAME_A, "", "", "", []);
     game.playTrack(track);
     const hint = game.getPartialHint();
 
@@ -321,7 +321,7 @@ describe('GameInstance - getTagHint', () => {
   });
 
   it('should return the coressponding tags', () => {
-    const track = new Track("", GAME_A, "", [new Tag("platform", "Platform A"), new Tag("release", "2026")])
+    const track = new Track(GAME_A, "", "", "", [new Tag("platform", "Platform A"), new Tag("release", "2026")])
     game.playTrack(track);
     const hint = game.getTagHint();
 
@@ -339,12 +339,12 @@ describe('GameInstance - getAnswersHint', () => {
   });
 
   it('should return a list of four answers (correct + three wrong)', () => {
-    const correctTrack = new Track("1", GAME_A, "Track A", [])
+    const correctTrack = new Track(GAME_A, "Track A", "1", "", [])
     const wrongTracks = [
-      new Track("2", "Game B", "Track B", []),
-      new Track("3", "Game C", "Track C", []),
-      new Track("4", "Game D", "Track D", []),
-      new Track("5", "Game E", "Track E", [])
+      new Track("Game B", "Track B", "2", "", []),
+      new Track("Game C", "Track C", "3", "", []),
+      new Track("Game D", "Track D", "4", "", []),
+      new Track("Game E", "Track E", "5", "", [])
     ];
     const allTracks = [correctTrack, ...wrongTracks];
 
@@ -359,7 +359,7 @@ describe('GameInstance - getAnswersHint', () => {
     expect(uniqueCount).toBe(4);
 
     // Check if wrong answers are all included in our wrongTracks list
-    const wrongTitles = wrongTracks.map(t => t.name);
+    const wrongTitles = wrongTracks.map(t => t.game);
     const selectedWrongAnswers = hint.filter(title => title !== GAME_A);
 
     expect(selectedWrongAnswers.length).toBe(3);
