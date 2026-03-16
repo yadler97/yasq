@@ -115,6 +115,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
     <div id="results" className="centered">
       <div className="round-result-summary">
         <h2>Round {roundData.value.round} Results</h2>
+        <hr className="divider" />
         <div className="track-details">
           <img src={roundData.value.gameCover} alt={`Cover of ${roundData.value.correctAnswer}`} />
           <div>
@@ -129,6 +130,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             </div>
           </div>
         </div>
+        <hr className="divider" />
         <div className="own-results">
           <p className={`result ${statusClass}`}>
             {statusMessage}

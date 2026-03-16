@@ -37,7 +37,13 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
     );
   }
 
-  if (!reviewData.value) return <div id="results"><h2>Loading guesses...</h2></div>;
+  if (!reviewData.value) {
+    return (
+      <div class="centered">
+        <div className="loading-spinner"></div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;

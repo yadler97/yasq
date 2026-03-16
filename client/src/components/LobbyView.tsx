@@ -3,6 +3,7 @@ import { useState } from "preact/hooks";
 import * as backend from "../utils/backend";
 import { participants, discordSdk, auth, gameState } from "../main";
 import { capitalize, getUserId } from "../utils/helper";
+import { ALL_JOKER_ICONS } from "./JokerIcons";
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
@@ -33,15 +34,37 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
     <div id="lobby" className="centered">
       <div className="settings-info">
         <h2>Game Settings</h2>
-        <span>📋 <strong>{gameState.value.rounds}</strong> Rounds</span>
-        <span>⏱️ <strong>{gameState.value.trackDuration / 1000}s</strong> Track Duration</span>
-        <span>
-          ❓ <strong>Jokers:</strong> {
-            gameState.value.enabledJokers.length > 0 
-              ? gameState.value.enabledJokers.map(capitalize).join(", ")
-              : "None"
-          }
-        </span>
+        <hr className="divider" />
+
+        <div className="settings-grid">
+          <div className="settings-label">🔄 Rounds</div>
+          <div className="settings-value">{gameState.value.rounds}</div>
+
+          <div className="settings-label">⏱️ Track Duration</div>
+          <div className="settings-value">{gameState.value.trackDuration / 1000}s</div>
+
+          <div className="settings-label">❓ Jokers</div>
+          <div className="settings-value">
+            <div className="joker-column">
+              {gameState.value.enabledJokers.length > 0 ? (
+                gameState.value.enabledJokers.map((jokerType) => {
+                  const IconComponent = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
+                  return (
+                    <div key={jokerType} className="joker-row-item">
+                      <div className="joker-indicator" data-tooltip={IconComponent?.description}>
+                        {IconComponent && <IconComponent />}
+                      </div>
+                      <span className="joker-text-name">{capitalize(jokerType)}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <span className="no-jokers">None</span>
+              )}
+            </div>
+          </div>
+        </div>
+
         {isHost && (
           <button
             onClick={handleEditSettings}

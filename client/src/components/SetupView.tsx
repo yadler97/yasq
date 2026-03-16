@@ -58,6 +58,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       ) : (
         <div className="host-settings" id="host-settings">
           <h2>Game Setup</h2>
+          <hr className="divider" />
           <label className="setting-item">
             <span>Number of Rounds</span>
             <input type="number" id="rounds-input" min="1" max="20" value={roundCount.value}
@@ -100,6 +101,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
             {isSubmitting.value ? "Saving..." : "Confirm"}
           </button>
 
+          <hr className="divider" />
           <div className="setting-group">
             <HostTransferDropdown />
           </div>

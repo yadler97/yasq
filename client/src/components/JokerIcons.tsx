@@ -7,6 +7,7 @@ const ObfuscationIcon = ({ size = 24, className = "" }) => (
   </svg>
 );
 ObfuscationIcon.jokerType = Joker.OBFUSCATION;
+ObfuscationIcon.description = "Reveals the game title with most letters hidden by underscores"
 
 const TriviaIcon = ({ size = 24, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className={className}>
@@ -15,6 +16,7 @@ const TriviaIcon = ({ size = 24, className = "" }) => (
   </svg>
 );
 TriviaIcon.jokerType = Joker.TRIVIA;
+TriviaIcon.description = "Reveals metadata about the game"
 
 const MultipleChoiceIcon = ({ size = 24, className = "" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className={className}>
@@ -25,5 +27,6 @@ const MultipleChoiceIcon = ({ size = 24, className = "" }) => (
   </svg>
 );
 MultipleChoiceIcon.jokerType = Joker.MULTIPLE_CHOICE;
+MultipleChoiceIcon.description = "Provides four game titles to choose from, with only one being the correct answer"
 
 export const ALL_JOKER_ICONS = [ObfuscationIcon, TriviaIcon, MultipleChoiceIcon];
