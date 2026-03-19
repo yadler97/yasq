@@ -504,17 +504,39 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.get("/current-track", (req, res) => {
+  router.get("/current-track", async (req, res) => {
     const { instanceId } = req.query as InstanceQuery;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) return res.status(401).send({ error: "No token provided" });
+    const token = authHeader.split(' ')[1] || "";
+
+    const userId = await validateToken(token);
+
+    if (!userId) {
+      return res.status(401).send({ error: "Invalid Discord token" });
+    }
+
     const game = instances[instanceId];
 
     if (game?.state === GameState.PLAYING) {
-      const track = game.trackInfo;
-      return res.send({
-        url: track?.url,
-        startTime: track?.startTime,
-        endTime: track?.endTime
-      });
+      const trackInfo = game.trackInfo;
+
+      const response: any = {
+        url: trackInfo?.url,
+        startTime: trackInfo?.startTime,
+        endTime: trackInfo?.endTime,
+      };
+
+      // Host exclusive information
+      if (game.isHost(userId)) {
+        response.correctAnswer = trackInfo?.track.game;
+        response.trackTitle = trackInfo?.track.title;
+        response.tags = trackInfo?.track.tags || [];
+        response.gameCover = trackInfo?.gameCoverUrl;
+      }
+
+      return res.send(response);
     }
 
     res.send({ url: null, startTime: 0, endTime: 0 });

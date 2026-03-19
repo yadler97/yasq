@@ -203,8 +203,12 @@ export async function playTrack(access_token: string, fileName: string, instance
   });
 }
 
-export async function getCurrentTrack(instanceId: string) {
-    const response = await fetch(`/api/current-track?instanceId=${instanceId}`);
+export async function getCurrentTrack(access_token: string, instanceId: string) {
+    const response = await fetch(`/api/current-track?instanceId=${instanceId}`, {
+      headers: {
+        "Authorization": `Bearer ${access_token}`
+      },
+    });
     return response.json();
 }
 

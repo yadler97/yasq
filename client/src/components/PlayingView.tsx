@@ -5,6 +5,7 @@ import * as backend from "../utils/backend";
 import { gameState, auth, discordSdk, audioPlayer } from "../main";
 import { Joker, POLLING_INTERVAL } from "@yasq/shared";
 import { ALL_JOKER_ICONS } from './JokerIcons';
+import { capitalize } from "../utils/helper";
 
 export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const hasSubmitted = useSignal(false);
@@ -12,6 +13,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const activeHint = useSignal<{ type: Joker, data: any } | null>(null);
   const availableJokers = useSignal<string[]>([]);
+  const activeTrackInfo = useSignal<any>(null);
 
   useEffect(() => {
     if (isHost) return;
@@ -42,8 +44,12 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   useEffect(() => {
     const sync = async () => {
       try {
-        const { url, startTime, endTime } = await backend.getCurrentTrack(discordSdk.instanceId);
+        const { url, startTime, endTime, ...hostData } = await backend.getCurrentTrack( auth.value.access_token, discordSdk.instanceId);
         if (!url) return;
+
+        if (isHost) {
+          activeTrackInfo.value = hostData;
+        }
 
         const now = Date.now();
         const totalDurationMs = endTime - startTime;
@@ -115,7 +121,33 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
 
       {isHost ? (
         <div id="game-host-ui">
-          <h2>Waiting for players to submit their guesses...</h2>
+          {activeTrackInfo.value ? (
+            <div>
+              <div className="round-result-summary">
+                <h2>Now playing</h2>
+                <hr className="divider" />
+                <div className="track-details">
+                  <img src={activeTrackInfo.value.gameCover} alt={`Cover of ${activeTrackInfo.value.correctAnswer}`} />
+                  <div>
+                    <p><strong>{activeTrackInfo.value.correctAnswer}</strong></p>
+                    <p><i>{activeTrackInfo.value.trackTitle}</i></p>
+                    <div className="tags-container left">
+                      {activeTrackInfo.value.tags.map((tag: any) => (
+                        <span key={tag.type} title={capitalize(tag.type)} className="tag-badge">
+                          {tag.value}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h2>Waiting for players to submit their guesses...</h2>
+            </div>
+          ) : (
+            <div class="centered">
+              <div className="loading-spinner"></div>
+            </div>
+          )}
         </div>
       ) : (
         <div id="game-guesser-ui">

@@ -1,6 +1,79 @@
 import { test, expect } from '@playwright/test';
 import { generatePlayers } from './helper.js'
 
+test.describe('Host UI', () => {
+
+  let players = [];
+  let currentInstanceId;
+
+  test.beforeEach(async ({ page, request }, testInfo) => {
+    currentInstanceId = `test-instance-${testInfo.testId}`;
+    const playerCount = 3;
+    players = generatePlayers(playerCount);
+    const user = players[0];
+
+    await page.addInitScript(({ allPlayers, user, instanceId }) => {
+      window.__MOCK_PARTICIPANTS__ = allPlayers;
+      window.__MOCK_USER_ID__ = user.id;
+      window.__MOCK_USER_NAME__ = user.username;
+      window.__MOCK_INSTANCE_ID__ = instanceId;
+    }, { allPlayers: players, user: user, instanceId: currentInstanceId });
+
+    await request.post('http://localhost:3001/api/test/setup-session', {
+      data: {
+        instanceId: currentInstanceId,
+        hostId: players[0].id,
+        registeredUsers: players,
+        state: 'PLAYING',
+        readyUserIds: [],
+        settings: {
+          rounds: 5,
+          trackDuration: 30000,
+          enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE'] 
+        },
+        trackInfo: {
+          url: "some url",
+          track: {
+            game: 'Game A',
+            title: 'Track A',
+            tags: [
+              { 'type': 'platform', 'value': 'Platform A'},
+              { 'type': 'release', 'value': '2026'}
+            ]
+          }
+        },
+      }
+    });
+
+    // Navigate to the app
+    await page.goto('/?mock=true');
+  });
+
+  test.afterEach(async ({ request }) => {
+    await request.delete(`http://localhost:3001/api/test/instance/${currentInstanceId}`);
+  });
+
+  test('should display information about current track', async ({ page }) => {
+    const hostUi = page.locator('#game-host-ui');
+    await expect(hostUi).toBeVisible();
+
+    // Verify track info
+    const summary = hostUi.locator('.round-result-summary');
+    await expect(summary.getByText('Now playing')).toBeVisible();
+    await expect(summary.getByText('Game A')).toBeVisible();
+    await expect(summary.getByText('Track A')).toBeVisible();
+
+    // Verify tags
+    const tags = summary.locator('.tag-badge');
+    await expect(tags).toHaveCount(2);
+    await expect(tags.filter({ hasText: 'Platform A' })).toBeVisible();
+    await expect(tags.filter({ hasText: '2026' })).toBeVisible();
+
+    // Check for wait message
+    await expect(hostUi.getByText(/wait/i)).toBeVisible();
+  });
+});
+
 test.describe('Player UI', () => {
 
   let players = [];
