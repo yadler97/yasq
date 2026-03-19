@@ -149,8 +149,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
           <input type="text" id="track-search" placeholder="Search game or track name..." value={searchTerm.value}
             onInput={(e) => (searchTerm.value = (e.currentTarget as HTMLInputElement).value)} />
           {searchTerm.value && (
-            <button 
-              className="clear-search-btn" 
+            <button
               onClick={() => (searchTerm.value = "")}
               title="Clear search"
             >
@@ -264,15 +263,31 @@ export const TagFilterDropdown = ({
 
   const activeCount = Object.values(selectedTags.value).flat().length;
 
+  const clearAll = (e: MouseEvent) => {
+    e.stopPropagation();
+    selectedTags.value = {};
+  };
+
   return (
     <div className="filter-dropdown">
-      <button 
-        className={`dropdown-trigger ${activeCount > 0 ? 'active' : ''}`}
-        onClick={() => (isOpen.value = !isOpen.value)}
-      >
-        {activeCount > 0 ? `Filters (${activeCount})` : 'Filter by Tags'}
-        <span className={`arrow ${isOpen.value ? 'up' : 'down'}`}>▼</span>
-      </button>
+      <div className="dropdown-trigger-wrapper">
+        <button 
+          className={`dropdown-trigger ${activeCount > 0 ? 'active' : ''}`}
+          onClick={() => (isOpen.value = !isOpen.value)}
+        >
+          {activeCount > 0 ? `Filters (${activeCount})` : 'Filter by Tags'}
+          <span className={`arrow ${isOpen.value ? 'up' : 'down'}`}>▼</span>
+        </button>
+
+        {activeCount > 0 && (
+          <button
+            onClick={clearAll}
+            title="Clear all filters"
+          >
+            ✕
+          </button>
+        )}
+      </div>
 
       {isOpen.value && (
         <>

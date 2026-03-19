@@ -158,6 +158,9 @@ input[type="text"], input[type="number"], select {
   background-color: #1a1a1a;
   transition: border-color 0.25s;
 }
+input:hover {
+  border-color: #646cff;
+}
 
 button {
   border-radius: 8px;
@@ -480,6 +483,9 @@ button:focus-visible {
   cursor: pointer;
   gap: 10px;
 }
+.dropdown-header:hover {
+  border-color: #646cff;
+}
 
 #btn-confirm-transfer {
   white-space: nowrap; 
@@ -569,7 +575,7 @@ button:focus-visible {
   gap: 5px;
 }
 
-.search-wrapper {
+.search-wrapper, .dropdown-trigger-wrapper {
   display: flex;
   gap: 5px;
 }
