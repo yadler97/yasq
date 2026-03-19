@@ -162,6 +162,36 @@ input:hover {
   border-color: #646cff;
 }
 
+.hide-played-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #4f545c;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  display: inline-grid;
+  place-content: center;
+  vertical-align: middle;
+}
+.hide-played-checkbox:hover {
+  border-color: #646cff;
+}
+.hide-played-checkbox:checked {
+  background-color: #646cff;
+  border-color: #646cff;
+}
+.hide-played-checkbox:checked::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -602,9 +632,12 @@ button:focus-visible {
   transform: rotate(180deg);
 }
 
-.dropdown-trigger.active {
+.dropdown-trigger.active, .track-search.active {
   border-color: #5865f2;
   background: rgba(88, 101, 242, 0.1);
+}
+.dropdown-trigger.active:hover, .track-search.active:hover {
+  background: rgba(88, 101, 242, 0.2);
 }
 
 .dropdown-menu {

@@ -146,8 +146,8 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         )}
 
         <div className="search-wrapper">
-          <input type="text" id="track-search" placeholder="Search game or track name..." value={searchTerm.value}
-            onInput={(e) => (searchTerm.value = (e.currentTarget as HTMLInputElement).value)} />
+          <input type="text" id="track-search" className={`track-search ${searchTerm.value ? 'active' : ''}`} placeholder="Search game or track name..."
+            value={searchTerm.value} onInput={(e) => (searchTerm.value = (e.currentTarget as HTMLInputElement).value)} />
           {searchTerm.value && (
             <button
               onClick={() => (searchTerm.value = "")}
@@ -167,7 +167,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         </button>
 
         <label>
-          <input type="checkbox" id="hide-played" checked={hidePlayed.value}
+          <input type="checkbox" id="hide-played" className="hide-played-checkbox" checked={hidePlayed.value}
             onChange={(e) => (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)} /> Hide played tracks
         </label>
       </div>
