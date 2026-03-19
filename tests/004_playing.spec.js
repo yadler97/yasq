@@ -34,7 +34,7 @@ test.describe('Player UI', () => {
         trackInfo: {
           url: "some url",
           track: {
-            name: 'Game A',
+            game: 'Game A',
             title: 'Track A',
             tags: [
               { 'type': 'platform', 'value': 'Platform A'},

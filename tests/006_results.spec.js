@@ -28,7 +28,7 @@ test.describe('Player UI', () => {
         currentRound: 1,
         trackInfo: {
           track: {
-            name: 'Game A',
+            game: 'Game A',
             title: 'Track A',
             tags: [
               { type: "platform", value: "Platform A" },

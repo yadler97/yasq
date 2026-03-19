@@ -57,7 +57,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
     return baseFilteredTracks.value.filter(track => 
       activeCategories.every(([type, selectedVals]) => 
-        track.tags.some(t => t.type === type && selectedVals.includes(t.value))
+        track.tags?.some(t => t.type === type && selectedVals.includes(t.value))
       )
     );
   });
@@ -74,7 +74,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   const availableTagsByType = computed(() => {
     const groups: Record<string, string[]> = {};
     tracks.value?.forEach(track => {
-      track.tags.forEach(tag => {
+      track.tags?.forEach(tag => {
         if (!groups[tag.type]) groups[tag.type] = [];
         if (!groups[tag.type].includes(tag.value)) groups[tag.type].push(tag.value);
       });
@@ -98,7 +98,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
       );
 
       reachableInCat.forEach(track => {
-        track.tags.forEach(tag => {
+        track.tags?.forEach(tag => {
           if (tag.type === catToSkip) {
             validTags.set(tag.value, (validTags.get(tag.value) || 0) + 1);
           }
@@ -137,11 +137,13 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
           />
         )}
 
-        <TagFilterDropdown 
-          availableTags={availableTagsByType.value}
-          selectedTags={selectedTags}
-          reachableTags={reachableTags.value}
-        />
+        {Object.keys(availableTagsByType.value).length > 0 && (
+          <TagFilterDropdown 
+            availableTags={availableTagsByType.value}
+            selectedTags={selectedTags}
+            reachableTags={reachableTags.value}
+          />
+        )}
 
         <div className="search-wrapper">
           <input type="text" id="track-search" placeholder="Search game or track name..." value={searchTerm.value}

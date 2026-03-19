@@ -26,7 +26,7 @@ test.describe('Host UI', () => {
         registeredUsers: players,
         state: 'TRACK_SELECTION',
         readyUserIds: [],
-        trackHistory: ["track003"]
+        trackHistory: ["track003.mp3"]
       }
     });
 

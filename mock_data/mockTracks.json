@@ -1,22 +1,26 @@
 [
     {
-        "name": "Game A",
+        "game": "Game A",
         "title": "Track A",
-        "file": "track001"
+        "audio": "track001.mp3",
+        "cover": "game_a.jpg"
     },
     {
-        "name": "Game B",
+        "game": "Game B",
         "title": "Track B",
-        "file": "track002"
+        "audio": "track002.mp3",
+        "cover": "game_b.jpg"
     },
     {
-        "name": "Game C",
+        "game": "Game C",
         "title": "Track C",
-        "file": "track003"
+        "audio": "track003.mp3",
+        "cover": "game_c.jpg"
     },
     {
-        "name": "Game D",
+        "game": "Game D",
         "title": "Track D",
-        "file": "track004"
+        "audio": "track004.mp3",
+        "cover": "game_d.jpg"
     }
 ]

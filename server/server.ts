@@ -39,7 +39,7 @@ if (fs.existsSync(tracksPath)) {
 }
 
 const playlistsPath = isMockMode 
-  ? path.join(__dirname, '..', 'mock_data', 'mockTracks.json')
+  ? path.join(__dirname, '..', 'mock_data', 'mockPlaylists.json')
   : path.join(__dirname, 'data', 'playlists.json');
 
 let allPlaylists = [];
