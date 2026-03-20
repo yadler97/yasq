@@ -621,11 +621,32 @@ button:focus-visible {
   color: white;
   border-radius: 8px;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
+  display: inline-grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  min-width: 160px;
-  gap: 10px;
+  position: relative;
+}
+
+.current-value {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+}
+
+.dropdown-trigger::after {
+  content: var(--longest-text);
+  grid-column: 1;
+  grid-row: 1;
+  visibility: hidden;
+  white-space: nowrap;
+  font-weight: inherit;
+  padding-right: 12px;
+}
+
+.arrow {
+  grid-column: 2;
+  grid-row: 1;
+  margin-left: 8px;
 }
 
 .arrow.up {
@@ -1164,6 +1185,7 @@ input[value="1"]:checked + .btn-radio.correct {
   border-color: #f1c40f;
   position: relative;
   z-index: 10;
+  overflow: hidden;
 }
 
 .player-card.winner::after {

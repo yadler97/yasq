@@ -2,7 +2,7 @@ import express from 'express';
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import { GameState, Joker } from '@yasq/shared';
-import { validateToken } from '../src/helper.js';
+import { invalidateToken, validateToken } from '../src/helper.js';
 
 export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode: boolean, allTracks: any, allPlaylists: any) => {
   const router = express.Router();
@@ -100,6 +100,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     }
 
     game.registeredUsers.delete(userId);
+    invalidateToken(token);
 
     if (game.isHost(userId)) {
       const isGameActive = game.pickNewHost();

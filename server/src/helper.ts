@@ -37,3 +37,7 @@ export async function validateToken(token: string) {
     return null;
   }
 }
+
+export function invalidateToken(token: string) {
+  return tokenCache.delete(token);
+}

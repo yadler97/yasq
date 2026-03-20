@@ -6,10 +6,12 @@ import { discordSdk } from "../main";
 import * as backend from "../utils/backend";
 import { Track, Playlist } from "../utils/types";
 
-const selectedPlaylistName = signal<string>("All");
+const selectedPlaylistName = signal<string>("All playlists");
 const selectedTags = signal<Record<string, string[]>>({});
 const searchTerm = signal("");
 const hidePlayed = signal(false);
+type SortOption = "Default Order" | "A-Z" | "Z-A";
+const sortOrder = signal<SortOption>("Default Order");
 
 export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   const tracks = useSignal<Track[] | null>(null);
@@ -19,7 +21,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     if (!isHost) return;
 
     backend.getTrackList(auth.value.access_token, discordSdk.instanceId).then((data) => {
-      tracks.value = data.tracks;
+      tracks.value = data.tracks.map((t: Track, i: number) => ({ ...t, originalIndex: i }));
       playlists.value = data.playlists;
     });
   }, [isHost]);
@@ -32,7 +34,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     return tracks.value.filter(track => {
       // Filter playlist
       let matchesPlaylist = true;
-      if (selectedPlaylistName.value !== "All") {
+      if (selectedPlaylistName.value !== "All playlists") {
         const activePlaylist = playlists.value.find(p => p.name === selectedPlaylistName.value);
         matchesPlaylist = activePlaylist ? activePlaylist.tracks.includes(track.audio) : false;
       }
@@ -53,13 +55,33 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     const activeCategories = Object.entries(selectedTags.value)
       .filter(([_, vals]) => vals.length > 0);
 
-    if (activeCategories.length === 0) return baseFilteredTracks.value;
+    let results = [...baseFilteredTracks.value];
 
-    return baseFilteredTracks.value.filter(track => 
-      activeCategories.every(([type, selectedVals]) => 
-        track.tags?.some(t => t.type === type && selectedVals.includes(t.value))
-      )
-    );
+    if (activeCategories.length > 0) {
+      results = results.filter(track => 
+        activeCategories.every(([type, selectedVals]) => 
+          track.tags?.some(t => t.type === type && selectedVals.includes(t.value))
+        )
+      );
+    }
+
+    // Apply Sorting (Default Order, A-Z, or Z-A)
+    return results.sort((a, b) => {
+      if (sortOrder.value === "Default Order") {
+        return (a.originalIndex ?? 0) - (b.originalIndex ?? 0);
+      }
+
+      // Sort by Game Name
+      const gameComp = a.game.localeCompare(b.game);
+      
+      // Secondary Sort: If games are the same, sort by Track Title
+      if (gameComp === 0) {
+        const titleComp = a.title.localeCompare(b.title);
+        return sortOrder.value === "A-Z" ? titleComp : -titleComp;
+      }
+
+      return sortOrder.value === "A-Z" ? gameComp : -gameComp;
+    });
   });
 
   const selectRandom = async () => {
@@ -129,9 +151,15 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     <div id="track-picker-container">
       <h2>Select the next track to challenge players:</h2>
       <div className="controls">
+        <SimpleDropdown 
+          options={["Default Order", "A-Z", "Z-A"]}
+          value={sortOrder.value}
+          onChange={(val) => (sortOrder.value = val as SortOption)}
+        />
+
         {playlists.value.length > 0 && (
           <SimpleDropdown 
-            options={["All", ...playlists.value.map(p => p.name)]}
+            options={["All playlists", ...playlists.value.map(p => p.name)]}
             value={selectedPlaylistName.value}
             onChange={(val) => (selectedPlaylistName.value = val)}
           />
@@ -337,15 +365,19 @@ export const SimpleDropdown = ({
   onChange: (val: string) => void 
 }) => {
   const isOpen = useSignal(false);
-  const isFiltering = value !== "All";
+  const isFiltering = value !== options[0];
+  const longestOption = options.reduce((a, b) => (a.length > b.length ? a : b), "");
 
   return (
-    <div className="filter-dropdown">
+    <div
+      className="filter-dropdown"
+      style={{ "--longest-text": `"${longestOption}"` }}
+    >
       <button 
         className={`dropdown-trigger ${isFiltering ? 'active' : ''}`}
         onClick={() => (isOpen.value = !isOpen.value)}
       >
-        <span>{value === "All" ? "All Playlists" : value}</span>
+        <span className="current-value">{value}</span>
         <span className={`arrow ${isOpen.value ? 'up' : 'down'}`}>▼</span>
       </button>
 
@@ -363,7 +395,7 @@ export const SimpleDropdown = ({
                     isOpen.value = false;
                   }}
                 >
-                  {opt === "All" ? "All Playlists" : opt}
+                  {opt}
                 </div>
               ))}
             </div>
