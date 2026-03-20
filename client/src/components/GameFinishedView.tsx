@@ -1,18 +1,34 @@
 import { useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { auth, discordSdk, participants } from "../main";
-import { getAvatarUrl, getDisplayName } from "../utils/helper";
+import { gameState, auth, discordSdk, participants } from "../main";
+import { getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     backend.getFinalResults(discordSdk.instanceId).then((data) => {
       leaderboard.value = data.leaderboard;
     });
   }, []);
+
+  const handleReady = async () => {
+    setHasInteracted(true);
+
+    await backend.updateReadyStatus(
+      auth.value.access_token,
+      discordSdk.instanceId,
+      !gameState.value.readyUsers.includes(getUserId(auth.value))
+    );
+  };
+
+  const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
+  const readyCount = gameState.value.readyUsers.length;
+  const allPlayersReady = playersExcludingHost.length > 0 && 
+                          playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
 
   const handleRestart = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
@@ -27,7 +43,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       <div className="leaderboard-container">
         {leaderboard.value.map((player, index) => {
           const discordUser = participants.value.find(p => p.id === player.userId) || 
-                              { id:"0", username: 'Unknown' };
+                              { id: "0", username: 'Unknown' };
 
           const total = leaderboard.value.length;
           const staggerIndex = (total - 1) - index;
@@ -72,9 +88,23 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       </div>
 
       {isHost ? (
-        <button id="btn-restart" onClick={handleRestart}>Play Again</button>
+        <button 
+          id="btn-restart" 
+          disabled={!allPlayersReady} 
+          onClick={handleRestart}
+        >
+          {allPlayersReady 
+            ? "Play Again" 
+            : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
+        </button>
       ) : (
-        <p className="waiting-msg">Waiting for host to restart...</p>
+        <button 
+          className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+          id="btn-ready"
+          onClick={handleReady}
+        >
+          {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready for New Game"}
+        </button>
       )}
     </div>
   );

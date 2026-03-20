@@ -83,7 +83,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
         ) : (
           <div id="lobby-guesser-ui">
             <button
-              className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+              className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
               id="btn-ready"
               onClick={handleReady}
             >

@@ -203,6 +203,8 @@ describe('GameInstance - advanceRound', () => {
     game = new GameInstance(HOST);
     game.setupGame(3, 20, []); // 3 rounds
     game.startGame();
+    game.readyUsers.add(PLAYER_1);
+    game.readyUsers.add(PLAYER_2);
 
     const entry1 = new LeaderboardEntry(PLAYER_1);
     entry1.totalScore = 500;
@@ -216,6 +218,7 @@ describe('GameInstance - advanceRound', () => {
     // We are on round 1 of 3
     const nextState = game.advanceRound();
 
+    expect(game.readyUsers.size).toBe(0);
     expect(nextState).toBe(GameState.TRACK_SELECTION);
     expect(game.currentRound).toBe(2);
     expect(game.state).toBe(GameState.TRACK_SELECTION);
@@ -240,8 +243,6 @@ describe('GameInstance - playTrack', () => {
     vi.useFakeTimers();
     game = new GameInstance(HOST);
     game.settings.trackDuration = 10000; // 10 seconds
-    game.readyUsers.add(PLAYER_1);
-    game.readyUsers.add(PLAYER_2);
   });
 
   afterEach(() => {
@@ -256,7 +257,6 @@ describe('GameInstance - playTrack', () => {
     const expectedStart = Date.now() + 4000; // now + countdown
     const expectedEnd = expectedStart + 10000; // start + duration
 
-    expect(game.readyUsers.size).toBe(0);
     expect(game.state).toBe(GameState.PLAYING);
     expect(game.trackInfo?.startTime).toBe(expectedStart);
     expect(game.trackInfo?.endTime).toBe(expectedEnd);

@@ -87,10 +87,11 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
         <div>
           <button 
-            className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+            className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+            id="btn-ready"
             onClick={handleReady}
           >
-            {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready Up"}
+            {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready for Next Round"}
           </button>
         </div>
       </div>
@@ -145,7 +146,8 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
       <div>
         <button 
-          className={`lobby-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+          className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+          id="btn-ready"
           onClick={handleReady}
         >
           {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready Up"}

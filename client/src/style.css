@@ -203,12 +203,15 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
+button:not(:disabled):hover {
   border-color: #646cff;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+button:disabled {
+  cursor: not-allowed;
 }
 
 .settings-info {
@@ -315,12 +318,12 @@ button:focus-visible {
   margin-bottom: 0;
 }
 
-.lobby-btn.ready {
+.ready-btn.ready {
   background-color: #3ba55e; /* Discord Green */
   color: white;
 }
 
-.lobby-btn {
+.ready-btn {
   font-weight: bold;
   text-transform: uppercase;
 }
@@ -331,12 +334,12 @@ button:focus-visible {
   100% { box-shadow: 0 0 0 0 rgba(88, 101, 242, 0); }
 }
 
-.lobby-btn:not(.ready) {
+.ready-btn:not(.ready) {
   animation: pulse-glow 2s infinite;
   animation-delay: 10s;
 }
 
-.lobby-btn.interacted:not(.ready) {
+.ready-btn.interacted:not(.ready) {
   animation-delay: 0s;
 }
 

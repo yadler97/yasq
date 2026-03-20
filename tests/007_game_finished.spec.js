@@ -77,7 +77,7 @@ test.describe('Player UI', () => {
     await expect(winnerBubbles.nth(2)).not.toHaveClass(/first/);
 
     // Verify we don't see the host UI
-    await expect(page.locator('.waiting-msg')).toContainText('Waiting for host');
+    await expect(page.locator('#btn-ready')).toBeVisible();
     await expect(page.locator('#btn-restart')).not.toBeVisible();
   });
 

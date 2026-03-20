@@ -42,6 +42,7 @@ export class GameInstance {
   }
 
   public startGame(): void {
+    this.readyUsers = new Set();
     this.registeredUsers.forEach(userId => {
       if (this.isHost(userId)) return; // Skip host
       if (!this.leaderboard.hasEntry(userId)) {
@@ -143,6 +144,8 @@ export class GameInstance {
   }
 
   public advanceRound(): string {
+    this.readyUsers = new Set();
+
     if (this.currentRound >= this.settings.rounds) {
       this.state = GameState.GAME_FINISHED;
       this.leaderboard.sort();
@@ -160,7 +163,6 @@ export class GameInstance {
   }
 
   public playTrack(track: Track): void {
-    this.readyUsers = new Set();
     const countdownDuration = 4000;
     const startTime = Date.now() + countdownDuration;
     const endTime = startTime + this.settings.trackDuration;

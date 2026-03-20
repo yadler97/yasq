@@ -161,7 +161,7 @@ test.describe('Player UI', () => {
     });
 
     // Ready Up Interaction
-    const readyBtn = page.locator('.lobby-btn');
+    const readyBtn = page.locator('#btn-ready');
     await expect(readyBtn).toHaveText('Ready Up');
     await readyBtn.click();
     
