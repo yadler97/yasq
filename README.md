@@ -88,6 +88,21 @@ cloudflared tunnel --url http://localhost:5173
         ...
     ]
     ```
+5. (Optional) Create `permissions.json` in `server/data` to restrict specific tracks to certain Discord User IDs:
+    ```json
+    [
+        {
+            "type": "whitelist",
+            "userIds": ["Discord User ID 1", ...],
+            "files": [
+                "File Name 1", "File Name 2", ...
+            ]
+        }
+    ]
+    ```
+    - `whitelist`: Only users in `userIds` can see/play these files.
+    - `blacklist`: Everyone except users in `userIds` can see/play these files.
+    - Default: Files not listed in any set are public to everyone.
 
 ## Author
 **Yannick Adler** - [GitHub Profile](https://github.com/yadler97)

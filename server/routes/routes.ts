@@ -3,6 +3,7 @@ import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import { GameState, Joker } from '@yasq/shared';
 import { invalidateToken, validateToken } from '../src/helper.js';
+import { isAllowed } from '../src/access_control.js';
 
 export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode: boolean, allTracks: any, allPlaylists: any) => {
   const router = express.Router();
@@ -292,15 +293,17 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       game.trackHistory = []; // Reset history if all tracks have been played
     }
 
-    const tracks = allTracks.map((t: { game: string; title: string, audio: string, cover: string, tags: [] }, index: number) => ({
-      id: index,
-      game: t.game,
-      title: t.title,
-      audio: t.audio,
-      cover: t.cover,
-      played: game.trackHistory.includes(t.audio),
-      tags: t.tags
-    }));
+    const tracks = allTracks
+      .filter((t: any) => isAllowed(userId, t.audio))
+      .map((t: Track, index: number) => ({
+        id: index,
+        game: t.game,
+        title: t.title,
+        audio: t.audio,
+        cover: t.cover,
+        played: game.trackHistory.includes(t.audio),
+        tags: t.tags
+      }));
 
     res.json({
       tracks: tracks,
@@ -481,6 +484,11 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
 
     if (!userId) {
       return res.status(401).send({ error: "Invalid Discord token" });
+    }
+
+    if (!isAllowed(userId, fileName)) {
+      console.warn(`[SECURITY] User ${userId} attempted to play restricted track: ${fileName}`);
+      return res.status(403).send({ error: "You do not have permission to play this track." });
     }
 
     const game = instances[instanceId];

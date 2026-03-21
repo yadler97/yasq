@@ -50,13 +50,9 @@ if (fs.existsSync(playlistsPath)) {
     allPlaylists = JSON.parse(playlistsRaw);
   } catch (err) {
     console.error(`Error parsing JSON from ${playlistsPath}:`, err);
-    // Fallback to empty array if JSON is malformed
-    allPlaylists = [];
   }
 } else {
   console.log(`Playlists file not found at ${playlistsPath}. Starting with no playlists.`);
-  // Fallback to empty array if file is not existing
-  allPlaylists = [];
 }
 
 // Allow express to parse JSON bodies
