@@ -118,7 +118,11 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         <h2>Round {roundData.value.round} Results</h2>
         <hr className="divider" />
         <div className="track-details">
-          <img src={roundData.value.gameCover} alt={`Cover of ${roundData.value.correctAnswer}`} />
+          <img
+            src={roundData.value.gameCover || '/game_covers/default.svg'}
+            alt={`Cover of ${roundData.value.correctAnswer}`}
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/game_covers/default.svg'; }}
+          />
           <div>
             <p><strong>{roundData.value.correctAnswer}</strong></p>
             <p><i>{roundData.value.trackTitle}</i></p>

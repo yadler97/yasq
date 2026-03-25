@@ -1095,7 +1095,7 @@ input[value="1"]:checked + .btn-radio.correct {
   width: 150px;
   height: 150px;
   border-radius: 8px;
-  background: white;
+  aspect-ratio: 1/1;
 }
 
 .own-results {

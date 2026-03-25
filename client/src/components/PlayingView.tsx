@@ -127,7 +127,11 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                 <h2>Now playing</h2>
                 <hr className="divider" />
                 <div className="track-details">
-                  <img src={activeTrackInfo.value.gameCover} alt={`Cover of ${activeTrackInfo.value.correctAnswer}`} />
+                  <img
+                    src={activeTrackInfo.value.gameCover || '/game_covers/default.svg'}
+                    alt={`Cover of ${activeTrackInfo.value.correctAnswer}`}
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/game_covers/default.svg'; }}
+                  />
                   <div>
                     <p><strong>{activeTrackInfo.value.correctAnswer}</strong></p>
                     <p><i>{activeTrackInfo.value.trackTitle}</i></p>

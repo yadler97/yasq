@@ -207,10 +207,10 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
           filteredTracks.value.map(track => (
             <div key={track.audio} className={`track-card ${track.played ? 'played' : ''}`}>
               <div className="cover-wrapper">
-                <img 
-                  src={`/game_covers/${track.cover}`} 
-                  alt={track.game} 
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/game_covers/default.png'; }}
+                <img
+                  src={`/game_covers/${track.cover}` || '/game_covers/default.svg'}
+                  alt={`Cover of ${track.game}`}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/game_covers/default.svg'; }}
                 />
                 {track.played && <span className="played-overlay">PLAYED</span>}
               </div>
