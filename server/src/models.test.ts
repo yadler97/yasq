@@ -295,6 +295,25 @@ describe('GameInstance - playTrack', () => {
   });
 });
 
+describe('GameInstance - canUseJoker', () => {
+  let game: GameInstance;
+
+  beforeEach(() => {
+    game = new GameInstance(HOST);
+  });
+
+  it('should allow player to use joker if joker not yet used', () => {
+    const allowed = game.canUseJoker(PLAYER_1, Joker.OBFUSCATION);
+    expect(allowed).toBe(true);
+  });
+
+  it('should forbid player to use joker if joker already used', () => {
+    game.markJokerUsed(PLAYER_1, Joker.OBFUSCATION);
+    const allowed = game.canUseJoker(PLAYER_1, Joker.OBFUSCATION);
+    expect(allowed).toBe(false);
+  });
+});
+
 describe('GameInstance - getPartialHint', () => {
   let game: GameInstance;
 

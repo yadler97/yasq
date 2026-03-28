@@ -34,6 +34,7 @@ server/music/*
 server/game_covers/*
 !server/game_covers/default.svg
 server/data/*
+server/coverage/*
 
 # Playwright
 tests/playwright-report/*
