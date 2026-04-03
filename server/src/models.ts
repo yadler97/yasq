@@ -393,6 +393,24 @@ export class Leaderboard {
     });
   }
 
+  public getRoundSummary(round: number, userId?: string) {
+    const entries = userId 
+      ? this.entries.filter(e => e.userId === userId) 
+      : this.entries;
+
+    return entries.map(entry => {
+      const r = entry.roundHistory.find(rh => rh.round === round);
+      return {
+        userId: entry.userId,
+        guess: r?.guess,
+        points: r?.points,
+        scoreValue: r?.scoreValue,
+        isFirst: r?.isFirst,
+        time: r?.time
+      };
+    });
+  }
+
   public getWinnerId(): string | null {
     return this.entries[0]?.userId || null;
   }

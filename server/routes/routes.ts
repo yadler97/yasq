@@ -412,13 +412,15 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(400).send({ error: "Results not ready yet" });
     }
 
-    const entry = game.leaderboard.getEntry(userId);
-    if (!entry) {
+    // Get the most recent round result from the user's round history
+    const roundResult = game.leaderboard.getRoundSummary(
+      game.currentRound, 
+      game.isHost(userId) ? undefined : userId
+    );
+
+    if (roundResult.length === 0) {
       return res.status(403).send({ error: "User not found in leaderboard." });
     }
-
-    // Get the most recent round result from the user's round history
-    const roundResult = entry.roundHistory.find(r => r.round === game.currentRound);
 
     const correctPlayersCount = game.leaderboard.getAll().filter(playerEntry => 
       playerEntry.roundHistory.some(r => r.round === game.currentRound && r.scoreValue === 1)
