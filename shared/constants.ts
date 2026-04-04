@@ -11,7 +11,8 @@ export enum GameState {
 export enum Joker {
   OBFUSCATION = 'OBFUSCATION',
   TRIVIA = 'TRIVIA',
-  MULTIPLE_CHOICE = 'MULTIPLE_CHOICE'
+  MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
+  SPY = 'SPY'
 }
 
 export const MAX_VOLUME = 0.25;

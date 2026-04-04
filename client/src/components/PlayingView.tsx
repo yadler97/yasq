@@ -2,10 +2,10 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useRef } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { gameState, auth, discordSdk, audioPlayer } from "../main";
+import { gameState, auth, discordSdk, audioPlayer, participants } from "../main";
 import { Joker, POLLING_INTERVAL } from "@yasq/shared";
 import { ALL_JOKER_ICONS } from './JokerIcons';
-import { capitalize } from "../utils/helper";
+import { capitalize, getAvatarUrl, getDisplayName } from "../utils/helper";
 
 export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const hasSubmitted = useSignal(false);
@@ -13,6 +13,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const activeHint = useSignal<{ type: Joker, data: any } | null>(null);
   const availableJokers = useSignal<string[]>([]);
+  const isSelectingSpyTarget = useSignal(false);
   const activeTrackInfo = useSignal<any>(null);
 
   useEffect(() => {
@@ -22,13 +23,23 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
     })
   }, [gameState.value.currentRound]);
 
-  const handleJokerUsage = async (jokerType: Joker) => {
+  const handleJokerUsage = async (jokerType: Joker, targetId?: string) => {
+    if (jokerType === Joker.SPY && !targetId) {
+      isSelectingSpyTarget.value = true;
+      return;
+    }
+
     try {
-      const response = await backend.useJoker(auth.value.access_token, discordSdk.instanceId, jokerType);
-      activeHint.value = { type: jokerType, data: response.hint };
+      const response = await backend.useJoker(auth.value.access_token, discordSdk.instanceId, jokerType, targetId);
+      activeHint.value = { 
+        type: jokerType, 
+        data: targetId ? { text: response.hint, targetId } : response.hint 
+      };
       availableJokers.value = availableJokers.value.filter(j => j !== jokerType);
+      isSelectingSpyTarget.value = false;
     } catch (err) {
       console.error("Failed to use joker:", err);
+      isSelectingSpyTarget.value = false;
     }
   };
 
@@ -155,6 +166,35 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         </div>
       ) : (
         <div id="game-guesser-ui">
+          {isSelectingSpyTarget.value && (
+            <div className="hint-container">
+              <h2>Pick a player to spy on:</h2>
+              <hr className="divider" />
+              <div className="spy-hint-player-list">
+                {gameState.value.guessedPlayers.filter(id => id !== auth.value.userId).length === 0 ? (
+                  <p className="no-results">No player has submitted a guess yet.</p>
+                ) : (
+                  gameState.value.guessedPlayers.map(targetId => {
+                    const discordUser = participants.value.find(p => p.id === targetId) || 
+                                        { id: "0", username: 'Unknown' };
+
+                    return (
+                      <button
+                        key={targetId}
+                        className="spy-select-button"
+                        onClick={() => handleJokerUsage(Joker.SPY, targetId)}
+                      >
+                        <img src={getAvatarUrl(discordUser)} className="avatar-small" />
+                        <span>{getDisplayName(discordUser)}</span>
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+              <button onClick={() => isSelectingSpyTarget.value = false}>Cancel</button>
+            </div>
+          )}
+
           {activeHint.value && !hasSubmitted.value && (
             <div className="hint-container">
               {activeHint.value.type === Joker.OBFUSCATION && (
@@ -186,6 +226,32 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                       {choice}
                     </button>
                   ))}
+                </div>
+              )}
+
+              {activeHint.value?.type === Joker.SPY && (
+                <div className="spy-hint-display">
+                  {(() => {
+                    const targetUser = participants.value.find(p => p.id === activeHint.value?.data.targetId) || 
+                                      { id: "0", username: 'Unknown' };
+                    return (
+                      <div className="spy-target-info">
+                        <img src={getAvatarUrl(targetUser)} className="avatar-small" />
+                        <span><strong>{getDisplayName(targetUser)}</strong></span>
+                      </div>
+                    );
+                  })()}
+
+                  <button
+                    className="choice-button"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      hasSubmitted.value = true;
+                      await backend.submitGuess(auth.value.access_token, discordSdk.instanceId, activeHint.value?.data.text);
+                    }}
+                  >
+                    {activeHint.value?.data.text}
+                  </button>
                 </div>
               )}
             </div>

@@ -29,7 +29,7 @@ test.describe('Host UI', () => {
         settings: {
           rounds: 5,
           trackDuration: 30000,
-          enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE'] 
+          enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE', 'SPY'] 
         },
         trackInfo: {
           url: "some url",
@@ -102,7 +102,7 @@ test.describe('Player UI', () => {
         settings: {
           rounds: 5,
           trackDuration: 30000,
-          enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE'] 
+          enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE', 'SPY'] 
         },
         trackInfo: {
           url: "some url",
@@ -240,5 +240,41 @@ test.describe('Player UI', () => {
     await expect(guessInput).toBeHidden();
     await expect(waitMessage).toBeVisible();
     await expect(waitMessage).toHaveText(/wait/i);
+  });
+
+  test('should display player answer hint when using spy joker', async ({ page, request }) => {
+    const jokerBtn = page.locator('#btn-joker-spy');
+    const targetUser = players[2];
+
+    await jokerBtn.click();
+
+    const spyOverlay = page.locator('.hint-container:has-text("Pick a player to spy on")');
+    await expect(spyOverlay).toBeVisible();
+
+    const emptyMsg = spyOverlay.locator('.no-results');
+    await expect(emptyMsg).toBeVisible();
+    await expect(emptyMsg).toHaveText(/no player has submitted/i);
+
+    await request.post('http://localhost:3001/api/submit-guess', {
+      data: {
+        instanceId: currentInstanceId,
+        guess: 'Game A'
+      },
+      headers: {
+        'Authorization': `Bearer token_${targetUser.id}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const targetBtn = spyOverlay.locator('button').filter({ hasText: targetUser.username });
+    await expect(targetBtn).toBeVisible();
+    await targetBtn.click();
+
+    const stolenResultBtn = page.locator('.choice-button');
+    await expect(stolenResultBtn).toBeVisible();
+    await expect(stolenResultBtn).toHaveText('Game A');
+
+    await stolenResultBtn.click();
+    await expect(page.locator('#waiting-msg')).toBeVisible();
   });
 });

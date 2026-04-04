@@ -620,7 +620,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
   });
 
   router.post("/use-joker", async (req, res) => {
-    const { instanceId, jokerType } = req.body;
+    const { instanceId, jokerType, targetId } = req.body;
     const authHeader = req.headers.authorization;
 
     if (!authHeader) return res.status(401).send({ error: "No token provided" });
@@ -656,6 +656,16 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
         break;
       case Joker.MULTIPLE_CHOICE:
         hint = game.getMultipleChoiceHint(allTracks);
+        break;
+      case Joker.SPY:
+        if (!targetId) {
+          return res.status(400).send({ error: "Spy Joker requires a targetId" });
+        }
+
+        hint = game.getSpyHint(targetId);
+        if (hint === null) {
+          return res.status(202).send({ error: "Target hasn't submitted yet. Joker not consumed." });
+        }
         break;
       default:
         return res.status(400).send({ error: "Invalid joker type" });

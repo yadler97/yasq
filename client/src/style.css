@@ -313,7 +313,8 @@ button:disabled {
 
 .settings-info h2, 
 .host-settings h2,
-.round-result-summary h2 {
+.round-result-summary h2,
+.hint-container h2 {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -918,6 +919,25 @@ button:disabled {
 
 .choice-button:active {
   transform: translateY(0);
+}
+
+.spy-hint-player-list {
+  padding: 10px;
+}
+
+.spy-select-button {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spy-target-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 /* Responsive: stack them on very narrow screens */

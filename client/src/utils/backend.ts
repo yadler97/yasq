@@ -180,14 +180,14 @@ export async function getAvailableJokers(access_token: string, instanceId: strin
   return response.json();
 }
 
-export async function useJoker(access_token: string, instanceId: string, jokerType: Joker) {
+export async function useJoker(access_token: string, instanceId: string, jokerType: Joker, targetId?: string) {
   const response = await fetch("/api/use-joker", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${access_token}`
     },
-    body: JSON.stringify({ instanceId, jokerType }),
+    body: JSON.stringify({ instanceId, jokerType, targetId }),
   });
   return response.json();
 }

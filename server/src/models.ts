@@ -247,11 +247,15 @@ export class GameInstance {
     return finalChoices.sort(() => 0.5 - Math.random());
   }
 
+  public getSpyHint(userId: string): string | null {
+    return this.guesses[this.currentRound]?.[userId]?.text ?? null;
+  }
+
   public markJokerUsed(userId: string, joker: Joker): void {
     if (!this.usedJokers[userId]) {
       this.usedJokers[userId] = new Set<Joker>();
     }
-    
+
     this.usedJokers[userId].add(joker);
   }
 

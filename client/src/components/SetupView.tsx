@@ -16,7 +16,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     new Set(
       gameState.value.enabledJokers.length > 0 
         ? gameState.value.enabledJokers 
-        : [Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE]
+        : [Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE, Joker.SPY]
     )
   );
 
