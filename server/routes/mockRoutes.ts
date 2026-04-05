@@ -18,7 +18,8 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
       leaderboard = new Leaderboard(),
       currentGame = 1,
       trackHistory = [],
-      lastWinnerId
+      lastWinnerId,
+      usedJokers = {}
     } = req.body;
 
     if (!instanceId) {
@@ -44,6 +45,7 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
     game.currentGame = currentGame;
     game.trackHistory = trackHistory;
     game.lastWinnerId = lastWinnerId;
+    game.usedJokers = usedJokers;
 
     instances[instanceId] = game;
 
@@ -95,6 +97,9 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
     }
     if (updates.leaderboard) {
       game.leaderboard = Leaderboard.fromJSON(updates.leaderboard);
+    }
+    if (updates.usedJokers) {
+      game.usedJokers = updates.usedJokers;
     }
 
     res.status(200).send({ message: "Instance updated", instance: game });

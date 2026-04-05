@@ -40,3 +40,10 @@ export interface Playlist {
   name: string;
   tracks: string[];
 }
+
+export interface ReviewData {
+  round: number;
+  answer: string;
+  guesses: Record<string, { text: string, joker: Joker }>;
+  timedOut: string[];
+}

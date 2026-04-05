@@ -21,7 +21,7 @@ export class GameInstance {
   public currentGame: number = 1;
   public trackHistory: string[] = [];
   public lastWinnerId: string | null = null;
-  public usedJokers: Record<string, Set<Joker>> = {};
+  public usedJokers: Record<string, Partial<Record<Joker, number>>> = {};
 
   constructor(hostId: string) {
     this.hostId = hostId;
@@ -197,14 +197,14 @@ export class GameInstance {
 
   public canUseJoker(userId: string, jokerType: Joker): boolean {
     if (!this.usedJokers[userId]) {
-      this.usedJokers[userId] = new Set<Joker>();
+      this.usedJokers[userId] = {};
     }
 
-    if (this.usedJokers[userId].has(jokerType)) {
-      return false;
-    }
+    // Check if joker was used in the past
+    if (jokerType in this.usedJokers[userId]) return false;
 
-    return true;
+    // Check if any joker has already been used in this round
+    return !Object.values(this.usedJokers[userId]).includes(this.currentRound);
   }
 
   public getPartialHint(revealPercent: number = 0.2): string {
@@ -253,10 +253,10 @@ export class GameInstance {
 
   public markJokerUsed(userId: string, joker: Joker): void {
     if (!this.usedJokers[userId]) {
-      this.usedJokers[userId] = new Set<Joker>();
+      this.usedJokers[userId] = {};
     }
 
-    this.usedJokers[userId].add(joker);
+    this.usedJokers[userId][joker] = this.currentRound;
   }
 
   public pickNewHost(): boolean {

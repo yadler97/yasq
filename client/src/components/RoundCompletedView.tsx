@@ -4,13 +4,8 @@ import { useEffect } from "preact/hooks";
 import * as backend from "../utils/backend";
 import { auth, discordSdk, participants } from "../main";
 import { getAvatarUrl, getDisplayName } from "../utils/helper";
-
-interface ReviewData {
-  round: number;
-  answer: string;
-  guesses: Record<string, { text: string }>;
-  timedOut: string[];
-}
+import { ALL_JOKER_ICONS } from "./JokerIcons";
+import { ReviewData } from "../utils/types";
 
 export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const reviewData = useSignal<ReviewData | null>(null);
@@ -70,6 +65,14 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                 <img src={avatarUrl} className="avatar-small" alt={displayName} />
                 <span className="username">{displayName}</span>
                 <span className="guess-text">"{guess.text}"</span>
+                {guess.joker && (() => {
+                  const JokerIcon = ALL_JOKER_ICONS.find(icon => icon.jokerType === guess.joker);
+                  return JokerIcon ? (
+                    <div className="joker-indicator" data-tooltip={JokerIcon?.description}>
+                      {JokerIcon && <JokerIcon />}
+                    </div>
+                  ) : null;
+                })()}
               </div>
               
               <div className="button-group">

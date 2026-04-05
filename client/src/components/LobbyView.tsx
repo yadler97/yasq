@@ -48,11 +48,11 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             <div className="joker-column">
               {gameState.value.enabledJokers.length > 0 ? (
                 gameState.value.enabledJokers.map((jokerType) => {
-                  const IconComponent = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
+                  const JokerIcon = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
                   return (
                     <div key={jokerType} className="joker-row-item">
-                      <div className="joker-indicator" data-tooltip={IconComponent?.description}>
-                        {IconComponent && <IconComponent />}
+                      <div className="joker-indicator" data-tooltip={JokerIcon?.description}>
+                        {JokerIcon && <JokerIcon />}
                       </div>
                       <span className="joker-text-name">{capitalize(jokerType)}</span>
                     </div>

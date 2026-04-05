@@ -26,13 +26,25 @@ test.describe('Host UI', () => {
         registeredUsers: players,
         state: 'ROUND_COMPLETED',
         currentRound: 1,
+        trackInfo: {
+          url: "some url",
+          track: {
+            game: 'Game A',
+            title: 'Track A',
+          }
+        },
         guesses: {
           1: {
             [players[1].id]: { text: "Game A" },
             [players[2].id]: { text: "Game B" }
           }
         },
-        readyUserIds: []
+        readyUserIds: [],
+        usedJokers: {
+          [players[1].id]: { 
+            "TRIVIA": 1 
+          }
+        }
       }
     });
 
@@ -47,6 +59,7 @@ test.describe('Host UI', () => {
     // Verify host view elements
     await expect(page.locator('#guess-list')).toBeVisible();
     await expect(page.locator('h2')).toContainText(/Round/i);
+    await expect(page.locator('#results p >> strong')).toHaveText(/Game A/i);
 
     // Verify guesses correctly displayed
     const player1Entry = page.locator(`.guess-item:has-text("${players[1].username}")`);
@@ -76,6 +89,23 @@ test.describe('Host UI', () => {
     await expect(submitBtn).toBeEnabled();
     await submitBtn.click();
     await expect(submitBtn).toBeDisabled();
+  });
+
+  test('should display joker icon if used by player', async ({ page }) => {
+    // Verify player 1 has joker icon
+    const player1Entry = page.locator(`.guess-item:has-text("${players[1].username}")`);
+    const triviaDescription = "Reveals metadata about the game";
+
+    const jokerIndicator = player1Entry.locator(`.joker-indicator[data-tooltip="${triviaDescription}"]`);
+
+    await expect(jokerIndicator).toBeVisible();
+    await expect(jokerIndicator.locator('svg')).toBeVisible();
+
+    // Verify player 2 has joker icon
+    const player2Entry = page.locator(`.guess-item:has-text("${players[2].username}")`);
+    const player2Joker = player2Entry.locator('.joker-indicator');
+
+    await expect(player2Joker).toHaveCount(0);
   });
 });
 

@@ -364,6 +364,23 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(403).send({ error: "Only host can get submitted guesses" });
     }
 
+    const currentRound = game.currentRound;
+    const roundGuesses = game.guesses[currentRound] || {};
+
+    // Attach used jokers to guesses
+    const guessesWithJokers = Object.fromEntries(
+      Object.entries(roundGuesses).map(([userId, guess]) => {
+        const userJokers = game.usedJokers[userId] || {};
+        
+        // Find which joker (if any) was used in this round
+        const jokerUsed = Object.keys(userJokers).find(
+          (joker) => userJokers[joker as Joker] === currentRound
+        );
+
+        return [userId, { ...guess, joker: jokerUsed }];
+      })
+    );
+
     const timedOutPlayers = game.getTimedOutPlayers();
     if (timedOutPlayers.length > 0) {
       console.log(`[TIMED OUT] The following players have not submitted a guess: ${timedOutPlayers}`);
@@ -372,7 +389,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({
       round: game.currentRound,
       answer: game.trackInfo?.track.game,
-      guesses: game.guesses[game.currentRound] || {},
+      guesses: guessesWithJokers,
       timedOut: timedOutPlayers
     });
   });
@@ -615,7 +632,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
 
     res.send({ 
       available,
-      used: Array.from(game.usedJokers[userId] || []) 
+      used: Object.keys(game.usedJokers[userId] || [])
     });
   });
 

@@ -1042,6 +1042,18 @@ button:disabled {
   font-weight: bold;
 }
 
+.guess-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #4e5058;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  height: 35px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .button-group {
   display: flex;
   width: 100%;
