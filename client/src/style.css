@@ -1408,6 +1408,7 @@ input[value="1"]:checked + .btn-radio.correct {
 
   .game-area {
     padding: 10px;
+    overflow: visible;
   }
 
   .grid-container, .controls {
@@ -1419,6 +1420,12 @@ input[value="1"]:checked + .btn-radio.correct {
     width: 100%;
     box-sizing: border-box;
     max-width: none;
+  }
+
+  .obfuscated-text {
+    overflow-wrap: break-word;
+    white-space: normal;
+    display: inline-block;
   }
 
   .centered {

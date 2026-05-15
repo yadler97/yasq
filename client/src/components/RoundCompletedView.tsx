@@ -50,7 +50,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
 
   return (
     <div id="results" className="centered">
-      <h2>Round {reviewData.value.round} Results</h2>
+      <h2>Results</h2>
       <p>The correct answer was: <strong>{reviewData.value.answer}</strong></p>
       
       <div id="guess-list">

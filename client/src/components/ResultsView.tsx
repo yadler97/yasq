@@ -58,7 +58,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
     return (
       <div id="results" className="centered">
         <div className="round-result-summary">
-          <h2>Round {roundData.value.round} Results</h2>
+          <h2>Results</h2>
           <hr className="divider" />
           <div className="track-details">
             <img
@@ -165,7 +165,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   return (
     <div id="results" className="centered">
       <div className="round-result-summary">
-        <h2>Round {roundData.value.round} Results</h2>
+        <h2>Results</h2>
         <hr className="divider" />
         <div className="track-details">
           <img

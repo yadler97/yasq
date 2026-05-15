@@ -48,10 +48,10 @@ gainNode.connect(audioContext.destination);
 gainNode.gain.value = DEFAULT_VOLUME_SLIDER_VAL * MAX_VOLUME;
 
 const App = () => {
-  if (!auth.value) return <div className="loading">Authenticating...</div>;
+  if (!auth.value) return <div className="centered">Authenticating...</div>;
 
   if (gameState.value.hostId === null) {
-    return <div className="loading-screen">Starting Game...</div>;
+    return <div className="centered">Starting Game...</div>;
   }
 
   const isHost = String(getUserId(auth.value)) === String(gameState.value.hostId);

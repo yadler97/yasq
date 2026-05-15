@@ -17,7 +17,11 @@ npm install
 
 2. **Configure Discord**
 - Go to the [Discord Developer Portal](https://discord.com/developers/applications).
-- Create a new Application.
+- Follow the Steps in the [Tutorial](https://docs.discord.com/developers/activities/building-an-activity):
+    - Create a new Application.
+    - Set Redirect URI in OAuth2 settings to `https://127.0.0.1`.
+    - Turn `Enable Activities` in Activity settings on.
+    - Make sure to add all additional test players as `App Testers`.
 
 3. **Set up Environment Variables**\
 Create a `.env` file in the root directory:
@@ -33,14 +37,14 @@ VITE_URL_MAPPING=<Fill Later>
 npm run dev
 ```
 
-3. **Setup Tunnel** (Terminal window 2)
+2. **Setup Tunnel** (Terminal window 2)
 ```bash
 # Example using cloudflared
 cloudflared tunnel --url http://localhost:5173
 ```
 
-4. **Update Tunnel URL**
-- Set `VITE_URL_MAPPING` in `.env`.
+3. **Update Tunnel URL**
+- Set `VITE_URL_MAPPING` in `.env` to the tunnel URL **without** `https://`.
 - Create URL Mapping in Discord Developer Portal under the Activities tab.
 
 ### Game Setup
