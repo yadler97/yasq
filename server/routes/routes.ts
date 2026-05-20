@@ -1,7 +1,7 @@
 import express from 'express';
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
-import { GameState, Joker } from '@yasq/shared';
+import {GameState, Joker, INT32_MAX_VALUE, COUNTDOWN_DURATION} from '@yasq/shared';
 import { invalidateToken, validateToken } from '../src/helper.js';
 import { isAllowed } from '../src/access_control.js';
 
@@ -195,6 +195,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
   router.post("/setup-game", async (req, res) => {
     const { instanceId, rounds, trackDuration, enabledJokers } = req.body;
     const authHeader = req.headers.authorization;
+    const maxAllowedDuration: number = Math.floor(INT32_MAX_VALUE / 1000) - COUNTDOWN_DURATION;
 
     if (!authHeader) return res.status(401).send({ error: "No token provided" });
     const token = authHeader.split(' ')[1] || "";
@@ -214,6 +215,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
 
     if (rounds <= 0 || trackDuration <= 0) {
       return res.status(400).send({ error: "Rounds and track duration must be greater than 0." });
+    }
+    if (trackDuration > maxAllowedDuration) {
+      return res.status(400).send({ error: `Rounds and track duration must not exceed ${maxAllowedDuration}.` });
     }
 
     game.setupGame(rounds, trackDuration, enabledJokers);

@@ -4,7 +4,7 @@ import {
   BASE_POINTS,
   FIRST_BONUS_MULTIPLIER,
   GameState,
-  Joker
+  Joker, COUNTDOWN_DURATION
 } from "@yasq/shared";
 
 export class GameInstance {
@@ -163,8 +163,7 @@ export class GameInstance {
   }
 
   public playTrack(track: Track): void {
-    const countdownDuration = 4000;
-    const startTime = Date.now() + countdownDuration;
+    const startTime = Date.now() + COUNTDOWN_DURATION;
     const endTime = startTime + this.settings.trackDuration;
 
     this.trackInfo = new TrackInfo(`/music/${track.audio}`, startTime, endTime, track, `/game_covers/${track.cover}`);
@@ -172,7 +171,7 @@ export class GameInstance {
     this.trackHistory.push(track.audio);
     const roundAtStart = this.currentRound;
 
-    const totalWaitTime = countdownDuration + this.settings.trackDuration;
+    const totalWaitTime = COUNTDOWN_DURATION + this.settings.trackDuration;
 
     // Set a timer to automatically transition to ROUND_COMPLETED after trackDuration
     setTimeout(() => {
