@@ -1,12 +1,46 @@
 import express from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker } from '@yasq/shared';
 import { invalidateToken, validateToken } from '../src/helper.js';
 import { isAllowed } from '../src/access_control.js';
 
+
+declare global {
+  namespace Express {
+    // Extend Request type by additional optional fields
+    interface Request {
+      userId?: string;
+      token?: string;
+    }
+  }
+}
+
 export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode: boolean, allTracks: any, allPlaylists: any) => {
   const router = express.Router();
+
+  /**
+   * Authenticate a user via the Discord OAuth2 API based on the request's authorization header.
+   */
+  async function authenticateUser(req: Request, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) return res.status(401).send({ error: "No token provided" });
+    const token = authHeader.split(' ')[1] || "";
+
+    const userId = await validateToken(token);
+
+    if (!userId) {
+      return res.status(401).send({ error: "Invalid Discord token" });
+    }
+
+    // store data for later use
+    req.token = token;
+    req.userId = userId;
+
+    next(); // pass control to next route handler in the chain
+  }
 
   router.post("/token", async (req, res) => {
     const { code } = req.body;
@@ -49,18 +83,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.sendStatus(200);
   });
 
-  router.post("/register", async (req, res) => {
+  router.post("/register", authenticateUser, async (req, res) => {
     const { instanceId } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     if (!instanceId) {
       return res.status(400).send({ error: "Missing data" });
@@ -81,18 +106,10 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.post("/deregister", async (req, res) => {
+  router.post("/deregister", authenticateUser, async (req, res) => {
     const { instanceId } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const token = req.token!;
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -119,18 +136,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.post("/ready", async (req, res) => {
+  router.post("/ready", authenticateUser, async (req, res) => {
     const { instanceId, ready } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -162,18 +170,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.post("/assign-host", async (req, res) => {
+  router.post("/assign-host", authenticateUser, async (req, res) => {
     const { instanceId, newHostId } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -225,18 +224,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({ status: GameState.LOBBY });
   });
 
-  router.post("/start-game", async (req, res) => {
+  router.post("/start-game", authenticateUser, async (req, res) => {
     const { instanceId } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -273,18 +263,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.get("/track-list", async (req, res) => {
+  router.get("/track-list", authenticateUser, async (req, res) => {
     const { instanceId } = req.query as InstanceQuery;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -315,18 +296,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.post("/submit-guess", async (req, res) => {
+  router.post("/submit-guess", authenticateUser, async (req, res) => {
     const { instanceId, guess } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -348,18 +320,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({ status: "submitted" });
   });
 
-  router.get("/get-guesses", async (req, res) => {
+  router.get("/get-guesses", authenticateUser, async (req, res) => {
     const { instanceId } = req.query as InstanceQuery;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -398,18 +361,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.post("/submit-round-results", async (req, res) => {
+  router.post("/submit-round-results", authenticateUser, async (req, res) => {
     const { instanceId, corrections } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -458,18 +412,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.post("/start-next-round", async (req, res) => {
+  router.post("/start-next-round", authenticateUser, async (req, res) => {
     const { instanceId } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -496,18 +441,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({ status: newState });
   });
 
-  router.post("/play-local", async (req, res) => {
+  router.post("/play-local", authenticateUser, async (req, res) => {
     const { fileName, instanceId } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     if (!isAllowed(userId, fileName)) {
       console.warn(`[SECURITY] User ${userId} attempted to play restricted track: ${fileName}`);
@@ -536,18 +472,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.get("/current-track", async (req, res) => {
+  router.get("/current-track", authenticateUser, async (req, res) => {
     const { instanceId } = req.query as InstanceQuery;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -585,18 +512,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({ leaderboard: game.leaderboard.getAll() || [] });
   });
 
-  router.post("/restart-game", async (req, res) => {
+  router.post("/restart-game", authenticateUser, async (req, res) => {
     const { instanceId } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -610,18 +528,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({ success: true });
   });
 
-  router.get("/get-available-jokers", async (req, res) => {
+  router.get("/get-available-jokers", authenticateUser, async (req, res) => {
     const { instanceId } = req.query as InstanceQuery;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
@@ -640,18 +549,9 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     });
   });
 
-  router.post("/use-joker", async (req, res) => {
+  router.post("/use-joker", authenticateUser, async (req, res) => {
     const { instanceId, jokerType, targetId } = req.body;
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
+    const userId = req.userId!;
 
     const game = instances[instanceId];
 
