@@ -1,7 +1,7 @@
 import express from 'express';
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
-import {GameState, Joker, INT32_MAX_VALUE, COUNTDOWN_DURATION} from '@yasq/shared';
+import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker } from '@yasq/shared';
 import { invalidateToken, validateToken } from '../src/helper.js';
 import { isAllowed } from '../src/access_control.js';
 
@@ -68,7 +68,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
 
     // If no one has registered for this instance yet, this user is the host
     if (!instances[instanceId]) {
-      instances[instanceId] = new GameInstance(userId);
+      instances[instanceId] = new GameInstance(instanceId, userId);
       console.log(`[HOST ASSIGNED] ${userId} is the host of new instance ${instanceId}`);
     }
 

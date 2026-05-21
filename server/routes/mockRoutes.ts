@@ -27,7 +27,7 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
     }
 
     // Set the mock state
-    const game = new GameInstance(hostId);
+    const game = new GameInstance(instanceId, hostId);
     const registeredUserIds = registeredUsers.map((u: { id: string; }) => u.id);
     game.registeredUsers = new Set(registeredUserIds);
     game.state = state;
