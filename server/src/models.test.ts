@@ -1,19 +1,21 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { GameInstance, Leaderboard, LeaderboardEntry, RoundResult, Tag, Track, TrackInfo, UserGuess } from './models.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { GameInstance, LeaderboardEntry, Tag, Track, TrackInfo, UserGuess } from './models.js';
 import { GameState, Joker } from '@yasq/shared';
 
 const HOST = "host_123";
+const INSTANCE_ID = "mock_instance"
 const PLAYER_1 = "player_123"
 const PLAYER_2 = "player_456"
 
 const GAME_A = "Game A"
 const GAME_B = "Game B"
+const GAME_LONG = "The Game: A Somewhat Long Subtitle"
 
 describe('GameInstance - startGame', () => {
   let game: GameInstance;
 
   beforeEach(() => {
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
     game.registeredUsers.add(HOST);
     game.registeredUsers.add(PLAYER_1);
   });
@@ -57,7 +59,7 @@ describe('GameInstance - submitGuess', () => {
 
   beforeEach(() => {
     vi.useFakeTimers(); // Intercept Date.now()
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
 
@@ -104,7 +106,7 @@ describe('GameInstance - submitGuess', () => {
 
 describe('GameInstance - getTimedOutPlayers', () => {
   it('should return list of players who have not submitted a guess', () => {
-    const game = new GameInstance(HOST);
+    const game = new GameInstance(INSTANCE_ID, HOST);
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
     game.submitGuess(PLAYER_1, GAME_A);
@@ -118,7 +120,7 @@ describe('GameInstance - submitResults', () => {
   let game: GameInstance;
 
   beforeEach(() => {
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
     game.setupGame(10, 20, []); // 20s duration = 20000ms
@@ -200,7 +202,7 @@ describe('GameInstance - advanceRound', () => {
   let game: GameInstance;
 
   beforeEach(() => {
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
     game.setupGame(3, 20, []); // 3 rounds
     game.startGame();
     game.readyUsers.add(PLAYER_1);
@@ -241,7 +243,7 @@ describe('GameInstance - playTrack', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
     game.settings.trackDuration = 10000; // 10 seconds
   });
 
@@ -299,7 +301,7 @@ describe('GameInstance - canUseJoker', () => {
   let game: GameInstance;
 
   beforeEach(() => {
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
   });
 
   it('should allow player to use joker if joker not yet used', () => {
@@ -318,17 +320,50 @@ describe('GameInstance - getPartialHint', () => {
   let game: GameInstance;
 
   beforeEach(() => {
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
   });
 
-  it('should return a string of underscores and spaces matching the title length', () => {
-    const track = new Track(GAME_A, "", "", "", []);
+  it('should return a string of underscores and special characters matching the title length', () => {
+    const track = new Track(GAME_LONG, "", "", "", []);
     game.playTrack(track);
-    const hint = game.getPartialHint();
+    const hint = game.getPartialHint(0.5);
 
-    expect(hint.length).toBe(6);
-    expect(hint).toContain('_');
-    expect(hint[4]).toBe(' ');
+    expect(hint.length).toBe(GAME_LONG.length);
+    expect(hint).toContain('_');  // chance of not getting a single underscore is virtually 0 (0.5**GAME_LONG.length)
+    expect(hint[3]).toBe(' ');
+    expect(hint[8]).toBe(':');
+    expect(hint[9]).toBe(' ');
+  });
+
+  it('should return a consistent hint for the same instance_id + solution combination', () => {
+    const track = new Track(GAME_LONG, "", "", "", []);
+
+    game.playTrack(track);
+
+    // run hint generation multiple times to be sure
+    const probabilities = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]
+    const REROLLS = 10;
+    for (const prob of probabilities) {
+      const controlHint = game.getPartialHint(prob)
+
+      for (let i = 0; i < REROLLS; i++) {
+        expect(game.getPartialHint(prob)).toBe(controlHint); // re-running must not change hint
+      }
+    }
+  });
+
+  it('should return a different hint for another game', () => {
+    const track = new Track(GAME_LONG, "", "", "", []);
+    const newGame = new GameInstance("NEW_" + INSTANCE_ID, HOST);
+
+    game.playTrack(track)
+    newGame.playTrack(track);
+
+    const controlHint = game.getPartialHint(0.5);
+    const differentHint = newGame.getPartialHint(0.5);
+
+    // This check will always be stable if it succeeds once since the hash function is seeded
+    expect(differentHint).not.toBe(controlHint);
   });
 });
 
@@ -336,7 +371,7 @@ describe('GameInstance - getTagHint', () => {
   let game: GameInstance;
 
   beforeEach(() => {
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
   });
 
   it('should return the coressponding tags', () => {
@@ -351,22 +386,23 @@ describe('GameInstance - getTagHint', () => {
 });
 
 describe('GameInstance - getAnswersHint', () => {
-  let game: GameInstance;
+  let game: GameInstance, gameSameId: GameInstance;
+
+  const correctTrack = new Track(GAME_A, "Track A", "1", "", [])
+  const wrongTracks = [
+    new Track("Game B", "Track B", "2", "", []),
+    new Track("Game C", "Track C", "3", "", []),
+    new Track("Game D", "Track D", "4", "", []),
+    new Track("Game E", "Track E", "5", "", [])
+  ];
+  const allTracks = [correctTrack, ...wrongTracks];
 
   beforeEach(() => {
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
+    gameSameId = new GameInstance(INSTANCE_ID, HOST);
   });
 
   it('should return a list of four answers (correct + three wrong)', () => {
-    const correctTrack = new Track(GAME_A, "Track A", "1", "", [])
-    const wrongTracks = [
-      new Track("Game B", "Track B", "2", "", []),
-      new Track("Game C", "Track C", "3", "", []),
-      new Track("Game D", "Track D", "4", "", []),
-      new Track("Game E", "Track E", "5", "", [])
-    ];
-    const allTracks = [correctTrack, ...wrongTracks];
-
     game.playTrack(correctTrack);
     const hint = game.getMultipleChoiceHint(allTracks);
 
@@ -386,13 +422,26 @@ describe('GameInstance - getAnswersHint', () => {
       expect(wrongTitles).toContain(title);
     });
   });
+
+  it('should return the same list of answers for the same instance_id + solution combination', () => {
+    game.playTrack(correctTrack);
+    gameSameId.playTrack(correctTrack);
+
+    // run hint generation multiple times to be sure
+    for (let i = 0; i < 10; i++) {
+      const controlHint = game.getMultipleChoiceHint(allTracks);
+
+      expect(game.getMultipleChoiceHint(allTracks)).toStrictEqual(controlHint); // re-running must not change hint
+      expect(gameSameId.getMultipleChoiceHint(allTracks)).toStrictEqual(controlHint);
+    }
+  })
 });
 
 describe('GameInstance - pickNewHost', () => {
   let game: GameInstance;
 
   beforeEach(() => {
-    game = new GameInstance(HOST);
+    game = new GameInstance(INSTANCE_ID, HOST);
   });
 
   it('should return false if there are no more registered users', () => {

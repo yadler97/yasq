@@ -1,13 +1,17 @@
 import {
+  BASE_POINTS,
+  COUNTDOWN_DURATION,
   DEFAULT_ROUNDS,
   DEFAULT_TRACK_DURATION,
-  BASE_POINTS,
   FIRST_BONUS_MULTIPLIER,
   GameState,
-  Joker, COUNTDOWN_DURATION
+  Joker
 } from "@yasq/shared";
+import MersenneTwister from 'mersenne-twister';
+import { hash } from "./helper.js";
 
 export class GameInstance {
+  public instanceId: string;
   public registeredUsers: Set<string> = new Set();
   public hostId: string | null;
   public state: string = GameState.SETUP;
@@ -23,7 +27,8 @@ export class GameInstance {
   public lastWinnerId: string | null = null;
   public usedJokers: Record<string, Partial<Record<Joker, number>>> = {};
 
-  constructor(hostId: string) {
+  constructor(instanceId: string, hostId: string) {
+    this.instanceId = instanceId
     this.hostId = hostId;
     this.settings = { rounds: DEFAULT_ROUNDS, trackDuration: DEFAULT_TRACK_DURATION, enabledJokers: new Set() };
   }
@@ -210,12 +215,15 @@ export class GameInstance {
     const title = this.trackInfo?.track.game;
     if (!title) return "";
 
+    const seed: number = this.hashWithGameState(title)
+    const generator = new MersenneTwister(seed);
+
     return title.split("").map(c => {
       // Keep special characters
       if (!/[a-zA-Z0-9]/.test(c)) return c;
-      
+
       // Obfuscate the rest, but keep a few characters
-      return Math.random() < revealPercent ? c : "_";
+      return generator.random() < revealPercent ? c : "_";
     }).join("");
   }
 
@@ -234,16 +242,19 @@ export class GameInstance {
         .filter(title => title !== correctAnswer)
     ));
 
+    const seed: number = this.hashWithGameState(correctAnswer)
+    const generator = new MersenneTwister(seed);
+
     // Randomly pick 3 wrong answers
     // We sort by a random value and take the first 3
     const wrongAnswers = otherTitles
-      .sort(() => 0.5 - Math.random())
+      .sort(() => 0.5 - generator.random())
       .slice(0, 3);
 
     // Combine with the correct answer and shuffle the final 4
     const finalChoices = [correctAnswer, ...wrongAnswers];
     
-    return finalChoices.sort(() => 0.5 - Math.random());
+    return finalChoices.sort(() => 0.5 - generator.random());
   }
 
   public getSpyHint(userId: string): string | null {
@@ -267,6 +278,10 @@ export class GameInstance {
 
     this.hostId = remainingPlayers[0] ?? null;
     return true;
+  }
+
+  private hashWithGameState(str: string): number {
+    return hash(`${this.instanceId}-${str}-${this.currentGame}-${this.currentRound}`);
   }
 
   toJSON() {
@@ -362,7 +377,7 @@ export class LeaderboardEntry {
 }
 
 export class Leaderboard {
-  private entries: LeaderboardEntry[] = [];
+  private readonly entries: LeaderboardEntry[] = [];
 
   constructor(entries: LeaderboardEntry[] = []) {
     this.entries = entries;

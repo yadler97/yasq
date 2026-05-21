@@ -41,3 +41,12 @@ export async function validateToken(token: string) {
 export function invalidateToken(token: string) {
   return tokenCache.delete(token);
 }
+
+export function hash(str: string): number {
+  let h: number = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = 13 * h + str.charCodeAt(i);
+    h &= 0xFFFFFFFF   // only keep lower 32 bits
+  }
+  return h & 0xFFFFFFFF
+}
