@@ -117,7 +117,7 @@ export class GameInstance {
 
       if (scoreMultiplier > 0) {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
-        const timeMultiplier = this.calculateDelayedLinearDecayMultiplier(timeTaken, firstCorrectTime);
+        const timeMultiplier = Math.max(1, this.calculateDelayedLinearDecayMultiplier(timeTaken, firstCorrectTime));
         pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
         if (isFirst) pointsEarned *= FIRST_BONUS_MULTIPLIER;
       }
