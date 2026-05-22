@@ -2,9 +2,9 @@ name: YASQ CI Test Suite
 
 on:
   push:
-    branches: [ main, ci-test ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, ci-test ]
+    branches: [ main ]
 
 jobs:
   # Job 1: Run Unit Tests
