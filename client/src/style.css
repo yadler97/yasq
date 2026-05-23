@@ -6,6 +6,7 @@
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
+  user-select: none;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -33,7 +34,7 @@ body {
 
 .version {
   position: fixed;
-  bottom: 0px;
+  bottom: 0;
   left: 12px;
   font-size: 0.75rem;
   color: #b9bbbe;
@@ -168,7 +169,7 @@ input:hover {
 
   width: 18px;
   height: 18px;
-  border: 1.5px solid #4f545c;
+  border: 1pt solid #4f545c;
   border-radius: 4px;
   background-color: transparent;
   cursor: pointer;
@@ -220,11 +221,10 @@ button:disabled {
   gap: 20px;
   width: 100%;
   max-width: 400px;
-  margin: 0 auto;
+  margin: 0 auto 20px;
   padding: 20px;
   background: #2f3136;
   border-radius: 8px;
-  margin-bottom: 20px;
 }
 
 .divider {
@@ -267,7 +267,7 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid #4e5058;
+  border: 1pt solid #4e5058;
   border-radius: 8px;
   background-color: #1a1a1a;
   aspect-ratio: 1 / 1;
@@ -276,7 +276,7 @@ button:disabled {
 
 .joker-indicator:hover {
   background-color: #2f3136;
-  border: 1.5px solid #5865f2;
+  border: 1pt solid #5865f2;
   box-shadow: 0 0 12px rgba(88, 101, 242, 0.3);
   cursor: help;
 }
@@ -985,7 +985,7 @@ button:disabled {
 }
 
 #progress-bar {
-  width: 0%;
+  width: 0;
   height: 100%;
   background-color: #5865f2; /* Discord Blurple */
   transition: width 1s linear;
@@ -1050,7 +1050,7 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1.5px solid #4e5058;
+  border: 1pt solid #4e5058;
   border-radius: 8px;
   background-color: #1a1a1a;
   height: 35px;
@@ -1115,8 +1115,7 @@ input[value="1"]:checked + .btn-radio.correct {
   border-radius: 8px;
   width: 100%;
   max-width: 500px;
-  margin: 0 auto;
-  margin-bottom: 20px;
+  margin: 0 auto 20px;
   color: white;
 }
 
@@ -1345,11 +1344,11 @@ input[value="1"]:checked + .btn-radio.correct {
 .badge.winner {
   background-color: #f1c40f; /* Gold */
   text-shadow:
-    1px  1px 0px #000,
-   -1px -1px 0px #000,
-    1px -1px 0px #000,
-   -1px  1px 0px #000,
-    0px  0px 4px rgba(0, 0, 0, 0.8);
+    1px  1px 0 #000,
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px  1px 0 #000,
+    0  0 4px rgba(0, 0, 0, 0.8);
 }
 
 #admin-button:disabled {
@@ -1412,8 +1411,8 @@ input[value="1"]:checked + .btn-radio.correct {
   }
 
   .grid-container, .controls {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
   }
 
   .host-settings, .settings-info, .round-result-summary, .track-picker-container {
@@ -1450,9 +1449,8 @@ input[value="1"]:checked + .btn-radio.correct {
     width: 100%;
     left: 0;
     text-align: center;
-    padding: 20px 0;
     box-sizing: border-box;
-    padding-bottom: env(safe-area-inset-bottom, 20px);
+    padding: 20px 0 env(safe-area-inset-bottom, 20px);
     opacity: 0.6;
   }
 }
