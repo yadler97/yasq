@@ -97,12 +97,16 @@ export class GameInstance {
     });
 
     // 2. Identify the fastest correct guess for this round
-    let fastestUserId = "";
-    let firstCorrectTime = Infinity;
+    let fastestFullyCorrectUserId = "";
+    let firstFullyCorrectTime = Infinity;
+    let firstPartiallyCorrectTime = Infinity;
     Object.entries(roundGuesses).forEach(([userId, data]) => {
-      if (data.scoreValue === 1 && data.timeTaken < firstCorrectTime) {
-        firstCorrectTime = data.timeTaken;
-        fastestUserId = userId;
+      if (data.scoreValue === 1 && data.timeTaken < firstFullyCorrectTime) {
+        firstFullyCorrectTime = data.timeTaken;
+        fastestFullyCorrectUserId = userId;
+      }
+      if (data.scoreValue > 0 && data.timeTaken < firstPartiallyCorrectTime) {
+        firstPartiallyCorrectTime = data.timeTaken
       }
     });
 
@@ -112,12 +116,12 @@ export class GameInstance {
 
       const data = roundGuesses[userId];
       const scoreMultiplier = data?.scoreValue || 0;
-      const isFirst = userId === fastestUserId;
+      const isFirst = userId === fastestFullyCorrectUserId;
       let pointsEarned = 0;
 
       if (scoreMultiplier > 0) {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
-        const timeMultiplier = Math.max(1, this.calculateDelayedLinearDecayMultiplier(timeTaken, firstCorrectTime));
+        const timeMultiplier = Math.max(1, this.calculateDelayedLinearDecayMultiplier(timeTaken, firstPartiallyCorrectTime));
         pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
         if (isFirst) pointsEarned *= FIRST_BONUS_MULTIPLIER;
       }

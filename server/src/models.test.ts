@@ -157,7 +157,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.roundHistory[0]?.scoreValue).toBe(1);
 
     // Math for Player 2:
-    // FirstCorrect = 5000
+    // Recall: FirstCorrect = 5000
     // Multiplier = 2 - ((10000-5000) / (20000 - 5000)) = 1.6666
     // Base = 100 * 1.0 * 1.6666 = 166.6 ~= 167
     // No First Bonus
@@ -168,7 +168,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]?.scoreValue).toBe(1);
 
     // Math for Player 3:
-    // FirstCorrect = 5000
+    // Recall: FirstCorrect = 5000
     // Multiplier = 2 - ((15000-5000) / (20000 - 5000)) = 1.3333
     // Base = 100 * 1.0 * 1.3333 = 133.3 ~= 133
     // No First Bonus
@@ -180,8 +180,8 @@ describe('GameInstance - submitResults', () => {
   });
 
   it('should handle incorrect guesses correctly and assign first bonus to first correct player', () => {
-    // Host only marks Player 1 as incorrect (Score Value = 0.0) and the others as correct (Score Value = 1.0)
-    game.submitResults({ [PLAYER_1]: 0, [PLAYER_2]: 1, [PLAYER_3]: 1 });
+    // Host only marks Player 1 as incorrect (Score Value = 0.0), Player 2 as partially correct (0.5) and Player 3 fully correct (1.0)
+    game.submitResults({ [PLAYER_1]: 0, [PLAYER_2]: 0.5, [PLAYER_3]: 1 });
 
     const entry1 = game.leaderboard.getEntry(PLAYER_1);
     const entry2 = game.leaderboard.getEntry(PLAYER_2);
@@ -195,25 +195,54 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.roundHistory[0]?.scoreValue).toBe(0);
 
     // Math for Player 2:
-    // Multiplier = 2 (first correct guess) => FirstCorrect = 10000
-    // Base = 100 * 1.0 * 2 = 200
-    // First Bonus = 200 * 1.2 = 240
+    // Multiplier = 2 (first partially correct guess) => FirstCorrect = 10000
+    // Base = 100 * 0.5 * 2 = 100
+    // No First Bonus
     expect(entry2).toBeDefined();
-    expect(entry2!.totalScore).toBe(240);
+    expect(entry2!.totalScore).toBe(100);
     expect(entry2!.roundHistory).toHaveLength(1);
-    expect(entry2!.roundHistory[0]?.isFirst).toBe(true);
-    expect(entry2!.roundHistory[0]?.scoreValue).toBe(1);
+    expect(entry2!.roundHistory[0]?.isFirst).toBe(false);
+    expect(entry2!.roundHistory[0]?.scoreValue).toBe(0.5);
 
     // Math for Player 3:
-    // FirstCorrect = 10000
+    // Recall: FirstCorrect = 10000
     // Multiplier = 2 - ((15000-10000) / (20000 - 10000)) = 1.5
     // Base = 100 * 1.0 * 1.5 = 150
-    // No First Bonus
+    // First Bonus = 150 * 1.2 = 180
     expect(entry3).toBeDefined();
-    expect(entry3!.totalScore).toBe(150);
+    expect(entry3!.totalScore).toBe(180);
     expect(entry3!.roundHistory).toHaveLength(1);
-    expect(entry3!.roundHistory[0]?.isFirst).toBe(false);
+    expect(entry3!.roundHistory[0]?.isFirst).toBe(true);
     expect(entry3!.roundHistory[0]?.scoreValue).toBe(1);
+  });
+
+  it('should correctly handle time multipliers and first-place bonus if there were no fully correct answers', () => {
+    // Host marks both answers as only partially correct (Score Value = 0.5)
+    game.submitResults({ [PLAYER_1]: 0.5, [PLAYER_2]: 0.5 });
+
+    const entry1 = game.leaderboard.getEntry(PLAYER_1);
+    const entry2 = game.leaderboard.getEntry(PLAYER_2);
+
+    // Math for Player 1:
+    // Multiplier = 2 (first partially correct guess) => FirstCorrect = 5000
+    // Base = 100 * 0.5 * 2 = 100
+    // No First Bonus
+    expect(entry1).toBeDefined();
+    expect(entry1!.totalScore).toBe(100);
+    expect(entry1!.roundHistory).toHaveLength(1);
+    expect(entry1!.roundHistory[0]?.isFirst).toBe(false);
+    expect(entry1!.roundHistory[0]?.scoreValue).toBe(0.5);
+
+    // Math for Player 2:
+    // Recall: FirstCorrect = 5000
+    // Multiplier = 2 - ((10000-5000) / (20000 - 5000)) = 1.6666
+    // Base = 100 * 0.5 * 1.6666 = 83.333 ~= 83
+    // No First Bonus
+    expect(entry2).toBeDefined();
+    expect(entry2!.totalScore).toBe(83);
+    expect(entry2!.roundHistory).toHaveLength(1);
+    expect(entry2!.roundHistory[0]?.isFirst).toBe(false);
+    expect(entry2!.roundHistory[0]?.scoreValue).toBe(0.5);
   });
 
   it('should transition to RESULTS state and reset guessedPlayers', () => {
