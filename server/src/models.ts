@@ -3,9 +3,13 @@ import {
   COUNTDOWN_DURATION,
   DEFAULT_ROUNDS,
   DEFAULT_TRACK_DURATION,
+  EXPONENTIAL_DECAY_INTENSITY,
   FIRST_BONUS_MULTIPLIER,
   GameState,
-  Joker
+  Joker,
+  MAX_TIME_MULTIPLIER,
+  MIN_TIME_MULTIPLIER,
+  TimeBonusType
 } from "@yasq/shared";
 import MersenneTwister from 'mersenne-twister';
 import { hash } from "./helper.js";
@@ -30,18 +34,19 @@ export class GameInstance {
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId
     this.hostId = hostId;
-    this.settings = { rounds: DEFAULT_ROUNDS, trackDuration: DEFAULT_TRACK_DURATION, enabledJokers: new Set() };
+    this.settings = Settings.default();
   }
 
   public isHost(userId: string): boolean {
     return this.hostId === userId;
   }
 
-  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[]): void {
+  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[], timeBonus: TimeBonusType): void {
     this.settings = new Settings(
       rounds || DEFAULT_ROUNDS,
       (trackDuration * 1000) || DEFAULT_TRACK_DURATION,
-      new Set(enabledJokers)
+      new Set(enabledJokers),
+      timeBonus
     );
     this.state = GameState.LOBBY;
   }
@@ -121,7 +126,7 @@ export class GameInstance {
 
       if (scoreMultiplier > 0) {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
-        const timeMultiplier = Math.max(1, this.calculateDelayedLinearDecayMultiplier(timeTaken, firstPartiallyCorrectTime));
+        const timeMultiplier = this.calculateTimeMultiplier(timeTaken, firstPartiallyCorrectTime);
         pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
         if (isFirst) pointsEarned *= FIRST_BONUS_MULTIPLIER;
       }
@@ -152,12 +157,13 @@ export class GameInstance {
     this.guessedPlayers = new Set();
   }
 
-  private calculateDelayedLinearDecayMultiplier(evaluationTime: number, delay: number) : number {
-    // linear function passing through (delay, 2) and (maxTime, 1)
-    const maxTime = this.settings.trackDuration;
-    const multiplier = 2 - ((evaluationTime - delay) / (maxTime - delay));
+  public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
+    const totalTime = this.settings.trackDuration;
 
-    return Number(multiplier.toFixed(4));
+    const timeMultiplierFunction: TimeMultiplierFunction = TIME_MULTIPLIERS[this.settings.timeBonus];
+    const multiplier = timeMultiplierFunction(evaluationTime, firstSuccessTime, totalTime);
+
+    return Math.min(MAX_TIME_MULTIPLIER, Math.max(MIN_TIME_MULTIPLIER, multiplier));
   }
 
   public advanceRound(): string {
@@ -311,9 +317,66 @@ export class Settings {
   constructor(
     public rounds: number,
     public trackDuration: number,
-    public enabledJokers: Set<Joker>
+    public enabledJokers: Set<Joker>,
+    public timeBonus: TimeBonusType
   ) {}
+
+  public static default(): Settings {
+    return new Settings(
+      DEFAULT_ROUNDS,
+      DEFAULT_TRACK_DURATION,
+      new Set(),
+      TimeBonusType.LINEAR
+    );
+  }
 }
+
+type TimeMultiplierFunction = (evaluationTime: number, firstSuccessTime: number, totalTime: number) => number;
+
+const TIME_MULTIPLIERS: Record<TimeBonusType, TimeMultiplierFunction> = {
+  /** Constant function at half the amplitude between MIN and MAX */
+  [TimeBonusType.CONSTANT]: () => (MAX_TIME_MULTIPLIER + MIN_TIME_MULTIPLIER) / 2.0,
+
+  /** Linear function passing through (first, MAX) and (total, MIN) */
+  [TimeBonusType.LINEAR]: (elapsed, first, total) => {
+    // Stay constant at MAX until the first successful answer
+    if (elapsed <= first || elapsed <= 0) {
+      return MAX_TIME_MULTIPLIER;
+    }
+    // Stay constant at MIN from the end of the round
+    if (elapsed >= total || total <= first) {
+      return MIN_TIME_MULTIPLIER;
+    }
+
+    // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]
+    const decayFraction = (elapsed - first) / (total - first);
+    return MAX_TIME_MULTIPLIER - (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * decayFraction;
+  },
+
+  /**
+   * Exponential decay function passing through (first, MAX) and (total, MIN) decaying with rate
+   * e^({@link EXPONENTIAL_DECAY_INTENSITY} * elapsed)
+   */
+  [TimeBonusType.EXPONENTIAL]: (elapsed, first, total) => {
+    // Stay constant at MAX until the first successful answer
+    if (elapsed <= first || elapsed <= 0) {
+      return MAX_TIME_MULTIPLIER;
+    }
+    // Stay constant at MIN from the end of the round
+    if (elapsed >= total || total <= first) {
+      return MIN_TIME_MULTIPLIER;
+    }
+
+    const k = EXPONENTIAL_DECAY_INTENSITY;  // larger values mean faster decay
+
+    // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]
+    const x = (elapsed - first) / (total - first);
+
+    // Shift function to match 1 at x=0 and 0 at x=1
+    const decayFraction = (Math.exp(-k * x) - Math.exp(-k)) / (1 - Math.exp(-k));
+    return MIN_TIME_MULTIPLIER + (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * decayFraction;
+  },
+};
 
 export class Track {
   constructor(

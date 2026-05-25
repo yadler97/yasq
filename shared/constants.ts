@@ -1,4 +1,4 @@
-export enum GameState {
+export const enum GameState {
   SETUP = 'SETUP',
   LOBBY = 'LOBBY',
   TRACK_SELECTION = 'TRACK_SELECTION',
@@ -8,19 +8,43 @@ export enum GameState {
   GAME_FINISHED = 'GAME_FINISHED'
 }
 
-export enum Joker {
+export const enum Joker {
   OBFUSCATION = 'OBFUSCATION',
   TRIVIA = 'TRIVIA',
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
   SPY = 'SPY'
 }
 
+export enum TimeBonusType {
+  /**
+   * **Steady decay:**
+   * Multiplier decreases linearly over time starting from the first successful answer.
+   */
+  LINEAR = 'LINEAR',
+  /**
+   * **Sharp decay:**
+   * Multiplier decreases exponentially over time starting from the first successful answer.
+   */
+  EXPONENTIAL = 'EXPONENTIAL',
+  /**
+   * **No decay:**
+   * No reward or penalty assigned based on answer speed.
+   */
+  CONSTANT = 'CONSTANT',
+}
+
 export const MAX_VOLUME: number = 0.25;
 export const DEFAULT_VOLUME_SLIDER_VAL: number = 0.5;
 export const POLLING_INTERVAL: number = 500;
+
+export const COUNTDOWN_DURATION: number = 4000;
 export const DEFAULT_TRACK_DURATION: number = 60000;
 export const DEFAULT_ROUNDS: number = 5;
+
 export const BASE_POINTS: number = 100;
+export const MAX_TIME_MULTIPLIER: number = 2.0;
+export const MIN_TIME_MULTIPLIER: number = 1.0;
+export const EXPONENTIAL_DECAY_INTENSITY: number = 1.0;
 export const FIRST_BONUS_MULTIPLIER: number = 1.2;
+
 export const INT32_MAX_VALUE: number = 2**31 - 1;
-export const COUNTDOWN_DURATION: number = 4000;

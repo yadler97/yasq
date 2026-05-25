@@ -1,8 +1,8 @@
-import express from 'express';
 import type { NextFunction, Request, Response } from 'express';
+import express from 'express';
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
-import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker } from '@yasq/shared';
+import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker, TimeBonusType } from '@yasq/shared';
 import { invalidateToken, validateToken } from '../src/helper.js';
 import { isAllowed } from '../src/access_control.js';
 
@@ -219,7 +219,8 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(400).send({ error: `Track duration must not exceed ${maxAllowedDuration}.` });
     }
 
-    game.setupGame(rounds, trackDuration, enabledJokers);
+    // TODO Let client choose TimeBonusType
+    game.setupGame(rounds, trackDuration, enabledJokers, TimeBonusType.LINEAR);
     console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}, enabledJokers: ${[...game.settings.enabledJokers]}!`);
     res.send({ status: GameState.LOBBY });
   });
