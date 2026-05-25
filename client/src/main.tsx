@@ -5,7 +5,7 @@ import { DiscordSDK } from "@discord/embedded-app-sdk";
 import * as backend from "./utils/backend";
 import { getUserId } from "./utils/helper";
 import { Participant, GameStatus } from "./utils/types";
-import { GameState, MAX_VOLUME, DEFAULT_VOLUME_SLIDER_VAL, POLLING_INTERVAL } from '@yasq/shared';
+import { GameState, MAX_VOLUME, DEFAULT_VOLUME_SLIDER_VAL, POLLING_INTERVAL, FirstBonusMultiplier } from '@yasq/shared';
 import { mockDiscordSdk } from "../../mock_data/mockDiscordSdk";
 
 import { GameHeader } from './components/GameHeader';
@@ -35,7 +35,8 @@ export const gameState = signal<GameStatus>({
   lastWinnerId: null,
   rounds: 0,
   trackDuration: 0,
-  enabledJokers: []
+  enabledJokers: [],
+  firstBonusMultiplier: FirstBonusMultiplier.X1_2
 });
 export const participants = signal<Participant[]>([]);
 export const volume = signal(DEFAULT_VOLUME_SLIDER_VAL);

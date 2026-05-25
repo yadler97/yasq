@@ -1,4 +1,4 @@
-import { Joker } from "@yasq/shared";
+import { FirstBonusMultiplier, Joker } from "@yasq/shared";
 
 export interface Participant {
   id: string;
@@ -19,6 +19,7 @@ export interface GameStatus {
   rounds: number;
   trackDuration: number;
   enabledJokers: Joker[];
+  firstBonusMultiplier: FirstBonusMultiplier;
 }
 
 export interface Track {

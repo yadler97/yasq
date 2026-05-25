@@ -1,4 +1,4 @@
-import { Joker } from "@yasq/shared";
+import { FirstBonusMultiplier, Joker } from "@yasq/shared";
 
 export async function getToken(code: string) {
   const response = await fetch("/api/token", {
@@ -60,7 +60,7 @@ export async function getGameStatus(instanceId: string) {
   return response.json();
 }
 
-export async function setupGame(access_token: string, instanceId: string, rounds: number = 5, trackDuration: number = 30, enabledJokers: Joker[] = []) {
+export async function setupGame(access_token: string, instanceId: string, rounds: number = 5, trackDuration: number = 30, enabledJokers: Joker[] = [], firstBonusMultiplier: FirstBonusMultiplier = FirstBonusMultiplier.X1_2) {
   return fetch("/api/setup-game", {
     method: "POST",
     headers: {
@@ -71,7 +71,8 @@ export async function setupGame(access_token: string, instanceId: string, rounds
       instanceId,
       rounds,
       trackDuration,
-      enabledJokers: Array.isArray(enabledJokers) ? enabledJokers : [...enabledJokers]
+      enabledJokers: Array.isArray(enabledJokers) ? enabledJokers : [...enabledJokers],
+      firstBonusMultiplier
     }),
   });
 }

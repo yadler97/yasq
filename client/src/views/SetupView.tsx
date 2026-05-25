@@ -4,8 +4,9 @@ import * as backend from "../utils/backend";
 import { participants, discordSdk, auth, gameState } from "../main";
 import { getDisplayName, getAvatarUrl } from "../utils/helper";
 import { ALL_JOKER_ICONS } from "./JokerIcons";
-import { DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION, Joker } from "@yasq/shared";
+import { DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION, FirstBonusMultiplier, Joker } from "@yasq/shared";
 import { NonDraggableImg } from "../components/NonDraggableImg";
+import { Fragment } from "preact/jsx-runtime";
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
   const roundCount = useSignal(gameState.value.rounds || DEFAULT_ROUNDS);
@@ -13,6 +14,11 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     ? gameState.value.trackDuration / 1000
     : DEFAULT_TRACK_DURATION);
   const isSubmitting = useSignal(false);
+  const isAdvancedOpen = useSignal(false);
+  const firstBonusMultiplier = useSignal<FirstBonusMultiplier>(
+    gameState.value.firstBonusMultiplier || FirstBonusMultiplier.OFF
+  );
+
   const activeJokers = useSignal<Set<Joker>>(
     new Set(
       gameState.value.enabledJokers.length > 0
@@ -39,7 +45,8 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
         discordSdk.instanceId,
         roundCount.value,
         trackDuration.value,
-        [...activeJokers.value]
+        [...activeJokers.value],
+        firstBonusMultiplier.value
       );
     } catch (e) {
       console.error("Setup failed:", e);
@@ -96,6 +103,52 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                 );
               })}
             </div>
+          </div>
+
+          <div className="advanced-settings-section">
+            <button
+              type="button"
+              className="advanced-toggle-btn"
+              onClick={() => (isAdvancedOpen.value = !isAdvancedOpen.value)}
+            >
+              <span>Advanced Settings</span>
+              <span className={`arrow-indicator ${isAdvancedOpen.value ? "open" : ""}`}>▶</span>
+            </button>
+
+            {isAdvancedOpen.value && (
+              <div className="advanced-content-panel">
+                <div className="setting-item vertical">
+                  <span>First Correct Answer Bonus</span>
+                  <div className="button-group">
+                    {[
+                      { value: FirstBonusMultiplier.OFF, label: "Off" },
+                      { value: FirstBonusMultiplier.X1_1, label: "1.1x" },
+                      { value: FirstBonusMultiplier.X1_2, label: "1.2x" },
+                      { value: FirstBonusMultiplier.X1_3, label: "1.3x" },
+                    ].map((option) => (
+                      <Fragment key={option.value}>
+                        <input
+                          type="radio"
+                          id={`bonus-${option.value}`}
+                          name="first-bonus"
+                          value={option.value}
+                          checked={firstBonusMultiplier.value === option.value}
+                          onChange={(e) => {
+                            firstBonusMultiplier.value = option.value;
+                          }}
+                        />
+                        <label
+                          htmlFor={`bonus-${option.value}`}
+                          className={`btn-radio ${firstBonusMultiplier.value === option.value ? "active" : ""}`}
+                        >
+                          {option.label}
+                        </label>
+                      </Fragment>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <button id="btn-start" disabled={isSubmitting.value} onClick={handleConfirmSettings}>

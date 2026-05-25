@@ -1,9 +1,10 @@
 import {
   BASE_POINTS,
   COUNTDOWN_DURATION,
+  DEFAULT_FIRST_BONUS_MULTIPLIER,
   DEFAULT_ROUNDS,
   DEFAULT_TRACK_DURATION,
-  FIRST_BONUS_MULTIPLIER,
+  FirstBonusMultiplier,
   GameState,
   Joker
 } from "@yasq/shared";
@@ -30,18 +31,24 @@ export class GameInstance {
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId
     this.hostId = hostId;
-    this.settings = { rounds: DEFAULT_ROUNDS, trackDuration: DEFAULT_TRACK_DURATION, enabledJokers: new Set() };
+    this.settings = {
+      rounds: DEFAULT_ROUNDS,
+      trackDuration: DEFAULT_TRACK_DURATION,
+      enabledJokers: new Set(),
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+    };
   }
 
   public isHost(userId: string): boolean {
     return this.hostId === userId;
   }
 
-  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[]): void {
+  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[], firstBonusMultiplier: FirstBonusMultiplier): void {
     this.settings = new Settings(
       rounds || DEFAULT_ROUNDS,
       (trackDuration * 1000) || DEFAULT_TRACK_DURATION,
-      new Set(enabledJokers)
+      new Set(enabledJokers),
+      firstBonusMultiplier
     );
     this.state = GameState.LOBBY;
   }
@@ -123,7 +130,7 @@ export class GameInstance {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
         const timeMultiplier = Math.max(1, this.calculateDelayedLinearDecayMultiplier(timeTaken, firstPartiallyCorrectTime));
         pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
-        if (isFirst) pointsEarned *= FIRST_BONUS_MULTIPLIER;
+        if (isFirst) pointsEarned *= this.settings.firstBonusMultiplier;
       }
 
       // Round to avoid fractional points and ensure it's an integer
@@ -311,7 +318,8 @@ export class Settings {
   constructor(
     public rounds: number,
     public trackDuration: number,
-    public enabledJokers: Set<Joker>
+    public enabledJokers: Set<Joker>,
+    public firstBonusMultiplier: FirstBonusMultiplier
   ) {}
 }
 

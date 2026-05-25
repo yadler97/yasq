@@ -192,7 +192,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
   });
 
   router.post("/setup-game", async (req, res) => {
-    const { instanceId, rounds, trackDuration, enabledJokers } = req.body;
+    const { instanceId, rounds, trackDuration, enabledJokers, firstBonusMultiplier } = req.body;
     const authHeader = req.headers.authorization;
     const maxAllowedDuration: number = Math.floor(INT32_MAX_VALUE / 1000) - COUNTDOWN_DURATION;
 
@@ -219,8 +219,8 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(400).send({ error: `Track duration must not exceed ${maxAllowedDuration}.` });
     }
 
-    game.setupGame(rounds, trackDuration, enabledJokers);
-    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}, enabledJokers: ${[...game.settings.enabledJokers]}!`);
+    game.setupGame(rounds, trackDuration, enabledJokers, firstBonusMultiplier);
+    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}, enabledJokers: ${[...game.settings.enabledJokers]}, firstBonusMultiplier: ${game.settings.firstBonusMultiplier}!`);
     res.send({ status: GameState.LOBBY });
   });
 
@@ -259,7 +259,8 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       lastWinnerId: game.lastWinnerId,
       rounds: game.settings.rounds,
       trackDuration: game.settings.trackDuration,
-      enabledJokers: [...game.settings.enabledJokers]
+      enabledJokers: [...game.settings.enabledJokers],
+      firstBonusMultiplier: game.settings.firstBonusMultiplier
     });
   });
 

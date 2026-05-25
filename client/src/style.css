@@ -132,7 +132,7 @@ img {
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 20px;
   background: var(--bg-sidebar-card);
@@ -537,6 +537,58 @@ button:disabled {
 #volume-slider {
   margin: auto;
   width: 100%;
+}
+
+.advanced-settings-section {
+  margin: 16px 0;
+  width: 100%;
+}
+
+.advanced-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 4px;
+}
+
+.advanced-toggle-btn:hover {
+  color: var(--text-main);
+  background-color: transparent;
+}
+
+.arrow-indicator {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.arrow-indicator.open {
+  transform: rotate(90deg);
+}
+
+.advanced-content-panel {
+  padding: 12px 4px;
+  border-top: 1px dashed var(--border-muted);
+  margin-top: 4px;
+}
+
+.setting-item.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+input[type="radio"]:checked + .btn-radio {
+  background-color: var(--blurple);
+  color: var(--fixed-white);
 }
 
 .transfer-controls-row {
