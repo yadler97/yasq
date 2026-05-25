@@ -22,6 +22,7 @@
   --border-input-header: #4e5058;
   --tags: #4f545c;
   --divider: #444444;
+  --shimmer-color: rgba(255, 255, 255, 0.15);
 
   --fixed-white: #ffffff;
   --blurple: #5865f2;
@@ -49,6 +50,7 @@
     --border-input-header: #c4c7cc;
     --tags: #e6e6e6;
     --divider: #cccccc;
+    --shimmer-color: rgba(0, 0, 0, 0.04);
   }
 }
 
@@ -233,7 +235,7 @@ input:hover {
   content: "";
   width: 10px;
   height: 10px;
-  background-color: white;
+  background-color: var(--fixed-white);
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
 }
 
@@ -365,7 +367,7 @@ button:disabled {
 
 .ready-btn.ready {
   background-color: var(--green);
-  color: white;
+  color: var(--fixed-white);
 }
 
 .ready-btn {
@@ -863,7 +865,7 @@ button:disabled {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.7);
-  color: white;
+  color: var(--fixed-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -878,16 +880,16 @@ button:disabled {
 .game-name { display: block; font-weight: bold; font-size: 0.9em; color: var(--text-main); }
 .track-title { display: block; font-size: 0.8em; color: var(--text-muted); }
 
-.select-btn {
+.track-select-btn {
   background: var(--blurple);
-  color: white;
+  color: var(--fixed-white);
   border: none;
   padding: 8px;
   cursor: pointer;
   width: 100%;
 }
 
-.select-btn:disabled {
+.track-select-btn:disabled {
   background: var(--border-muted);
   cursor: not-allowed;
 }
@@ -1307,7 +1309,7 @@ input[value="1"]:checked + .btn-radio.correct {
     to bottom right,
     rgba(255, 255, 255, 0) 0%,
     rgba(255, 255, 255, 0) 45%,
-    rgba(255, 255, 255, 0.15) 50%,
+    var(--shimmer-color) 50%,
     rgba(255, 255, 255, 0) 55%,
     rgba(255, 255, 255, 0) 100%
   );
@@ -1375,7 +1377,7 @@ input[value="1"]:checked + .btn-radio.correct {
   display: inline-flex;
   margin-left: 5px;
   font-size: 10px;
-  color: white;
+  color: var(--fixed-white);
   padding: 2px 6px;
   border-radius: 4px;
   font-weight: bold;
