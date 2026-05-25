@@ -23,6 +23,8 @@
   --tags: #4f545c;
   --divider: #444444;
   --shimmer-color: rgba(255, 255, 255, 0.15);
+  --countdown-overlay: rgba(36, 36, 36, 0.9);
+  --tags-border: rgba(255, 255, 255, 0.1);
 
   --fixed-white: #ffffff;
   --blurple: #5865f2;
@@ -51,6 +53,8 @@
     --tags: #e6e6e6;
     --divider: #cccccc;
     --shimmer-color: rgba(0, 0, 0, 0.04);
+    --countdown-overlay: rgba(240, 240, 240, 0.9);
+    --tags-border: rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -930,7 +934,7 @@ button:disabled {
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 0.85rem;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--tags-border);
 }
 
 .tag-badge strong {
@@ -1041,7 +1045,9 @@ button:disabled {
 #countdown-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(36, 36, 36, 0.9);
+  margin: 10px;
+  border-radius: 8px;
+  background: var(--countdown-overlay);
   display: flex;
   justify-content: center;
   align-items: center;
