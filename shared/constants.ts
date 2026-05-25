@@ -26,11 +26,6 @@ export enum TimeBonusType {
    * Multiplier decreases exponentially over time starting from the first successful answer.
    */
   EXPONENTIAL = 'EXPONENTIAL',
-  /**
-   * **No decay:**
-   * No reward or penalty assigned based on answer speed.
-   */
-  CONSTANT = 'CONSTANT',
 }
 
 export const MAX_VOLUME: number = 0.25;

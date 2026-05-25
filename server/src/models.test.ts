@@ -263,9 +263,6 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
 
   for (const timeBonusSetting in TimeBonusType) {
     const bonusType = timeBonusSetting as TimeBonusType
-    if (bonusType === TimeBonusType.CONSTANT) {
-      continue;  // these edge-cases are not applicable for CONSTANT
-    }
 
     game.setupGame(1, TRACK_DURATION / 1000, [], bonusType);
 
@@ -304,7 +301,7 @@ describe('GameInstance - timeMultiplier:LINEAR', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
   const TRACK_DURATION: number = 12_000;
-  game.setupGame(1, TRACK_DURATION / 1000, [], TimeBonusType.LINEAR); // 3 rounds
+  game.setupGame(1, TRACK_DURATION / 1000, [], TimeBonusType.LINEAR);
 
   it('should decay time multipliers linearly between the first successful guess and the end of the track', () => {
     const PRECISION = 8;
@@ -323,7 +320,7 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
   const TRACK_DURATION: number = 12_000;
-  game.setupGame(1, TRACK_DURATION / 1000, [], TimeBonusType.EXPONENTIAL); // 3 rounds
+  game.setupGame(1, TRACK_DURATION / 1000, [], TimeBonusType.EXPONENTIAL);
 
   it('should decay time multipliers exponentially between the first successful guess and the end of the track', () => {
     const PRECISION = 6;
@@ -342,7 +339,7 @@ describe('GameInstance - timeMultiplier:CONSTANT', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
   const TRACK_DURATION: number = 12_000;
-  game.setupGame(1, TRACK_DURATION / 1000, [], TimeBonusType.CONSTANT); // 3 rounds
+  game.setupGame(1, TRACK_DURATION / 1000, [], null); // no time bonus
 
   it('should always assign the same constant time multiplier independent of answer time', () => {
     const CONSTANT = game.calculateTimeMultiplier(0, 0);
@@ -432,7 +429,7 @@ describe('GameInstance - playTrack', () => {
     // Verify we are still playing initially
     expect(game.state).toBe(GameState.PLAYING);
 
-    // Fast forward time by 13.9 seconds (countdown + duration - 100ms)
+    // Fast-forward time by 13.9 seconds (countdown + duration - 100ms)
     vi.advanceTimersByTime(13900);
     expect(game.state).toBe(GameState.PLAYING);
 

@@ -41,7 +41,7 @@ export class GameInstance {
     return this.hostId === userId;
   }
 
-  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[], timeBonus: TimeBonusType): void {
+  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[], timeBonus: TimeBonusType | null): void {
     this.settings = new Settings(
       rounds || DEFAULT_ROUNDS,
       (trackDuration * 1000) || DEFAULT_TRACK_DURATION,
@@ -158,7 +158,18 @@ export class GameInstance {
   }
 
   public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
+    if (this.settings.timeBonus === null) return 1.0
+
     const totalTime = this.settings.trackDuration;
+
+    // Stay constant at MAX until the first successful answer
+    if (evaluationTime <= firstSuccessTime || evaluationTime <= 0) {
+      return MAX_TIME_MULTIPLIER;
+    }
+    // Stay constant at MIN from the end of the round
+    if (evaluationTime >= totalTime || totalTime <= firstSuccessTime) {
+      return MIN_TIME_MULTIPLIER;
+    }
 
     const timeMultiplierFunction: TimeMultiplierFunction = TIME_MULTIPLIERS[this.settings.timeBonus];
     const multiplier = timeMultiplierFunction(evaluationTime, firstSuccessTime, totalTime);
@@ -318,7 +329,7 @@ export class Settings {
     public rounds: number,
     public trackDuration: number,
     public enabledJokers: Set<Joker>,
-    public timeBonus: TimeBonusType
+    public timeBonus: TimeBonusType | null
   ) {}
 
   public static default(): Settings {
@@ -334,20 +345,8 @@ export class Settings {
 type TimeMultiplierFunction = (evaluationTime: number, firstSuccessTime: number, totalTime: number) => number;
 
 const TIME_MULTIPLIERS: Record<TimeBonusType, TimeMultiplierFunction> = {
-  /** Constant function at half the amplitude between MIN and MAX */
-  [TimeBonusType.CONSTANT]: () => (MAX_TIME_MULTIPLIER + MIN_TIME_MULTIPLIER) / 2.0,
-
   /** Linear function passing through (first, MAX) and (total, MIN) */
   [TimeBonusType.LINEAR]: (elapsed, first, total) => {
-    // Stay constant at MAX until the first successful answer
-    if (elapsed <= first || elapsed <= 0) {
-      return MAX_TIME_MULTIPLIER;
-    }
-    // Stay constant at MIN from the end of the round
-    if (elapsed >= total || total <= first) {
-      return MIN_TIME_MULTIPLIER;
-    }
-
     // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]
     const decayFraction = (elapsed - first) / (total - first);
     return MAX_TIME_MULTIPLIER - (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * decayFraction;
@@ -358,15 +357,6 @@ const TIME_MULTIPLIERS: Record<TimeBonusType, TimeMultiplierFunction> = {
    * e^({@link EXPONENTIAL_DECAY_INTENSITY} * elapsed)
    */
   [TimeBonusType.EXPONENTIAL]: (elapsed, first, total) => {
-    // Stay constant at MAX until the first successful answer
-    if (elapsed <= first || elapsed <= 0) {
-      return MAX_TIME_MULTIPLIER;
-    }
-    // Stay constant at MIN from the end of the round
-    if (elapsed >= total || total <= first) {
-      return MIN_TIME_MULTIPLIER;
-    }
-
     const k = EXPONENTIAL_DECAY_INTENSITY;  // larger values mean faster decay
 
     // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]
