@@ -33,6 +33,11 @@ export enum TimeBonus {
    * Multiplier decreases exponentially over time starting from the first successful answer.
    */
   EXPONENTIAL = 'EXPONENTIAL',
+  /**
+   * **Logistic decay:**
+   * Multiplier follows a logistic/sigmoid curve over time starting from the first successful answer.
+   */
+  LOGISTIC = 'LOGISTIC',
 }
 
 

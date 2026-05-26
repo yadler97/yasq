@@ -373,7 +373,6 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
     // Function values are calculated as follows:
     // x: scaled evaluation point (in [0,1)), k: EXPONENTIAL_DECAY_INTENSITY constant
     // f(x) = (1/e^(k * x) - 1/e^k) / (1 - 1/e^k)
-
     expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
     expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.75901993, PRECISION);
     expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.57134447, PRECISION);
@@ -381,6 +380,35 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
     expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.31135175, PRECISION);
     expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.15365819, PRECISION);
     expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.05801221, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+  });
+});
+
+describe('GameInstance - timeMultiplier:LOGISTIC', () => {
+  const game = new GameInstance(INSTANCE_ID, HOST);
+  const FIRST_SUCCESS: number = 2000;
+  const TRACK_DURATION: number = 12_000;
+
+  game.setupGame({
+    rounds: 1,
+    trackDuration: TRACK_DURATION / 1000,
+    enabledJokers: [],
+    firstBonusMultiplier: FirstBonusMultiplier.OFF,
+    timeBonus: TimeBonus.LOGISTIC
+  });
+
+  it('should decay time multipliers logistically/sigmoidally between the first successful guess and the end of the track', () => {
+    const PRECISION = 6;
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.99275028, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.96907309, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.90425200, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.75276270, PRECISION);
+    expect(game.calculateTimeMultiplier(7000, FIRST_SUCCESS)).toBeCloseTo(1.5, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.24723729, PRECISION);
+    expect(game.calculateTimeMultiplier(9000, FIRST_SUCCESS)).toBeCloseTo(1.09574799, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.03092690, PRECISION);
+    expect(game.calculateTimeMultiplier(11_000, FIRST_SUCCESS)).toBeCloseTo(1.00724971, PRECISION);
     expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
   });
 });

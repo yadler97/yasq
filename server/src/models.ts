@@ -168,7 +168,9 @@ export class GameInstance {
     }
 
     const timeMultiplierFunction: TimeMultiplierFunction = TIME_MULTIPLIERS[this.settings.timeBonus];
-    const multiplier = timeMultiplierFunction(evaluationTime, firstSuccessTime, totalTime);
+    const bonusFraction = timeMultiplierFunction(evaluationTime, firstSuccessTime, totalTime);
+
+    const multiplier = MIN_TIME_MULTIPLIER + (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * bonusFraction;
 
     return Math.min(MAX_TIME_MULTIPLIER, Math.max(MIN_TIME_MULTIPLIER, multiplier));
   }
@@ -320,6 +322,16 @@ export class GameInstance {
   }
 }
 
+/**
+ * Mathematical function representing the time bonus decay over time. In particular, this function computes a time bonus
+ * multiplier at a given evaluation time based on the time of the first successful player and the total round duration.<br/>
+ * The function must return a **bonus factor** in the range `[0.0, 1.0]`, indicating
+ * how much of the maximum time bonus remains at the given evaluationTime.
+ * @param evaluationTime - Time at which the multiplier shall be calculated.
+ * @param firstSuccessTime - Time when the first player answered partially correctly.
+ * @param totalTime - Total duration of the round.
+ * @returns bonusFraction - Fraction of the time bonus at evaluationTime.
+ */
 type TimeMultiplierFunction = (evaluationTime: number, firstSuccessTime: number, totalTime: number) => number;
 
 const TIME_MULTIPLIERS: Record<TimeBonus, TimeMultiplierFunction> = {
@@ -327,7 +339,7 @@ const TIME_MULTIPLIERS: Record<TimeBonus, TimeMultiplierFunction> = {
   [TimeBonus.LINEAR]: (elapsed, first, total) => {
     // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]
     const decayFraction = (elapsed - first) / (total - first);
-    return MAX_TIME_MULTIPLIER - (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * decayFraction;
+    return 1 - decayFraction;
   },
 
   /**
@@ -341,8 +353,21 @@ const TIME_MULTIPLIERS: Record<TimeBonus, TimeMultiplierFunction> = {
     const x = (elapsed - first) / (total - first);
 
     // Shift function to match 1 at x=0 and 0 at x=1
-    const decayFraction = (Math.exp(-k * x) - Math.exp(-k)) / (1 - Math.exp(-k));
-    return MIN_TIME_MULTIPLIER + (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * decayFraction;
+    // f(x) = (1/e^(k * x) - 1/e^k) / (1 - 1/e^k)
+    return (Math.exp(-k * x) - Math.exp(-k)) / (1 - Math.exp(-k));
+  },
+
+  /**
+   * Logistic decay centered around 50% of the multiplier at 50% of the total time.
+   */
+  [TimeBonus.LOGISTIC]: (elapsed, first, total) => {
+    // Scale elapsed time between 'first' and 'total' to a normalized range of [-0.5, 0.5]
+    const x = (elapsed - first) / (total - first) - 0.5;
+
+    // Logistic decay passing through (0, 0.5) with f(-0.5) ~= 1 and f(0.5) ~= 0
+    const height: number = 1.01;
+    const k: number = 11;
+    return 1.005 - (height / (1 + Math.exp(-k * x)));
   },
 };
 

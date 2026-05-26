@@ -9,8 +9,9 @@ import { TimeBonus } from "@yasq/shared";
 
 
 export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
-  [TimeBonus.LINEAR]: '📉 Steady Pace',
+  [TimeBonus.LINEAR]: '⏳ Steady Pace',
   [TimeBonus.EXPONENTIAL]: '🔥 Quick Fire',
+  [TimeBonus.LOGISTIC]: '⚖️ Balanced',
   NONE: '❌ No time bonus'
 };
 
@@ -70,7 +71,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
           <div className="settings-label">🔄 Rounds</div>
           <div className="settings-value">{gameState.value.gameSettings.rounds}</div>
 
-          <div className="settings-label">⏱️ Track Duration</div>
+          <div className="settings-label">⏳ Track Duration</div>
           <div className="settings-value">{(gameState.value.gameSettings.trackDuration ?? 0) / 1000}s</div>
 
           <div className="settings-label">❓ Jokers</div>
@@ -104,7 +105,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             </div>
           </div>
 
-          <div className="settings-label">⏳ Time Bonus</div>
+          <div className="settings-label">⏱️ Time Bonus</div>
           <div className="settings-value">
             {PLAYER_TIME_BONUS_LABELS[gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE]}
           </div>

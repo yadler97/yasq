@@ -22,6 +22,7 @@ import { PLAYER_TIME_BONUS_LABELS } from "./LobbyView";
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
   [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + ' (linear)',
   [TimeBonus.EXPONENTIAL]: PLAYER_TIME_BONUS_LABELS[TimeBonus.EXPONENTIAL] + ' (exponential)',
+  [TimeBonus.LOGISTIC]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LOGISTIC] + ' (logistic)',
   NONE: '❌ No time bonus'
 };
 

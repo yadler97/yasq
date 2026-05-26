@@ -290,6 +290,7 @@ button:disabled {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--gap-medium);
+  grid-column-gap: 40px;
   margin: auto;
 }
 
