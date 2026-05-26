@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GameInstance, LeaderboardEntry, Tag, Track, TrackInfo, UserGuess } from './models.js';
-import { GameState, Joker } from '@yasq/shared';
+import { DEFAULT_FIRST_BONUS_MULTIPLIER, GameState, Joker } from '@yasq/shared';
 
 const HOST = "host_123";
 const INSTANCE_ID = "mock_instance"
@@ -23,7 +23,12 @@ describe('GameInstance - startGame', () => {
 
   it('should initialize settings and transition state', () => {
     // Start game with 5 rounds and 15 seconds
-    game.setupGame(5, 15, [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE]);
+    game.setupGame({
+      rounds: 5,
+      trackDuration: 15,
+      enabledJokers: [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+    });
     game.startGame();
 
     // Assert state and current round
@@ -39,7 +44,12 @@ describe('GameInstance - startGame', () => {
   });
 
   it('should add players to leaderboard but exclude the host', () => {
-    game.setupGame(5, 15, []);
+    game.setupGame({
+      rounds: 5,
+      trackDuration: 15,
+      enabledJokers: [],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+    });
     game.startGame();
 
     const entries = game.leaderboard.getAll();
@@ -125,7 +135,12 @@ describe('GameInstance - submitResults', () => {
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
     game.registeredUsers.add(PLAYER_3);
-    game.setupGame(10, 20, []); // 20s duration = 20000ms
+    game.setupGame({
+      rounds: 10,
+      trackDuration: 20, // 20s duration = 20000ms
+      enabledJokers: [],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+    });
     game.startGame();
 
     // Manually inject some guesses into the current round
@@ -260,7 +275,12 @@ describe('GameInstance - advanceRound', () => {
 
   beforeEach(() => {
     game = new GameInstance(INSTANCE_ID, HOST);
-    game.setupGame(3, 20, []); // 3 rounds
+    game.setupGame({
+      rounds: 3,
+      trackDuration: 20,
+      enabledJokers: [],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+    });
     game.startGame();
     game.readyUsers.add(PLAYER_1);
     game.readyUsers.add(PLAYER_2);

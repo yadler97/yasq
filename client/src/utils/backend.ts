@@ -1,4 +1,4 @@
-import { Joker } from "@yasq/shared";
+import { GameSettings, Joker } from "@yasq/shared";
 
 export async function getToken(code: string) {
   const response = await fetch("/api/token", {
@@ -60,7 +60,7 @@ export async function getGameStatus(instanceId: string) {
   return response.json();
 }
 
-export async function setupGame(access_token: string, instanceId: string, rounds: number = 5, trackDuration: number = 30, enabledJokers: Joker[] = []) {
+export async function setupGame(access_token: string, instanceId: string, settings: GameSettings) {
   return fetch("/api/setup-game", {
     method: "POST",
     headers: {
@@ -69,9 +69,10 @@ export async function setupGame(access_token: string, instanceId: string, rounds
     },
     body: JSON.stringify({
       instanceId,
-      rounds,
-      trackDuration,
-      enabledJokers: Array.isArray(enabledJokers) ? enabledJokers : [...enabledJokers]
+      settings: {
+        ...settings,
+        enabledJokers: settings.enabledJokers ? [...settings.enabledJokers] : []
+      }
     }),
   });
 }

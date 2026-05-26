@@ -132,7 +132,7 @@ img {
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 20px;
   background: var(--bg-sidebar-card);
@@ -270,7 +270,7 @@ button:disabled {
   flex-flow: column;
   gap: 20px;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto 20px;
   padding: 20px;
   background: var(--bg-sidebar-card);
@@ -352,7 +352,13 @@ button:disabled {
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-.joker-indicator:hover::after {
+@media (hover: hover) {
+  .joker-indicator:hover::after {
+    opacity: 1;
+  }
+}
+
+.joker-indicator.show-tooltip::after {
   opacity: 1;
 }
 
@@ -537,6 +543,58 @@ button:disabled {
 #volume-slider {
   margin: auto;
   width: 100%;
+}
+
+.advanced-settings-section {
+  margin: 16px 0;
+  width: 100%;
+}
+
+.advanced-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 4px;
+}
+
+.advanced-toggle-btn:hover {
+  color: var(--text-main);
+  background-color: transparent;
+}
+
+.arrow-indicator {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.arrow-indicator.open {
+  transform: rotate(90deg);
+}
+
+.advanced-content-panel {
+  padding: 12px 4px;
+  border-top: 1px dashed var(--border-muted);
+  margin-top: 4px;
+}
+
+.setting-item.vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+input[type="radio"]:checked + .btn-radio {
+  background-color: var(--blurple);
+  color: var(--fixed-white);
 }
 
 .transfer-controls-row {
@@ -1425,30 +1483,54 @@ input[value="1"]:checked + .btn-radio.correct {
 }
 
 @media (max-width: 768px) {
-  body {
+  html, body {
+    height: auto;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  #app, body {
     overflow: auto;
+    overflow-x: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
   }
 
   .container {
+    display: flex;
     flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
     height: auto;
     overflow: visible;
-  }
-
-  .sidebar {
-    width: 100%;
-    order: 2;
-    padding: 10px;
   }
 
   .game-column {
     order: 1;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
   }
 
   .game-area {
     padding: 10px;
     overflow: visible;
+    width: 100%;
+    box-sizing: border-box;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar {
+    order: 2;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
   }
 
   .grid-container, .controls {

@@ -192,7 +192,7 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
   });
 
   router.post("/setup-game", async (req, res) => {
-    const { instanceId, rounds, trackDuration, enabledJokers } = req.body;
+    const { instanceId, settings } = req.body;
     const authHeader = req.headers.authorization;
     const maxAllowedDuration: number = Math.floor(INT32_MAX_VALUE / 1000) - COUNTDOWN_DURATION;
 
@@ -212,15 +212,15 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       return res.status(403).send({ error: "Only host can setup a game" });
     }
 
-    if (rounds <= 0 || trackDuration <= 0) {
+    if (settings.rounds <= 0 || settings.trackDuration <= 0) {
       return res.status(400).send({ error: "Rounds and track duration must be greater than 0." });
     }
-    if (trackDuration > maxAllowedDuration) {
+    if (settings.trackDuration > maxAllowedDuration) {
       return res.status(400).send({ error: `Track duration must not exceed ${maxAllowedDuration}.` });
     }
 
-    game.setupGame(rounds, trackDuration, enabledJokers);
-    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}, enabledJokers: ${[...game.settings.enabledJokers]}!`);
+    game.setupGame(settings);
+    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}, enabledJokers: ${[...game.settings.enabledJokers]}, firstBonusMultiplier: ${game.settings.firstBonusMultiplier}!`);
     res.send({ status: GameState.LOBBY });
   });
 
@@ -257,9 +257,10 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       isFinalRound: game.isFinalRound(),
       currentGame: game.currentGame,
       lastWinnerId: game.lastWinnerId,
-      rounds: game.settings.rounds,
-      trackDuration: game.settings.trackDuration,
-      enabledJokers: [...game.settings.enabledJokers]
+      gameSettings: {
+        ...game.settings,
+        enabledJokers: [...game.settings.enabledJokers],
+      }
     });
   });
 

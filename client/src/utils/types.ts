@@ -1,4 +1,4 @@
-import { Joker } from "@yasq/shared";
+import { GameSettings, Joker } from "@yasq/shared";
 
 export interface Participant {
   id: string;
@@ -16,9 +16,7 @@ export interface GameStatus {
   currentRound: number;
   isFinalRound: boolean;
   lastWinnerId: string | null;
-  rounds: number;
-  trackDuration: number;
-  enabledJokers: Joker[];
+  gameSettings: GameSettings | null;
 }
 
 export interface Track {
