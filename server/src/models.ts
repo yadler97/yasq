@@ -1,13 +1,9 @@
 import {
   BASE_POINTS,
   COUNTDOWN_DURATION,
-  DEFAULT_FIRST_BONUS_MULTIPLIER,
-  DEFAULT_ROUNDS,
-  DEFAULT_TRACK_DURATION,
+  GameSettings,
   GameState,
-  Joker,
-  type GameSettings
-} from "@yasq/shared";
+  Joker} from "@yasq/shared";
 import MersenneTwister from 'mersenne-twister';
 import { hash } from "./helper.js";
 
@@ -31,12 +27,7 @@ export class GameInstance {
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId
     this.hostId = hostId;
-    this.settings = {
-      rounds: DEFAULT_ROUNDS,
-      trackDuration: DEFAULT_TRACK_DURATION,
-      enabledJokers: new Set(),
-      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
-    };
+    this.settings = new GameSettings<Set<Joker>>();
   }
 
   public isHost(userId: string): boolean {

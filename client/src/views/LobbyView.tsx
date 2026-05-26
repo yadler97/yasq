@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useState, useEffect } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { participants, discordSdk, auth, gameState } from "../main";
@@ -11,6 +11,21 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const allPlayersReady = playersExcludingHost.length > 0 && readyUsers === playersExcludingHost.length;
 
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [activeTooltipType, setActiveTooltipType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeTooltipType) return;
+
+    const closeAllTooltips = () => setActiveTooltipType(null);
+
+    window.addEventListener("touchstart", closeAllTooltips);
+    window.addEventListener("click", closeAllTooltips);
+
+    return () => {
+      window.removeEventListener("touchstart", closeAllTooltips);
+      window.removeEventListener("click", closeAllTooltips);
+    };
+  }, [activeTooltipType]);
 
   const handleStart = async () => {
     await backend.startGame(auth.value.access_token, discordSdk.instanceId);
@@ -49,9 +64,19 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
               {gameState.value.gameSettings?.enabledJokers.length ? (
                 gameState.value.gameSettings?.enabledJokers.map((jokerType) => {
                   const JokerIcon = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
+                  const isTooltipOpen = activeTooltipType === jokerType;
+
                   return (
                     <div key={jokerType} className="joker-row-item">
-                      <div className="joker-indicator" data-tooltip={JokerIcon?.description}>
+                      <div
+                        className={`joker-indicator ${isTooltipOpen ? "show-tooltip" : ""}`}
+                        data-tooltip={JokerIcon?.description}
+                        onTouchStart={(e) => {
+                          e.stopPropagation();
+                          setActiveTooltipType(isTooltipOpen ? null : jokerType);
+                        }}
+                        onMouseLeave={() => setActiveTooltipType(null)}
+                      >
                         {JokerIcon && <JokerIcon />}
                       </div>
                       <span className="joker-text-name">{capitalize(jokerType)}</span>

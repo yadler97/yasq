@@ -352,7 +352,13 @@ button:disabled {
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-.joker-indicator:hover::after {
+@media (hover: hover) {
+  .joker-indicator:hover::after {
+    opacity: 1;
+  }
+}
+
+.joker-indicator.show-tooltip::after {
   opacity: 1;
 }
 

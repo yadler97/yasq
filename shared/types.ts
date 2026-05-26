@@ -1,8 +1,10 @@
-import { FirstBonusMultiplier, Joker } from "@yasq/shared";
+import { DEFAULT_FIRST_BONUS_MULTIPLIER, DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION, FirstBonusMultiplier, Joker } from "@yasq/shared";
 
-export interface GameSettings<T = Joker[]> {
-  rounds: number;
-  trackDuration: number;
-  enabledJokers: T;
-  firstBonusMultiplier: FirstBonusMultiplier;
+export class GameSettings<T = Joker[]> {
+  constructor(
+    public rounds: number = DEFAULT_ROUNDS,
+    public trackDuration: number = DEFAULT_TRACK_DURATION,
+    public enabledJokers: T = [] as T,
+    public firstBonusMultiplier: FirstBonusMultiplier = DEFAULT_FIRST_BONUS_MULTIPLIER
+  ) {}
 }

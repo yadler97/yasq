@@ -1,6 +1,6 @@
 import express from 'express';
 import { GameInstance, Leaderboard, TrackInfo } from '../src/models.js';
-import { DEFAULT_FIRST_BONUS_MULTIPLIER, DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION } from '@yasq/shared';
+import { GameSettings, Joker } from '@yasq/shared';
 
 export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
   const router = express.Router();
@@ -13,12 +13,7 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
       state = 'LOBBY',
       currentRound = 1,
       readyUserIds = [],
-      settings = {
-        rounds: DEFAULT_ROUNDS,
-        trackDuration: DEFAULT_TRACK_DURATION,
-        enabledJokers: [],
-        firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
-      },
+      settings = new GameSettings<Set<Joker>>(),
       trackInfo = null,
       guesses = {},
       leaderboard = new Leaderboard(),
