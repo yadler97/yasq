@@ -270,7 +270,7 @@ button:disabled {
   flex-flow: column;
   gap: 20px;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto 20px;
   padding: 20px;
   background: var(--bg-sidebar-card);
