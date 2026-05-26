@@ -1,9 +1,17 @@
 import { useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { participants, discordSdk, auth, gameState } from "../main";
+import { auth, discordSdk, gameState, participants } from "../main";
 import { capitalize, getUserId } from "../utils/helper";
-import { ALL_JOKER_ICONS } from "./JokerIcons";
+import { ALL_JOKER_ICONS } from "../components/JokerIcons";
+import { OptionalTimeBonusType } from "../utils/types";
+import { TimeBonusType } from "@yasq/shared";
+
+export const PLAYER_TIME_BONUS_LABELS: Record<OptionalTimeBonusType, string> = {
+  [TimeBonusType.LINEAR]: '📉 Steady Pace',
+  [TimeBonusType.EXPONENTIAL]: '🔥 Quick Fire',
+  NONE: '❌ No time bonus'
+};
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
@@ -62,6 +70,11 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
                 <span className="no-jokers">None</span>
               )}
             </div>
+          </div>
+
+            <div className="settings-label">⏳ Time Bonus</div>
+            <div className="settings-value">
+              <span className="no-jokers">{PLAYER_TIME_BONUS_LABELS[gameState.value.timeBonus]}</span>
           </div>
         </div>
 

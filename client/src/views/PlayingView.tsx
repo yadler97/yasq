@@ -2,9 +2,9 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useRef } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { gameState, auth, discordSdk, audioPlayer, participants } from "../main";
+import { audioPlayer, auth, discordSdk, gameState, participants } from "../main";
 import { Joker, POLLING_INTERVAL } from "@yasq/shared";
-import { ALL_JOKER_ICONS } from './JokerIcons';
+import { ALL_JOKER_ICONS } from '../components/JokerIcons';
 import { capitalize, getAvatarUrl, getDisplayName } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 

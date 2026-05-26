@@ -251,7 +251,8 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       lastWinnerId: game.lastWinnerId,
       rounds: game.settings.rounds,
       trackDuration: game.settings.trackDuration,
-      enabledJokers: [...game.settings.enabledJokers]
+      enabledJokers: [...game.settings.enabledJokers],
+      timeBonus: game.settings.timeBonus
     });
   });
 

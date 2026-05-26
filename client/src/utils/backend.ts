@@ -1,4 +1,5 @@
 import { Joker, TimeBonusType } from "@yasq/shared";
+import { OptionalTimeBonusType } from "./types";
 
 export async function getToken(code: string) {
   const response = await fetch("/api/token", {
@@ -57,7 +58,12 @@ export async function assignNewHost(access_token: string, instanceId: string, ne
 
 export async function getGameStatus(instanceId: string) {
   const response = await fetch(`/api/game-status?instanceId=${instanceId}`);
-  return response.json();
+  const data = await response.json();
+
+  return {
+    ...data,
+    timeBonus: data.timeBonus === null ? OptionalTimeBonusType.NONE : data.timeBonus
+  };
 }
 
 export async function setupGame(

@@ -1,11 +1,20 @@
 import { useSignal } from "@preact/signals";
 
 import * as backend from "../utils/backend";
-import { participants, discordSdk, auth, gameState } from "../main";
-import { getDisplayName, getAvatarUrl } from "../utils/helper";
-import { ALL_JOKER_ICONS } from "./JokerIcons";
-import { DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION, Joker } from "@yasq/shared";
+import { auth, discordSdk, gameState, participants } from "../main";
+import { getAvatarUrl, getDisplayName } from "../utils/helper";
+import { ALL_JOKER_ICONS } from "../components/JokerIcons";
+import { DEFAULT_ROUNDS, DEFAULT_TIME_BONUS, DEFAULT_TRACK_DURATION, Joker, TimeBonusType } from "@yasq/shared";
 import { NonDraggableImg } from "../components/NonDraggableImg";
+import { OptionalTimeBonusType } from "../utils/types";
+import { TargetedEvent } from "preact";
+import { PLAYER_TIME_BONUS_LABELS } from "./LobbyView";
+
+const HOST_TIME_BONUS_LABELS: Record<OptionalTimeBonusType, string> = {
+  [TimeBonusType.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonusType.LINEAR] + ' (linear)',
+  [TimeBonusType.EXPONENTIAL]: PLAYER_TIME_BONUS_LABELS[TimeBonusType.EXPONENTIAL] + ' (exponential)',
+  NONE: '❌ No time bonus'
+};
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
   const roundCount = useSignal(gameState.value.rounds || DEFAULT_ROUNDS);
@@ -21,6 +30,10 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     )
   );
 
+  const selectedBonus = useSignal<OptionalTimeBonusType>(
+    gameState.value.timeBonus ?? DEFAULT_TIME_BONUS
+  );
+
   const toggleJoker = (type: Joker) => {
     const next = new Set(activeJokers.value);
     if (next.has(type)) {
@@ -31,6 +44,10 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     activeJokers.value = next;
   };
 
+  const updateTimeBonus = (e: TargetedEvent<HTMLSelectElement, Event>) => {
+    selectedBonus.value =  (e.target as HTMLSelectElement).value as OptionalTimeBonusType;
+  };
+
   const handleConfirmSettings = async () => {
     isSubmitting.value = true;
     try {
@@ -39,7 +56,8 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
         discordSdk.instanceId,
         roundCount.value,
         trackDuration.value,
-        [...activeJokers.value]
+        [...activeJokers.value],
+        selectedBonus.value === OptionalTimeBonusType.NONE ? null : selectedBonus.value
       );
     } catch (e) {
       console.error("Setup failed:", e);
@@ -96,6 +114,19 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                 );
               })}
             </div>
+          </div>
+
+          <div className="setting-item">
+            <span>Time Bonus</span>
+            <select value={selectedBonus.value}
+              onChange={updateTimeBonus}
+            >
+              {Object.values(OptionalTimeBonusType).map((value) => (
+                <option key={value} value={value}>
+                  {HOST_TIME_BONUS_LABELS[value]}
+                </option>
+              ))}
+            </select>
           </div>
 
           <button id="btn-start" disabled={isSubmitting.value} onClick={handleConfirmSettings}>

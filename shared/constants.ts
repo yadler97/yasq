@@ -41,5 +41,6 @@ export const MAX_TIME_MULTIPLIER: number = 2.0;
 export const MIN_TIME_MULTIPLIER: number = 1.0;
 export const EXPONENTIAL_DECAY_INTENSITY: number = 1.0;
 export const FIRST_BONUS_MULTIPLIER: number = 1.2;
+export const DEFAULT_TIME_BONUS: TimeBonusType = TimeBonusType.LINEAR;
 
 export const INT32_MAX_VALUE: number = 2**31 - 1;
