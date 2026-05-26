@@ -1,4 +1,4 @@
-import { Joker, TimeBonusType } from "@yasq/shared";
+import { Joker, GameSettings } from "@yasq/shared";
 import { OptionalTimeBonusType } from "./types";
 
 export async function getToken(code: string) {
@@ -66,14 +66,7 @@ export async function getGameStatus(instanceId: string) {
   };
 }
 
-export async function setupGame(
-  access_token: string,
-  instanceId: string,
-  rounds: number = 5,
-  trackDuration: number = 30,
-  enabledJokers: Joker[] = [],
-  timeBonusType: TimeBonusType | null = null
-) {
+export async function setupGame(access_token: string, instanceId: string, settings: GameSettings) {
   return fetch("/api/setup-game", {
     method: "POST",
     headers: {
@@ -82,10 +75,10 @@ export async function setupGame(
     },
     body: JSON.stringify({
       instanceId,
-      rounds,
-      trackDuration,
-      enabledJokers: Array.isArray(enabledJokers) ? enabledJokers : [...enabledJokers],
-      timeBonusType,
+      settings: {
+        ...settings,
+        enabledJokers: settings.enabledJokers ? [...settings.enabledJokers] : []
+      }
     }),
   });
 }

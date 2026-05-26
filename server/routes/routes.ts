@@ -1,5 +1,5 @@
-import type { NextFunction, Request, Response } from 'express';
 import express from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker } from '@yasq/shared';
@@ -192,27 +192,26 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
   });
 
   router.post("/setup-game", authenticateUser, async (req, res) => {
-    const { instanceId, rounds, trackDuration, enabledJokers, timeBonusType } = req.body;
+    const { instanceId, settings } = req.body;
     const userId = req.userId!;
+    const maxAllowedDuration: number = Math.floor(INT32_MAX_VALUE / 1000) - COUNTDOWN_DURATION;
 
     const game = instances[instanceId];
 
-    // Security check: only host can setup a game
+    // Security check: only host can set up a game
     if (!game?.isHost(userId)) {
       return res.status(403).send({ error: "Only host can setup a game" });
     }
 
-    const maxAllowedDuration: number = Math.floor(INT32_MAX_VALUE / 1000) - COUNTDOWN_DURATION;
-
-    if (rounds <= 0 || trackDuration <= 0) {
+    if (settings.rounds <= 0 || settings.trackDuration <= 0) {
       return res.status(400).send({ error: "Rounds and track duration must be greater than 0." });
     }
-    if (trackDuration > maxAllowedDuration) {
+    if (settings.trackDuration > maxAllowedDuration) {
       return res.status(400).send({ error: `Track duration must not exceed ${maxAllowedDuration}.` });
     }
 
-    game.setupGame(rounds, trackDuration, enabledJokers, timeBonusType);
-    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}, enabledJokers: ${[...game.settings.enabledJokers]}!`);
+    game.setupGame(settings);
+    console.log(`[GAME] Instance ${instanceId} has been set up with settings: rounds: ${game.settings.rounds}, trackDuration: ${game.settings.trackDuration}, enabledJokers: ${[...game.settings.enabledJokers]}, firstBonusMultiplier: ${game.settings.firstBonusMultiplier}!`);
     res.send({ status: GameState.LOBBY });
   });
 
@@ -249,10 +248,10 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
       isFinalRound: game.isFinalRound(),
       currentGame: game.currentGame,
       lastWinnerId: game.lastWinnerId,
-      rounds: game.settings.rounds,
-      trackDuration: game.settings.trackDuration,
-      enabledJokers: [...game.settings.enabledJokers],
-      timeBonus: game.settings.timeBonus
+      gameSettings: {
+        ...game.settings,
+        enabledJokers: [...game.settings.enabledJokers],
+      }
     });
   });
 

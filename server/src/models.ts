@@ -1,11 +1,9 @@
 import {
   BASE_POINTS,
   COUNTDOWN_DURATION,
-  DEFAULT_ROUNDS,
-  DEFAULT_TRACK_DURATION,
   EXPONENTIAL_DECAY_INTENSITY,
-  FIRST_BONUS_MULTIPLIER,
   GameState,
+  GameSettings,
   Joker,
   MAX_TIME_MULTIPLIER,
   MIN_TIME_MULTIPLIER,
@@ -22,7 +20,7 @@ export class GameInstance {
   public currentRound: number = 0;
   public readyUsers: Set<string> = new Set();
   public guessedPlayers: Set<string> = new Set();
-  public settings: Settings;
+  public settings: GameSettings<Set<Joker>> = new GameSettings<Set<Joker>>();
   public trackInfo: TrackInfo | null = null;
   public guesses: Record<number, Record<string, UserGuess>> = {};
   public leaderboard: Leaderboard = new Leaderboard();
@@ -34,20 +32,18 @@ export class GameInstance {
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId
     this.hostId = hostId;
-    this.settings = Settings.default();
   }
 
   public isHost(userId: string): boolean {
     return this.hostId === userId;
   }
 
-  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[], timeBonus: TimeBonusType | null): void {
-    this.settings = new Settings(
-      rounds || DEFAULT_ROUNDS,
-      (trackDuration * 1000) || DEFAULT_TRACK_DURATION,
-      new Set(enabledJokers),
-      timeBonus
-    );
+  public setupGame(settings: GameSettings): void {
+    this.settings = {
+      ...settings,
+      trackDuration: settings.trackDuration * 1000,
+      enabledJokers: new Set(settings.enabledJokers)
+    };
     this.state = GameState.LOBBY;
   }
 
@@ -128,7 +124,7 @@ export class GameInstance {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
         const timeMultiplier = this.calculateTimeMultiplier(timeTaken, firstPartiallyCorrectTime);
         pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
-        if (isFirst) pointsEarned *= FIRST_BONUS_MULTIPLIER;
+        if (isFirst) pointsEarned *= this.settings.firstBonusMultiplier;
       }
 
       // Round to avoid fractional points and ensure it's an integer
@@ -321,24 +317,6 @@ export class GameInstance {
       readyUsers: Array.from(this.readyUsers),
       guessedPlayers: Array.from(this.guessedPlayers),
     };
-  }
-}
-
-export class Settings {
-  constructor(
-    public rounds: number,
-    public trackDuration: number,
-    public enabledJokers: Set<Joker>,
-    public timeBonus: TimeBonusType | null
-  ) {}
-
-  public static default(): Settings {
-    return new Settings(
-      DEFAULT_ROUNDS,
-      DEFAULT_TRACK_DURATION,
-      new Set(),
-      TimeBonusType.LINEAR
-    );
   }
 }
 

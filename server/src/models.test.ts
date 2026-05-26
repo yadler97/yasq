@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GameInstance, LeaderboardEntry, Tag, Track, TrackInfo, UserGuess } from './models.js';
-import { GameState, Joker, MAX_TIME_MULTIPLIER, MIN_TIME_MULTIPLIER, TimeBonusType } from '@yasq/shared';
+import { GameState, Joker, MAX_TIME_MULTIPLIER, MIN_TIME_MULTIPLIER, DEFAULT_FIRST_BONUS_MULTIPLIER, TimeBonusType } from '@yasq/shared';
 
 const HOST = "host_123";
 const INSTANCE_ID = "mock_instance"
@@ -23,7 +23,13 @@ describe('GameInstance - startGame', () => {
 
   it('should initialize settings and transition state', () => {
     // Start game with 5 rounds and 15 seconds
-    game.setupGame(5, 15, [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE], TimeBonusType.LINEAR);
+    game.setupGame({
+      rounds: 5,
+      trackDuration: 15,
+      enabledJokers: [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: TimeBonusType.LINEAR
+    });
     game.startGame();
 
     // Assert state and current round
@@ -39,7 +45,13 @@ describe('GameInstance - startGame', () => {
   });
 
   it('should add players to leaderboard but exclude the host', () => {
-    game.setupGame(5, 15, [], TimeBonusType.LINEAR);
+    game.setupGame({
+      rounds: 5,
+      trackDuration: 15,
+      enabledJokers: [],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: TimeBonusType.LINEAR
+    });
     game.startGame();
 
     const entries = game.leaderboard.getAll();
@@ -125,7 +137,13 @@ describe('GameInstance - submitResults', () => {
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
     game.registeredUsers.add(PLAYER_3);
-    game.setupGame(10, 20, [], TimeBonusType.LINEAR); // 20s duration = 20000ms
+    game.setupGame({
+      rounds: 10,
+      trackDuration: 20, // 20s duration = 20000ms
+      enabledJokers: [],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: TimeBonusType.LINEAR
+    });
     game.startGame();
 
     // Manually inject some guesses into the current round
@@ -264,7 +282,13 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
   for (const timeBonusSetting in TimeBonusType) {
     const bonusType = timeBonusSetting as TimeBonusType
 
-    game.setupGame(1, TRACK_DURATION / 1000, [], bonusType);
+    game.setupGame({
+      rounds: 1,
+      trackDuration: TRACK_DURATION / 1000,
+      enabledJokers: [],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: bonusType
+    });
 
     it(`should assign MAX_TIME_MULTIPLIER for guesses at/before the first success - ${bonusType}`, () => {
       const REALISTIC_SUCCESS = 3000;
@@ -301,7 +325,14 @@ describe('GameInstance - timeMultiplier:LINEAR', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
   const TRACK_DURATION: number = 12_000;
-  game.setupGame(1, TRACK_DURATION / 1000, [], TimeBonusType.LINEAR);
+
+  game.setupGame({
+    rounds: 1,
+    trackDuration: TRACK_DURATION / 1000,
+    enabledJokers: [],
+    firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+    timeBonus: TimeBonusType.LINEAR
+  });
 
   it('should decay time multipliers linearly between the first successful guess and the end of the track', () => {
     const PRECISION = 8;
@@ -320,7 +351,13 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
   const TRACK_DURATION: number = 12_000;
-  game.setupGame(1, TRACK_DURATION / 1000, [], TimeBonusType.EXPONENTIAL);
+  game.setupGame({
+    rounds: 3,
+    trackDuration: 20,
+    enabledJokers: [],
+    firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+    timeBonus: TimeBonusType.EXPONENTIAL
+  });
 
   it('should decay time multipliers exponentially between the first successful guess and the end of the track', () => {
     const PRECISION = 6;
@@ -339,7 +376,14 @@ describe('GameInstance - timeMultiplier:CONSTANT', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
   const TRACK_DURATION: number = 12_000;
-  game.setupGame(1, TRACK_DURATION / 1000, [], null); // no time bonus
+
+  game.setupGame({
+    rounds: 1,
+    trackDuration: TRACK_DURATION / 1000,
+    enabledJokers: [],
+    firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+    timeBonus: null  // no time bonus
+  });
 
   it('should always assign the same constant time multiplier independent of answer time', () => {
     const CONSTANT = game.calculateTimeMultiplier(0, 0);
@@ -360,7 +404,13 @@ describe('GameInstance - advanceRound', () => {
 
   beforeEach(() => {
     game = new GameInstance(INSTANCE_ID, HOST);
-    game.setupGame(3, 20, [], TimeBonusType.LINEAR); // 3 rounds
+    game.setupGame({
+      rounds: 3,
+      trackDuration: 20,
+      enabledJokers: [],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: TimeBonusType.LINEAR
+    });
     game.startGame();
     game.readyUsers.add(PLAYER_1);
     game.readyUsers.add(PLAYER_2);

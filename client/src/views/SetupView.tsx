@@ -1,13 +1,14 @@
 import { useSignal } from "@preact/signals";
+import { Fragment } from "preact/jsx-runtime";
+import { TargetedEvent } from "preact";
 
 import * as backend from "../utils/backend";
 import { auth, discordSdk, gameState, participants } from "../main";
 import { getAvatarUrl, getDisplayName } from "../utils/helper";
 import { ALL_JOKER_ICONS } from "../components/JokerIcons";
-import { DEFAULT_ROUNDS, DEFAULT_TIME_BONUS, DEFAULT_TRACK_DURATION, Joker, TimeBonusType } from "@yasq/shared";
+import { DEFAULT_ROUNDS, DEFAULT_TIME_BONUS, DEFAULT_TRACK_DURATION, Joker, TimeBonusType, FirstBonusMultiplier, GameSettings } from "@yasq/shared";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { OptionalTimeBonusType } from "../utils/types";
-import { TargetedEvent } from "preact";
 import { PLAYER_TIME_BONUS_LABELS } from "./LobbyView";
 
 const HOST_TIME_BONUS_LABELS: Record<OptionalTimeBonusType, string> = {
@@ -17,21 +18,26 @@ const HOST_TIME_BONUS_LABELS: Record<OptionalTimeBonusType, string> = {
 };
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
-  const roundCount = useSignal(gameState.value.rounds || DEFAULT_ROUNDS);
-  const trackDuration = useSignal(gameState.value.trackDuration
-    ? gameState.value.trackDuration / 1000
+  const roundCount = useSignal(gameState.value.gameSettings?.rounds || DEFAULT_ROUNDS);
+  const trackDuration = useSignal(gameState.value.gameSettings?.trackDuration
+    ? gameState.value.gameSettings?.trackDuration / 1000
     : DEFAULT_TRACK_DURATION);
   const isSubmitting = useSignal(false);
+  const isAdvancedOpen = useSignal(false);
+  const firstBonusMultiplier = useSignal<FirstBonusMultiplier>(
+    gameState.value.gameSettings?.firstBonusMultiplier || FirstBonusMultiplier.OFF
+  );
+
   const activeJokers = useSignal<Set<Joker>>(
     new Set(
-      gameState.value.enabledJokers.length > 0
-        ? gameState.value.enabledJokers
+      gameState.value.gameSettings?.enabledJokers?.length
+        ? gameState.value.gameSettings.enabledJokers
         : [Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE, Joker.SPY]
     )
   );
 
   const selectedBonus = useSignal<OptionalTimeBonusType>(
-    gameState.value.timeBonus ?? DEFAULT_TIME_BONUS
+    gameState.value.gameSettings?.timeBonus ?? DEFAULT_TIME_BONUS
   );
 
   const toggleJoker = (type: Joker) => {
@@ -50,14 +56,20 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
 
   const handleConfirmSettings = async () => {
     isSubmitting.value = true;
+
+    const currentSettings: GameSettings = {
+      rounds: roundCount.value,
+      trackDuration: trackDuration.value,
+      enabledJokers: [...activeJokers.value],
+      firstBonusMultiplier: firstBonusMultiplier.value,
+      timeBonus: selectedBonus.value === OptionalTimeBonusType.NONE ? null : selectedBonus.value
+    };
+
     try {
       await backend.setupGame(
         auth.value.access_token,
         discordSdk.instanceId,
-        roundCount.value,
-        trackDuration.value,
-        [...activeJokers.value],
-        selectedBonus.value === OptionalTimeBonusType.NONE ? null : selectedBonus.value
+        currentSettings
       );
     } catch (e) {
       console.error("Setup failed:", e);
@@ -116,17 +128,63 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
             </div>
           </div>
 
-          <div className="setting-item">
-            <span>Time Bonus</span>
-            <select value={selectedBonus.value}
-              onChange={updateTimeBonus}
+          <div className="advanced-settings-section">
+            <button
+              type="button"
+              className="advanced-toggle-btn"
+              onClick={() => (isAdvancedOpen.value = !isAdvancedOpen.value)}
             >
-              {Object.values(OptionalTimeBonusType).map((value) => (
-                <option key={value} value={value}>
-                  {HOST_TIME_BONUS_LABELS[value]}
-                </option>
-              ))}
-            </select>
+              <span>Advanced Settings</span>
+              <span className={`arrow-indicator ${isAdvancedOpen.value ? "open" : ""}`}>▶</span>
+            </button>
+
+            {isAdvancedOpen.value && (
+              <div className="advanced-content-panel">
+                <div className="setting-item vertical">
+                  <span>First Correct Answer Bonus</span>
+                  <div className="button-group">
+                    {[
+                      { value: FirstBonusMultiplier.OFF, label: "Off" },
+                      { value: FirstBonusMultiplier.X1_1, label: "1.1x" },
+                      { value: FirstBonusMultiplier.X1_2, label: "1.2x" },
+                      { value: FirstBonusMultiplier.X1_3, label: "1.3x" },
+                    ].map((option) => (
+                      <Fragment key={option.value}>
+                        <input
+                          type="radio"
+                          id={`bonus-${option.value}`}
+                          name="first-bonus"
+                          value={option.value}
+                          checked={firstBonusMultiplier.value === option.value}
+                          onChange={(e) => {
+                            firstBonusMultiplier.value = option.value;
+                          }}
+                        />
+                        <label
+                          htmlFor={`bonus-${option.value}`}
+                          className={`btn-radio ${firstBonusMultiplier.value === option.value ? "active" : ""}`}
+                        >
+                          {option.label}
+                        </label>
+                      </Fragment>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="setting-item">
+                  <span>Time Bonus</span>
+                  <select value={selectedBonus.value}
+                          onChange={updateTimeBonus}
+                  >
+                    {Object.values(OptionalTimeBonusType).map((value) => (
+                      <option key={value} value={value}>
+                        {HOST_TIME_BONUS_LABELS[value]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
 
           <button id="btn-start" disabled={isSubmitting.value} onClick={handleConfirmSettings}>

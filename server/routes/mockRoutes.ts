@@ -1,5 +1,6 @@
 import express from 'express';
-import { GameInstance, Leaderboard, Settings, TrackInfo } from '../src/models.js';
+import { GameInstance, Leaderboard, TrackInfo } from '../src/models.js';
+import { GameSettings, Joker } from '@yasq/shared';
 
 export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
   const router = express.Router();
@@ -12,7 +13,7 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
       state = 'LOBBY',
       currentRound = 1,
       readyUserIds = [],
-      settings = new Settings(5, 30, new Set()),
+      settings = new GameSettings<Set<Joker>>(),
       trackInfo = null,
       guesses = {},
       leaderboard = new Leaderboard(),
@@ -34,11 +35,12 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
     game.currentRound = currentRound;
     game.readyUsers = new Set(readyUserIds);
     game.settings = settings;
-    game.settings = new Settings(
-      settings.rounds,
-      settings.trackDuration,
-      new Set(settings.enabledJokers || [])
-    );
+    game.settings = {
+      rounds: settings.rounds,
+      trackDuration: settings.trackDuration,
+      enabledJokers: new Set(settings.enabledJokers || []),
+      firstBonusMultiplier: settings.firstBonusMultiplier,
+    };
     game.trackInfo = trackInfo;
     game.guesses = guesses;
     game.leaderboard = Leaderboard.fromJSON(leaderboard);
@@ -77,11 +79,12 @@ export const setupMockRoutes = (instances: Record<string, GameInstance>) => {
       game.trackHistory = updates.trackHistory;
     }
     if (updates.settings) {
-      game.settings = new Settings(
-        updates.settings.rounds,
-        updates.settings.trackDuration,
-        new Set(updates.settings.enabledJokers || [])
-      );
+      game.settings = {
+        rounds: updates.settings.rounds,
+        trackDuration: updates.settings.trackDuration,
+        enabledJokers: new Set(updates.settings.enabledJokers || []),
+        firstBonusMultiplier: updates.settings.firstBonusMultiplier,
+      };
     }
     if (updates.trackInfo) {
       game.trackInfo = new TrackInfo(
