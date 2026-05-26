@@ -6,38 +6,46 @@ import * as backend from "../utils/backend";
 import { auth, discordSdk, gameState, participants } from "../main";
 import { getAvatarUrl, getDisplayName } from "../utils/helper";
 import { ALL_JOKER_ICONS } from "../components/JokerIcons";
-import { DEFAULT_ROUNDS, DEFAULT_TIME_BONUS, DEFAULT_TRACK_DURATION, Joker, TimeBonusType, FirstBonusMultiplier, GameSettings } from "@yasq/shared";
+import {
+  DEFAULT_ROUNDS,
+  DEFAULT_TRACK_DURATION,
+  FirstBonusMultiplier,
+  GameSettings,
+  Joker,
+  TimeBonus
+} from "@yasq/shared";
 import { NonDraggableImg } from "../components/NonDraggableImg";
-import { OptionalTimeBonusType } from "../utils/types";
+import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
 import { PLAYER_TIME_BONUS_LABELS } from "./LobbyView";
 
-const HOST_TIME_BONUS_LABELS: Record<OptionalTimeBonusType, string> = {
-  [TimeBonusType.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonusType.LINEAR] + ' (linear)',
-  [TimeBonusType.EXPONENTIAL]: PLAYER_TIME_BONUS_LABELS[TimeBonusType.EXPONENTIAL] + ' (exponential)',
+
+const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
+  [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + ' (linear)',
+  [TimeBonus.EXPONENTIAL]: PLAYER_TIME_BONUS_LABELS[TimeBonus.EXPONENTIAL] + ' (exponential)',
   NONE: '❌ No time bonus'
 };
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
-  const roundCount = useSignal(gameState.value.gameSettings?.rounds || DEFAULT_ROUNDS);
-  const trackDuration = useSignal(gameState.value.gameSettings?.trackDuration
-    ? gameState.value.gameSettings?.trackDuration / 1000
+  const roundCount = useSignal(gameState.value.gameSettings.rounds || DEFAULT_ROUNDS);
+  const trackDuration = useSignal(gameState.value.gameSettings.trackDuration
+    ? gameState.value.gameSettings.trackDuration / 1000
     : DEFAULT_TRACK_DURATION);
   const isSubmitting = useSignal(false);
   const isAdvancedOpen = useSignal(false);
   const firstBonusMultiplier = useSignal<FirstBonusMultiplier>(
-    gameState.value.gameSettings?.firstBonusMultiplier || FirstBonusMultiplier.OFF
+    gameState.value.gameSettings.firstBonusMultiplier || FirstBonusMultiplier.OFF
   );
 
   const activeJokers = useSignal<Set<Joker>>(
     new Set(
-      gameState.value.gameSettings?.enabledJokers?.length
+      gameState.value.gameSettings.enabledJokers?.length
         ? gameState.value.gameSettings.enabledJokers
         : [Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE, Joker.SPY]
     )
   );
 
-  const selectedBonus = useSignal<OptionalTimeBonusType>(
-    gameState.value.gameSettings?.timeBonus ?? DEFAULT_TIME_BONUS
+  const selectedBonus = useSignal<TOptionalTimeBonus>(
+    gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE
   );
 
   const toggleJoker = (type: Joker) => {
@@ -50,8 +58,8 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     activeJokers.value = next;
   };
 
-  const updateTimeBonus = (e: TargetedEvent<HTMLSelectElement, Event>) => {
-    selectedBonus.value =  (e.target as HTMLSelectElement).value as OptionalTimeBonusType;
+  const selectTimeBonus = (e: TargetedEvent<HTMLSelectElement, Event>) => {
+    selectedBonus.value =  (e.target as HTMLSelectElement).value as TOptionalTimeBonus;
   };
 
   const handleConfirmSettings = async () => {
@@ -62,7 +70,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       trackDuration: trackDuration.value,
       enabledJokers: [...activeJokers.value],
       firstBonusMultiplier: firstBonusMultiplier.value,
-      timeBonus: selectedBonus.value === OptionalTimeBonusType.NONE ? null : selectedBonus.value
+      timeBonus: selectedBonus.value === OptionalTimeBonus.NONE ? null : selectedBonus.value
     };
 
     try {
@@ -140,6 +148,17 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
 
             {isAdvancedOpen.value && (
               <div className="advanced-content-panel">
+                <div className="setting-item">
+                  <span>Time Bonus</span>
+                  <select value={selectedBonus.value} onChange={selectTimeBonus}>
+                    {Object.values(OptionalTimeBonus).map((value) => (
+                      <option key={value} value={value}>
+                        {HOST_TIME_BONUS_LABELS[value]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="setting-item vertical">
                   <span>First Correct Answer Bonus</span>
                   <div className="button-group">
@@ -156,7 +175,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                           name="first-bonus"
                           value={option.value}
                           checked={firstBonusMultiplier.value === option.value}
-                          onChange={(e) => {
+                          onChange={(_) => {
                             firstBonusMultiplier.value = option.value;
                           }}
                         />
@@ -169,19 +188,6 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                       </Fragment>
                     ))}
                   </div>
-                </div>
-
-                <div className="setting-item">
-                  <span>Time Bonus</span>
-                  <select value={selectedBonus.value}
-                          onChange={updateTimeBonus}
-                  >
-                    {Object.values(OptionalTimeBonusType).map((value) => (
-                      <option key={value} value={value}>
-                        {HOST_TIME_BONUS_LABELS[value]}
-                      </option>
-                    ))}
-                  </select>
                 </div>
               </div>
             )}

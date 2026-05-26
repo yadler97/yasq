@@ -7,7 +7,7 @@ import {
   Joker,
   MAX_TIME_MULTIPLIER,
   MIN_TIME_MULTIPLIER,
-  TimeBonusType
+  TimeBonus
 } from "@yasq/shared";
 import MersenneTwister from 'mersenne-twister';
 import { hash } from "./helper.js";
@@ -154,7 +154,7 @@ export class GameInstance {
   }
 
   public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
-    if (this.settings.timeBonus === null) return 1.0
+    if (this.settings.timeBonus === null) return 1.0  // apply no time bonus
 
     const totalTime = this.settings.trackDuration;
 
@@ -322,9 +322,9 @@ export class GameInstance {
 
 type TimeMultiplierFunction = (evaluationTime: number, firstSuccessTime: number, totalTime: number) => number;
 
-const TIME_MULTIPLIERS: Record<TimeBonusType, TimeMultiplierFunction> = {
+const TIME_MULTIPLIERS: Record<TimeBonus, TimeMultiplierFunction> = {
   /** Linear function passing through (first, MAX) and (total, MIN) */
-  [TimeBonusType.LINEAR]: (elapsed, first, total) => {
+  [TimeBonus.LINEAR]: (elapsed, first, total) => {
     // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]
     const decayFraction = (elapsed - first) / (total - first);
     return MAX_TIME_MULTIPLIER - (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * decayFraction;
@@ -334,7 +334,7 @@ const TIME_MULTIPLIERS: Record<TimeBonusType, TimeMultiplierFunction> = {
    * Exponential decay function passing through (first, MAX) and (total, MIN) decaying with rate
    * e^({@link EXPONENTIAL_DECAY_INTENSITY} * elapsed)
    */
-  [TimeBonusType.EXPONENTIAL]: (elapsed, first, total) => {
+  [TimeBonus.EXPONENTIAL]: (elapsed, first, total) => {
     const k = EXPONENTIAL_DECAY_INTENSITY;  // larger values mean faster decay
 
     // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]

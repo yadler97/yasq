@@ -289,7 +289,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <div className="joker-list">
                 {ALL_JOKER_ICONS
                   // Only show jokers that were enabled by the host during setup
-                  .filter(Icon => gameState.value.gameSettings?.enabledJokers.includes(Icon.jokerType))
+                  .filter(Icon => gameState.value.gameSettings.enabledJokers.includes(Icon.jokerType))
                   .map((Icon) => {
                     const type = Icon.jokerType;
                     const isAvailable = availableJokers.value.includes(type);

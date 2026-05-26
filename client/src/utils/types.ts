@@ -1,13 +1,13 @@
-import { GameSettings, Joker, TimeBonusType } from "@yasq/shared";
+import { GameSettings, Joker, TimeBonus } from "@yasq/shared";
 
 // Define an extension of the TimeBonusType enum for selection in the UI
-export const OptionalTimeBonusType = {
-  ...TimeBonusType,
+export const OptionalTimeBonus = {
+  ...TimeBonus,
   NONE: 'NONE',
 } as const;
 
 // Derive TypeScript type from the runtime object
-export type OptionalTimeBonusType = typeof OptionalTimeBonusType[keyof typeof OptionalTimeBonusType];
+export type TOptionalTimeBonus = typeof OptionalTimeBonus[keyof typeof OptionalTimeBonus];
 
 
 export interface Participant {
@@ -26,7 +26,7 @@ export interface GameStatus {
   currentRound: number;
   isFinalRound: boolean;
   lastWinnerId: string | null;
-  gameSettings: GameSettings | null;
+  gameSettings: GameSettings;
 }
 
 export interface Track {

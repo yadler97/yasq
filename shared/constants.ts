@@ -22,7 +22,7 @@ export enum FirstBonusMultiplier {
   X1_3 = 1.3
 }
 
-export enum TimeBonusType {
+export enum TimeBonus {
   /**
    * **Steady decay:**
    * Multiplier decreases linearly over time starting from the first successful answer.
@@ -49,6 +49,6 @@ export const MAX_TIME_MULTIPLIER: number = 2.0;
 export const MIN_TIME_MULTIPLIER: number = 1.0;
 export const EXPONENTIAL_DECAY_INTENSITY: number = 1.0;
 export const DEFAULT_FIRST_BONUS_MULTIPLIER = FirstBonusMultiplier.X1_2;
-export const DEFAULT_TIME_BONUS: TimeBonusType = TimeBonusType.LINEAR;
+export const DEFAULT_TIME_BONUS: TimeBonus = TimeBonus.LINEAR;
 
 export const INT32_MAX_VALUE: number = 2**31 - 1;
