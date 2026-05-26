@@ -15,7 +15,7 @@ export class GameInstance {
   public currentRound: number = 0;
   public readyUsers: Set<string> = new Set();
   public guessedPlayers: Set<string> = new Set();
-  public settings: GameSettings<Set<Joker>>;
+  public settings: GameSettings<Set<Joker>> = new GameSettings<Set<Joker>>();
   public trackInfo: TrackInfo | null = null;
   public guesses: Record<number, Record<string, UserGuess>> = {};
   public leaderboard: Leaderboard = new Leaderboard();
@@ -27,7 +27,6 @@ export class GameInstance {
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId
     this.hostId = hostId;
-    this.settings = new GameSettings<Set<Joker>>();
   }
 
   public isHost(userId: string): boolean {

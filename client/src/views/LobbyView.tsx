@@ -89,7 +89,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             </div>
           </div>
 
-          <div className="settings-label">🥇 First Correct Bonus</div>
+          <div className="settings-label">🥇 First Bonus Multiplier</div>
           <div className="settings-value">
             {gameState.value.gameSettings?.firstBonusMultiplier}
           </div>
