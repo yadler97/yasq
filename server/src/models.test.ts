@@ -1,8 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GameInstance, LeaderboardEntry, Tag, Track, TrackInfo, UserGuess } from './models.js';
 import {
-  GameState, Joker, MAX_TIME_MULTIPLIER, MIN_TIME_MULTIPLIER, DEFAULT_FIRST_BONUS_MULTIPLIER, TimeBonus,
-  FirstBonusMultiplier
+  DEFAULT_FIRST_BONUS_MULTIPLIER,
+  FirstBonusMultiplier,
+  GameState,
+  Joker,
+  MAX_TIME_MULTIPLIER,
+  MIN_TIME_MULTIPLIER,
+  TimeBonus,
 } from '@yasq/shared';
 
 const HOST = "host_123";
@@ -365,13 +370,17 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
 
   it('should decay time multipliers exponentially between the first successful guess and the end of the track', () => {
     const PRECISION = 6;
+    // Function values are calculated as follows:
+    // x: scaled evaluation point (in [0,1)), k: EXPONENTIAL_DECAY_INTENSITY constant
+    // f(x) = (1/e^(k * x) - 1/e^k) / (1 - 1/e^k)
+
     expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
-    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.84945501, PRECISION);
-    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.71323627, PRECISION);
-    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.58998046, PRECISION);
-    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.47845399, PRECISION);
-    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.28623051, PRECISION);
-    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.12885124, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.75901993, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.57134447, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.42518267, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.31135175, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.15365819, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.05801221, PRECISION);
     expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
   });
 });

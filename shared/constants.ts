@@ -47,7 +47,7 @@ export const DEFAULT_ROUNDS: number = 5;
 export const BASE_POINTS: number = 100;
 export const MAX_TIME_MULTIPLIER: number = 2.0;
 export const MIN_TIME_MULTIPLIER: number = 1.0;
-export const EXPONENTIAL_DECAY_INTENSITY: number = 1.0;
+export const EXPONENTIAL_DECAY_INTENSITY: number = 2.5;
 export const DEFAULT_FIRST_BONUS_MULTIPLIER = FirstBonusMultiplier.X1_2;
 export const DEFAULT_TIME_BONUS: TimeBonus = TimeBonus.LINEAR;
 
