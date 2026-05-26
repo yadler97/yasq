@@ -4,25 +4,25 @@ import * as backend from "../utils/backend";
 import { participants, discordSdk, auth, gameState } from "../main";
 import { getDisplayName, getAvatarUrl } from "../utils/helper";
 import { ALL_JOKER_ICONS } from "./JokerIcons";
-import { DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION, FirstBonusMultiplier, Joker } from "@yasq/shared";
+import { DEFAULT_ROUNDS, DEFAULT_TRACK_DURATION, FirstBonusMultiplier, GameSettings, Joker } from "@yasq/shared";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { Fragment } from "preact/jsx-runtime";
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
-  const roundCount = useSignal(gameState.value.rounds || DEFAULT_ROUNDS);
-  const trackDuration = useSignal(gameState.value.trackDuration
-    ? gameState.value.trackDuration / 1000
+  const roundCount = useSignal(gameState.value.gameSettings?.rounds || DEFAULT_ROUNDS);
+  const trackDuration = useSignal(gameState.value.gameSettings?.trackDuration
+    ? gameState.value.gameSettings?.trackDuration / 1000
     : DEFAULT_TRACK_DURATION);
   const isSubmitting = useSignal(false);
   const isAdvancedOpen = useSignal(false);
   const firstBonusMultiplier = useSignal<FirstBonusMultiplier>(
-    gameState.value.firstBonusMultiplier || FirstBonusMultiplier.OFF
+    gameState.value.gameSettings?.firstBonusMultiplier || FirstBonusMultiplier.OFF
   );
 
   const activeJokers = useSignal<Set<Joker>>(
     new Set(
-      gameState.value.enabledJokers.length > 0
-        ? gameState.value.enabledJokers
+      gameState.value.gameSettings?.enabledJokers?.length
+        ? gameState.value.gameSettings.enabledJokers
         : [Joker.OBFUSCATION, Joker.TRIVIA, Joker.MULTIPLE_CHOICE, Joker.SPY]
     )
   );
@@ -39,14 +39,19 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
 
   const handleConfirmSettings = async () => {
     isSubmitting.value = true;
+
+    const currentSettings: GameSettings = {
+      rounds: roundCount.value,
+      trackDuration: trackDuration.value,
+      enabledJokers: [...activeJokers.value],
+      firstBonusMultiplier: firstBonusMultiplier.value,
+    };
+
     try {
       await backend.setupGame(
         auth.value.access_token,
         discordSdk.instanceId,
-        roundCount.value,
-        trackDuration.value,
-        [...activeJokers.value],
-        firstBonusMultiplier.value
+        currentSettings
       );
     } catch (e) {
       console.error("Setup failed:", e);

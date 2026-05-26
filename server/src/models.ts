@@ -4,9 +4,9 @@ import {
   DEFAULT_FIRST_BONUS_MULTIPLIER,
   DEFAULT_ROUNDS,
   DEFAULT_TRACK_DURATION,
-  FirstBonusMultiplier,
   GameState,
-  Joker
+  Joker,
+  type GameSettings
 } from "@yasq/shared";
 import MersenneTwister from 'mersenne-twister';
 import { hash } from "./helper.js";
@@ -19,7 +19,7 @@ export class GameInstance {
   public currentRound: number = 0;
   public readyUsers: Set<string> = new Set();
   public guessedPlayers: Set<string> = new Set();
-  public settings: Settings;
+  public settings: GameSettings<Set<Joker>>;
   public trackInfo: TrackInfo | null = null;
   public guesses: Record<number, Record<string, UserGuess>> = {};
   public leaderboard: Leaderboard = new Leaderboard();
@@ -43,13 +43,12 @@ export class GameInstance {
     return this.hostId === userId;
   }
 
-  public setupGame(rounds: number, trackDuration: number, enabledJokers: Joker[], firstBonusMultiplier: FirstBonusMultiplier): void {
-    this.settings = new Settings(
-      rounds || DEFAULT_ROUNDS,
-      (trackDuration * 1000) || DEFAULT_TRACK_DURATION,
-      new Set(enabledJokers),
-      firstBonusMultiplier
-    );
+  public setupGame(settings: GameSettings): void {
+    this.settings = {
+      ...settings,
+      trackDuration: settings.trackDuration * 1000,
+      enabledJokers: new Set(settings.enabledJokers)
+    };
     this.state = GameState.LOBBY;
   }
 
@@ -312,15 +311,6 @@ export class GameInstance {
       guessedPlayers: Array.from(this.guessedPlayers),
     };
   }
-}
-
-export class Settings {
-  constructor(
-    public rounds: number,
-    public trackDuration: number,
-    public enabledJokers: Set<Joker>,
-    public firstBonusMultiplier: FirstBonusMultiplier
-  ) {}
 }
 
 export class Track {

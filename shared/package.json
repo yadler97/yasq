@@ -3,7 +3,7 @@
   "private": true,
   "description": "Shared utils for YASQ like constants",
   "type": "module",
-  "main": "./constants.ts",
+  "main": "./index.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/yadler97/yasq.git"

@@ -38,16 +38,16 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
 
         <div className="settings-grid">
           <div className="settings-label">🔄 Rounds</div>
-          <div className="settings-value">{gameState.value.rounds}</div>
+          <div className="settings-value">{gameState.value.gameSettings?.rounds}</div>
 
           <div className="settings-label">⏱️ Track Duration</div>
-          <div className="settings-value">{gameState.value.trackDuration / 1000}s</div>
+          <div className="settings-value">{(gameState.value.gameSettings?.trackDuration ?? 0) / 1000}s</div>
 
           <div className="settings-label">❓ Jokers</div>
           <div className="settings-value">
             <div className="joker-column">
-              {gameState.value.enabledJokers.length > 0 ? (
-                gameState.value.enabledJokers.map((jokerType) => {
+              {gameState.value.gameSettings?.enabledJokers.length ? (
+                gameState.value.gameSettings?.enabledJokers.map((jokerType) => {
                   const JokerIcon = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
                   return (
                     <div key={jokerType} className="joker-row-item">
