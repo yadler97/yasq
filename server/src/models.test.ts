@@ -46,7 +46,7 @@ describe('GameInstance - startGame', () => {
 
     // Assert settings (15s should become 15000ms)
     expect(game.settings.rounds).toBe(5);
-    expect(game.settings.trackDuration).toBe(15000);
+    expect(game.settings.trackDuration).toBe(15_000);
     expect(game.settings.enabledJokers.has(Joker.OBFUSCATION)).toBe(true);
     expect(game.settings.enabledJokers.has(Joker.MULTIPLE_CHOICE)).toBe(true);
     expect(game.settings.enabledJokers.size).toBe(2);
@@ -87,7 +87,7 @@ describe('GameInstance - submitGuess', () => {
     // Simulate game already started and in selection state
     game.currentRound = 1;
     const track = new Track("Game A", "Track A", "", "", [])
-    game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10000, track, "cover")
+    game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10_000, track, "cover")
   });
 
   afterEach(() => {
@@ -159,8 +159,8 @@ describe('GameInstance - submitResults', () => {
     // Player 2: Correct, took 10s (Multiplier should be 1.5), but slower
     game.guesses[1] = {
       [PLAYER_1]: new UserGuess(GAME_A, 5000),
-      [PLAYER_2]: new UserGuess(GAME_B, 10000),
-      [PLAYER_3]: new UserGuess(GAME_B, 15000)
+      [PLAYER_2]: new UserGuess(GAME_B, 10_000),
+      [PLAYER_3]: new UserGuess(GAME_B, 15_000)
     };
   });
 
@@ -492,7 +492,7 @@ describe('GameInstance - playTrack', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     game = new GameInstance(INSTANCE_ID, HOST);
-    game.settings.trackDuration = 10000; // 10 seconds
+    game.settings.trackDuration = 10_000; // 10 seconds
   });
 
   afterEach(() => {
@@ -505,7 +505,7 @@ describe('GameInstance - playTrack', () => {
     game.playTrack(track);
 
     const expectedStart = Date.now() + 4000; // now + countdown
-    const expectedEnd = expectedStart + 10000; // start + duration
+    const expectedEnd = expectedStart + 10_000; // start + duration
 
     expect(game.state).toBe(GameState.PLAYING);
     expect(game.trackInfo?.startTime).toBe(expectedStart);
@@ -521,7 +521,7 @@ describe('GameInstance - playTrack', () => {
     expect(game.state).toBe(GameState.PLAYING);
 
     // Fast-forward time by 13.9 seconds (countdown + duration - 100ms)
-    vi.advanceTimersByTime(13900);
+    vi.advanceTimersByTime(13_900);
     expect(game.state).toBe(GameState.PLAYING);
 
     // Jump past the finish line (14.1 seconds total)
@@ -538,7 +538,7 @@ describe('GameInstance - playTrack', () => {
     game.currentRound = 2;
 
     // Fast-forward through the total duration
-    vi.advanceTimersByTime(15000);
+    vi.advanceTimersByTime(15_000);
 
     // The state should NOT be ROUND_COMPLETED because the roundAtStart check fails
     expect(game.state).not.toBe(GameState.ROUND_COMPLETED);

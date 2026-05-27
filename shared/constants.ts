@@ -46,7 +46,7 @@ export const DEFAULT_VOLUME_SLIDER_VAL: number = 0.5;
 export const POLLING_INTERVAL: number = 500;
 
 export const COUNTDOWN_DURATION: number = 4000;
-export const DEFAULT_TRACK_DURATION: number = 60000;
+export const DEFAULT_TRACK_DURATION: number = 60_000;
 export const DEFAULT_ROUNDS: number = 5;
 
 export const BASE_POINTS: number = 100;

@@ -1,6 +1,6 @@
 import { GameSettings, Joker, TimeBonus } from "@yasq/shared";
 
-// Define an extension of the TimeBonusType enum for selection in the UI
+/** Extension of the {@link TimeBonus} enum for selection in the UI */
 export const OptionalTimeBonus = {
   ...TimeBonus,
   NONE: 'NONE',

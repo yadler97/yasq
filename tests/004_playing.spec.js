@@ -28,7 +28,7 @@ test.describe('Host UI', () => {
         readyUserIds: [],
         settings: {
           rounds: 5,
-          trackDuration: 30000,
+          trackDuration: 30_000,
           enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE', 'SPY']
         },
         trackInfo: {
@@ -101,7 +101,7 @@ test.describe('Player UI', () => {
         readyUserIds: [],
         settings: {
           rounds: 5,
-          trackDuration: 30000,
+          trackDuration: 30_000,
           enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE', 'SPY']
         },
         trackInfo: {
