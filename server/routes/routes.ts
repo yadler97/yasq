@@ -191,23 +191,14 @@ export const setupRoutes = (instances: Record<string, GameInstance>, isMockMode:
     res.send({ status: "success" });
   });
 
-  router.post("/setup-game", async (req, res) => {
+  router.post("/setup-game", authenticateUser, async (req, res) => {
     const { instanceId, settings } = req.body;
-    const authHeader = req.headers.authorization;
+    const userId = req.userId!;
     const maxAllowedDuration: number = Math.floor(INT32_MAX_VALUE / 1000) - COUNTDOWN_DURATION;
-
-    if (!authHeader) return res.status(401).send({ error: "No token provided" });
-    const token = authHeader.split(' ')[1] || "";
-
-    const userId = await validateToken(token);
-
-    if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
-    }
 
     const game = instances[instanceId];
 
-    // Security check: only host can setup a game
+    // Security check: only host can set up a game
     if (!game?.isHost(userId)) {
       return res.status(403).send({ error: "Only host can setup a game" });
     }

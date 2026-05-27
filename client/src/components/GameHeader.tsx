@@ -10,7 +10,7 @@ export const GameHeader = () => {
       case GameState.PLAYING:
       case GameState.ROUND_COMPLETED:
       case GameState.RESULTS:
-        return `Round ${currentRound} of ${gameSettings?.rounds}`;
+        return `Round ${currentRound} of ${gameSettings.rounds}`;
       default:
         return "YASQ";
     }

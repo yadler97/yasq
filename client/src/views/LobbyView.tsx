@@ -1,9 +1,25 @@
 import { useState, useEffect } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { participants, discordSdk, auth, gameState } from "../main";
+import { auth, discordSdk, gameState, participants } from "../main";
 import { capitalize, getUserId } from "../utils/helper";
-import { ALL_JOKER_ICONS } from "./JokerIcons";
+import { ALL_JOKER_ICONS } from "../components/JokerIcons";
+import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
+import { TimeBonus } from "@yasq/shared";
+
+
+export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
+  [TimeBonus.LINEAR]: '⏳ Steady Pace',
+  [TimeBonus.EXPONENTIAL]: '🔥 Quick Fire',
+  [TimeBonus.LOGISTIC]: '⚖️ Balanced',
+  NONE: '❌ No time bonus'
+};
+
+function formatFirstMultiplier(multiplier: number): string {
+  if (multiplier === 1.0) return "No bonus";
+  const percent = Math.round((multiplier - 1) * 100);
+  return `+${percent}%`;
+}
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
@@ -53,16 +69,16 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
 
         <div className="settings-grid">
           <div className="settings-label">🔄 Rounds</div>
-          <div className="settings-value">{gameState.value.gameSettings?.rounds}</div>
+          <div className="settings-value">{gameState.value.gameSettings.rounds}</div>
 
-          <div className="settings-label">⏱️ Track Duration</div>
-          <div className="settings-value">{(gameState.value.gameSettings?.trackDuration ?? 0) / 1000}s</div>
+          <div className="settings-label">⏳ Track Duration</div>
+          <div className="settings-value">{(gameState.value.gameSettings.trackDuration ?? 0) / 1000}s</div>
 
           <div className="settings-label">❓ Jokers</div>
           <div className="settings-value">
             <div className="joker-column">
-              {gameState.value.gameSettings?.enabledJokers.length ? (
-                gameState.value.gameSettings?.enabledJokers.map((jokerType) => {
+              {gameState.value.gameSettings.enabledJokers.length ? (
+                gameState.value.gameSettings.enabledJokers.map((jokerType) => {
                   const JokerIcon = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
                   const isTooltipOpen = activeTooltipType === jokerType;
 
@@ -89,9 +105,14 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             </div>
           </div>
 
-          <div className="settings-label">🥇 First Bonus Multiplier</div>
+          <div className="settings-label">⏱️ Time Bonus</div>
           <div className="settings-value">
-            {gameState.value.gameSettings?.firstBonusMultiplier}
+            {PLAYER_TIME_BONUS_LABELS[gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE]}
+          </div>
+
+          <div className="settings-label">🥇 First Bonus</div>
+          <div className="settings-value">
+            {formatFirstMultiplier(gameState.value.gameSettings.firstBonusMultiplier)}
           </div>
         </div>
 

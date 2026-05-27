@@ -1,6 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GameInstance, LeaderboardEntry, Tag, Track, TrackInfo, UserGuess } from './models.js';
-import { DEFAULT_FIRST_BONUS_MULTIPLIER, GameState, Joker } from '@yasq/shared';
+import {
+  DEFAULT_FIRST_BONUS_MULTIPLIER,
+  FirstBonusMultiplier,
+  GameState,
+  Joker,
+  MAX_TIME_MULTIPLIER,
+  MIN_TIME_MULTIPLIER,
+  TimeBonus,
+} from '@yasq/shared';
 
 const HOST = "host_123";
 const INSTANCE_ID = "mock_instance"
@@ -27,7 +35,8 @@ describe('GameInstance - startGame', () => {
       rounds: 5,
       trackDuration: 15,
       enabledJokers: [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE],
-      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: TimeBonus.LINEAR
     });
     game.startGame();
 
@@ -37,7 +46,7 @@ describe('GameInstance - startGame', () => {
 
     // Assert settings (15s should become 15000ms)
     expect(game.settings.rounds).toBe(5);
-    expect(game.settings.trackDuration).toBe(15000);
+    expect(game.settings.trackDuration).toBe(15_000);
     expect(game.settings.enabledJokers.has(Joker.OBFUSCATION)).toBe(true);
     expect(game.settings.enabledJokers.has(Joker.MULTIPLE_CHOICE)).toBe(true);
     expect(game.settings.enabledJokers.size).toBe(2);
@@ -48,7 +57,8 @@ describe('GameInstance - startGame', () => {
       rounds: 5,
       trackDuration: 15,
       enabledJokers: [],
-      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: TimeBonus.LINEAR
     });
     game.startGame();
 
@@ -77,7 +87,7 @@ describe('GameInstance - submitGuess', () => {
     // Simulate game already started and in selection state
     game.currentRound = 1;
     const track = new Track("Game A", "Track A", "", "", [])
-    game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10000, track, "cover")
+    game.trackInfo = new TrackInfo("url", Date.now(), Date.now() + 10_000, track, "cover")
   });
 
   afterEach(() => {
@@ -139,7 +149,8 @@ describe('GameInstance - submitResults', () => {
       rounds: 10,
       trackDuration: 20, // 20s duration = 20000ms
       enabledJokers: [],
-      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: TimeBonus.LINEAR
     });
     game.startGame();
 
@@ -148,8 +159,8 @@ describe('GameInstance - submitResults', () => {
     // Player 2: Correct, took 10s (Multiplier should be 1.5), but slower
     game.guesses[1] = {
       [PLAYER_1]: new UserGuess(GAME_A, 5000),
-      [PLAYER_2]: new UserGuess(GAME_B, 10000),
-      [PLAYER_3]: new UserGuess(GAME_B, 15000)
+      [PLAYER_2]: new UserGuess(GAME_B, 10_000),
+      [PLAYER_3]: new UserGuess(GAME_B, 15_000)
     };
   });
 
@@ -172,7 +183,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.roundHistory[0]?.scoreValue).toBe(1);
 
     // Math for Player 2:
-    // Recall: FirstCorrect = 5000
+    // Recall: FirstCorrect = 5000, MAX_TIME_MULTPLIER = 2
     // Multiplier = 2 - ((10000-5000) / (20000 - 5000)) = 1.6666
     // Base = 100 * 1.0 * 1.6666 = 166.6 ~= 167
     // No First Bonus
@@ -183,7 +194,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]?.scoreValue).toBe(1);
 
     // Math for Player 3:
-    // Recall: FirstCorrect = 5000
+    // Recall: FirstCorrect = 5000, MAX_TIME_MULTPLIER = 2
     // Multiplier = 2 - ((15000-5000) / (20000 - 5000)) = 1.3333
     // Base = 100 * 1.0 * 1.3333 = 133.3 ~= 133
     // No First Bonus
@@ -210,6 +221,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.roundHistory[0]?.scoreValue).toBe(0);
 
     // Math for Player 2:
+    // Recall: MAX_TIME_MULTPLIER = 2
     // Multiplier = 2 (first partially correct guess) => FirstCorrect = 10000
     // Base = 100 * 0.5 * 2 = 100
     // No First Bonus
@@ -220,7 +232,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]?.scoreValue).toBe(0.5);
 
     // Math for Player 3:
-    // Recall: FirstCorrect = 10000
+    // Recall: FirstCorrect = 10000, MAX_TIME_MULTPLIER = 2
     // Multiplier = 2 - ((15000-10000) / (20000 - 10000)) = 1.5
     // Base = 100 * 1.0 * 1.5 = 150
     // First Bonus = 150 * 1.2 = 180
@@ -239,6 +251,7 @@ describe('GameInstance - submitResults', () => {
     const entry2 = game.leaderboard.getEntry(PLAYER_2);
 
     // Math for Player 1:
+    // Recall: MAX_TIME_MULTPLIER = 2
     // Multiplier = 2 (first partially correct guess) => FirstCorrect = 5000
     // Base = 100 * 0.5 * 2 = 100
     // No First Bonus
@@ -249,7 +262,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.roundHistory[0]?.scoreValue).toBe(0.5);
 
     // Math for Player 2:
-    // Recall: FirstCorrect = 5000
+    // Recall: FirstCorrect = 5000, MAX_TIME_MULTPLIER = 2
     // Multiplier = 2 - ((10000-5000) / (20000 - 5000)) = 1.6666
     // Base = 100 * 0.5 * 1.6666 = 83.333 ~= 83
     // No First Bonus
@@ -270,6 +283,163 @@ describe('GameInstance - submitResults', () => {
   });
 });
 
+describe('GameInstance - timeMultiplierEdgeCases', () => {
+  const TRACK_DURATION: number = 10_000; // milliseconds
+  const game = new GameInstance(INSTANCE_ID, HOST);
+
+  for (const timeBonusSetting in TimeBonus) {
+    const bonusType = timeBonusSetting as TimeBonus
+
+    game.setupGame({
+      rounds: 1,
+      trackDuration: TRACK_DURATION / 1000,
+      enabledJokers: [],
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: bonusType
+    });
+
+    it(`should assign MAX_TIME_MULTIPLIER for guesses at/before the first success - ${bonusType}`, () => {
+      const REALISTIC_SUCCESS = 3000;
+      expect(game.calculateTimeMultiplier(REALISTIC_SUCCESS, REALISTIC_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(0, REALISTIC_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(-100, REALISTIC_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+
+      const IMMEDIATE_SUCCESS = 0;
+      expect(game.calculateTimeMultiplier(IMMEDIATE_SUCCESS, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(0, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(-100, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+
+      const LATE_SUCCESS = TRACK_DURATION;
+      expect(game.calculateTimeMultiplier(LATE_SUCCESS, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(0, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(-100, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+    });
+
+    it(`should assign MIN_TIME_MULTIPLIER for guesses at/after the track ended - ${bonusType}`, () => {
+      const REALISTIC_SUCCESS = 3000;
+      expect(game.calculateTimeMultiplier(TRACK_DURATION, REALISTIC_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, REALISTIC_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+
+      const IMMEDIATE_SUCCESS = 0;
+      expect(game.calculateTimeMultiplier(TRACK_DURATION, IMMEDIATE_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, IMMEDIATE_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, TRACK_DURATION)).toBe(MIN_TIME_MULTIPLIER);
+    });
+  }
+});
+
+describe('GameInstance - timeMultiplier:LINEAR', () => {
+  const game = new GameInstance(INSTANCE_ID, HOST);
+  const FIRST_SUCCESS: number = 2000;
+  const TRACK_DURATION: number = 12_000;
+
+  game.setupGame({
+    rounds: 1,
+    trackDuration: TRACK_DURATION / 1000,
+    enabledJokers: [],
+    firstBonusMultiplier: FirstBonusMultiplier.OFF,
+    timeBonus: TimeBonus.LINEAR
+  });
+
+  it('should decay time multipliers linearly between the first successful guess and the end of the track', () => {
+    const PRECISION = 8;
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.9, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.8, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.7, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.6, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.4, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.2, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+  });
+});
+
+describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
+  const game = new GameInstance(INSTANCE_ID, HOST);
+  const FIRST_SUCCESS: number = 2000;
+  const TRACK_DURATION: number = 12_000;
+
+  game.setupGame({
+    rounds: 1,
+    trackDuration: TRACK_DURATION / 1000,
+    enabledJokers: [],
+    firstBonusMultiplier: FirstBonusMultiplier.OFF,
+    timeBonus: TimeBonus.EXPONENTIAL
+  });
+
+  it('should decay time multipliers exponentially between the first successful guess and the end of the track', () => {
+    const PRECISION = 6;
+    // Function values are calculated as follows:
+    // x: scaled evaluation point (in [0,1)), k: EXPONENTIAL_DECAY_INTENSITY constant
+    // f(x) = (1/e^(k * x) - 1/e^k) / (1 - 1/e^k)
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.75901993, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.57134447, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.42518267, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.31135175, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.15365819, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.05801221, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+  });
+});
+
+describe('GameInstance - timeMultiplier:LOGISTIC', () => {
+  const game = new GameInstance(INSTANCE_ID, HOST);
+  const FIRST_SUCCESS: number = 2000;
+  const TRACK_DURATION: number = 12_000;
+
+  game.setupGame({
+    rounds: 1,
+    trackDuration: TRACK_DURATION / 1000,
+    enabledJokers: [],
+    firstBonusMultiplier: FirstBonusMultiplier.OFF,
+    timeBonus: TimeBonus.LOGISTIC
+  });
+
+  it('should decay time multipliers logistically/sigmoidally between the first successful guess and the end of the track', () => {
+    const PRECISION = 6;
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.99275028, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.96907309, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.90425200, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.75276270, PRECISION);
+    expect(game.calculateTimeMultiplier(7000, FIRST_SUCCESS)).toBeCloseTo(1.5, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.24723729, PRECISION);
+    expect(game.calculateTimeMultiplier(9000, FIRST_SUCCESS)).toBeCloseTo(1.09574799, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.03092690, PRECISION);
+    expect(game.calculateTimeMultiplier(11_000, FIRST_SUCCESS)).toBeCloseTo(1.00724971, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+  });
+});
+
+describe('GameInstance - timeMultiplier:CONSTANT', () => {
+  const game = new GameInstance(INSTANCE_ID, HOST);
+  const FIRST_SUCCESS: number = 2000;
+  const TRACK_DURATION: number = 12_000;
+
+  game.setupGame({
+    rounds: 1,
+    trackDuration: TRACK_DURATION / 1000,
+    enabledJokers: [],
+    firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+    timeBonus: null  // no time bonus
+  });
+
+  it('should always assign the same constant time multiplier independent of answer time', () => {
+    const CONSTANT = game.calculateTimeMultiplier(0, 0);
+
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBe(CONSTANT);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBe(CONSTANT);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBe(CONSTANT);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBe(CONSTANT);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBe(CONSTANT);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBe(CONSTANT);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBe(CONSTANT);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBe(CONSTANT);
+  });
+});
+
 describe('GameInstance - advanceRound', () => {
   let game: GameInstance;
 
@@ -279,7 +449,8 @@ describe('GameInstance - advanceRound', () => {
       rounds: 3,
       trackDuration: 20,
       enabledJokers: [],
-      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER
+      firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
+      timeBonus: TimeBonus.LINEAR
     });
     game.startGame();
     game.readyUsers.add(PLAYER_1);
@@ -321,7 +492,7 @@ describe('GameInstance - playTrack', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     game = new GameInstance(INSTANCE_ID, HOST);
-    game.settings.trackDuration = 10000; // 10 seconds
+    game.settings.trackDuration = 10_000; // 10 seconds
   });
 
   afterEach(() => {
@@ -334,7 +505,7 @@ describe('GameInstance - playTrack', () => {
     game.playTrack(track);
 
     const expectedStart = Date.now() + 4000; // now + countdown
-    const expectedEnd = expectedStart + 10000; // start + duration
+    const expectedEnd = expectedStart + 10_000; // start + duration
 
     expect(game.state).toBe(GameState.PLAYING);
     expect(game.trackInfo?.startTime).toBe(expectedStart);
@@ -349,8 +520,8 @@ describe('GameInstance - playTrack', () => {
     // Verify we are still playing initially
     expect(game.state).toBe(GameState.PLAYING);
 
-    // Fast forward time by 13.9 seconds (countdown + duration - 100ms)
-    vi.advanceTimersByTime(13900);
+    // Fast-forward time by 13.9 seconds (countdown + duration - 100ms)
+    vi.advanceTimersByTime(13_900);
     expect(game.state).toBe(GameState.PLAYING);
 
     // Jump past the finish line (14.1 seconds total)
@@ -366,8 +537,8 @@ describe('GameInstance - playTrack', () => {
     // Manually bump the round (simulating all players submitted guess before countdown ends)
     game.currentRound = 2;
 
-    // Fast forward through the total duration
-    vi.advanceTimersByTime(15000);
+    // Fast-forward through the total duration
+    vi.advanceTimersByTime(15_000);
 
     // The state should NOT be ROUND_COMPLETED because the roundAtStart check fails
     expect(game.state).not.toBe(GameState.ROUND_COMPLETED);

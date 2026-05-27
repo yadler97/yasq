@@ -1,9 +1,14 @@
 import {
   BASE_POINTS,
   COUNTDOWN_DURATION,
-  GameSettings,
+  EXPONENTIAL_DECAY_INTENSITY,
   GameState,
-  Joker} from "@yasq/shared";
+  GameSettings,
+  Joker,
+  MAX_TIME_MULTIPLIER,
+  MIN_TIME_MULTIPLIER,
+  TimeBonus
+} from "@yasq/shared";
 import MersenneTwister from 'mersenne-twister';
 import { hash } from "./helper.js";
 
@@ -117,7 +122,7 @@ export class GameInstance {
 
       if (scoreMultiplier > 0) {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
-        const timeMultiplier = Math.max(1, this.calculateDelayedLinearDecayMultiplier(timeTaken, firstPartiallyCorrectTime));
+        const timeMultiplier = this.calculateTimeMultiplier(timeTaken, firstPartiallyCorrectTime);
         pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
         if (isFirst) pointsEarned *= this.settings.firstBonusMultiplier;
       }
@@ -148,12 +153,26 @@ export class GameInstance {
     this.guessedPlayers = new Set();
   }
 
-  private calculateDelayedLinearDecayMultiplier(evaluationTime: number, delay: number) : number {
-    // linear function passing through (delay, 2) and (maxTime, 1)
-    const maxTime = this.settings.trackDuration;
-    const multiplier = 2 - ((evaluationTime - delay) / (maxTime - delay));
+  public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
+    if (this.settings.timeBonus === null) return 1.0  // apply no time bonus
 
-    return Number(multiplier.toFixed(4));
+    const totalTime = this.settings.trackDuration;
+
+    // Stay constant at MAX until the first successful answer
+    if (evaluationTime <= firstSuccessTime || evaluationTime <= 0) {
+      return MAX_TIME_MULTIPLIER;
+    }
+    // Stay constant at MIN from the end of the round
+    if (evaluationTime >= totalTime || totalTime <= firstSuccessTime) {
+      return MIN_TIME_MULTIPLIER;
+    }
+
+    const timeMultiplierFunction: TimeMultiplierFunction = TIME_MULTIPLIERS[this.settings.timeBonus];
+    const bonusFraction = timeMultiplierFunction(evaluationTime, firstSuccessTime, totalTime);
+
+    const multiplier = MIN_TIME_MULTIPLIER + (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * bonusFraction;
+
+    return Math.min(MAX_TIME_MULTIPLIER, Math.max(MIN_TIME_MULTIPLIER, multiplier));
   }
 
   public advanceRound(): string {
@@ -302,6 +321,55 @@ export class GameInstance {
     };
   }
 }
+
+/**
+ * Mathematical function representing the time bonus decay over time. In particular, this function computes a time bonus
+ * multiplier at a given evaluation time based on the time of the first successful player and the total round duration.<br/>
+ * The function must return a **bonus factor** in the range `[0.0, 1.0]`, indicating
+ * how much of the maximum time bonus remains at the given evaluationTime.
+ * @param evaluationTime - Time at which the multiplier shall be calculated.
+ * @param firstSuccessTime - Time when the first player answered partially correctly.
+ * @param totalTime - Total duration of the round.
+ * @returns bonusFraction - Fraction of the time bonus at evaluationTime.
+ */
+type TimeMultiplierFunction = (evaluationTime: number, firstSuccessTime: number, totalTime: number) => number;
+
+const TIME_MULTIPLIERS: Record<TimeBonus, TimeMultiplierFunction> = {
+  /** Linear function passing through (first, MAX) and (total, MIN) */
+  [TimeBonus.LINEAR]: (elapsed, first, total) => {
+    // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]
+    const decayFraction = (elapsed - first) / (total - first);
+    return 1 - decayFraction;
+  },
+
+  /**
+   * Exponential decay function passing through (first, MAX) and (total, MIN) decaying with rate
+   * e^({@link EXPONENTIAL_DECAY_INTENSITY} * elapsed)
+   */
+  [TimeBonus.EXPONENTIAL]: (elapsed, first, total) => {
+    const k = EXPONENTIAL_DECAY_INTENSITY;  // larger values mean faster decay
+
+    // Scale elapsed time between 'first' and 'total' to a normalized range of [0, 1]
+    const x = (elapsed - first) / (total - first);
+
+    // Shift function to match 1 at x=0 and 0 at x=1
+    // f(x) = (1/e^(k * x) - 1/e^k) / (1 - 1/e^k)
+    return (Math.exp(-k * x) - Math.exp(-k)) / (1 - Math.exp(-k));
+  },
+
+  /**
+   * Logistic decay centered around 50% of the multiplier at 50% of the total time.
+   */
+  [TimeBonus.LOGISTIC]: (elapsed, first, total) => {
+    // Scale elapsed time between 'first' and 'total' to a normalized range of [-0.5, 0.5]
+    const x = (elapsed - first) / (total - first) - 0.5;
+
+    // Logistic decay passing through (0, 0.5) with f(-0.5) ~= 1 and f(0.5) ~= 0
+    const height: number = 1.01;
+    const k: number = 11;
+    return 1.005 - (height / (1 + Math.exp(-k * x)));
+  },
+};
 
 export class Track {
   constructor(

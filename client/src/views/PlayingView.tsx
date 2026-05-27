@@ -2,9 +2,9 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useRef } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { gameState, auth, discordSdk, audioPlayer, participants } from "../main";
+import { audioPlayer, auth, discordSdk, gameState, participants } from "../main";
 import { Joker, POLLING_INTERVAL } from "@yasq/shared";
-import { ALL_JOKER_ICONS } from './JokerIcons';
+import { ALL_JOKER_ICONS } from '../components/JokerIcons';
 import { capitalize, getAvatarUrl, getDisplayName } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 
@@ -289,7 +289,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <div className="joker-list">
                 {ALL_JOKER_ICONS
                   // Only show jokers that were enabled by the host during setup
-                  .filter(Icon => gameState.value.gameSettings?.enabledJokers.includes(Icon.jokerType))
+                  .filter(Icon => gameState.value.gameSettings.enabledJokers.includes(Icon.jokerType))
                   .map((Icon) => {
                     const type = Icon.jokerType;
                     const isAvailable = availableJokers.value.includes(type);
