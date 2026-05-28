@@ -201,6 +201,11 @@ img {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+.joker-config-btn:focus-visible {
+  outline: 3px solid var(--blurple, #5865f2);
+  outline-offset: 2px;
+}
+
 input[type="text"], input[type="number"], select {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -628,6 +633,7 @@ input[type="radio"]:checked + .btn-radio {
 }
 
 .dropdown-header {
+  width: 100%;
   background: var(--bg-dark);
   border: 1px solid var(--border-input-header);
   padding: 0 12px;
@@ -637,6 +643,10 @@ input[type="radio"]:checked + .btn-radio {
 }
 .dropdown-header:hover {
   border-color: var(--blurple);
+}
+.dropdown-header:focus-visible {
+  outline: 3px solid var(--accent-color, #5865f2);
+  outline-offset: 2px;
 }
 
 #btn-confirm-transfer {
@@ -677,6 +687,16 @@ input[type="radio"]:checked + .btn-radio {
 
 .dropdown-item:hover {
   background-color: rgba(0, 0, 0, 0.1);
+}
+.dropdown-item:focus-visible {
+  /* Fixes missing left/right borders by painting an inner shadow matrix */
+  box-shadow: inset 0 0 0 2px var(--accent-color, #5865f2);
+
+  /* Retain your background hover contrast color if needed */
+  background-color: var(--bg-modifier-hover, rgba(255, 255, 255, 0.1));
+
+  /* Strip the problematic outline standard */
+  outline: none;
 }
 
 .dropdown-header span,
@@ -1188,7 +1208,16 @@ input[type="radio"]:checked + .btn-radio {
 }
 
 .button-group input[type="radio"] {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.button-group input[type="radio"]:focus-visible + .btn-radio {
+  outline: 3px solid var(--accent-color, #5865f2);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .btn-radio {
