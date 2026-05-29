@@ -80,6 +80,11 @@ app.use('/game_covers', express.static(path.join(__dirname, 'data/game_covers'))
 // Register routes
 app.use('/api', setupRoutes(server, instances, isMockMode, allTracks, allPlaylists));
 
+// Add a simple endpoint for health checks
+app.get("/health", (req, res) => {
+  res.status(200).json({ ok: true });
+});
+
 // Only register mock routes when server is started in mock mode
 if (isMockMode) {
   console.log('[MODE] Server is running in mock mode')
