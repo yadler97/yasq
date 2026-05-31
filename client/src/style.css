@@ -127,6 +127,7 @@ img {
   width: 100%;
   padding: 20px;
   box-sizing: border-box;
+  margin: auto;
 }
 
 .host-settings {
@@ -201,11 +202,6 @@ img {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-.joker-config-btn:focus-visible {
-  outline: 3px solid var(--blurple, #5865f2);
-  outline-offset: 2px;
-}
-
 input[type="text"], input[type="number"], select {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -218,6 +214,10 @@ input[type="text"], input[type="number"], select {
 }
 input:hover {
   border-color: var(--blurple);
+}
+input:focus-visible, select:focus-visible, button:focus-visible {
+  outline: 3px solid var(--blurple);
+  outline-offset: 2px;
 }
 
 .hide-played-checkbox {
@@ -263,10 +263,6 @@ button {
 }
 button:not(:disabled):hover {
   border-color: var(--blurple);
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 button:disabled {
   cursor: not-allowed;
@@ -975,7 +971,10 @@ input[type="radio"]:checked + .btn-radio {
   border: none;
   padding: 8px;
   cursor: pointer;
-  width: 100%;
+  width: calc(100% - 16px);
+  margin: 0 auto 8px auto;
+  display: block;
+  position: relative;
 }
 
 .track-select-btn:disabled {
@@ -1078,13 +1077,6 @@ input[type="radio"]:checked + .btn-radio {
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
-}
-
-/* Responsive: stack them on very narrow screens */
-@media (max-width: 400px) {
-  .choices-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .joker-list {
@@ -1584,6 +1576,10 @@ input[value="1"]:checked + .btn-radio.correct {
     overflow-wrap: break-word;
     white-space: normal;
     display: inline-block;
+  }
+
+  .choices-grid {
+    grid-template-columns: 1fr;
   }
 
   .centered {

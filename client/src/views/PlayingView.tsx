@@ -7,6 +7,7 @@ import { Joker, POLLING_INTERVAL } from "@yasq/shared";
 import { ALL_JOKER_ICONS } from '../components/JokerIcons';
 import { capitalize, getAvatarUrl, getDisplayName } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
+import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 
 export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const hasSubmitted = useSignal(false);
@@ -290,7 +291,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                 {ALL_JOKER_ICONS
                   // Only show jokers that were enabled by the host during setup
                   .filter(Icon => gameState.value.gameSettings.enabledJokers.includes(Icon.jokerType))
-                  .map((Icon) => {
+                  .map((Icon, index) => {
                     const type = Icon.jokerType;
                     const isAvailable = availableJokers.value.includes(type);
                     const hasUsedJokerThisRound = activeHint.value !== null;
@@ -303,6 +304,10 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
 
                     // Construct the tooltip text
                     const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
+
+                    useKeyboardShortcut({ key: (index + 1).toString(), altKey: true }, () => {
+                      handleJokerUsage(type)
+                    });
 
                     return (
                       <button

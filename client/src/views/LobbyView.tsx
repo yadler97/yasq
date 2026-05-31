@@ -6,6 +6,7 @@ import { capitalize, getUserId } from "../utils/helper";
 import { ALL_JOKER_ICONS } from "../components/JokerIcons";
 import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
 import { TimeBonus } from "@yasq/shared";
+import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 
 
 export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
@@ -28,6 +29,10 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [activeTooltipType, setActiveTooltipType] = useState<string | null>(null);
+
+  useKeyboardShortcut({ key: "r" }, () => {
+    if (!isHost) handleReady();
+  });
 
   useEffect(() => {
     if (!activeTooltipType) return;

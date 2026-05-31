@@ -196,8 +196,20 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         </button>
 
         <label>
-          <input type="checkbox" id="hide-played" className="hide-played-checkbox" checked={hidePlayed.value}
-            onChange={(e) => (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)} /> Hide played tracks
+          <input
+            type="checkbox"
+            id="hide-played"
+            className="hide-played-checkbox"
+            checked={hidePlayed.value}
+            onChange={(e) => (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)}
+            onKeyDown={(e) => {
+              if (e.key === " " || e.key === "Enter") {
+                e.preventDefault();
+                hidePlayed.value = !hidePlayed.value;
+              }
+            }}
+          />
+          Hide played tracks
         </label>
       </div>
 
@@ -377,6 +389,17 @@ export const SimpleDropdown = ({
       <button
         className={`dropdown-trigger ${isFiltering ? 'active' : ''}`}
         onClick={() => (isOpen.value = !isOpen.value)}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
+            e.preventDefault();
+            isOpen.value = true;
+            // Move focus to the first item immediately after rendering
+            setTimeout(() => {
+              const firstItem = document.querySelector(".dropdown-menu .dropdown-item") as HTMLElement;
+              firstItem?.focus();
+            }, 0);
+          }
+        }}
       >
         <span className="current-value">{value}</span>
         <span className={`arrow ${isOpen.value ? 'up' : 'down'}`}>▼</span>
@@ -387,18 +410,48 @@ export const SimpleDropdown = ({
           <div className="dropdown-overlay" onClick={() => (isOpen.value = false)} />
           <div className="dropdown-menu">
             <div className="scrollbar-container">
-              {options.map(opt => (
-                <div
-                  key={opt}
-                  className={`dropdown-item single-select ${value === opt ? 'active' : ''}`}
-                  onClick={() => {
-                    onChange(opt);
-                    isOpen.value = false;
-                  }}
-                >
-                  {opt}
-                </div>
-              ))}
+              {options.map(opt => {
+                const selectOption = () => {
+                  onChange(opt);
+                  isOpen.value = false;
+                  // Return focus to the main trigger button
+                  (document.querySelector(".dropdown-trigger") as HTMLElement)?.focus();
+                };
+
+                return (
+                  <div
+                    key={opt}
+                    className={`dropdown-item single-select ${value === opt ? 'active' : ''}`}
+                    tabIndex={0} // Makes the item focusable via Tab or script
+                    onClick={() => selectOption()}
+                    onKeyDown={(e) => {
+                      const target = e.currentTarget;
+
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        selectOption();
+                      } else if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        (target.nextElementSibling as HTMLElement)?.focus();
+                      } else if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        if (target.previousElementSibling) {
+                          (target.previousElementSibling as HTMLElement)?.focus();
+                        } else {
+                          // Return focus back up to the button if at the top item
+                          (document.querySelector(".dropdown-trigger") as HTMLElement)?.focus();
+                        }
+                      } else if (e.key === "Escape") {
+                        e.preventDefault();
+                        isOpen.value = false;
+                        (document.querySelector(".dropdown-trigger") as HTMLElement)?.focus();
+                      }
+                    }}
+                  >
+                    {opt}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </>
