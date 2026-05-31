@@ -258,6 +258,7 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: var(--bg-input);
+  color: var(--text-main);
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -266,6 +267,7 @@ button:not(:disabled):hover {
 }
 button:disabled {
   cursor: not-allowed;
+  color: graytext;
 }
 
 .settings-info {
@@ -1082,7 +1084,41 @@ input[type="radio"]:checked + .btn-radio {
 .joker-list {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 16px;
+}
+
+.joker-btn-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.joker-shortcut-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  user-select: none;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.joker-btn-wrapper:has(button:disabled) .joker-shortcut-badge {
+  opacity: 0.3;
+}
+
+kbd {
+  background-color: var(--bg-input);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  color: var(--text-main);
+  display: inline-block;
+  font-family: inherit;
+  line-height: 1;
+  padding: 2px 4px;
+  white-space: nowrap;
 }
 
 .joker-icon-btn {
@@ -1597,6 +1633,10 @@ input[value="1"]:checked + .btn-radio.correct {
 
   .tag-badge {
     max-width: 100%;
+  }
+
+  .joker-shortcut-badge {
+    display: none;
   }
 
   .version {

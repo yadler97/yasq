@@ -310,16 +310,20 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     });
 
                     return (
-                      <button
-                        key={type}
-                        className="joker-icon-btn"
-                        id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
-                        title={tooltipText}
-                        onClick={() => handleJokerUsage(type)}
-                        disabled={!isAvailable || hasUsedJokerThisRound}
-                      >
-                        <Icon className="joker-svg" />
-                      </button>
+                      <div key={type} className="joker-btn-wrapper">
+                        <button
+                          className="joker-icon-btn"
+                          id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
+                          title={tooltipText}
+                          onClick={() => handleJokerUsage(type)}
+                          disabled={!isAvailable || hasUsedJokerThisRound}
+                        >
+                          <Icon className="joker-svg" />
+                        </button>
+                        <span className="joker-shortcut-badge">
+                          <kbd>Alt</kbd>+<kbd>{index + 1}</kbd>
+                        </span>
+                      </div>
                     );
                 })}
               </div>
