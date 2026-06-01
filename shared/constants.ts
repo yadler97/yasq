@@ -9,11 +9,11 @@ export const enum GameState {
 }
 
 export const enum Joker {
-  OBFUSCATION = 'OBFUSCATION',  // Cipher
+  OBFUSCATION = 'OBFUSCATION',
   TRIVIA = 'TRIVIA',
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
   SPY = 'SPY',
-  GLIMPSE = 'GLIMPSE',  // Blur, Peek
+  GLIMPSE = 'GLIMPSE',
 }
 
 export enum FirstBonusMultiplier {
