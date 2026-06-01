@@ -108,6 +108,29 @@ cloudflared tunnel --url http://localhost:5173
     - `blacklist`: Everyone except users in `userIds` can see/play these files.
     - Default: Files not listed in any set are public to everyone.
 
+## Testing
+
+The project contains various unit tests for the server component using vitest, as well as end-to-end (E2E) tests to verify correct integration between client and server using Playwright. To run the tests, execute the respective `npm` script in the project root:
+
+### Unit Tests
+
+```bash
+npm run test:unit
+```
+
+### E2E Tests
+
+```bash
+npx playwright install  # for first execution
+
+npm run test:e2e        # headless mode
+npm run test:e2e:ui     # ui mode
+```
+
+### CI Pipeline
+
+In addition, the repo contains the `.yml` file for a GitHub Action CI Pipeline. For pushes on `main` and pull requests to `main` the unit tests and e2e tests are executed.
+
 ## Author
 **Yannick Adler** - [GitHub Profile](https://github.com/yadler97)
 

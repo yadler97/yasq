@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { generatePlayers } from './helper.js'
+import { generatePlayers, Player } from './helper.js'
 
 test.describe('Host UI', () => {
 
-  let players = [];
-  let currentInstanceId;
+  let players: Player[] = [];
+  let currentInstanceId: string;
 
   test.beforeEach(async ({ page, request }, testInfo) => {
     currentInstanceId = `test-instance-${testInfo.testId}`;
