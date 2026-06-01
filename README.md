@@ -1,15 +1,18 @@
 # YASQ (Yet Another Soundtrack Quiz)
+
 A Multiplayer Soundtrack Quiz built as a Discord Activity.
 
 ## Setup
 
-### Prerequistes
+### Prerequisites
+
 - **Node.js** (v22 or higher recommended)
 - **npm**
 - **Discord Developer Account**
 - **cloudflared** (or other tunnel service)
 
 ### Installation
+
 1. **Install Dependencies**
 ```bash
 npm install
@@ -18,10 +21,10 @@ npm install
 2. **Configure Discord**
 - Go to the [Discord Developer Portal](https://discord.com/developers/applications).
 - Follow the Steps in the [Tutorial](https://docs.discord.com/developers/activities/building-an-activity):
-    - Create a new Application.
-    - Set Redirect URI in OAuth2 settings to `https://127.0.0.1`.
-    - Turn `Enable Activities` in Activity settings on.
-    - Make sure to add all additional test players as `App Testers`.
+  - Create a new Application.
+  - Set Redirect URI in OAuth2 settings to `https://127.0.0.1`.
+  - Turn `Enable Activities` in Activity settings on.
+  - Make sure to add all additional test players as `App Testers`.
 
 3. **Set up Environment Variables**\
 Create a `.env` file in the root directory:
@@ -32,6 +35,7 @@ VITE_URL_MAPPING=<Fill Later>
 ```
 
 ### Local Development
+
 1. **Start Client and Server** (Terminal window 1)
 ```bash
 npm run dev
@@ -48,6 +52,7 @@ cloudflared tunnel --url http://localhost:5173
 - Create URL Mapping in Discord Developer Portal under the Activities tab.
 
 ### Game Setup
+
 1. Copy track audio files into `server/data/music`
 2. Copy game cover image files into `server/data/game_covers`
 3. Create `tracks.json` in `server/data` with the following format:
@@ -132,9 +137,11 @@ npm run test:e2e:ui     # ui mode
 In addition, the repo contains the `.yml` file for a GitHub Action CI Pipeline. For pushes on `main` and pull requests to `main` the unit tests and e2e tests are executed.
 
 ## Author
+
 **Yannick Adler** - [GitHub Profile](https://github.com/yadler97)
 
 ### Special Thanks
+
 A huge thanks to my beta testers for helping me break the game so I could actually fix it:
 - Deniz
 - Johannes
