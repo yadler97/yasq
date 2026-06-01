@@ -211,6 +211,7 @@ export class GameInstance {
     this.state = GameState.PLAYING;
     this.trackHistory.push(track.audio);
     const roundAtStart = this.currentRound;
+    const gameAtStart = this.currentGame;
 
     // Generate the blurred cover art on the server once at the beginning of the round if needed
     if (new Set(this.settings.enabledJokers).has(Joker.GLIMPSE)) {
@@ -221,7 +222,7 @@ export class GameInstance {
 
     // Set a timer to automatically transition to ROUND_COMPLETED after trackDuration
     setTimeout(() => {
-      if (this.state === GameState.PLAYING && this.currentRound === roundAtStart) {
+      if (this.state === GameState.PLAYING && this.currentRound === roundAtStart && this.currentGame === gameAtStart) {
         this.state = GameState.ROUND_COMPLETED;
         console.log(`[TIMER] Round ${roundAtStart} expired.`);
 
