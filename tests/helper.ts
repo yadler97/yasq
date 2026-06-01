@@ -6,9 +6,9 @@ export const generatePlayers = (count: number) => {
 };
 
 export interface Player {
-    id: string,
-    username: string
-  }
+  id: string,
+  username: string
+}
 
 declare global {
   interface Window {
