@@ -161,7 +161,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                   </select>
                 </div>
 
-                <div className="setting-item vertical">
+                <div className="setting-item">
                   <span>First Correct Answer Bonus</span>
                   <div className="button-group">
                     {[

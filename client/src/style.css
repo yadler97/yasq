@@ -36,7 +36,11 @@
   color: var(--text-main);
   background-color: var(--bg-main);
 
+  --padding-medium: 10px;
+  --gap-tiny: 5px;
+  --gap-small: 10px;
   --gap-medium: 20px;
+  --border-radius-small: 4px;
   --border-radius-medium: 8px;
 }
 
@@ -147,7 +151,7 @@ img {
 .setting-item {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-small);
   text-align: left;
 }
 
@@ -160,7 +164,7 @@ img {
 
 .joker-config-row {
   display: flex;
-  gap: 10px;
+  gap: var(--gap-small);
   margin-top: 10px;
   width: 100%;
 }
@@ -228,7 +232,7 @@ input:focus-visible, select:focus-visible, button:focus-visible {
   width: 18px;
   height: 18px;
   border: 1pt solid var(--border-muted);
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
   background-color: transparent;
   cursor: pointer;
   transition: border-color 0.2s ease, background-color 0.2s ease;
@@ -310,13 +314,13 @@ button:disabled {
 .joker-column {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: var(--gap-tiny);
 }
 
 .joker-row-item {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--gap-small);
 }
 
 .joker-indicator {
@@ -486,20 +490,20 @@ button:disabled {
   padding-right: 5px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap-small);
 }
 
 .player-entry {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: var(--gap-small);
 }
 
 .player-info-container {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 8px;
+  gap: var(--gap-small);
   flex: 1;
   min-width: 0;
 }
@@ -514,7 +518,7 @@ button:disabled {
 
 .badge-container {
   display: flex;
-  gap: 4px;
+  gap: var(--gap-tiny);
 }
 
 .sidebar > div::-webkit-scrollbar {
@@ -525,7 +529,7 @@ button:disabled {
 }
 .sidebar > div::-webkit-scrollbar-thumb {
   background-color: var(--bg-dark);
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
 }
 
 .game-column > div::-webkit-scrollbar {
@@ -538,7 +542,7 @@ button:disabled {
 }
 .game-column > div::-webkit-scrollbar-thumb {
   background-color: var(--bg-dark);
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
 }
 
 #music-controls label {
@@ -596,13 +600,6 @@ button:disabled {
   gap: var(--gap-medium);
 }
 
-.setting-item.vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: flex-start;
-}
-
 input[type="radio"]:checked + .btn-radio {
   background-color: var(--blurple);
   color: var(--fixed-white);
@@ -612,7 +609,7 @@ input[type="radio"]:checked + .btn-radio {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-small);
   width: 100%;
   position: relative;
 }
@@ -638,7 +635,7 @@ input[type="radio"]:checked + .btn-radio {
   padding: 0 12px;
   color: var(--text-muted);
   cursor: pointer;
-  gap: 10px;
+  gap: var(--gap-small);
 }
 .dropdown-header:hover {
   border-color: var(--blurple);
@@ -673,8 +670,8 @@ input[type="radio"]:checked + .btn-radio {
 .dropdown-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
+  gap: var(--gap-small);
+  padding: var(--padding-medium);
   cursor: pointer;
 }
 
@@ -685,16 +682,11 @@ input[type="radio"]:checked + .btn-radio {
 }
 
 .dropdown-item:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.15);
 }
 .dropdown-item:focus-visible {
-  /* Fixes missing left/right borders by painting an inner shadow matrix */
   box-shadow: inset 0 0 0 2px var(--accent-color, #5865f2);
-
-  /* Retain your background hover contrast color if needed */
   background-color: var(--bg-modifier-hover, rgba(255, 255, 255, 0.1));
-
-  /* Strip the problematic outline standard */
   outline: none;
 }
 
@@ -716,7 +708,7 @@ input[type="radio"]:checked + .btn-radio {
   justify-content: center;
   align-items: center;
   margin-bottom: 20px;
-  gap: 10px;
+  gap: var(--gap-small);
 }
 
 .controls {
@@ -724,7 +716,7 @@ input[type="radio"]:checked + .btn-radio {
   flex-wrap: wrap;
   gap: var(--gap-medium);
   background: var(--bg-sidebar-card);
-  padding: 10px;
+  padding: var(--padding-medium);
   border-radius: var(--border-radius-medium);
   margin-left: 100px;
   margin-right: 100px;
@@ -743,12 +735,12 @@ input[type="radio"]:checked + .btn-radio {
 .controls label {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--gap-tiny);
 }
 
 .search-wrapper, .dropdown-trigger-wrapper {
   display: flex;
-  gap: 5px;
+  gap: var(--gap-tiny);
 }
 
 .filter-dropdown {
@@ -810,7 +802,7 @@ input[type="radio"]:checked + .btn-radio {
   border-radius: var(--border-radius-medium);
   margin-top: 4px;
   overflow: hidden;
-  width: 250px;
+  width: 300px;
   padding-left: 8px;
   padding-right: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -825,7 +817,7 @@ input[type="radio"]:checked + .btn-radio {
   padding-bottom: 8px;
   padding-right: 8px;
   overscroll-behavior: contain;
-  gap: 10px;
+  gap: var(--gap-small);
 }
 
 .dropdown-menu .scrollbar-container::-webkit-scrollbar {
@@ -837,7 +829,7 @@ input[type="radio"]:checked + .btn-radio {
 }
 .dropdown-menu .scrollbar-container::-webkit-scrollbar-thumb {
   background-color: var(--bg-dark);
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
 }
 
 .dropdown-overlay {
@@ -849,7 +841,6 @@ input[type="radio"]:checked + .btn-radio {
 .dropdown-group {
   display: flex;
   flex-flow: column;
-  gap: 2px;
 }
 
 .group-header {
@@ -863,7 +854,7 @@ input[type="radio"]:checked + .btn-radio {
 .item-label-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-small);
 }
 
 .tag-count {
@@ -883,10 +874,6 @@ input[type="radio"]:checked + .btn-radio {
 .filter-dropdown .dropdown-item {
   justify-content: space-between;
   border-radius: var(--border-radius-medium);
-}
-
-.filter-dropdown .dropdown-item:hover {
-  background: rgba(255,255,255,0.05);
 }
 
 .filter-dropdown .dropdown-item.disabled {
@@ -972,7 +959,7 @@ input[type="radio"]:checked + .btn-radio {
   background: var(--blurple);
   color: var(--fixed-white);
   border: none;
-  padding: 8px;
+  padding: var(--padding-medium);
   cursor: pointer;
   width: calc(100% - 16px);
   margin: 0 auto 8px auto;
@@ -991,7 +978,7 @@ input[type="radio"]:checked + .btn-radio {
 
 .hint-container {
   background: var(--bg-input);
-  padding: 10px;
+  padding: var(--padding-medium);
   border-radius: var(--border-radius-medium);
   margin-bottom: 15px;
 }
@@ -999,9 +986,9 @@ input[type="radio"]:checked + .btn-radio {
 .joker-error-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap-small);
   background: var(--bg-input);
-  padding: 10px;
+  padding: var(--padding-medium);
   border-radius: var(--border-radius-medium);
   margin-bottom: 15px;
   white-space: preserve-breaks;
@@ -1024,7 +1011,7 @@ input[type="radio"]:checked + .btn-radio {
 .tags-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--gap-small);
   justify-content: center;
 }
 
@@ -1050,7 +1037,7 @@ input[type="radio"]:checked + .btn-radio {
 .choices-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: var(--gap-small);
   width: 100%;
 }
 
@@ -1081,7 +1068,7 @@ input[type="radio"]:checked + .btn-radio {
 }
 
 .spy-hint-player-list {
-  padding: 10px;
+  padding: var(--padding-medium);
 }
 
 .spy-select-button {
@@ -1089,13 +1076,13 @@ input[type="radio"]:checked + .btn-radio {
   text-align: left;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-small);
 }
 
 .spy-target-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-small);
   margin-bottom: 10px;
 }
 
@@ -1124,7 +1111,7 @@ input[type="radio"]:checked + .btn-radio {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-small);
 }
 
 .joker-shortcut-badge {
@@ -1143,7 +1130,7 @@ input[type="radio"]:checked + .btn-radio {
 kbd {
   background-color: var(--bg-input);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
   color: var(--text-main);
   display: inline-block;
@@ -1158,7 +1145,7 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  padding: var(--padding-medium);
 }
 
 .joker-icon-btn:hover:not(:disabled) {
@@ -1226,18 +1213,18 @@ kbd {
 
 .guess-item {
   background: var(--bg-sidebar-card);
-  padding: 12px;
+  padding: var(--padding-medium);
   margin-bottom: 8px;
   border-radius: var(--border-radius-medium);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap-small);
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-small);
 }
 
 .guess-item .username {
@@ -1264,7 +1251,7 @@ kbd {
   padding: 4px;
   background: var(--bg-button-group);
   border-radius: var(--border-radius-medium);
-  gap: 4px;
+  gap: var(--gap-tiny);
 }
 
 .button-group input[type="radio"] {
@@ -1277,7 +1264,7 @@ kbd {
 .button-group input[type="radio"]:focus-visible + .btn-radio {
   outline: 3px solid var(--accent-color, #5865f2);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
 }
 
 .btn-radio {
@@ -1290,7 +1277,7 @@ kbd {
   cursor: pointer;
   font-weight: bold;
   font-size: 0.85rem;
-  border-radius: 6px;
+  border-radius: var(--border-radius-small);
   transition: all 0.2s ease;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -1318,7 +1305,7 @@ input[value="1"]:checked + .btn-radio.correct {
 
 .round-result-summary {
   background: var(--bg-sidebar-card);
-  padding: 10px;
+  padding: var(--padding-medium);
   border-radius: var(--border-radius-medium);
   width: 100%;
   max-width: 500px;
@@ -1327,7 +1314,7 @@ input[value="1"]:checked + .btn-radio.correct {
 }
 
 .track-details {
-  padding: 10px;
+  padding: var(--padding-medium);
   display: flex;
   gap: var(--gap-medium);
   text-align: left;
@@ -1370,8 +1357,8 @@ input[value="1"]:checked + .btn-radio.correct {
 .player-result {
   display: flex;
   align-items: center;
-  padding: 10px;
-  gap: 15px;
+  padding: var(--padding-medium);
+  gap: var(--gap-small);
   font-size: 1.2rem;
   font-weight: bold;
 }
@@ -1384,7 +1371,7 @@ input[value="1"]:checked + .btn-radio.correct {
 .round-result-box {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap-small);
 }
 
 .time-display {
@@ -1438,7 +1425,7 @@ input[value="1"]:checked + .btn-radio.correct {
 .player-card {
   min-height: 0;
   background: var(--bg-sidebar-card);
-  border-radius: 12px;
+  border-radius: var(--border-radius-medium);
   padding: 15px;
   border: 2px solid transparent;
   opacity: 0;
@@ -1487,7 +1474,7 @@ input[value="1"]:checked + .btn-radio.correct {
 .player-main-info {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: var(--gap-small);
   font-size: 1.2rem;
   font-weight: bold;
 }
@@ -1510,14 +1497,14 @@ input[value="1"]:checked + .btn-radio.correct {
 
 .round-bubbles {
   display: flex;
-  gap: 5px;
+  gap: var(--gap-tiny);
   flex-wrap: wrap;
 }
 
 .round-bubble {
   font-size: 0.75rem;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
   background: var(--bg-button-group);
   cursor: default;
 }
@@ -1539,7 +1526,7 @@ input[value="1"]:checked + .btn-radio.correct {
   font-size: 10px;
   color: var(--fixed-white);
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
   font-weight: bold;
 }
 
@@ -1613,7 +1600,7 @@ input[value="1"]:checked + .btn-radio.correct {
   }
 
   .game-area {
-    padding: 10px;
+    padding: var(--padding-medium);
     overflow: visible;
     width: 100%;
     box-sizing: border-box;
@@ -1625,7 +1612,7 @@ input[value="1"]:checked + .btn-radio.correct {
   .sidebar {
     order: 2;
     width: 100%;
-    padding: 10px;
+    padding: var(--padding-medium);
     box-sizing: border-box;
   }
 
@@ -1667,10 +1654,6 @@ input[value="1"]:checked + .btn-radio.correct {
     max-width: 100%;
   }
 
-  .joker-shortcut-badge {
-    display: none;
-  }
-
   .version {
     position: relative;
     width: 100%;
@@ -1679,5 +1662,12 @@ input[value="1"]:checked + .btn-radio.correct {
     box-sizing: border-box;
     padding: 20px 0 env(safe-area-inset-bottom, 20px);
     opacity: 0.6;
+  }
+}
+
+@media (pointer: coarse) {
+  /* Don't display joker shortcuts on mobile devices */
+  .joker-shortcut-badge {
+    display: none;
   }
 }
