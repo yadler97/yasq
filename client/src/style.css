@@ -556,6 +556,11 @@ button:disabled {
   width: 100%;
 }
 
+#volume-slider:focus-visible {
+  border-radius: 20px;
+  outline-offset: 4px;
+}
+
 .advanced-settings-section {
   margin: 16px 0;
   width: 100%;

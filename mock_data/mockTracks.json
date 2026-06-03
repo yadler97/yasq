@@ -3,24 +3,40 @@
     "game": "Game A",
     "title": "Track A",
     "audio": "track001.mp3",
-    "cover": "game_a.jpg"
+    "cover": "game_a.jpg",
+    "tags": [
+      { "type": "platform", "value": "Platform A" },
+      { "type": "release", "value": "2024" }
+    ]
   },
   {
     "game": "Game B",
     "title": "Track B",
     "audio": "track002.mp3",
-    "cover": "game_b.jpg"
+    "cover": "game_b.jpg",
+    "tags": [
+      { "type": "platform", "value": "Platform B" },
+      { "type": "release", "value": "2025" }
+    ]
   },
   {
     "game": "Game C",
     "title": "Track C",
     "audio": "track003.mp3",
-    "cover": "game_c.jpg"
+    "cover": "game_c.jpg",
+    "tags": [
+      { "type": "platform", "value": "Platform C" },
+      { "type": "release", "value": "2025" }
+    ]
   },
   {
     "game": "Game D",
     "title": "Track D",
     "audio": "track004.mp3",
-    "cover": "game_d.jpg"
+    "cover": "game_d.jpg",
+    "tags": [
+      { "type": "platform", "value": "Platform C" },
+      { "type": "release", "value": "2026" }
+    ]
   }
 ]
