@@ -81,7 +81,7 @@ test.describe('Player UI', () => {
 
   test.beforeEach(async ({ page, request }, testInfo) => {
     currentInstanceId = `test-instance-${testInfo.testId}`;
-    const playerCount = 3;
+    const playerCount = 5;
     players = generatePlayers(playerCount);
     const user = players[1];
 
@@ -158,17 +158,19 @@ test.describe('Player UI', () => {
     const gameArena = page.locator('#game-arena');
     const resultsUI = page.locator('#results');
 
-    // Other player submits guess
-    await request.post('http://localhost:3001/api/submit-guess', {
-      data: {
-        instanceId: currentInstanceId,
-        guess: 'Some Game'
-      },
-      headers: {
-        'Authorization': `Bearer token_${players[2].id}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    // Other players submits guess
+    for (const index of [2, 4, 3]) {
+      await request.post('http://localhost:3001/api/submit-guess', {
+        data: {
+          instanceId: currentInstanceId,
+          guess: 'Some Game'
+        },
+        headers: {
+          'Authorization': `Bearer token_${players[index].id}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
 
     // Submit own guess
     await guessInput.fill('Game XY');
@@ -255,16 +257,30 @@ test.describe('Player UI', () => {
     await expect(emptyMsg).toBeVisible();
     await expect(emptyMsg).toHaveText(/no player has submitted/i);
 
-    await request.post('http://localhost:3001/api/submit-guess', {
-      data: {
-        instanceId: currentInstanceId,
-        guess: 'Game A'
-      },
-      headers: {
-        'Authorization': `Bearer token_${targetUser.id}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    // Other players submits guess
+    for (const index of [2, 4, 3]) {
+      await request.post('http://localhost:3001/api/submit-guess', {
+        data: {
+          instanceId: currentInstanceId,
+          guess: 'Game A'
+        },
+        headers: {
+          'Authorization': `Bearer token_${players[index].id}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
+    // Verify order of MockPlayers in list
+    const actionButtons = spyOverlay.locator('.spy-select-button');
+    await expect(actionButtons.filter({ hasText: players[3].username })).toBeVisible();
+    const buttonTexts = await actionButtons.allTextContents();
+    const expectedOrder = [
+      targetUser.username,
+      players[4].username,
+      players[3].username
+    ];
+    expect(buttonTexts).toEqual(expectedOrder);
 
     const targetBtn = spyOverlay.locator('button').filter({ hasText: targetUser.username });
     await expect(targetBtn).toBeVisible();

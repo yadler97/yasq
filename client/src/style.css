@@ -1073,7 +1073,21 @@ input[type="radio"]:checked + .btn-radio {
 }
 
 .spy-hint-player-list {
+  height: 200px;
+  overflow-y: scroll;
   padding: var(--padding-medium);
+}
+
+.spy-hint-player-list::-webkit-scrollbar {
+  width: 8px;
+}
+.spy-hint-player-list::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 8px;
+}
+.spy-hint-player-list::-webkit-scrollbar-thumb {
+  background-color: var(--bg-dark);
+  border-radius: var(--border-radius-small);
 }
 
 .spy-select-button {
