@@ -3,8 +3,7 @@ import { Fragment } from "preact/jsx-runtime";
 import { TargetedEvent } from "preact";
 
 import * as backend from "../utils/backend";
-import { auth, discordSdk, gameState, participants } from "../main";
-import { getAvatarUrl, getDisplayName } from "../utils/helper";
+import { auth, discordSdk, gameState } from "../main";
 import { ALL_JOKER_ICONS } from "../components/JokerIcons";
 import {
   DEFAULT_ENABLED_JOKERS,
@@ -18,6 +17,7 @@ import {
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
 import { PLAYER_TIME_BONUS_LABELS } from "./LobbyView";
+import { HostTransferDropdown } from "../components/HostTransferDropdown";
 
 
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
@@ -161,7 +161,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                   </select>
                 </div>
 
-                <div className="setting-item vertical">
+                <div className="setting-item">
                   <span>First Correct Answer Bonus</span>
                   <div className="button-group">
                     {[
@@ -205,73 +205,6 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
           </div>
         </div>
       )}
-    </div>
-  );
-};
-
-export const HostTransferDropdown = () => {
-  const isOpen = useSignal(false);
-  const selectedPlayer = useSignal<{id: string, name: string, avatar: string} | null>(null);
-  const isTransferring = useSignal(false);
-
-  const players = participants.value.filter(p => p.id !== gameState.value.hostId);
-
-  const performTransfer = async () => {
-    if (!selectedPlayer.value) return;
-    isTransferring.value = true;
-    try {
-      await backend.assignNewHost(auth.value.access_token, discordSdk.instanceId, selectedPlayer.value.id);
-    } catch (e) {
-      console.error(e);
-    }
-
-    setTimeout(() => {
-      isTransferring.value = false;
-      selectedPlayer.value = null;
-    }, 2000);
-  };
-
-  return (
-    <div className="setting-item">
-      <label for="host-dropdown" className="setting-label"><span>Transfer Host</span></label>
-      <div className="transfer-controls-row">
-        <div className="custom-dropdown" id="host-dropdown" onClick={() => isOpen.value = !isOpen.value}>
-          <div className="dropdown-header">
-            {selectedPlayer.value ? (
-              <><NonDraggableImg src={selectedPlayer.value.avatar} className="avatar-tiny" /><span>{selectedPlayer.value.name}</span></>
-            ) : "Select a player..."}
-          </div>
-
-          {isOpen.value && (
-            <div className="dropdown-list" id="dropdown-list" style={{ display: 'block' }}>
-              {players.length === 0 ? (
-                <div className="dropdown-item dropdown-item-empty">No other players</div>
-              ) : players.map(p => (
-                <div
-                  data-id={p.id}
-                  key={p.id}
-                  className="dropdown-item"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    selectedPlayer.value = { id: p.id, name: getDisplayName(p), avatar: getAvatarUrl(p) };
-                    isOpen.value = false;
-                  }}
-                >
-                  <NonDraggableImg src={getAvatarUrl(p)} className="avatar-tiny" />
-                  <span>{getDisplayName(p)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-        <button
-          id="btn-confirm-transfer"
-          disabled={!selectedPlayer.value || isTransferring.value}
-          onClick={performTransfer}
-        >
-          {isTransferring.value ? "Transferring..." : "Transfer"}
-        </button>
-      </div>
     </div>
   );
 };

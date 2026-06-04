@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { generatePlayers } from './helper.js'
+import { generatePlayers, Player } from './helper.js'
 
 test.describe('Host UI', () => {
 
-  let players = [];
-  let currentInstanceId;
+  let players: Player[] = [];
+  let currentInstanceId: string;
 
   test.beforeEach(async ({ page, request }, testInfo) => {
     currentInstanceId = `test-instance-${testInfo.testId}`;
@@ -84,6 +84,40 @@ test.describe('Host UI', () => {
     // Find exactly one game ("Game B")
     count = await trackItems.count();
     expect(count).toBe(1);
+  });
+
+  test('should filter tracks when filtering by tags', async ({ page }) => {
+    const trackList = page.locator('#track-selection-grid');
+    await expect(trackList).toBeVisible();
+    const trackItems = trackList.locator('button');
+
+    // Initial mock track count
+    let count = await trackItems.count();
+    expect(count).toBe(4);
+
+    let tagFilterDropdown = page.locator('.filter-dropdown:has-text("Filter by Tags")');
+    await tagFilterDropdown.click();
+
+    const platformADropdownItem = page.locator('.dropdown-item:has-text("Platform C")');
+    await platformADropdownItem.click();
+
+    count = await trackItems.count();
+    expect(count).toBe(2);
+
+    const year2026DropdownItem = page.locator('.dropdown-item:has-text("2026")');
+    await year2026DropdownItem.click();
+
+    count = await trackItems.count();
+    expect(count).toBe(1);
+
+    tagFilterDropdown = page.locator('.filter-dropdown:has-text("Filters (2)")');
+    await tagFilterDropdown.click({ force: true });
+
+    const clearButton = page.locator('button[title="Clear all filters"]');
+    await clearButton.click();
+
+    count = await trackItems.count();
+    expect(count).toBe(4);
   });
 
   test('should filter tracks when hiding played tracks', async ({ page }) => {
