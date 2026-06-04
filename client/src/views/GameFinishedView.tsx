@@ -3,7 +3,7 @@ import { useEffect, useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { gameState, auth, discordSdk, participants } from "../main";
-import { getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
+import { findUser, getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 
@@ -48,8 +48,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
 
       <div className="leaderboard-container">
         {leaderboard.value.map((player, index) => {
-          const discordUser = participants.value.find(p => p.id === player.userId) ||
-                              { id: "0", username: 'Unknown' };
+          const user = findUser(participants.value, player.userId);
 
           const total = leaderboard.value.length;
           const staggerIndex = (total - 1) - index;
@@ -68,8 +67,8 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
               >
                 <div className="player-main-info">
                   <div className="rank">#{index + 1}</div>
-                  <NonDraggableImg src={getAvatarUrl(discordUser)} className="avatar-small" />
-                  <div className="name">{isWinner ? '👑 ' : ''}{getDisplayName(discordUser)}</div>
+                  <NonDraggableImg src={getAvatarUrl(user)} className="avatar-small" />
+                  <div className="name">{isWinner ? '👑 ' : ''}{getDisplayName(user)}</div>
                   <div className="total-score">{player.totalScore} pts</div>
                 </div>
 

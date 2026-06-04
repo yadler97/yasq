@@ -3,7 +3,7 @@ import { useEffect } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { auth, discordSdk, participants } from "../main";
-import { getAvatarUrl, getDisplayName } from "../utils/helper";
+import { findUser, getAvatarUrl, getDisplayName } from "../utils/helper";
 import { ALL_JOKER_ICONS } from "../components/JokerIcons";
 import { ReviewData } from "../utils/types";
 import { NonDraggableImg } from "../components/NonDraggableImg";
@@ -47,8 +47,6 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
     await backend.submitRoundResults(auth.value.access_token, discordSdk.instanceId, corrections.value);
   };
 
-  const findUser = (id: string) => participants.value.find(p => p.id === id);
-
   return (
     <div id="results" className="centered">
       <h2>Results</h2>
@@ -56,7 +54,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
 
       <div id="guess-list">
         {Object.entries(reviewData.value.guesses).map(([userId, guess]) => {
-          const user = findUser(userId);
+          const user = findUser(participants.value, userId);
           const displayName = user ? getDisplayName(user) : 'Unknown';
           const avatarUrl = user ? getAvatarUrl(user) : '';
 
@@ -98,8 +96,8 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
         <div className="timed-out-section">
           <p>No Guess submitted: {
             reviewData.value.timedOut.map(id => {
-              const u = findUser(id);
-              return u ? getDisplayName(u) : 'Unknown';
+              const user = findUser(participants.value, id);
+              return user ? getDisplayName(user) : 'Unknown';
             }).join(', ')
           }</p>
         </div>

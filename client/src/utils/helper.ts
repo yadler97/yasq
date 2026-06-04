@@ -1,5 +1,20 @@
 import { Participant } from "./types";
 
+const userCache = new Map<string, Participant>();
+
+export function findUser(participants: Participant[], userId: string): Participant {
+  const realUser = participants.find(p => p.id === userId);
+
+  // Return user if present in game
+  if (realUser) {
+    userCache.set(userId, realUser);
+    return realUser;
+  }
+
+  // Lookup cache if not present in game
+  return userCache.get(userId) || { id: "0", username: "Unknown" };
+}
+
 export function getAvatarUrl(participant: Participant) {
   return participant.avatar
     ? `https://cdn.discordapp.com/avatars/${participant.id}/${participant.avatar}.png?size=32`

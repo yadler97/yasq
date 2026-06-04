@@ -3,7 +3,7 @@ import { useEffect, useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { gameState, auth, discordSdk, participants } from "../main";
-import { capitalize, getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
+import { capitalize, findUser, getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 
@@ -87,13 +87,12 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           <hr className="divider" />
           <div>
             {results.map((res: any) => {
-              const discordUser = participants.value.find(p => p.id === res.userId) ||
-                                  { id: "0", username: 'Unknown' };
+              const user = findUser(participants.value, res.userId);
 
               return (
                 <div key={res.userId} className="player-result">
-                  <NonDraggableImg src={getAvatarUrl(discordUser)} className="avatar-small" />
-                  <div className="name">{getDisplayName(discordUser)}</div>
+                  <NonDraggableImg src={getAvatarUrl(user)} className="avatar-small" />
+                  <div className="name">{getDisplayName(user)}</div>
 
                   <div className="round-result-box">
                     <div className="round-bubbles">

@@ -5,7 +5,7 @@ import * as backend from "../utils/backend";
 import { audioPlayer, auth, discordSdk, gameState, participants } from "../main";
 import { Joker, POLLING_INTERVAL } from "@yasq/shared";
 import { ALL_JOKER_ICONS } from '../components/JokerIcons';
-import { capitalize, getAvatarUrl, getDisplayName } from "../utils/helper";
+import { capitalize, findUser, getAvatarUrl, getDisplayName } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 import { Tag } from "../utils/types";
@@ -58,8 +58,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
       );
 
     case Joker.SPY: {
-      const targetUser = participants.value.find(p => p.id === activeHint.data.targetId) ||
-        { id: "0", username: 'Unknown' };
+      const targetUser = findUser(participants.value, activeHint.data.targetId);
 
       return (
         <div className="spy-hint-display">
@@ -289,8 +288,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   <p className="no-results">No player has submitted a guess yet.</p>
                 ) : (
                   gameState.value.guessedPlayers.map(targetId => {
-                    const discordUser = participants.value.find(p => p.id === targetId) ||
-                                        { id: "0", username: 'Unknown' };
+                    const user = findUser(participants.value, targetId);
 
                     return (
                       <button
@@ -298,8 +296,8 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                         className="spy-select-button"
                         onClick={() => handleJokerUsage(Joker.SPY, targetId)}
                       >
-                        <NonDraggableImg src={getAvatarUrl(discordUser)} className="avatar-small" />
-                        <span>{getDisplayName(discordUser)}</span>
+                        <NonDraggableImg src={getAvatarUrl(user)} className="avatar-small" />
+                        <span>{getDisplayName(user)}</span>
                       </button>
                     );
                   })
