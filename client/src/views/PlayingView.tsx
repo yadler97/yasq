@@ -273,7 +273,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <h2>Waiting for players to submit their guesses...</h2>
             </div>
           ) : (
-            <div class="centered">
+            <div className="centered">
               <div className="loading-spinner"></div>
             </div>
           )}
@@ -316,7 +316,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
           )}
 
           {jokerError.value && (
-            <div class="joker-error-container">
+            <div className="joker-error-container">
               <span>⚠️ {jokerError.value}</span>
               <button onClick={resetJokerHint}>Ok</button>
             </div>
@@ -382,7 +382,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                         >
                           <Icon className="joker-svg" />
                         </button>
-                        <span className="joker-shortcut-badge">
+                        <span className="shortcut-badge">
                           <kbd>Alt</kbd>+<kbd>{index + 1}</kbd>
                         </span>
                       </div>

@@ -5,6 +5,7 @@ import * as backend from "../utils/backend";
 import { gameState, auth, discordSdk, participants } from "../main";
 import { capitalize, getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
+import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 
 export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);
@@ -20,6 +21,10 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
       !gameState.value.readyUsers.includes(getUserId(auth.value))
     )
   };
+
+  useKeyboardShortcut({ key: "r", altKey: true }, () => {
+    if (!isHost) handleReady();
+  });
 
   useEffect(() => {
     backend.getRoundResults(discordSdk.instanceId, getUserId(auth.value))
@@ -47,7 +52,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
   if (!roundData.value) {
     return (
-      <div class="centered">
+      <div className="centered">
         <div className="loading-spinner"></div>
       </div>
     );
@@ -136,7 +141,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             : "A server error occurred."}
         </p>
 
-        <div>
+        <div className='shortcut-badge-btn-wrapper'>
           <button
             className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
             id="btn-ready"
@@ -144,6 +149,9 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           >
             {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready for Next Round"}
           </button>
+          <span className="shortcut-badge">
+            <kbd>Alt</kbd>+<kbd>R</kbd>
+          </span>
         </div>
       </div>
     );
@@ -199,7 +207,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         </div>
       </div>
 
-      <div>
+      <div className='shortcut-badge-btn-wrapper'>
         <button
           className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
           id="btn-ready"
@@ -207,6 +215,9 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         >
           {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready Up"}
         </button>
+        <span className="shortcut-badge">
+          <kbd>Alt</kbd>+<kbd>R</kbd>
+        </span>
       </div>
     </div>
   );

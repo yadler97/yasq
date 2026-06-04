@@ -1111,7 +1111,7 @@ input[type="radio"]:checked + .btn-radio {
   gap: 16px;
 }
 
-.joker-btn-wrapper {
+.shortcut-badge-btn-wrapper {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1119,7 +1119,7 @@ input[type="radio"]:checked + .btn-radio {
   gap: var(--gap-small);
 }
 
-.joker-shortcut-badge {
+.shortcut-badge {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-muted);
@@ -1128,7 +1128,7 @@ input[type="radio"]:checked + .btn-radio {
   transition: opacity 0.2s ease;
 }
 
-.joker-btn-wrapper:has(button:disabled) .joker-shortcut-badge {
+.shortcut-badge-btn-wrapper:has(button:disabled) .shortcut-badge {
   opacity: 0.3;
 }
 
@@ -1672,7 +1672,7 @@ input[value="1"]:checked + .btn-radio.correct {
 
 @media (pointer: coarse) {
   /* Don't display joker shortcuts on mobile devices */
-  .joker-shortcut-badge {
+  .shortcut-badge {
     display: none;
   }
 }

@@ -30,10 +30,6 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [activeTooltipType, setActiveTooltipType] = useState<string | null>(null);
 
-  useKeyboardShortcut({ key: "r" }, () => {
-    if (!isHost) handleReady();
-  });
-
   useEffect(() => {
     if (!activeTooltipType) return;
 
@@ -61,6 +57,10 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
       !gameState.value.readyUsers.includes(getUserId(auth.value))
     )
   };
+
+  useKeyboardShortcut({ key: "r", altKey: true }, () => {
+    if (!isHost) handleReady();
+  });
 
   const handleEditSettings = async () => {
     await backend.restartGame(auth.value.access_token, discordSdk.instanceId);
@@ -137,7 +137,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             {allPlayersReady ? "Start Game" : `Waiting... (${readyUsers}/${playersExcludingHost.length})`}
           </button>
         ) : (
-          <div id="lobby-guesser-ui">
+          <div id="lobby-guesser-ui" className='shortcut-badge-btn-wrapper'>
             <button
               className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
               id="btn-ready"
@@ -145,6 +145,9 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             >
               {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready Up"}
             </button>
+            <span className="shortcut-badge">
+              <kbd>Alt</kbd>+<kbd>R</kbd>
+            </span>
           </div>
         )}
       </div>

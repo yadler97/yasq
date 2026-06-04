@@ -35,7 +35,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
 
   if (!reviewData.value) {
     return (
-      <div class="centered">
+      <div className="centered">
         <div className="loading-spinner"></div>
       </div>
     );

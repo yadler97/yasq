@@ -5,6 +5,7 @@ import * as backend from "../utils/backend";
 import { gameState, auth, discordSdk, participants } from "../main";
 import { getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
+import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
@@ -25,6 +26,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       !gameState.value.readyUsers.includes(getUserId(auth.value))
     );
   };
+
+  useKeyboardShortcut({ key: "r", altKey: true }, () => {
+    if (!isHost) handleReady();
+  });
 
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
   const readyCount = gameState.value.readyUsers.length;
@@ -99,13 +104,18 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
             : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
         </button>
       ) : (
-        <button
-          className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
-          id="btn-ready"
-          onClick={handleReady}
-        >
-          {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready for New Game"}
-        </button>
+        <div className='shortcut-badge-btn-wrapper'>
+          <button
+            className={`ready-btn ${gameState.value.readyUsers.includes(getUserId(auth.value)) ? 'ready' : ''} ${hasInteracted ? 'interacted' : ''}`}
+            id="btn-ready"
+            onClick={handleReady}
+          >
+            {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready for New Game"}
+          </button>
+          <span className="shortcut-badge">
+            <kbd>Alt</kbd>+<kbd>R</kbd>
+          </span>
+        </div>
       )}
     </div>
   );
