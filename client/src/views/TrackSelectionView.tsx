@@ -136,7 +136,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
   if (!isHost) {
     return (
-      <div class="centered">
+      <div className="centered">
         <h2>Waiting for host to select a track...</h2>
       </div>
     );
@@ -144,7 +144,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
   if (tracks.value === null) {
     return (
-      <div class="centered">
+      <div className="centered">
         <div className="loading-spinner"></div>
       </div>
     );
