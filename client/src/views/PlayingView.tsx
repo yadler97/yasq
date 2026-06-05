@@ -31,7 +31,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
     case Joker.TRIVIA:
       return (
         <div className="tags-container">
-          {activeHint.data.map((tag: any) => (
+          {activeHint.data.map((tag: Tag) => (
             <span key={tag.type} className="tag-badge">
               <strong>{tag.type}:</strong> {tag.value}
             </span>
@@ -260,7 +260,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     <p><strong>{activeTrackInfo.value.correctAnswer}</strong></p>
                     <p><i>{activeTrackInfo.value.trackTitle}</i></p>
                     <div className="tags-container left">
-                      {activeTrackInfo.value.tags.map((tag: any) => (
+                      {activeTrackInfo.value.tags.map((tag: Tag) => (
                         <span key={tag.type} title={capitalize(tag.type)} className="tag-badge">
                           {tag.value}
                         </span>

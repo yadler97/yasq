@@ -505,7 +505,7 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--gap-small);
+  gap: var(--gap-tiny);
   flex: 1;
   min-width: 0;
 }

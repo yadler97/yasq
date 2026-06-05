@@ -6,6 +6,7 @@ import { gameState, auth, discordSdk, participants } from "../main";
 import { capitalize, findUser, getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
+import { Tag } from "../utils/types";
 
 export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);
@@ -78,7 +79,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
               <p><strong>{roundData.value.correctAnswer}</strong></p>
               <p><i>{roundData.value.trackTitle}</i></p>
               <div className="tags-container left">
-                {roundData.value.tags.map((tag: any) => (
+                {roundData.value.tags.map((tag: Tag) => (
                   <span key={tag.type} title={capitalize(tag.type)} className="tag-badge">
                     {tag.value}
                   </span>
@@ -88,31 +89,34 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           </div>
           <hr className="divider" />
           <div>
-            {results.map((res: any) => {
-              const user = findUser(participants.value, res.userId);
+            {results
+              .filter((res: any) => res.points !== undefined)
+              .map((res: any) => {
+                const user = findUser(participants.value, res.userId);
 
-              return (
-                <div key={res.userId} className="player-result">
-                  <NonDraggableImg src={getAvatarUrl(user)} className="avatar-small" />
-                  <div className="name">{getDisplayName(user)}</div>
+                return (
+                  <div key={res.userId} className="player-result">
+                    <NonDraggableImg src={getAvatarUrl(user)} className="avatar-small" />
+                    <div className="name">{getDisplayName(user)}</div>
 
-                  <div className="round-result-box">
-                    <div className="round-bubbles">
-                      <div
-                        className={`round-bubble ${res.scoreValue > 0 ? 'correct' : 'incorrect'} ${res.isFirst ? 'first' : ''}`}
-                        title={res.guess || 'No guess'}
-                      >
-                        {res.points}
+                    <div className="round-result-box">
+                      <div className="round-bubbles">
+                        <div
+                          className={`round-bubble ${res.scoreValue > 0 ? 'correct' : 'incorrect'} ${res.isFirst ? 'first' : ''}`}
+                          title={res.guess || 'No guess'}
+                        >
+                          {res.points}
+                        </div>
                       </div>
-                    </div>
 
-                    <span className="time-display">
-                      {res.time}s
-                    </span>
+                      <span className="time-display">
+                        {res.time}s
+                      </span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            }
           </div>
         </div>
 
@@ -187,7 +191,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             <p><strong>{roundData.value.correctAnswer}</strong></p>
             <p><i>{roundData.value.trackTitle}</i></p>
             <div className="tags-container left">
-              {roundData.value.tags.map((tag: any) => (
+              {roundData.value.tags.map((tag: Tag) => (
                 <span key={tag.type} title={capitalize(tag.type)} className="tag-badge">
                   {tag.value}
                 </span>
