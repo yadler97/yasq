@@ -2,6 +2,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
   font-synthesis: none;
@@ -487,6 +488,7 @@ button:disabled {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  overflow: visible;
   padding-right: 5px;
   display: flex;
   flex-direction: column;
@@ -1563,6 +1565,22 @@ input[value="1"]:checked + .btn-radio.correct {
     1px -1px 0 #000,
     -1px  1px 0 #000,
     0  0 4px rgba(0, 0, 0, 0.8);
+}
+.badge.streak {
+  transition: all 0.3s ease;
+  text-shadow:
+    1px  1px 0 #000,
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px  1px 0 #000,
+    0  0 4px rgba(0, 0, 0, 0.8);
+}
+.streak-tier-1 { background-color: #ffaa00; }
+.streak-tier-2 { background-color: #ff6a00; }
+.streak-tier-3 { background-color: #ff2a00; }
+.streak-tier-4 {
+  background-color: #cc0000;
+  box-shadow: 0 0 8px #ff2a00;
 }
 
 #admin-button:disabled {

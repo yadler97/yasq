@@ -35,6 +35,7 @@ export class GameInstance {
   public trackHistory: string[] = [];
   public lastWinnerId: string | null = null;
   public usedJokers: Record<string, Partial<Record<Joker, number>>> = {};
+  public streaks: Record<string, number> = {};
 
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId
@@ -126,6 +127,8 @@ export class GameInstance {
 
       const data = roundGuesses[userId];
       const scoreMultiplier = data?.scoreValue || 0;
+      this.updateStreak(userId, scoreMultiplier);
+
       const isFirst = userId === fastestFullyCorrectUserId;
       let pointsEarned = 0;
 
@@ -160,6 +163,18 @@ export class GameInstance {
 
     this.state = GameState.RESULTS;
     this.guessedPlayers = new Set();
+  }
+
+  public updateStreak(userId: string, scoreMultiplier: number) {
+    if (this.streaks[userId] === undefined) {
+      this.streaks[userId] = 0;
+    }
+
+    if (scoreMultiplier === 1) {
+      this.streaks[userId] += 1;
+    } else if (scoreMultiplier === 0) {
+      this.streaks[userId] = 0;
+    }
   }
 
   public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
@@ -197,10 +212,6 @@ export class GameInstance {
     }
 
     return this.state;
-  }
-
-  public isFinalRound(): boolean {
-    return this.currentRound >= this.settings.rounds;
   }
 
   public async playTrack(track: Track, roundFinishedCallback: () => void): Promise<void> {
@@ -242,6 +253,7 @@ export class GameInstance {
     this.leaderboard = new Leaderboard();
     this.currentGame += 1;
     this.usedJokers = {};
+    this.streaks = {};
   }
 
   public canUseJoker(userId: string, jokerType: Joker): boolean {

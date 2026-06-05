@@ -22,6 +22,8 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
     )
   };
 
+  const isFinalRound = gameState.value.currentRound >= gameState.value.gameSettings.rounds;
+
   useKeyboardShortcut({ key: "r", altKey: true }, () => {
     if (!isHost) handleReady();
   });
@@ -121,7 +123,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             onClick={handleNextRound}
           >
             {allPlayersReady
-              ? (gameState.value.isFinalRound ? "Show Final Results" : "Next Round")
+              ? (isFinalRound ? "Show Final Results" : "Next Round")
               : `Waiting... (${readyCount}/${playersExcludingHost.length})`
             }
           </button>

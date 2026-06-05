@@ -13,6 +13,7 @@ export const Sidebar = () => (
           const isPlayerReady = gameState.value.readyUsers.includes(p.id);
           const hasPlayerGuessed = gameState.value.guessedPlayers.includes(p.id);
           const isLastWinner = p.id === gameState.value.lastWinnerId;
+          const streak = gameState.value.streaks?.[p.id] || 0;
 
           return (
             <div key={p.id} className="player-entry">
@@ -24,6 +25,7 @@ export const Sidebar = () => (
                   {isPlayerReady && <span className="badge ready">READY</span>}
                   {hasPlayerGuessed && <span className="badge guessed">GUESSED</span>}
                   {isLastWinner && <span className="badge winner">👑</span>}
+                  {streak > 0 && <span className={`badge streak streak-tier-${Math.min(Math.ceil(streak / 2), 4)}`}>🔥 {streak}</span>}
                 </div>
               </div>
             </div>
