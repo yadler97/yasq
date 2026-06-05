@@ -136,7 +136,13 @@ export class GameInstance {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
         const timeMultiplier = this.calculateTimeMultiplier(timeTaken, firstPartiallyCorrectTime);
         pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
-        if (isFirst) pointsEarned *= this.settings.firstBonusMultiplier;
+        if (isFirst) pointsEarned *= (1 + this.settings.firstBonusMultiplier);
+
+        const currentStreak = this.streaks[userId] || 0;
+        if (currentStreak > 1) {
+          const streakMultiplier = 1 + (currentStreak - 1) * this.settings.streakBonusMultiplier;
+          pointsEarned *= streakMultiplier;
+        }
       }
 
       // Round to avoid fractional points and ensure it's an integer

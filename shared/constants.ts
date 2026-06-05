@@ -17,10 +17,10 @@ export const enum Joker {
 }
 
 export enum FirstBonusMultiplier {
-  OFF = 1.0,
-  X1_1 = 1.1,
-  X1_2 = 1.2,
-  X1_3 = 1.3
+  OFF = 0,
+  SMALL = 0.1,
+  MEDIUM = 0.2,
+  LARGE = 0.3
 }
 
 export enum TimeBonus {
@@ -41,6 +41,13 @@ export enum TimeBonus {
   LOGISTIC = 'LOGISTIC',
 }
 
+export enum StreakBonusMultiplier {
+  OFF = 0,
+  SMALL = 0.025,
+  MEDIUM = 0.05,
+  LARGE = 0.075
+}
+
 
 export const MAX_VOLUME: number = 0.25;
 export const DEFAULT_VOLUME_SLIDER_VAL: number = 0.5;
@@ -58,8 +65,9 @@ export const BASE_POINTS: number = 100;
 export const MAX_TIME_MULTIPLIER: number = 2.0;
 export const MIN_TIME_MULTIPLIER: number = 1.0;
 export const EXPONENTIAL_DECAY_INTENSITY: number = 2.5;
-export const DEFAULT_FIRST_BONUS_MULTIPLIER = FirstBonusMultiplier.X1_2;
+export const DEFAULT_FIRST_BONUS_MULTIPLIER = FirstBonusMultiplier.MEDIUM;
 export const DEFAULT_TIME_BONUS: TimeBonus = TimeBonus.LINEAR;
+export const DEFAULT_STREAK_BONUS_MULTIPLIER = StreakBonusMultiplier.MEDIUM;
 
 export const GLIMPSE_BLUR_INTENSITY: number = 25;
 
