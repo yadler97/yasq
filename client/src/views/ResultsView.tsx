@@ -117,6 +117,15 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                 );
               })
             }
+            {roundData.value.lostStreaks && Object.keys(roundData.value.lostStreaks).length > 0 && (
+              <p>
+                Lost Streaks: <strong>
+                  {Object.entries(roundData.value.lostStreaks)
+                    .map(([userId, streak]) => `${getDisplayName(findUser(participants.value, userId))} (${streak})`)
+                    .join(', ')}
+                </strong>
+              </p>
+            )}
           </div>
         </div>
 
@@ -209,6 +218,15 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             <RollingNumber target={roundData.value.result[0]?.points || 0} />
           </strong> points this round.</p>
           <p>Number of correct players: {roundData.value.correctPlayers}</p>
+          {roundData.value.lostStreaks && Object.keys(roundData.value.lostStreaks).length > 0 && (
+            <p>
+              Lost Streaks: <strong>
+                {Object.entries(roundData.value.lostStreaks)
+                  .map(([userId, streak]) => `${getDisplayName(findUser(participants.value, userId))} (${streak})`)
+                  .join(', ')}
+              </strong>
+            </p>
+          )}
         </div>
       </div>
 

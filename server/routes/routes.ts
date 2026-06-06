@@ -375,7 +375,7 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
 
     triggerUpdate(instanceId);
 
-    res.send({ status: "success" });
+    res.send({ status: GameState.RESULTS });
   });
 
   router.get("/get-results", (req, res) => {
@@ -407,7 +407,8 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
       trackTitle: game.trackInfo?.track.title,
       tags: game.trackInfo?.track.tags || [],
       gameCover: game.trackInfo?.gameCoverUrl,
-      correctPlayers: correctPlayersCount
+      correctPlayers: correctPlayersCount,
+      lostStreaks: game.currentRoundLostStreaks
     });
   });
 
@@ -471,7 +472,7 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
     triggerUpdate(instanceId);
 
     res.send({
-      status: "playing",
+      status: GameState.PLAYING,
       track: game.trackInfo
     });
   });
@@ -608,7 +609,7 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
 
     triggerUpdate(instanceId);
 
-    res.status(200).send({
+    res.send({
       jokerType,
       hint
     });

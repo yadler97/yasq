@@ -27,6 +27,7 @@ export interface GameStatus {
   lastWinnerId: string | null;
   gameSettings: GameSettings;
   streaks: Record<string, number>;
+  lostStreaks: Record<string, number>;
 }
 
 export interface Track {

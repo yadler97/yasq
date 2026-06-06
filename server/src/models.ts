@@ -36,6 +36,7 @@ export class GameInstance {
   public lastWinnerId: string | null = null;
   public usedJokers: Record<string, Partial<Record<Joker, number>>> = {};
   public streaks: Record<string, number> = {};
+  public currentRoundLostStreaks: Record<string, number> = {}
 
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId
@@ -121,7 +122,12 @@ export class GameInstance {
       }
     });
 
-    // 3. Calculate and add RoundResult for every registered user
+    // 3. Calculate lost streaks
+    this.currentRoundLostStreaks = this.calculateLostStreaks();
+    const totalLostStreaks = Object.values(this.currentRoundLostStreaks).reduce((sum, streak) => sum + streak, 0);
+    const streakBreakerMultiplier = 1 + (totalLostStreaks * this.settings.streakBonusMultiplier);
+
+    // 4. Calculate and add RoundResult for every registered user
     this.registeredUsers.forEach(userId => {
       if (this.isHost(userId)) return; // Skip host
 
@@ -143,6 +149,10 @@ export class GameInstance {
           const streakMultiplier = 1 + (currentStreak - 1) * this.settings.streakBonusMultiplier;
           pointsEarned *= streakMultiplier;
         }
+      }
+
+      if (scoreMultiplier === 1) {
+        pointsEarned *= streakBreakerMultiplier;
       }
 
       // Round to avoid fractional points and ensure it's an integer
@@ -183,6 +193,26 @@ export class GameInstance {
     }
   }
 
+  public calculateLostStreaks(): Record<string, number> {
+    const roundGuesses = this.guesses[this.currentRound] || {};
+    const lostStreaks: Record<string, number> = {};
+
+    this.registeredUsers.forEach(userId => {
+      if (this.isHost(userId)) return;
+
+      const data = roundGuesses[userId];
+      const scoreMultiplier = data?.scoreValue || 0;
+      const currentStreak = this.streaks[userId] || 0;
+
+      // If they had a streak of 2 or higher but failed this round (scoreMultiplier === 0)
+      if (scoreMultiplier === 0 && currentStreak >= 2) {
+        lostStreaks[userId] = currentStreak;
+      }
+    });
+
+    return lostStreaks;
+  }
+
   public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
     if (this.settings.timeBonus === null) return 1.0  // apply no time bonus
 
@@ -207,6 +237,7 @@ export class GameInstance {
 
   public advanceRound(): string {
     this.readyUsers = new Set();
+    this.currentRoundLostStreaks = {};
 
     if (this.currentRound >= this.settings.rounds) {
       this.state = GameState.GAME_FINISHED;

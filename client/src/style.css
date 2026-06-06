@@ -1582,6 +1582,60 @@ input[value="1"]:checked + .btn-radio.correct {
   background-color: #cc0000;
   box-shadow: 0 0 8px #ff2a00;
 }
+.badge.streak.broken {
+  display: inline-block;
+  position: relative;
+  overflow: visible;
+  color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  animation: collapseLayout 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.badge.streak.broken::before,
+.badge.streak.broken::after {
+  content: "🔥 " attr(data-streak);
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  background-color: #ef4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+.badge.streak.broken::before {
+  clip-path: polygon(0 0, 100% 0, 100% 40%, 0 75%);
+  animation: breakLeft 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+.badge.streak.broken::after {
+  clip-path: polygon(0 75%, 100% 40%, 100% 100%, 0 100%);
+  animation: breakRight 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes collapseLayout {
+  100% {
+    display: none;
+  }
+}
+
+@keyframes breakLeft {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  20% { transform: translate(-2px, -2px) rotate(-4deg); }
+  100% { transform: translate(-25px, 40px) rotate(-45deg); opacity: 0; filter: blur(1px); }
+}
+
+@keyframes breakRight {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  20% { transform: translate(2px, 3px) rotate(6deg); }
+  100% { transform: translate(30px, 50px) rotate(35deg); opacity: 0; filter: blur(1px); }
+}
 
 #admin-button:disabled {
   background-color: var(--border-muted);
