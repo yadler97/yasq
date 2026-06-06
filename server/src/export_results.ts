@@ -1,0 +1,151 @@
+import { chromium } from 'playwright';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+import { STATIC_FILES_DIR, TEMP_FILES_DIR } from '@yasq/shared';
+import type { Participant } from './helper.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export async function generateResultsImage(instanceId: string, leaderboardData: any, userData: Map<string, Participant>) {
+  const outputPath = path.join(temporaryDirectory(instanceId, true), 'results.png');
+  const cssFilePath = path.join(__dirname, '../../client/src/style.css');
+  let cssContent = '';
+  try {
+    cssContent = fs.readFileSync(cssFilePath, 'utf8');
+  } catch (err) {
+    console.error("Could not load your client-side stylesheet:", err);
+  }
+
+  const currentDateFormatted = new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'long',
+    timeStyle: 'short'
+  }).format(new Date());
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          /* 1. Inject your production CSS styles rules */
+          ${cssContent}
+
+          /* 2. Overwrite and flatten variables and animation nodes */
+          body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+
+          /* Force CSS Grid properties out of transitioning state */
+          .player-wrapper {
+            grid-template-rows: unset !important;
+            display: block !important;
+            overflow: visible !important;
+            margin-bottom: 12px !important;
+            animation: none !important;
+          }
+
+          /* Force opacity transitions and hide the continuous moving winner shimmer line */
+          .player-card {
+            opacity: 1 !important;
+            animation: none !important;
+          }
+
+          .player-card.winner::after {
+            display: none !important;
+            animation: none !important;
+          }
+
+          .round-bubble {
+            transform: none !important;
+            transition: none !important;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="final-leaderboard centered">
+          <h1 class="results-title">🏆 Final Results</h1>
+          <div class="leaderboard-container">
+            ${leaderboardData.entries.map((player: any, index: number) => {
+              const isWinner = index === 0;
+              const user = userData.get(player.userId);
+
+              return `
+                <div class="player-wrapper">
+                  <div class="player-card ${isWinner ? 'winner' : ''}">
+                    <div class="player-main-info">
+                      <div class="rank">#${index + 1}</div>
+                      <img src="${getAvatarUrl(user!)}" class="avatar-small" draggable="false" />
+                      <div class="name">${isWinner ? '👑 ' : ''}${getDisplayName(user!)}</div>
+                      <div class="total-score">${player.totalScore} pts</div>
+                    </div>
+                    <div class="history-grid">
+                      <div class="history-label">Round Breakdown:</div>
+                      <div class="round-bubbles">
+                        ${player.roundHistory.map((r: any) => `
+                          <div class="round-bubble ${r.scoreValue > 0 ? 'correct' : 'incorrect'} ${r.isFirst ? 'first' : ''}">
+                            ${r.points}
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <p>${currentDateFormatted}</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext({
+      viewport: { width: 650, height: 400 },
+      deviceScaleFactor: 2,
+      colorScheme: 'dark'
+    });
+    const page = await context.newPage();
+    await page.setContent(htmlContent, { waitUntil: 'networkidle' });
+
+    const elementLocator = page.locator('.final-leaderboard');
+    const imageBuffer = await elementLocator.screenshot({ type: 'png' });
+
+    // Store image directly into local disk directory instead of network transport
+    fs.writeFileSync(outputPath, imageBuffer);
+    console.log(`Successfully stored layout image locally to: ${outputPath}`);
+  } finally {
+    await browser.close();
+  }
+}
+
+// TODO: Duplicate functions: clean up later
+export function temporaryDirectory(instanceId: string, createIfAbsent: boolean = false): string {
+  const instanceTempDir = path.join(process.cwd(), STATIC_FILES_DIR, TEMP_FILES_DIR, instanceId);
+
+  if (createIfAbsent && !fs.existsSync(instanceTempDir)) {
+    fs.mkdirSync(instanceTempDir, {
+      recursive: true
+    });
+  }
+
+  return instanceTempDir;
+}
+
+export function getAvatarUrl(participant: Participant) {
+  return participant.avatar
+    ? `https://cdn.discordapp.com/avatars/${participant.id}/${participant.avatar}.png?size=32`
+    : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(participant.id) >> 22n) % 6}.png`;
+}
+
+export function getDisplayName(participant: Participant) {
+  return participant.nickname || participant.global_name || participant.username;
+}

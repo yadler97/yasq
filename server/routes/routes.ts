@@ -1,11 +1,13 @@
 import type { NextFunction, Request, Response } from 'express';
 import express from 'express';
+import type { Server } from "socket.io";
+
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker } from '@yasq/shared';
-import { broadcastGameStatus, invalidateToken, validateToken } from '../src/helper.js';
+import { broadcastGameStatus, invalidateToken, userDataCache, validateToken } from '../src/helper.js';
 import { isAllowed } from '../src/access_control.js';
-import type { Server } from "socket.io";
+import { generateResultsImage } from '../src/export_results.js';
 
 
 declare global {
@@ -431,6 +433,7 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
 
     if (newState === GameState.GAME_FINISHED) {
       console.log(`[GAME] Instance ${instanceId} has ended!`);
+      generateResultsImage(instanceId, game.leaderboard, userDataCache);
       console.log(`[FINAL RESULTS] Instance ${instanceId} final leaderboard:`, JSON.stringify(game.leaderboard.getAll()));
     }
 

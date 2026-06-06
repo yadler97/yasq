@@ -4,8 +4,18 @@ import { STATIC_FILES_DIR, TEMP_FILES_DIR, UI_UPDATES_DELAY_IN_E2E, WS_GAME_STAT
 import fs from "fs";
 import path from "path";
 
+export interface Participant {
+  id: string;
+  username: string;
+  nickname?: string;
+  global_name?: string;
+  avatar?: string;
+}
+
 const tokenCache = new Map<string, { userId: string, expires: number }>();
 const TTL = 10 * 60 * 1000; // Cache for 10 minutes
+
+export const userDataCache = new Map<string, Participant>();
 
 export async function validateToken(token: string) {
   const now = Date.now();
@@ -31,11 +41,20 @@ export async function validateToken(token: string) {
 
     if (!response.ok) return null;
 
-    const discordUser = await response.json() as { id: string };
+    const discordUser = await response.json() as Participant;
     const userId = discordUser.id;
+
+    const profile: Participant = {
+      id: userId,
+      username: discordUser.username,
+      ...(discordUser.nickname && { nickname: discordUser.nickname }),
+      ...(discordUser.global_name && { global_name: discordUser.global_name }),
+      ...(discordUser.avatar && { avatar: discordUser.avatar }),
+    };
 
     // Update Cache
     tokenCache.set(token, { userId, expires: now + TTL });
+    userDataCache.set(userId, profile);
     return userId;
   } catch (error) {
     console.error("Discord Auth Error:", error);
