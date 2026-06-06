@@ -122,6 +122,7 @@ The project contains various unit tests for the server component using vitest, a
 
 ```bash
 npm run test:unit
+npm run test:unit:coverage # with coverage report
 ```
 
 ### E2E Tests
