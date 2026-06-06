@@ -2,7 +2,7 @@ import { useState, useEffect } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { auth, discordSdk, gameState, participants } from "../main";
-import { capitalize, getUserId } from "../utils/helper";
+import { capitalize, formatBonusMultiplier, getUserId } from "../utils/helper";
 import { ALL_JOKER_ICONS } from "../components/JokerIcons";
 import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
 import { TimeBonus } from "@yasq/shared";
@@ -15,12 +15,6 @@ export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
   [TimeBonus.LOGISTIC]: '⚖️ Balanced',
   NONE: '❌ No time bonus'
 };
-
-function formatFirstMultiplier(multiplier: number): string {
-  if (multiplier === 1.0) return "No bonus";
-  const percent = Math.round((multiplier - 1) * 100);
-  return `+${percent}%`;
-}
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
@@ -117,7 +111,12 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
 
           <div className="settings-label">🥇 First Bonus</div>
           <div className="settings-value">
-            {formatFirstMultiplier(gameState.value.gameSettings.firstBonusMultiplier)}
+            {formatBonusMultiplier(gameState.value.gameSettings.firstBonusMultiplier)}
+          </div>
+
+          <div className="settings-label">🔥 Streak Bonus</div>
+          <div className="settings-value">
+            {formatBonusMultiplier(gameState.value.gameSettings.streakBonusMultiplier)}
           </div>
         </div>
 

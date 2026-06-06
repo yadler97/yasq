@@ -40,9 +40,10 @@ export const gameState = signal<GameStatus>({
   readyUsers: [],
   guessedPlayers: [],
   currentRound: 0,
-  isFinalRound: false,
   lastWinnerId: null,
-  gameSettings: new GameSettings<Joker[]>()
+  gameSettings: new GameSettings<Joker[]>(),
+  streaks: {},
+  lostStreaks: {}
 });
 export const participants = signal<Participant[]>([]);
 export const volume = signal(DEFAULT_VOLUME_SLIDER_VAL);

@@ -63,9 +63,10 @@ export function getGameStatusPayload(game: GameInstance) {
     readyUsers: [...game.readyUsers],
     guessedPlayers: [...game.guessedPlayers],
     currentRound: game.currentRound,
-    isFinalRound: game.isFinalRound(),
     currentGame: game.currentGame,
     lastWinnerId: game.lastWinnerId,
+    streaks: game.streaks,
+    lostStreaks: game.currentRoundLostStreaks,
     gameSettings: {
       ...game.settings,
       enabledJokers: [...game.settings.enabledJokers],

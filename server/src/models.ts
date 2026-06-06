@@ -35,6 +35,8 @@ export class GameInstance {
   public trackHistory: string[] = [];
   public lastWinnerId: string | null = null;
   public usedJokers: Record<string, Partial<Record<Joker, number>>> = {};
+  public streaks: Record<string, number> = {};
+  public currentRoundLostStreaks: Record<string, number> = {}
 
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId
@@ -120,12 +122,19 @@ export class GameInstance {
       }
     });
 
-    // 3. Calculate and add RoundResult for every registered user
+    // 3. Calculate lost streaks
+    this.currentRoundLostStreaks = this.calculateLostStreaks();
+    const totalLostStreaks = Object.values(this.currentRoundLostStreaks).reduce((sum, streak) => sum + streak, 0);
+    const streakBreakerMultiplier = 1 + (totalLostStreaks * this.settings.streakBonusMultiplier);
+
+    // 4. Calculate and add RoundResult for every registered user
     this.registeredUsers.forEach(userId => {
       if (this.isHost(userId)) return; // Skip host
 
       const data = roundGuesses[userId];
       const scoreMultiplier = data?.scoreValue || 0;
+      this.updateStreak(userId, scoreMultiplier);
+
       const isFirst = userId === fastestFullyCorrectUserId;
       let pointsEarned = 0;
 
@@ -133,7 +142,17 @@ export class GameInstance {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
         const timeMultiplier = this.calculateTimeMultiplier(timeTaken, firstPartiallyCorrectTime);
         pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
-        if (isFirst) pointsEarned *= this.settings.firstBonusMultiplier;
+        if (isFirst) pointsEarned *= (1 + this.settings.firstBonusMultiplier);
+
+        const currentStreak = this.streaks[userId] || 0;
+        if (currentStreak > 1) {
+          const streakMultiplier = 1 + (currentStreak - 1) * this.settings.streakBonusMultiplier;
+          pointsEarned *= streakMultiplier;
+        }
+      }
+
+      if (scoreMultiplier === 1) {
+        pointsEarned *= streakBreakerMultiplier;
       }
 
       // Round to avoid fractional points and ensure it's an integer
@@ -162,6 +181,38 @@ export class GameInstance {
     this.guessedPlayers = new Set();
   }
 
+  public updateStreak(userId: string, scoreMultiplier: number) {
+    if (this.streaks[userId] === undefined) {
+      this.streaks[userId] = 0;
+    }
+
+    if (scoreMultiplier === 1) {
+      this.streaks[userId] += 1;
+    } else if (scoreMultiplier === 0) {
+      this.streaks[userId] = 0;
+    }
+  }
+
+  public calculateLostStreaks(): Record<string, number> {
+    const roundGuesses = this.guesses[this.currentRound] || {};
+    const lostStreaks: Record<string, number> = {};
+
+    this.registeredUsers.forEach(userId => {
+      if (this.isHost(userId)) return;
+
+      const data = roundGuesses[userId];
+      const scoreMultiplier = data?.scoreValue || 0;
+      const currentStreak = this.streaks[userId] || 0;
+
+      // If they had a streak of 2 or higher but failed this round (scoreMultiplier === 0)
+      if (scoreMultiplier === 0 && currentStreak >= 2) {
+        lostStreaks[userId] = currentStreak;
+      }
+    });
+
+    return lostStreaks;
+  }
+
   public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
     if (this.settings.timeBonus === null) return 1.0  // apply no time bonus
 
@@ -186,6 +237,7 @@ export class GameInstance {
 
   public advanceRound(): string {
     this.readyUsers = new Set();
+    this.currentRoundLostStreaks = {};
 
     if (this.currentRound >= this.settings.rounds) {
       this.state = GameState.GAME_FINISHED;
@@ -197,10 +249,6 @@ export class GameInstance {
     }
 
     return this.state;
-  }
-
-  public isFinalRound(): boolean {
-    return this.currentRound >= this.settings.rounds;
   }
 
   public async playTrack(track: Track, roundFinishedCallback: () => void): Promise<void> {
@@ -242,6 +290,7 @@ export class GameInstance {
     this.leaderboard = new Leaderboard();
     this.currentGame += 1;
     this.usedJokers = {};
+    this.streaks = {};
   }
 
   public canUseJoker(userId: string, jokerType: Joker): boolean {

@@ -24,9 +24,10 @@ export interface GameStatus {
   readyUsers: string[];
   guessedPlayers: string[],
   currentRound: number;
-  isFinalRound: boolean;
   lastWinnerId: string | null;
   gameSettings: GameSettings;
+  streaks: Record<string, number>;
+  lostStreaks: Record<string, number>;
 }
 
 export interface Track {

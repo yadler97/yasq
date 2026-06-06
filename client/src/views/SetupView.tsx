@@ -12,12 +12,14 @@ import {
   FirstBonusMultiplier,
   GameSettings,
   Joker,
+  StreakBonusMultiplier,
   TimeBonus
 } from "@yasq/shared";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
 import { PLAYER_TIME_BONUS_LABELS } from "./LobbyView";
 import { HostTransferDropdown } from "../components/HostTransferDropdown";
+import { formatBonusMultiplier } from "../utils/helper";
 
 
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
@@ -36,6 +38,9 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
   const isAdvancedOpen = useSignal(false);
   const firstBonusMultiplier = useSignal<FirstBonusMultiplier>(
     gameState.value.gameSettings.firstBonusMultiplier || FirstBonusMultiplier.OFF
+  );
+  const streakBonusMultiplier = useSignal<StreakBonusMultiplier>(
+    gameState.value.gameSettings.streakBonusMultiplier || StreakBonusMultiplier.OFF
   );
 
   const activeJokers = useSignal<Set<Joker>>(
@@ -72,7 +77,8 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       trackDuration: trackDuration.value,
       enabledJokers: [...activeJokers.value],
       firstBonusMultiplier: firstBonusMultiplier.value,
-      timeBonus: selectedBonus.value === OptionalTimeBonus.NONE ? null : selectedBonus.value
+      timeBonus: selectedBonus.value === OptionalTimeBonus.NONE ? null : selectedBonus.value,
+      streakBonusMultiplier: streakBonusMultiplier.value
     };
 
     try {
@@ -164,31 +170,58 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                 <div className="setting-item">
                   <span>First Correct Answer Bonus</span>
                   <div className="button-group">
-                    {[
-                      { value: FirstBonusMultiplier.OFF, label: "Off" },
-                      { value: FirstBonusMultiplier.X1_1, label: "1.1x" },
-                      { value: FirstBonusMultiplier.X1_2, label: "1.2x" },
-                      { value: FirstBonusMultiplier.X1_3, label: "1.3x" },
-                    ].map((option) => (
-                      <Fragment key={option.value}>
-                        <input
-                          type="radio"
-                          id={`bonus-${option.value}`}
-                          name="first-bonus"
-                          value={option.value}
-                          checked={firstBonusMultiplier.value === option.value}
-                          onChange={(_) => {
-                            firstBonusMultiplier.value = option.value;
-                          }}
-                        />
-                        <label
-                          htmlFor={`bonus-${option.value}`}
-                          className={`btn-radio ${firstBonusMultiplier.value === option.value ? "active" : ""}`}
-                        >
-                          {option.label}
-                        </label>
-                      </Fragment>
-                    ))}
+                    {Object.values(FirstBonusMultiplier)
+                      .filter((val): val is number => typeof val === "number")
+                      .map((value) => (
+                        <Fragment key={value}>
+                          <input
+                            type="radio"
+                            id={`first-bonus-${value}`}
+                            name="first-bonus"
+                            value={value}
+                            checked={firstBonusMultiplier.value === value}
+                            onChange={(_) => {
+                              firstBonusMultiplier.value = value;
+                            }}
+                          />
+                          <label
+                            htmlFor={`first-bonus-${value}`}
+                            className={`btn-radio ${firstBonusMultiplier.value === value ? "active" : ""}`}
+                          >
+                            {formatBonusMultiplier(value)}
+                          </label>
+                        </Fragment>
+                      ))
+                    }
+                  </div>
+                </div>
+
+                <div className="setting-item">
+                  <span>Streak Bonus</span>
+                  <div className="button-group">
+                    {Object.values(StreakBonusMultiplier)
+                      .filter((val): val is number => typeof val === "number")
+                      .map((value) => (
+                        <Fragment key={value}>
+                          <input
+                            type="radio"
+                            id={`streak-bonus-${value}`}
+                            name="streak-bonus"
+                            value={value}
+                            checked={streakBonusMultiplier.value === value}
+                            onChange={(_) => {
+                              streakBonusMultiplier.value = value;
+                            }}
+                          />
+                          <label
+                            htmlFor={`streak-bonus-${value}`}
+                            className={`btn-radio ${streakBonusMultiplier.value === value ? "active" : ""}`}
+                          >
+                            {formatBonusMultiplier(value)}
+                          </label>
+                        </Fragment>
+                      ))
+                    }
                   </div>
                 </div>
               </div>

@@ -3,6 +3,7 @@ import { GameInstance, LeaderboardEntry, Tag, Track, TrackInfo, UserGuess } from
 import {
   COUNTDOWN_DURATION,
   DEFAULT_FIRST_BONUS_MULTIPLIER,
+  DEFAULT_STREAK_BONUS_MULTIPLIER,
   FirstBonusMultiplier,
   GameState,
   Joker,
@@ -42,7 +43,8 @@ describe('GameInstance - startGame', () => {
       trackDuration: 15,
       enabledJokers: [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: TimeBonus.LINEAR
+      timeBonus: TimeBonus.LINEAR,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
     game.startGame();
 
@@ -64,7 +66,8 @@ describe('GameInstance - startGame', () => {
       trackDuration: 15,
       enabledJokers: [],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: TimeBonus.LINEAR
+      timeBonus: TimeBonus.LINEAR,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
     game.startGame();
 
@@ -156,13 +159,12 @@ describe('GameInstance - submitResults', () => {
       trackDuration: 20, // 20s duration = 20000ms
       enabledJokers: [],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: TimeBonus.LINEAR
+      timeBonus: TimeBonus.LINEAR,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
     game.startGame();
 
     // Manually inject some guesses into the current round
-    // Player 1: Correct, took 5s (Multiplier should be 1.75)
-    // Player 2: Correct, took 10s (Multiplier should be 1.5), but slower
     game.guesses[1] = {
       [PLAYER_1]: new UserGuess(GAME_A, 5000),
       [PLAYER_2]: new UserGuess(GAME_B, 10_000),
@@ -279,6 +281,39 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]?.scoreValue).toBe(0.5);
   });
 
+  it('should update streaks and handle streak multipliers', () => {
+    game.streaks[PLAYER_1] = 3;
+    game.streaks[PLAYER_2] = 2;
+    game.streaks[PLAYER_3] = 4;
+    game.submitResults({ [PLAYER_1]: 1, [PLAYER_2]: 0.5, [PLAYER_3]: 0 });
+
+    const entry1 = game.leaderboard.getEntry(PLAYER_1);
+    const entry2 = game.leaderboard.getEntry(PLAYER_2);
+    const entry3 = game.leaderboard.getEntry(PLAYER_3);
+
+    // Math for Player 1:
+    // Multiplier = 2 (first correct guess) => FirstCorrect = 5000
+    // Base = 100 * 1.0 * 2 = 200
+    // First Bonus = 200 * 1.2 = 240
+    // Streak Bonus = 240 * (1 + (4 - 1) * 0.05) = 276
+    // Streak Breaker Bonus = 276 * (1 + 4 * 0.05) = 331
+    expect(entry1!.totalScore).toBe(331);
+    expect(game.streaks[PLAYER_1]).toBe(4); // Incremented to 4
+
+    // Math for Player 2:
+    // Multiplier = 2 - ((10000-5000) / (20000 - 5000)) = 1.6666
+    // Base = 100 * 0.5 * 1.6666 = 83.3333
+    // No First Bonus
+    // Streak Bonus = 83.3333 * (1 + (2 - 1) * 0.05) = 87.5 ~= 88
+    // No Streak Breaker Bonus
+    expect(entry2!.totalScore).toBe(88);
+    expect(game.streaks[PLAYER_2]).toBe(2); // Kept at 2
+
+    // Player 3: No points, streak set to 0
+    expect(entry3!.totalScore).toBe(0);
+    expect(game.streaks[PLAYER_3]).toBe(0);
+  });
+
   it('should transition to RESULTS state and reset guessedPlayers', () => {
     game.guessedPlayers.add(PLAYER_1);
 
@@ -301,7 +336,8 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
       trackDuration: TRACK_DURATION / 1000,
       enabledJokers: [],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: bonusType
+      timeBonus: bonusType,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
 
     it(`should assign MAX_TIME_MULTIPLIER for guesses at/before the first success - ${bonusType}`, () => {
@@ -345,7 +381,8 @@ describe('GameInstance - timeMultiplier:LINEAR', () => {
     trackDuration: TRACK_DURATION / 1000,
     enabledJokers: [],
     firstBonusMultiplier: FirstBonusMultiplier.OFF,
-    timeBonus: TimeBonus.LINEAR
+    timeBonus: TimeBonus.LINEAR,
+    streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
   });
 
   it('should decay time multipliers linearly between the first successful guess and the end of the track', () => {
@@ -371,7 +408,8 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
     trackDuration: TRACK_DURATION / 1000,
     enabledJokers: [],
     firstBonusMultiplier: FirstBonusMultiplier.OFF,
-    timeBonus: TimeBonus.EXPONENTIAL
+    timeBonus: TimeBonus.EXPONENTIAL,
+    streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
   });
 
   it('should decay time multipliers exponentially between the first successful guess and the end of the track', () => {
@@ -400,7 +438,8 @@ describe('GameInstance - timeMultiplier:LOGISTIC', () => {
     trackDuration: TRACK_DURATION / 1000,
     enabledJokers: [],
     firstBonusMultiplier: FirstBonusMultiplier.OFF,
-    timeBonus: TimeBonus.LOGISTIC
+    timeBonus: TimeBonus.LOGISTIC,
+    streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
   });
 
   it('should decay time multipliers logistically/sigmoidally between the first successful guess and the end of the track', () => {
@@ -429,7 +468,8 @@ describe('GameInstance - timeMultiplier:CONSTANT', () => {
     trackDuration: TRACK_DURATION / 1000,
     enabledJokers: [],
     firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-    timeBonus: null  // no time bonus
+    timeBonus: null,  // no time bonus
+    streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
   });
 
   it('should always assign the same constant time multiplier independent of answer time', () => {
@@ -456,7 +496,8 @@ describe('GameInstance - advanceRound', () => {
       trackDuration: 20,
       enabledJokers: [],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: TimeBonus.LINEAR
+      timeBonus: TimeBonus.LINEAR,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
     game.startGame();
     game.readyUsers.add(PLAYER_1);
@@ -735,7 +776,8 @@ describe('GameInstance - getGlimpseHint', () => {
       trackDuration: 20,
       enabledJokers: [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE, Joker.GLIMPSE],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: TimeBonus.LINEAR
+      timeBonus: TimeBonus.LINEAR,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
 
     const instanceTempDir = path.join(rootDir, STATIC_FILES_DIR, TEMP_FILES_DIR, game.instanceId);
@@ -762,7 +804,8 @@ describe('GameInstance - getGlimpseHint', () => {
       trackDuration: 10,
       enabledJokers: [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE, Joker.GLIMPSE],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: TimeBonus.LINEAR
+      timeBonus: TimeBonus.LINEAR,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
 
     const instanceTempDir = path.join(rootDir, STATIC_FILES_DIR, TEMP_FILES_DIR, game.instanceId);
@@ -782,7 +825,8 @@ describe('GameInstance - getGlimpseHint', () => {
       trackDuration: 10,
       enabledJokers: [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE, Joker.GLIMPSE],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: TimeBonus.LINEAR
+      timeBonus: TimeBonus.LINEAR,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
 
     game.registeredUsers.add(PLAYER_1);
@@ -808,7 +852,8 @@ describe('GameInstance - getGlimpseHint', () => {
       trackDuration: 20,
       enabledJokers: [Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE],
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
-      timeBonus: TimeBonus.LINEAR
+      timeBonus: TimeBonus.LINEAR,
+      streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER
     });
 
     const instanceTempDir = path.join(rootDir, STATIC_FILES_DIR, TEMP_FILES_DIR, game.instanceId);
