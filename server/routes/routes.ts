@@ -1,6 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 import express from 'express';
 import type { Server } from "socket.io";
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
@@ -8,6 +11,9 @@ import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker } from '@yasq/sha
 import { broadcastGameStatus, invalidateToken, userDataCache, validateToken } from '../src/helper.js';
 import { isAllowed } from '../src/access_control.js';
 import { generateResultsImage } from '../src/export_results.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 declare global {
@@ -615,6 +621,24 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
     res.send({
       jokerType,
       hint
+    });
+  });
+
+  router.get('/download-results', (req, res) => {
+    const { instanceId } = req.query as InstanceQuery;
+
+    const filePath = path.join(__dirname, `../data/temp/${instanceId}/results.png`);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Results image has not been generated yet.' });
+    }
+
+    res.download(filePath, `yasq-results.png`, (err) => {
+      if (err) {
+        console.error("Error transferring file to client:", err);
+        if (!res.headersSent) {
+          res.status(500).send("Could not download file.");
+        }
+      }
     });
   });
 

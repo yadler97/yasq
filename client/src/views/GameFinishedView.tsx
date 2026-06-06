@@ -10,6 +10,7 @@ import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     backend.getFinalResults(discordSdk.instanceId).then((data) => {
@@ -25,6 +26,12 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       discordSdk.instanceId,
       !gameState.value.readyUsers.includes(getUserId(auth.value))
     );
+  };
+
+  const handleDownload = () => {
+    setIsDownloading(true);
+    backend.downloadResultsImage(discordSdk.instanceId, discordSdk);
+    setIsDownloading(false);
   };
 
   useKeyboardShortcut({ key: "r", altKey: true }, () => {
@@ -93,15 +100,26 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       </div>
 
       {isHost ? (
-        <button
-          id="btn-restart"
-          disabled={!allPlayersReady}
-          onClick={handleRestart}
-        >
-          {allPlayersReady
-            ? "Play Again"
-            : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
-        </button>
+        <div>
+          <div className='export-section'>
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
+              {isDownloading ? 'Downloading...' : '📥 Download Results Image'}
+            </button>
+          </div>
+
+          <button
+            id="btn-restart"
+            disabled={!allPlayersReady}
+            onClick={handleRestart}
+          >
+            {allPlayersReady
+              ? "Play Again"
+              : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
+          </button>
+        </div>
       ) : (
         <div className='shortcut-badge-btn-wrapper'>
           <button

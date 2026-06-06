@@ -1431,7 +1431,6 @@ input[value="1"]:checked + .btn-radio.correct {
   animation: growWrapper 0.8s ease-out forwards;
 }
 
-
 @keyframes growWrapper {
   0% {
     grid-template-rows: 0fr;
@@ -1539,6 +1538,10 @@ input[value="1"]:checked + .btn-radio.correct {
 .round-bubble.correct.first { border: 1px solid var(--gold); color: var(--gold); font-weight: bold; }
 .round-bubble.correct.first:hover {
   background: rgba(241, 196, 15, 0.2);
+}
+
+.export-section {
+  margin-bottom: 20px;
 }
 
 .badge {

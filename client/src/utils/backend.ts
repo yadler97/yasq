@@ -214,3 +214,10 @@ export async function logToServer(message: string, username: string) {
     body: JSON.stringify({ message, user: username }),
   });
 }
+
+export async function downloadResultsImage(instanceId: string, discordSdk: any) {
+  const targetUrl = `${window.location.origin}/api/download-results?instanceId=${instanceId}`;
+
+  discordSdk.commands.openExternalLink({ url: targetUrl })
+    .catch((err: any) => console.warn("Discord SDK prompt breakout error:", err));
+}
