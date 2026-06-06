@@ -1542,6 +1542,8 @@ input[value="1"]:checked + .btn-radio.correct {
 
 .export-section {
   margin-bottom: 20px;
+  display: flex;
+  gap: var(--gap-medium);
 }
 
 .badge {

@@ -1,5 +1,6 @@
 export const mockDiscordSdk = {
   instanceId: window.__MOCK_INSTANCE_ID__ || '123456789',
+  guildId: '',
   // Mocking the ready promise
   ready: () => Promise.resolve(),
 

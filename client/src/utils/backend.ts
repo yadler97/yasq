@@ -221,3 +221,16 @@ export async function downloadResultsImage(instanceId: string, discordSdk: any) 
   discordSdk.commands.openExternalLink({ url: targetUrl })
     .catch((err: any) => console.warn("Discord SDK prompt breakout error:", err));
 }
+
+export async function postResultsToDiscordChannel(instanceId: string, channelId: string) {
+  return fetch('/api/post-results-to-channel', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ instanceId, channelId }),
+  });
+}
+
+export async function getChannels(guildId: string) {
+  const response = await fetch(`/api/get-channels?guildId=${guildId}`);
+  return response.json();
+}

@@ -642,5 +642,83 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
     });
   });
 
+  router.post('/post-results-to-channel', async (req, res) => {
+    const { instanceId, channelId } = req.body;
+    const filePath = path.join(__dirname, `../data/temp/${instanceId}/results.png`);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Results image has not been generated yet.' });
+    }
+
+    try {
+      if (!channelId) {
+        return res.status(400).json({ error: 'Could not resolve context channel reference matching this activity session.' });
+      }
+
+      const formData = new FormData();
+      const fileBuffer = fs.readFileSync(filePath);
+      const fileBlob = new Blob([fileBuffer], { type: 'image/png' });
+
+      formData.append('files[0]', fileBlob, `results-${instanceId}.png`);
+      formData.append('payload_json', JSON.stringify({
+        content: "🏁 **The YASQ Game Has Ended!** Here are the final results:",
+      }));
+
+      const discordResponse = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+        },
+        body: formData
+      });
+
+      if (!discordResponse.ok) {
+        const logErr = await discordResponse.text();
+        throw new Error(`Discord channel message dispatch rejected: ${logErr}`);
+      }
+
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Error posting match content artifact downstream:", error);
+      return res.status(500).json({ error: 'Internal system operation processing failure.' });
+    }
+  });
+
+  router.get('/get-channels', async (req, res) => {
+    const { guildId } = req.query;
+
+    try {
+      const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, {
+        headers: { 'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}` }
+      });
+
+      const channels = await response.json() as any[];
+
+      // 1. Create a map of all categories (type 4)
+      const categoryMap = new Map();
+      channels.filter(c => c.type === 4).forEach(c => categoryMap.set(c.id, c.name));
+
+      // 2. Filter text channels (type 0) and inject the category name
+      const textChannels = channels
+        .filter((c: any) => c.type === 0)
+        .map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          category: c.parent_id ? categoryMap.get(c.parent_id) : ""
+        }))
+        .sort((a, b) => {
+          // Compare categories first
+          const categoryCompare = a.category.localeCompare(b.category);
+          if (categoryCompare !== 0) return categoryCompare;
+
+          // If categories are the same, compare channel names
+          return a.name.localeCompare(b.name);
+        });
+      res.json(textChannels);
+    } catch (err) {
+      res.status(500).json({ error: 'Could not fetch channels' });
+    }
+  });
+
   return router;
 };

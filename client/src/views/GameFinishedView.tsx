@@ -11,6 +11,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [hasPosted, setHasPosted] = useState(false);
+  const [channels, setChannels] = useState<{id: string, name: string, category: string}[]>([]);
+  const [selectedChannel, setSelectedChannel] = useState('');
 
   useEffect(() => {
     backend.getFinalResults(discordSdk.instanceId).then((data) => {
@@ -33,6 +37,28 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
     backend.downloadResultsImage(discordSdk.instanceId, discordSdk);
     setIsDownloading(false);
   };
+
+  const handlePostToChannel = async () => {
+    setIsPosting(true);
+    try {
+      const response = await backend.postResultsToDiscordChannel(discordSdk.instanceId, selectedChannel)
+
+      if (response.ok) {
+        setHasPosted(true);
+      } else {
+        console.error("Failed to post results package.");
+      }
+    } catch (error) {
+      console.error("Error running post routine:", error);
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  useEffect(() => {
+    backend.getChannels(discordSdk.guildId!)
+      .then(data => setChannels(data));
+  }, []);
 
   useKeyboardShortcut({ key: "r", altKey: true }, () => {
     if (!isHost) handleReady();
@@ -107,6 +133,30 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
               disabled={isDownloading}
             >
               {isDownloading ? 'Downloading...' : '📥 Download Results Image'}
+            </button>
+
+            <select
+              value={selectedChannel}
+              onChange={(e) => {
+                const target = e.target as HTMLSelectElement;
+                setSelectedChannel(target.value);
+              }}
+            >
+              <option value="">Select a channel...</option>
+              {channels.map(channel => (
+                <option key={channel.id} value={channel.id}>
+                  {channel.category ? `${channel.category} > ` : ""}#{channel.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={handlePostToChannel}
+              disabled={isPosting || hasPosted}
+            >
+              {hasPosted
+                ? '✅ Posted to Channel'
+                : (isPosting ? 'Posting to Discord...' : '💬 Post Directly to Channel')}
             </button>
           </div>
 
