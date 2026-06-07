@@ -3,9 +3,10 @@ import { useEffect, useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { gameState, auth, discordSdk, participants } from "../main";
-import { findUser, getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
+import { findUser, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
+import { getAvatarUrl, getDisplayName } from "@yasq/shared";
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);

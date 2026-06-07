@@ -1,9 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-import { generateResultsImage, temporaryDirectory } from './export_results.js';
-import type { Participant } from './helper.js';
+import { generateResultsImage } from './export_results.js';
+import type { Participant } from '@yasq/shared';
+import { setupTempDir } from './helper.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const mockUserData = new Map<string, Participant>([
   ['1', { id: '1', username: 'Player One' }],
@@ -13,8 +18,13 @@ const mockUserData = new Map<string, Participant>([
 
 describe('Playwright Local Rendering System Test', () => {
   const instanceId = "1";
-  const testOutputPath = path.join(temporaryDirectory(instanceId, true), 'results.png');
+  const baseDir = path.join(__dirname, '..');
+  const testOutputPath = path.join(setupTempDir(baseDir), instanceId, 'results.png');
   console.log(testOutputPath)
+  const directoryPath = path.dirname(testOutputPath);
+  if (!fs.existsSync(directoryPath)) {
+    fs.mkdirSync(directoryPath, { recursive: true });
+  }
 
   beforeEach(() => {
     // Delete target if a legacy run artifact remains on disk
@@ -26,7 +36,7 @@ describe('Playwright Local Rendering System Test', () => {
   afterEach(() => {
     // Clean up file asset afterward if you want tests to stay decoupled
     if (fs.existsSync(testOutputPath)) {
-      //fs.unlinkSync(testOutputPath);
+      fs.unlinkSync(testOutputPath);
     }
   });
 
@@ -38,7 +48,7 @@ describe('Playwright Local Rendering System Test', () => {
     const dynamicLeaderboardPayload = JSON.parse(rawJsonData);
 
     // Execute live engine step
-    await generateResultsImage(instanceId, dynamicLeaderboardPayload, mockUserData);
+    await generateResultsImage(directoryPath, dynamicLeaderboardPayload, mockUserData);
 
     // Verify file asset existence on disk boundary
     expect(fs.existsSync(testOutputPath)).toBe(true);

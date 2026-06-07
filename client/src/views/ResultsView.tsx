@@ -3,10 +3,11 @@ import { useEffect, useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { gameState, auth, discordSdk, participants } from "../main";
-import { capitalize, findUser, getAvatarUrl, getDisplayName, getUserId } from "../utils/helper";
+import { capitalize, findUser, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 import { Tag } from "../utils/types";
+import { getAvatarUrl, getDisplayName } from "@yasq/shared";
 
 export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);

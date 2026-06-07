@@ -1,16 +1,8 @@
 import type { Server } from "socket.io";
 import type { GameInstance } from "./models.js";
-import { STATIC_FILES_DIR, TEMP_FILES_DIR, UI_UPDATES_DELAY_IN_E2E, WS_GAME_STATUS_UPDATE_EVENT } from "@yasq/shared";
+import { STATIC_FILES_DIR, TEMP_FILES_DIR, UI_UPDATES_DELAY_IN_E2E, WS_GAME_STATUS_UPDATE_EVENT, type Participant } from "@yasq/shared";
 import fs from "fs";
 import path from "path";
-
-export interface Participant {
-  id: string;
-  username: string;
-  nickname?: string;
-  global_name?: string;
-  avatar?: string;
-}
 
 const tokenCache = new Map<string, { userId: string, expires: number }>();
 const TTL = 10 * 60 * 1000; // Cache for 10 minutes

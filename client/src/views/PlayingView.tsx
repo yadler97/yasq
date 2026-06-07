@@ -3,9 +3,9 @@ import { useEffect, useRef } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { audioPlayer, auth, discordSdk, gameState, participants } from "../main";
-import { Joker, POLLING_INTERVAL } from "@yasq/shared";
+import { getAvatarUrl, getDisplayName, Joker, POLLING_INTERVAL } from "@yasq/shared";
 import { ALL_JOKER_ICONS } from '../components/JokerIcons';
-import { capitalize, findUser, getAvatarUrl, getDisplayName } from "../utils/helper";
+import { capitalize, findUser } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 import { Tag } from "../utils/types";

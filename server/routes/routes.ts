@@ -439,7 +439,7 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
 
     if (newState === GameState.GAME_FINISHED) {
       console.log(`[GAME] Instance ${instanceId} has ended!`);
-      generateResultsImage(instanceId, game.leaderboard, userDataCache);
+      generateResultsImage(game.temporaryDirectory(true), game.leaderboard, userDataCache);
       console.log(`[FINAL RESULTS] Instance ${instanceId} final leaderboard:`, JSON.stringify(game.leaderboard.getAll()));
     }
 

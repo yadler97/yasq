@@ -1,5 +1,4 @@
-import { MAX_VOLUME } from "@yasq/shared";
-import { getAvatarUrl, getDisplayName } from "../utils/helper";
+import { getAvatarUrl, getDisplayName, MAX_VOLUME } from "@yasq/shared";
 import { gainNode, gameState, participants, volume } from "../main";
 import { NonDraggableImg } from "./NonDraggableImg";
 

@@ -10,6 +10,14 @@ import {
   TimeBonus
 } from "@yasq/shared";
 
+export interface Participant {
+  id: string;
+  username: string;
+  nickname?: string;
+  global_name?: string;
+  avatar?: string;
+}
+
 export class GameSettings<T = Joker[]> {
   constructor(
     public rounds: number = DEFAULT_ROUNDS,

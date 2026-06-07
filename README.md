@@ -26,6 +26,12 @@ npm install
   - Turn on `Enable Activities` in Activity settings.
   - Make sure to add all additional test players as `App Testers`.
 - (Optional) Turn on `iOS` and `Android` under `Supported Platforms` in Activity settings to allow users to open the activity on mobile devices
+- (Optional) If you want to be able to export your game results directly to Discord:
+  - Generate a Bot Token in the Bot settings section
+  - Generate Invite Link in OAuth2 settings:
+    - Set scope to `bot`
+    - Set bot permissions to `Send Messages`, `Attach Files` and `Read Message History`
+    - Add bot to server via the invite link
 
 3. **Set up Environment Variables**\
 Create a `.env` file in the root directory:
@@ -33,6 +39,7 @@ Create a `.env` file in the root directory:
 VITE_DISCORD_CLIENT_ID=<Copy Client ID from Discord Developer Portal>
 DISCORD_CLIENT_SECRET=<Copy Client Secret from Discord Developer Portal>
 VITE_URL_MAPPING=<Fill Later>
+DISCORD_BOT_TOKEN=<Cope Bot Token from Discord Developer Portal> (Optional)
 ```
 
 ### Local Development

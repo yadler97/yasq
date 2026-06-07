@@ -3,14 +3,13 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { STATIC_FILES_DIR, TEMP_FILES_DIR } from '@yasq/shared';
-import type { Participant } from './helper.js';
+import { getAvatarUrl, getDisplayName, type Participant } from '@yasq/shared';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function generateResultsImage(instanceId: string, leaderboardData: any, userData: Map<string, Participant>) {
-  const outputPath = path.join(temporaryDirectory(instanceId, true), 'results.png');
+export async function generateResultsImage(tempDir: string, leaderboardData: any, userData: Map<string, Participant>) {
+  const outputPath = path.join(tempDir, 'results.png');
   const cssFilePath = path.join(__dirname, '../../client/src/style.css');
   let cssContent = '';
   try {
@@ -125,27 +124,4 @@ export async function generateResultsImage(instanceId: string, leaderboardData: 
   } finally {
     await browser.close();
   }
-}
-
-// TODO: Duplicate functions: clean up later
-export function temporaryDirectory(instanceId: string, createIfAbsent: boolean = false): string {
-  const instanceTempDir = path.join(process.cwd(), STATIC_FILES_DIR, TEMP_FILES_DIR, instanceId);
-
-  if (createIfAbsent && !fs.existsSync(instanceTempDir)) {
-    fs.mkdirSync(instanceTempDir, {
-      recursive: true
-    });
-  }
-
-  return instanceTempDir;
-}
-
-export function getAvatarUrl(participant: Participant) {
-  return participant.avatar
-    ? `https://cdn.discordapp.com/avatars/${participant.id}/${participant.avatar}.png?size=32`
-    : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(participant.id) >> 22n) % 6}.png`;
-}
-
-export function getDisplayName(participant: Participant) {
-  return participant.nickname || participant.global_name || participant.username;
 }
