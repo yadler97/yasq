@@ -138,22 +138,29 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
 
             <select
               value={selectedChannel}
+              disabled={channels.length === 0 || isPosting || hasPosted}
               onChange={(e) => {
                 const target = e.target as HTMLSelectElement;
                 setSelectedChannel(target.value);
               }}
             >
-              <option value="">Select a channel...</option>
-              {channels.map(channel => (
-                <option key={channel.id} value={channel.id}>
-                  {channel.category ? `${channel.category} > ` : ""}#{channel.name}
-                </option>
-              ))}
+              {channels.length === 0 ? (
+                <option value="">No channels available</option>
+              ) : (
+                <>
+                  <option value="">Select a channel...</option>
+                  {channels.map(channel => (
+                    <option key={channel.id} value={channel.id}>
+                      {channel.category ? `${channel.category} > ` : ""}#{channel.name}
+                    </option>
+                  ))}
+                </>
+              )}
             </select>
 
             <button
               onClick={handlePostToChannel}
-              disabled={isPosting || hasPosted}
+              disabled={isPosting || hasPosted || !selectedChannel}
             >
               {hasPosted
                 ? '✅ Posted to Channel'
