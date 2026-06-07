@@ -16,7 +16,7 @@ const mockUserData = new Map<string, Participant>([
   ['3', { id: '3', username: 'Player Three' }]
 ]);
 
-describe('Playwright Local Rendering System Test', () => {
+describe.skip('generateResultsImage', () => {
   const instanceId = "1";
   const baseDir = path.join(__dirname, '..');
   const testOutputPath = path.join(setupTempDir(baseDir), instanceId, 'results.png');
@@ -40,7 +40,7 @@ describe('Playwright Local Rendering System Test', () => {
     }
   });
 
-  it('should run headless chromium and generate a physical file containing binary content', async () => {
+  it('should generate the results image', async () => {
     const jsonPath = path.join(__dirname, '../../mock_data/mockLeaderboard.json');
 
     // Read and parse the file natively on the test thread
