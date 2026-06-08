@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { generateResultsImage } from './export_results.js';
 import type { Participant } from '@yasq/shared';
 import { setupTempDir } from './helper.js';
+import { Leaderboard } from './models.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -45,10 +46,10 @@ describe.skip('generateResultsImage', () => {
 
     // Read and parse the file natively on the test thread
     const rawJsonData = fs.readFileSync(jsonPath, 'utf8');
-    const dynamicLeaderboardPayload = JSON.parse(rawJsonData);
+    const leaderboardData = Leaderboard.fromJSON(JSON.parse(rawJsonData));
 
     // Execute live engine step
-    await generateResultsImage(directoryPath, dynamicLeaderboardPayload, mockUserData);
+    await generateResultsImage(directoryPath, leaderboardData, mockUserData);
 
     // Verify file asset existence on disk boundary
     expect(fs.existsSync(testOutputPath)).toBe(true);

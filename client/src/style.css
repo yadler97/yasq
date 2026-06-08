@@ -524,6 +524,7 @@ select:disabled option {
 
 .badge-container {
   display: flex;
+  margin-left: 5px;
   gap: var(--gap-tiny);
 }
 
@@ -1552,7 +1553,6 @@ input[value="1"]:checked + .btn-radio.correct {
 
 .badge {
   display: inline-flex;
-  margin-left: 5px;
   font-size: 10px;
   color: var(--fixed-white);
   padding: 2px 6px;
@@ -1764,6 +1764,10 @@ input[value="1"]:checked + .btn-radio.correct {
 
   .tag-badge {
     max-width: 100%;
+  }
+
+  .export-section {
+    flex-flow: column;
   }
 
   .version {

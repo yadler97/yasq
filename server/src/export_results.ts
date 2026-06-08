@@ -4,11 +4,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { getAvatarUrl, getDisplayName, type Participant } from '@yasq/shared';
+import type { Leaderboard, LeaderboardEntry, RoundResult } from './models.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function generateResultsImage(tempDir: string, leaderboardData: any, userData: Map<string, Participant>) {
+export async function generateResultsImage(tempDir: string, leaderboardData: Leaderboard, userData: Map<string, Participant>) {
   const outputPath = path.join(tempDir, 'results.png');
   const cssFilePath = path.join(__dirname, '../../client/src/style.css');
   let cssContent = '';
@@ -29,7 +30,7 @@ export async function generateResultsImage(tempDir: string, leaderboardData: any
       <head>
         <meta charset="utf-8">
         <style>
-          /* 1. Inject your production CSS styles rules */
+          /* 1. Inject CSS rules */
           ${cssContent}
 
           /* 2. Overwrite and flatten variables and animation nodes */
@@ -71,7 +72,7 @@ export async function generateResultsImage(tempDir: string, leaderboardData: any
         <div class="final-leaderboard centered">
           <h1 class="results-title">🏆 Final Results</h1>
           <div class="leaderboard-container">
-            ${leaderboardData.entries.map((player: any, index: number) => {
+            ${leaderboardData.getAll().map((player: LeaderboardEntry, index: number) => {
               const isWinner = index === 0;
               const user = userData.get(player.userId);
 
@@ -87,7 +88,7 @@ export async function generateResultsImage(tempDir: string, leaderboardData: any
                     <div class="history-grid">
                       <div class="history-label">Round Breakdown:</div>
                       <div class="round-bubbles">
-                        ${player.roundHistory.map((r: any) => `
+                        ${player.roundHistory.map((r: RoundResult) => `
                           <div class="round-bubble ${r.scoreValue > 0 ? 'correct' : 'incorrect'} ${r.isFirst ? 'first' : ''}">
                             ${r.points}
                           </div>
@@ -118,7 +119,7 @@ export async function generateResultsImage(tempDir: string, leaderboardData: any
     const elementLocator = page.locator('.final-leaderboard');
     const imageBuffer = await elementLocator.screenshot({ type: 'png' });
 
-    // Store image directly into local disk directory instead of network transport
+    // Store image in local temp dir
     fs.writeFileSync(outputPath, imageBuffer);
     console.log(`Successfully stored layout image locally to: ${outputPath}`);
   } finally {
