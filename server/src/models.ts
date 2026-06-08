@@ -372,7 +372,7 @@ export class GameInstance {
     return `data:image/jpeg;base64,${glimpseBase64}`;
   }
 
-  private temporaryDirectory(createIfAbsent: boolean = false): string {
+  public temporaryDirectory(createIfAbsent: boolean = false): string {
     const instanceTempDir = path.join(process.cwd(), STATIC_FILES_DIR, TEMP_FILES_DIR, this.instanceId);
 
     if (createIfAbsent && !fs.existsSync(instanceTempDir)) {

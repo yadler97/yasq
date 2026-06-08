@@ -271,8 +271,12 @@ button {
 button:not(:disabled):hover {
   border-color: var(--blurple);
 }
-button:disabled {
+button:disabled, select:disabled {
+  color: graytext;
   cursor: not-allowed;
+  opacity: 0.7;
+}
+select:disabled option {
   color: graytext;
 }
 
@@ -520,6 +524,7 @@ button:disabled {
 
 .badge-container {
   display: flex;
+  margin-left: 5px;
   gap: var(--gap-tiny);
 }
 
@@ -1431,7 +1436,6 @@ input[value="1"]:checked + .btn-radio.correct {
   animation: growWrapper 0.8s ease-out forwards;
 }
 
-
 @keyframes growWrapper {
   0% {
     grid-template-rows: 0fr;
@@ -1541,9 +1545,14 @@ input[value="1"]:checked + .btn-radio.correct {
   background: rgba(241, 196, 15, 0.2);
 }
 
+.export-section {
+  margin-bottom: 20px;
+  display: flex;
+  gap: var(--gap-medium);
+}
+
 .badge {
   display: inline-flex;
-  margin-left: 5px;
   font-size: 10px;
   color: var(--fixed-white);
   padding: 2px 6px;
@@ -1654,11 +1663,6 @@ input[value="1"]:checked + .btn-radio.correct {
   }
 }
 
-#admin-button:disabled {
-  background-color: var(--border-muted);
-  cursor: not-allowed;
-}
-
 .loading-spinner {
   width: 48px;
   height: 48px;
@@ -1760,6 +1764,10 @@ input[value="1"]:checked + .btn-radio.correct {
 
   .tag-badge {
     max-width: 100%;
+  }
+
+  .export-section {
+    flex-flow: column;
   }
 
   .version {

@@ -2,8 +2,8 @@ import { useSignal } from "@preact/signals";
 
 import { auth, discordSdk, gameState, participants } from "../main";
 import * as backend from "../utils/backend";
-import { getAvatarUrl, getDisplayName } from "../utils/helper";
 import { NonDraggableImg } from "./NonDraggableImg";
+import { getAvatarUrl, getDisplayName } from "@yasq/shared";
 
 export const HostTransferDropdown = () => {
   const isOpen = useSignal(false);

@@ -1,11 +1,19 @@
 import type { NextFunction, Request, Response } from 'express';
 import express from 'express';
+import type { Server } from "socket.io";
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker } from '@yasq/shared';
-import { broadcastGameStatus, invalidateToken, validateToken } from '../src/helper.js';
+import { broadcastGameStatus, invalidateToken, userDataCache, validateToken } from '../src/helper.js';
 import { isAllowed } from '../src/access_control.js';
-import type { Server } from "socket.io";
+import { generateResultsImage } from '../src/export_results.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 declare global {
@@ -431,6 +439,7 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
 
     if (newState === GameState.GAME_FINISHED) {
       console.log(`[GAME] Instance ${instanceId} has ended!`);
+      generateResultsImage(game.temporaryDirectory(true), game.leaderboard, userDataCache);
       console.log(`[FINAL RESULTS] Instance ${instanceId} final leaderboard:`, JSON.stringify(game.leaderboard.getAll()));
     }
 
@@ -613,6 +622,102 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
       jokerType,
       hint
     });
+  });
+
+  router.get('/download-results', (req, res) => {
+    const { instanceId } = req.query as InstanceQuery;
+
+    const filePath = path.join(__dirname, `../data/temp/${instanceId}/results.png`);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Results image has not been generated yet.' });
+    }
+
+    res.download(filePath, `yasq-results.png`, (err) => {
+      if (err) {
+        console.error("Error transferring file to client:", err);
+        if (!res.headersSent) {
+          res.status(500).send("Could not download file.");
+        }
+      }
+    });
+  });
+
+  router.post('/post-results-to-channel', async (req, res) => {
+    const { instanceId, channelId } = req.body;
+    const filePath = path.join(__dirname, `../data/temp/${instanceId}/results.png`);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Results image has not been generated yet.' });
+    }
+
+    try {
+      if (!channelId) {
+        return res.status(400).json({ error: 'Could not resolve context channel reference matching this activity session.' });
+      }
+
+      const formData = new FormData();
+      const fileBuffer = fs.readFileSync(filePath);
+      const fileBlob = new Blob([fileBuffer], { type: 'image/png' });
+
+      formData.append('files[0]', fileBlob, `results-${instanceId}.png`);
+      formData.append('payload_json', JSON.stringify({
+        content: "🏁 **The YASQ Game Has Ended!** Here are the final results:",
+      }));
+
+      const discordResponse = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+        },
+        body: formData
+      });
+
+      if (!discordResponse.ok) {
+        const logErr = await discordResponse.text();
+        throw new Error(`Discord channel message dispatch rejected: ${logErr}`);
+      }
+
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Error posting match content artifact downstream:", error);
+      return res.status(500).json({ error: 'Internal system operation processing failure.' });
+    }
+  });
+
+  router.get('/get-channels', async (req, res) => {
+    const { guildId } = req.query;
+
+    try {
+      const response = await fetch(`https://discord.com/api/v10/guilds/${guildId}/channels`, {
+        headers: { 'Authorization': `Bot ${process.env.DISCORD_BOT_TOKEN}` }
+      });
+
+      const channels = await response.json() as any[];
+
+      // 1. Create a map of all categories (type 4)
+      const categoryMap = new Map();
+      channels.filter(c => c.type === 4).forEach(c => categoryMap.set(c.id, c.name));
+
+      // 2. Filter text channels (type 0) and inject the category name
+      const textChannels = channels
+        .filter((c: any) => c.type === 0)
+        .map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          category: c.parent_id ? categoryMap.get(c.parent_id) : ""
+        }))
+        .sort((a, b) => {
+          // Compare categories first
+          const categoryCompare = a.category.localeCompare(b.category);
+          if (categoryCompare !== 0) return categoryCompare;
+
+          // If categories are the same, compare channel names
+          return a.name.localeCompare(b.name);
+        });
+      res.json(textChannels);
+    } catch (err) {
+      res.status(500).json({ error: 'Could not fetch channels' });
+    }
   });
 
   return router;

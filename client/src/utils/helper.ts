@@ -15,16 +15,6 @@ export function findUser(participants: Participant[], userId: string): Participa
   return userCache.get(userId) || { id: "0", username: "Unknown" };
 }
 
-export function getAvatarUrl(participant: Participant) {
-  return participant.avatar
-    ? `https://cdn.discordapp.com/avatars/${participant.id}/${participant.avatar}.png?size=32`
-    : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(participant.id) >> 22n) % 6}.png`;
-}
-
-export function getDisplayName(participant: Participant) {
-  return participant.nickname || participant.global_name || participant.username;
-}
-
 export function getUserId(auth: any) {
   if (!auth || !auth.user) {
     return null;

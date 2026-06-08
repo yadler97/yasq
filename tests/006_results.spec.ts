@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { generatePlayers, Player } from './helper.js'
-import { mockLeaderboard } from '../mock_data/mockLeaderboard.js';
+import mockLeaderboard from '../mock_data/mockLeaderboard.json';
 
 test.describe('Host UI', () => {
 
