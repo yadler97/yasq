@@ -28,14 +28,12 @@ describe.skip('generateResultsImage', () => {
   }
 
   beforeEach(() => {
-    // Delete target if a legacy run artifact remains on disk
     if (fs.existsSync(testOutputPath)) {
       fs.unlinkSync(testOutputPath);
     }
   });
 
   afterEach(() => {
-    // Clean up file asset afterward if you want tests to stay decoupled
     if (fs.existsSync(testOutputPath)) {
       fs.unlinkSync(testOutputPath);
     }
@@ -44,17 +42,17 @@ describe.skip('generateResultsImage', () => {
   it('should generate the results image', async () => {
     const jsonPath = path.join(__dirname, '../../mock_data/mockLeaderboard.json');
 
-    // Read and parse the file natively on the test thread
+    // Read mock file
     const rawJsonData = fs.readFileSync(jsonPath, 'utf8');
     const leaderboardData = Leaderboard.fromJSON(JSON.parse(rawJsonData));
 
-    // Execute live engine step
+    // Generate image
     await generateResultsImage(directoryPath, leaderboardData, mockUserData);
 
-    // Verify file asset existence on disk boundary
+    // Verify file asset existence on disk
     expect(fs.existsSync(testOutputPath)).toBe(true);
 
-    // Verify file is a non-empty image sequence payload
+    // Verify file is a non-empty image
     const stats = fs.statSync(testOutputPath);
     expect(stats.size).toBeGreaterThan(1000); // Confirms it isn't an empty or blank file asset
   });

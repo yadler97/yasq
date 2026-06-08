@@ -39,7 +39,7 @@ Create a `.env` file in the root directory:
 VITE_DISCORD_CLIENT_ID=<Copy Client ID from Discord Developer Portal>
 DISCORD_CLIENT_SECRET=<Copy Client Secret from Discord Developer Portal>
 VITE_URL_MAPPING=<Fill Later>
-DISCORD_BOT_TOKEN=<Cope Bot Token from Discord Developer Portal> (Optional)
+DISCORD_BOT_TOKEN=<Copy Bot Token from Discord Developer Portal> (Optional)
 ```
 
 ### Local Development
