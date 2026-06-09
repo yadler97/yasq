@@ -465,7 +465,7 @@ select:disabled option {
 
 .sidebar {
   padding: 20px;
-  width: 300px;
+  width: 350px;
   flex-shrink: 0;
   gap: var(--gap-medium);
   text-align: center;
@@ -552,20 +552,52 @@ select:disabled option {
   border-radius: var(--border-radius-small);
 }
 
-#music-controls label {
+.volume-controls label {
   font-size: 0.8em;
   display: block;
   margin-bottom: 10px;
 }
 
-#volume-slider {
-  margin: auto;
+.volume-controls-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-medium);
   width: 100%;
+}
+
+.volume-stack {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  gap: var(--gap-tiny);
+}
+
+#volume-slider {
+  margin: 0;
+  width: 100%;
+  height: 40px;
+  cursor: pointer;
 }
 
 #volume-slider:focus-visible {
   border-radius: 20px;
   outline-offset: 4px;
+}
+
+.mute-button {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+}
+
+.volume-stack:first-child {
+  flex-grow: 1;
+}
+
+.volume-stack:last-child {
+  flex-shrink: 0;
+  align-items: center;
 }
 
 .advanced-settings-section {
@@ -1048,6 +1080,12 @@ input[type="radio"]:checked + .btn-radio {
   grid-template-columns: repeat(2, 1fr);
   gap: var(--gap-small);
   width: 100%;
+}
+
+.choice-button-wrapper {
+  display: flex;
+  flex-flow: column;
+  gap: var(--gap-tiny);
 }
 
 .choice-button {
@@ -1728,6 +1766,57 @@ input[value="1"]:checked + .btn-radio.correct {
   .grid-container, .controls {
     margin-left: 0;
     margin-right: 0;
+  }
+
+  .controls {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .controls > * {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .search-wrapper {
+    display: flex;
+    width: 100%;
+  }
+
+  .search-wrapper input {
+    flex-grow: 1;
+  }
+
+  .filter-dropdown {
+    display: block !important;
+    width: 100%;
+  }
+
+  .dropdown-trigger {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 8px 30px 8px 12px;
+    position: relative;
+    box-sizing: border-box;
+    text-align: left;
+  }
+
+  .dropdown-trigger .current-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .dropdown-trigger .arrow {
+    position: absolute;
+    right: 12px;
+    pointer-events: none;
+  }
+
+  .dropdown-trigger::after {
+    display: none !important;
   }
 
   .host-settings, .settings-info, .round-result-summary, .track-picker-container {

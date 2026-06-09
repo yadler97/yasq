@@ -42,18 +42,29 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
     case Joker.MULTIPLE_CHOICE:
       return (
         <div className="choices-grid">
-          {activeHint.data.map((choice: string) => (
-            <button
-              key={choice}
-              className="choice-button"
-              onClick={async (e) => {
-                e.preventDefault();
-                await submit(choice)
-              }}
-            >
-              {choice}
-            </button>
-          ))}
+          {activeHint.data.map((choice: string, index: number) => {
+            useKeyboardShortcut({ key: (index + 1).toString(), altKey: true }, () => {
+              submit(choice);
+            });
+
+            return (
+              <div className="choice-button-wrapper">
+                <button
+                  key={choice}
+                  className="choice-button"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    await submit(choice);
+                  } }
+                >
+                  {choice}
+                </button>
+                <span className="shortcut-badge">
+                  <kbd>Alt</kbd> + <kbd>{index + 1}</kbd>
+                </span>
+              </div>
+            )})
+          }
         </div>
       );
 

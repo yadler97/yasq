@@ -650,18 +650,20 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
       return res.status(404).json({ error: 'Results image has not been generated yet.' });
     }
 
-    try {
-      if (!channelId) {
-        return res.status(400).json({ error: 'Could not resolve context channel reference matching this activity session.' });
-      }
+    const game = instances[instanceId];
+    if (!game) {
+      return res.status(400).send({ error: "Instance not found" });
+    }
+    const winnerMention = `<@${game.lastWinnerId}>`;
 
+    try {
       const formData = new FormData();
       const fileBuffer = fs.readFileSync(filePath);
       const fileBlob = new Blob([fileBuffer], { type: 'image/png' });
 
       formData.append('files[0]', fileBlob, `results-${instanceId}.png`);
       formData.append('payload_json', JSON.stringify({
-        content: "🏁 **The YASQ Game Has Ended!** Here are the final results:",
+        content: `🏁 **The YASQ Game Has Ended!**\n\nCongratulations ${winnerMention}, you are the winner! 🥳\n\nHere are the final results:`,
       }));
 
       const discordResponse = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
