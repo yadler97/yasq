@@ -1,5 +1,7 @@
 import { Page, Locator, expect } from '@playwright/test';
 
+type ResultType = "correct" | "partial" | "wrong";
+
 export class RoundCompletedPage {
   readonly page: Page;
   readonly guessList: Locator;
@@ -25,8 +27,9 @@ export class RoundCompletedPage {
     return this.page.locator(`#${status}-${playerId}`);
   }
 
-  async setGuessCorrect(playerId: string) {
-    await this.page.locator(`label[for="correct-${playerId}"]`).click();
+  async setGuessResult(playerId: string, result: ResultType) {
+    // Dynamically targeting the label based on the result type and playerId
+    await this.page.locator(`label[for="${result}-${playerId}"]`).click();
   }
 
   getJokerIndicator(username: string, tooltip?: string): Locator {

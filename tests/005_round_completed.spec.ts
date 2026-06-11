@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { generatePlayers, Player } from './helper.js'
 import { RoundCompletedPage } from './pages/RoundCompletedPage.js';
 import { TestApi } from './api.js';
+import { Sidebar } from './pages/components/Sidebar.js';
 
 test.describe('Host UI', () => {
 
@@ -36,13 +37,18 @@ test.describe('Host UI', () => {
       guesses: {
         1: {
           [players[1].id]: { text: "Game A" },
-          [players[2].id]: { text: "Game B" }
+          [players[2].id]: { text: "Game A2" }
         }
       },
       usedJokers: {
         [players[1].id]: {
           "TRIVIA": 1
         }
+      },
+      streaks: {
+        [players[1].id]: 3,
+        [players[2].id]: 5,
+        [players[3].id]: 1
       }
     });
 
@@ -64,7 +70,7 @@ test.describe('Host UI', () => {
 
     // Verify guesses correctly displayed
     await expect(roundCompleted.getGuessItem(players[1].username)).toContainText('Game A');
-    await expect(roundCompleted.getGuessItem(players[2].username)).toContainText('Game B');
+    await expect(roundCompleted.getGuessItem(players[2].username)).toContainText('Game A2');
 
     // Verify "Wrong" selected by default
     await expect(roundCompleted.getCorrectionRadio(players[1].id, 'wrong')).toBeChecked();
@@ -74,8 +80,12 @@ test.describe('Host UI', () => {
     await expect(roundCompleted.timedOutSection).toContainText(new RegExp(`No Guess submitted:.*${players[3].username}`, 'i'));
 
     // Select "Correct" for Player 2
-    await roundCompleted.setGuessCorrect(players[1].id);
+    await roundCompleted.setGuessResult(players[1].id, 'correct');
     await expect(roundCompleted.getCorrectionRadio(players[1].id, 'wrong')).not.toBeChecked();
+
+    // Select "Partially Correct" for Player 3
+    await roundCompleted.setGuessResult(players[2].id, 'partial');
+    await expect(roundCompleted.getCorrectionRadio(players[2].id, 'wrong')).not.toBeChecked();
 
     // Verify submit button behavior
     await expect(roundCompleted.submitReviewedBtn).toBeEnabled();
@@ -94,5 +104,25 @@ test.describe('Host UI', () => {
 
     // Verify player 2 has NO joker icon
     await expect(roundCompleted.getJokerIndicator(players[2].username)).toHaveCount(0);
+  });
+
+  test('should update streak badges correctly when submitting corrections', async ({ page }) => {
+    const roundCompleted = new RoundCompletedPage(page);
+    const sidebar = new Sidebar(page);
+
+    // Verify initial streak badges
+    await expect(sidebar.getBadge(players[1].username, 'streak')).toContainText('🔥 3');
+    await expect(sidebar.getBadge(players[2].username, 'streak')).toContainText('🔥 5');
+    await expect(sidebar.getBadge(players[3].username, 'streak')).toContainText('🔥 1');
+
+    // Correct results
+    await roundCompleted.setGuessResult(players[1].id, 'correct');
+    await roundCompleted.setGuessResult(players[2].id, 'partial');
+    await roundCompleted.submitReviewedBtn.click();
+
+    // Verify updated streak badges
+    await expect(sidebar.getBadge(players[1].username, 'streak')).toContainText('🔥 4'); // increase streak by 1
+    await expect(sidebar.getBadge(players[2].username, 'streak')).toContainText('🔥 5'); // keep streak at 5
+    await expect(sidebar.getBadge(players[3].username, 'streak')).not.toBeVisible(); // lose whole streak
   });
 });
