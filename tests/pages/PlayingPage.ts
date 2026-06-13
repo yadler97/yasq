@@ -1,9 +1,9 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export class PlayingPage {
   readonly page: Page;
 
-  // Playing UI
+  // Player UI
   readonly guessInput: Locator;
   readonly submitBtn: Locator;
   readonly waitMessage: Locator;
@@ -29,7 +29,7 @@ export class PlayingPage {
   constructor(page: Page) {
     this.page = page;
 
-    // Playing UI
+    // Player UI
     this.guessInput = page.locator('#guess-input');
     this.submitBtn = page.locator('#btn-submit');
     this.waitMessage = page.locator('#waiting-msg');
@@ -53,7 +53,6 @@ export class PlayingPage {
     this.tagBadges = page.locator('.tag-badge');
   }
 
-  // Helpers
   getTagBadge(text: string): Locator {
     return this.page.locator('.tag-badge', { hasText: text });
   }

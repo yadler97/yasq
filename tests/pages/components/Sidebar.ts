@@ -3,7 +3,11 @@ import { Page, Locator } from '@playwright/test';
 type BadgeType = "host" | "ready" | "guessed" | "winner" | "streak";
 
 export class Sidebar {
-  constructor(private readonly page: Page) {}
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
 
   private getPlayerRow(username: string): Locator {
     return this.page.locator(`.player-entry:has-text("${username}")`);

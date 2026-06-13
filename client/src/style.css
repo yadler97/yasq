@@ -151,7 +151,8 @@ img {
   color: var(--text-main);
 }
 
-#results .card-container {
+#results .card-container,
+#game-host-ui .card-container {
   gap: 0;
 }
 

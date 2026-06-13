@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export class GameFinishedPage {
   readonly page: Page;
@@ -21,7 +21,7 @@ export class GameFinishedPage {
       name: card.locator('.name'),
       score: card.locator('.total-score'),
       bubbles: card.locator('.round-bubble'),
-      // Added helper to filter bubbles by status class
+      // Helper to filter bubbles by status class
       getBubbles: (status: 'correct' | 'incorrect') => card.locator(`.round-bubble.${status}`),
     };
   }
