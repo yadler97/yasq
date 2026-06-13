@@ -48,7 +48,7 @@ export class PlayingPage {
 
     // Host UI
     this.hostUi = page.locator('#game-host-ui');
-    this.summary = this.hostUi.locator('.round-result-summary');
+    this.summary = this.hostUi.locator('.card-container');
     this.tagsContainer = page.locator('.tags-container');
     this.tagBadges = page.locator('.tag-badge');
   }
