@@ -76,17 +76,35 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
               </div>
 
               <div className="button-group">
-                <input type="radio" id={`wrong-${userId}`} name={`score-${userId}`} value="0" checked
-                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 0 }; }} />
-                <label for={`wrong-${userId}`} className="btn-radio wrong">Wrong</label>
+                <input
+                  type="radio"
+                  id={`wrong-${userId}`}
+                  name={`score-${userId}`}
+                  value="0"
+                  checked={corrections.value[userId] === 0}
+                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 0 }; }}
+                />
+                <label htmlFor={`wrong-${userId}`} className="btn-radio wrong">Wrong</label>
 
-                <input type="radio" id={`partial-${userId}`} name={`score-${userId}`} value="0.5"
-                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 0.5 }; }} />
-                <label for={`partial-${userId}`} className="btn-radio partial">Partial</label>
+                <input
+                  type="radio"
+                  id={`partial-${userId}`}
+                  name={`score-${userId}`}
+                  value="0.5"
+                  checked={corrections.value[userId] === 0.5}
+                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 0.5 }; }}
+                />
+                <label htmlFor={`partial-${userId}`} className="btn-radio partial">Partial</label>
 
-                <input type="radio" id={`correct-${userId}`} name={`score-${userId}`} value="1"
-                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 1 }; }} />
-                <label for={`correct-${userId}`} className="btn-radio correct">Correct</label>
+                <input
+                  type="radio"
+                  id={`correct-${userId}`}
+                  name={`score-${userId}`}
+                  value="1"
+                  checked={corrections.value[userId] === 1}
+                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 1 }; }}
+                />
+                <label htmlFor={`correct-${userId}`} className="btn-radio correct">Correct</label>
               </div>
             </div>
           );
