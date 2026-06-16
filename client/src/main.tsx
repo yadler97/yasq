@@ -56,6 +56,8 @@ source.connect(gainNode);
 gainNode.connect(audioContext.destination);
 gainNode.gain.value = DEFAULT_VOLUME_SLIDER_VAL * MAX_VOLUME;
 
+export const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+
 const App = () => {
   if (!auth.value) return <div className="centered">Authenticating...</div>;
 

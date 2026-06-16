@@ -1,8 +1,8 @@
 import { useState, useEffect } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { auth, discordSdk, gameState, participants } from "../main";
-import { capitalize, formatBonusMultiplier, getUserId } from "../utils/helper";
+import { auth, discordSdk, gameState, isMac, participants } from "../main";
+import { capitalize, formatBonusMultiplier, getActionKeyLabel, getUserId } from "../utils/helper";
 import { ALL_JOKER_ICONS } from "../components/JokerIcons";
 import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
 import { TimeBonus } from "@yasq/shared";
@@ -52,7 +52,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
     )
   };
 
-  useKeyboardShortcut({ key: "r", altKey: true }, () => {
+  useKeyboardShortcut({ key: "R", altKey: !isMac, metaKey: isMac }, () => {
     if (!isHost) handleReady();
   });
 
@@ -145,7 +145,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
               {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready Up"}
             </button>
             <span className="shortcut-badge">
-              <kbd>Alt</kbd>+<kbd>R</kbd>
+              <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>R</kbd>
             </span>
           </div>
         )}

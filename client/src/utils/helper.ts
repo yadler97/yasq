@@ -34,3 +34,7 @@ export function formatBonusMultiplier(rate: number): string {
   const percent = (Math.round(rate * 100 * 10) / 10).toFixed(1);
   return `+${parseFloat(percent)}%`;
 }
+
+export const getActionKeyLabel = (isMac: boolean) => {
+  return isMac ? '⌘' : 'Alt';
+};

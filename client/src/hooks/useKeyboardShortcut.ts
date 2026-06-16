@@ -5,6 +5,7 @@ type KeyCombo = {
   ctrlKey?: boolean;
   altKey?: boolean;
   shiftKey?: boolean;
+  metaKey?: boolean;
 };
 
 export const useKeyboardShortcut = (
@@ -18,6 +19,7 @@ export const useKeyboardShortcut = (
   const reqCtrl = !!shortcut.ctrlKey;
   const reqAlt = !!shortcut.altKey;
   const reqShift = !!shortcut.shiftKey;
+  const reqMeta = !!shortcut.metaKey;
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -25,22 +27,24 @@ export const useKeyboardShortcut = (
       const matchCtrl = event.ctrlKey === reqCtrl;
       const matchAlt = event.altKey === reqAlt;
       const matchShift = event.shiftKey === reqShift;
+      const matchMeta = event.metaKey === reqMeta;
 
       const target = event.target as HTMLElement;
       const isTyping = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
 
-      // block the shortcut if the user is typing WITHOUT a modifier key (Ctrl or Alt)
-      if (isTyping && !event.ctrlKey && !event.altKey) {
+      // Allow typing if any modifier is held down
+      if (isTyping && !event.ctrlKey && !event.altKey && !event.metaKey) {
         return;
       }
 
-      if (matchKey && matchCtrl && matchAlt && matchShift) {
-        event.preventDefault(); // stops Alt+Key default browser menu actions
+      if (matchKey && matchCtrl && matchAlt && matchShift && matchMeta) {
+        event.preventDefault();
+        event.stopPropagation();
         callbackRef.current(event);
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [targetKey, reqCtrl, reqAlt, reqShift]);
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [targetKey, reqCtrl, reqAlt, reqShift, reqMeta]);
 };

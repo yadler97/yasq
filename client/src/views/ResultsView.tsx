@@ -2,8 +2,8 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { gameState, auth, discordSdk, participants } from "../main";
-import { capitalize, findUser, getUserId } from "../utils/helper";
+import { gameState, auth, discordSdk, participants, isMac } from "../main";
+import { capitalize, findUser, getActionKeyLabel, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 import { Tag } from "../utils/types";
@@ -26,7 +26,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
   const isFinalRound = gameState.value.currentRound >= gameState.value.gameSettings.rounds;
 
-  useKeyboardShortcut({ key: "r", altKey: true }, () => {
+  useKeyboardShortcut({ key: "R", altKey: !isMac, metaKey: isMac }, () => {
     if (!isHost) handleReady();
   });
 
@@ -168,7 +168,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             }
           </button>
           <span className="shortcut-badge">
-            <kbd>Alt</kbd>+<kbd>R</kbd>
+            <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>R</kbd>
           </span>
         </div>
       </div>
@@ -246,7 +246,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           }
         </button>
         <span className="shortcut-badge">
-          <kbd>Alt</kbd>+<kbd>R</kbd>
+          <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>R</kbd>
         </span>
       </div>
     </div>

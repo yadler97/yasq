@@ -2,10 +2,10 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useRef } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { audioPlayer, auth, discordSdk, gameState, participants } from "../main";
+import { audioPlayer, auth, discordSdk, gameState, isMac, participants } from "../main";
 import { getAvatarUrl, getDisplayName, Joker, POLLING_INTERVAL } from "@yasq/shared";
 import { ALL_JOKER_ICONS } from '../components/JokerIcons';
-import { capitalize, findUser } from "../utils/helper";
+import { capitalize, findUser, getActionKeyLabel } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 import { Tag } from "../utils/types";
@@ -43,7 +43,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
       return (
         <div className="choices-grid">
           {activeHint.data.map((choice: string, index: number) => {
-            useKeyboardShortcut({ key: (index + 1).toString(), altKey: true }, () => {
+            useKeyboardShortcut({ key: (index + 1).toString(), altKey: !isMac, metaKey: isMac }, () => {
               submit(choice);
             });
 
@@ -60,7 +60,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
                   {choice}
                 </button>
                 <span className="shortcut-badge">
-                  <kbd>Alt</kbd> + <kbd>{index + 1}</kbd>
+                  <kbd>{getActionKeyLabel(isMac)}</kbd> + <kbd>{index + 1}</kbd>
                 </span>
               </div>
             )})
@@ -376,7 +376,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     // Construct the tooltip text
                     const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
 
-                    useKeyboardShortcut({ key: (index + 1).toString(), altKey: true }, () => {
+                    useKeyboardShortcut({ key: (index + 1).toString(), altKey: !isMac, metaKey: isMac }, () => {
                       handleJokerUsage(type)
                     });
 
@@ -392,7 +392,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                           <Icon className="joker-svg" />
                         </button>
                         <span className="shortcut-badge">
-                          <kbd>Alt</kbd>+<kbd>{index + 1}</kbd>
+                          <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>{index + 1}</kbd>
                         </span>
                       </div>
                     );

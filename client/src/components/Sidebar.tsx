@@ -1,9 +1,10 @@
 import { useSignal } from "@preact/signals";
 
 import { DEFAULT_VOLUME_SLIDER_VAL, getAvatarUrl, getDisplayName, MAX_VOLUME } from "@yasq/shared";
-import { gainNode, gameState, participants, volume } from "../main";
+import { gainNode, gameState, isMac, participants, volume } from "../main";
 import { NonDraggableImg } from "./NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
+import { getActionKeyLabel } from "../utils/helper";
 
 export const Sidebar = () => {
   const mutedVolume = useSignal<number | null>(null);
@@ -28,9 +29,9 @@ export const Sidebar = () => {
   };
 
   const step = 0.01;
-  useKeyboardShortcut({ key: "ArrowUp", altKey: true }, () => updateVolume(volume.value + step));
-  useKeyboardShortcut({ key: "ArrowDown", altKey: true }, () => updateVolume(volume.value - step));
-  useKeyboardShortcut({ key: "M", altKey: true }, () => toggleMute());
+  useKeyboardShortcut({ key: "ArrowUp", altKey: !isMac, metaKey: isMac }, () => updateVolume(volume.value + step));
+  useKeyboardShortcut({ key: "ArrowDown", altKey: !isMac, metaKey: isMac }, () => updateVolume(volume.value - step));
+  useKeyboardShortcut({ key: "M", altKey: !isMac, metaKey: isMac }, () => toggleMute());
 
   return (
     <div className="sidebar">
@@ -85,7 +86,7 @@ export const Sidebar = () => {
                 gainNode.gain.value = val * MAX_VOLUME;
               }} />
               <span className="shortcut-badge">
-                <kbd>Alt</kbd> + <kbd>▲</kbd> / <kbd>▼</kbd>
+                <kbd>{getActionKeyLabel(isMac)}</kbd> + <kbd>▲</kbd> / <kbd>▼</kbd>
               </span>
             </div>
             <div className="volume-stack">
@@ -93,7 +94,7 @@ export const Sidebar = () => {
                 {volume.value === 0 ? "🔇" : "🔊"}
               </button>
               <span className="shortcut-badge">
-                <kbd>Alt</kbd> + <kbd>M</kbd>
+                <kbd>{getActionKeyLabel(isMac)}</kbd> + <kbd>M</kbd>
               </span>
             </div>
           </div>

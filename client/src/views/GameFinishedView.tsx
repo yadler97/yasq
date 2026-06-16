@@ -2,8 +2,8 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { gameState, auth, discordSdk, participants } from "../main";
-import { findUser, getUserId } from "../utils/helper";
+import { gameState, auth, discordSdk, participants, isMac } from "../main";
+import { findUser, getActionKeyLabel, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 import { getAvatarUrl, getDisplayName } from "@yasq/shared";
@@ -61,7 +61,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       .then(data => setChannels(data));
   }, []);
 
-  useKeyboardShortcut({ key: "r", altKey: true }, () => {
+  useKeyboardShortcut({ key: "R", altKey: !isMac, metaKey: isMac }, () => {
     if (!isHost) handleReady();
   });
 
@@ -188,7 +188,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
             {gameState.value.readyUsers.includes(getUserId(auth.value)) ? "I'm Ready! ✅" : "Ready for New Game"}
           </button>
           <span className="shortcut-badge">
-            <kbd>Alt</kbd>+<kbd>R</kbd>
+            <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>R</kbd>
           </span>
         </div>
       )}
