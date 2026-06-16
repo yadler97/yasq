@@ -377,7 +377,9 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
 
                     useKeyboardShortcut({ key: (index + 1).toString(), altKey: !isMac, metaKey: isMac }, () => {
-                      handleJokerUsage(type)
+                      if (isAvailable && !hasUsedJokerThisRound) {
+                        handleJokerUsage(type);
+                      }
                     });
 
                     return (

@@ -225,7 +225,7 @@ input[type="text"], input[type="number"], select {
   background-color: var(--bg-input);
   transition: border-color 0.25s;
 }
-input:hover {
+input:hover, select:hover {
   border-color: var(--blurple);
 }
 input:focus-visible, select:focus-visible, button:focus-visible {
