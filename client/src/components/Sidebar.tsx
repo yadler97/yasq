@@ -28,6 +28,15 @@ export const Sidebar = () => {
     gainNode.gain.value = clamped * MAX_VOLUME;
   };
 
+  const sortedParticipants = [...participants.value].sort((a, b) => {
+    const isAHost = a.id === gameState.value.hostId;
+    const isBHost = b.id === gameState.value.hostId;
+
+    if (isAHost) return -1;
+    if (isBHost) return 1;
+    return 0;
+  });
+
   const step = 0.01;
   useKeyboardShortcut({ key: "ArrowUp", altKey: !isMac, metaKey: isMac }, () => updateVolume(volume.value + step));
   useKeyboardShortcut({ key: "ArrowDown", altKey: !isMac, metaKey: isMac }, () => updateVolume(volume.value - step));
@@ -38,7 +47,7 @@ export const Sidebar = () => {
       <div className="sidebar-box participants">
         <h3>Participating Players</h3>
         <div id="participant-list">
-          {participants.value.map((p) => {
+          {sortedParticipants.map((p) => {
             const isPlayerHost = p.id === gameState.value.hostId;
             const isPlayerReady = gameState.value.readyUsers.includes(p.id);
             const hasPlayerGuessed = gameState.value.guessedPlayers.includes(p.id);
