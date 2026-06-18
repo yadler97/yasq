@@ -16,6 +16,23 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const [hasPosted, setHasPosted] = useState(false);
   const [channels, setChannels] = useState<{id: string, name: string, category: string}[]>([]);
   const [selectedChannel, setSelectedChannel] = useState('');
+  const [activeTooltipType, setActiveTooltipType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeTooltipType) return;
+
+    const closeAllTooltips = () => setActiveTooltipType(null);
+
+    window.addEventListener("touchstart", closeAllTooltips);
+    window.addEventListener("click", closeAllTooltips);
+    window.addEventListener("scroll", closeAllTooltips, true);
+
+    return () => {
+      window.removeEventListener("touchstart", closeAllTooltips);
+      window.removeEventListener("click", closeAllTooltips);
+      window.removeEventListener("scroll", closeAllTooltips, true);
+    };
+  }, [activeTooltipType]);
 
   useEffect(() => {
     backend.getFinalResults(discordSdk.instanceId).then((data) => {
@@ -97,8 +114,9 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
             >
               <div
                 className={`player-card ${isWinner ? 'winner' : ''}`}
-                style={{ animationDelay: `${delay + 0.4}s` }}
+                style={{ animationDelay: `${delay + 0.4}s`, zIndex: (1000 - index) }}
               >
+                {isWinner && <div className="shimmer-layer" />}
                 <div className="player-main-info">
                   <div className="rank">#{index + 1}</div>
                   <NonDraggableImg src={getAvatarUrl(user)} className="avatar-small" />
@@ -109,15 +127,24 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                 <div className="history-grid">
                   <div className="history-label">Round Breakdown:</div>
                   <div className="round-bubbles">
-                    {player.roundHistory.map((r: any) => (
-                      <div
-                        key={r.round}
-                        className={`round-bubble ${r.scoreValue > 0 ? 'correct' : 'incorrect'} ${r.isFirst ? 'first' : ''}`}
-                        title={`Round ${r.round}: ${r.guess || 'No guess'}`}
-                      >
-                        {r.points}
-                      </div>
-                    ))}
+                    {player.roundHistory.map((r: any) => {
+                      const tooltipId = `round-${player.userId}-${r.round}`; // Unique ID per bubble
+                      const isTooltipOpen = activeTooltipType === tooltipId;
+
+                      return (
+                        <div
+                          key={r.round}
+                          className={`round-bubble ${r.scoreValue > 0 ? 'correct' : 'incorrect'} ${r.isFirst ? 'first' : ''} ${isTooltipOpen ? "show-tooltip" : ""}`}
+                          data-tooltip={`Round ${r.round}: ${r.guess || 'No guess'}`}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                            setActiveTooltipType(isTooltipOpen ? null : tooltipId);
+                          }}
+                        >
+                          {r.points}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

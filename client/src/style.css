@@ -361,12 +361,12 @@ select:disabled option {
 }
 
 @media (hover: hover) {
-  .joker-indicator:hover::after {
+  .joker-indicator:hover::after, .round-bubble:hover::after, .round-bubble:hover::before  {
     opacity: 1;
   }
 }
 
-.joker-indicator.show-tooltip::after {
+.joker-indicator.show-tooltip::after, .round-bubble.show-tooltip::after, .round-bubble.show-tooltip::before {
   opacity: 1;
 }
 
@@ -1451,7 +1451,7 @@ input[value="1"]:checked + .btn-radio.correct {
 .player-wrapper {
   display: grid;
   grid-template-rows: 0fr;
-  overflow: hidden;
+  overflow: visible;
   animation: growWrapper 0.8s ease-out forwards;
 }
 
@@ -1467,6 +1467,7 @@ input[value="1"]:checked + .btn-radio.correct {
 }
 
 .player-card {
+  position: relative;
   min-height: 0;
   background: var(--bg-sidebar-card);
   border-radius: var(--border-radius-medium);
@@ -1474,6 +1475,7 @@ input[value="1"]:checked + .btn-radio.correct {
   border: 2px solid transparent;
   opacity: 0;
   animation: fadeInCard 0.4s ease-out forwards;
+  overflow: visible;
 }
 
 @keyframes fadeInCard {
@@ -1484,12 +1486,21 @@ input[value="1"]:checked + .btn-radio.correct {
 
 .player-card.winner {
   border-color: var(--gold);
-  position: relative;
-  z-index: 10;
-  overflow: hidden;
 }
 
-.player-card.winner::after {
+.shimmer-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  contain: strict;
+  clip-path: inset(0 round var(--border-radius-medium));
+}
+
+.shimmer-layer::after {
   content: "";
   position: absolute;
   top: -50%;
@@ -1554,14 +1565,69 @@ input[value="1"]:checked + .btn-radio.correct {
 }
 
 .round-bubble.correct { border: 1px solid var(--green); color: var(--green); }
-.round-bubble.correct:hover {
-  background: rgba(67, 181, 129, 0.2);
-  transform: scale(1.05);
+.round-bubble.incorrect {
+  border: 1px solid color-mix(in srgb, var(--red) 60%, transparent);
+  color: color-mix(in srgb, var(--red) 60%, transparent);
+  background: color-mix(in srgb, var(--bg-button-group) 60%, transparent);
 }
-.round-bubble.incorrect { border: 1px solid var(--red); color: var(--red); opacity: 0.6; }
 .round-bubble.correct.first { border: 1px solid var(--gold); color: var(--gold); font-weight: bold; }
-.round-bubble.correct.first:hover {
-  background: rgba(241, 196, 15, 0.2);
+
+@media (hover: hover) and (min-width: 768px) {
+  .round-bubble.correct:hover {
+    transform: scale(1.05);
+  }
+}
+@media (hover: hover) {
+  .round-bubble.correct:hover {
+    background: rgba(67, 181, 129, 0.2);
+  }
+  .round-bubble.correct.first:hover {
+    background: rgba(241, 196, 15, 0.2);
+  }
+}
+@media (hover: none) {
+  .round-bubble.correct.show-tooltip {
+    background: rgba(67, 181, 129, 0.2);
+  }
+  .round-bubble.correct.first.show-tooltip {
+    background: rgba(241, 196, 15, 0.2);
+  }
+}
+
+.round-bubble::before {
+  content: '';
+  position: absolute;
+  margin-top: 23px;
+  transform: translateX(-50%);
+
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 12px solid var(--bg-dark);
+
+  z-index: 1001;
+  pointer-events: none;
+  opacity: 0;
+  filter: drop-shadow(0 -2px 2px rgba(0,0,0,0.2));
+  transition: opacity 0.2s ease;
+}
+
+.round-bubble::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  margin-top: 32px;
+  width: max-content;
+  max-width: 200px;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  color: var(--text-main);
+  padding: 8px 12px;
+  border-radius: var(--border-radius-medium);
+  font-size: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
 .export-section {
@@ -1834,6 +1900,20 @@ input[value="1"]:checked + .btn-radio.correct {
 
   .tag-badge {
     max-width: 100%;
+  }
+
+  .round-bubble.show-tooltip {
+    transform: none !important;
+  }
+  .round-bubble::after {
+    left: 10px;
+    right: 10px;
+    transform: none !important;
+
+    text-align: center;
+    width: auto;
+    max-width: calc(100vw - 20px);
+    z-index: 99999;
   }
 
   .export-section {
