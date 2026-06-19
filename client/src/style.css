@@ -1600,13 +1600,14 @@ input[value="1"]:checked + .btn-radio.correct {
   content: '';
   position: absolute;
   margin-top: 23px;
-  left: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
 
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
   border-bottom: 12px solid var(--bg-dark);
 
-  z-index: 1001;
   pointer-events: none;
   opacity: 0;
   filter: drop-shadow(0 -2px 2px rgba(0,0,0,0.2));
@@ -1614,29 +1615,36 @@ input[value="1"]:checked + .btn-radio.correct {
 }
 
 .round-bubble::after {
+  --screen-margin: 15px;
+
   content: attr(data-tooltip);
   position: absolute;
-  margin-top: 32px;
+  box-sizing: border-box;
   width: max-content;
   max-width: 200px;
-  transform: translateX(calc(-55% - 2px));
+  z-index: 1000;
 
   background: var(--bg-dark);
   color: var(--text-main);
   padding: 8px 12px;
   border-radius: var(--border-radius-medium);
   font-size: 12px;
-  opacity: 0;
+  text-align: center;
   pointer-events: none;
   transition: opacity 0.2s ease;
-  z-index: 1000;
+  opacity: 0;
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
 
-.export-section {
-  margin-bottom: 20px;
-  display: flex;
-  gap: var(--gap-medium);
+  /* vertical positioning: place tooltip directly below bubble */
+  top: 100%;
+  margin-top: 12px;
+  /* horizontal positioning: shift tooltip to the left, ideally centering at the bubble X position, but always stay within screen bounds */
+  left: clamp(
+    calc(-1 * var(--bubble-x, 0px) + var(--screen-margin)),
+    calc(-0.5 * var(--tooltip-width, 200px) + 50%),
+    calc(100vw + -1 * var(--bubble-x, 0px) - var(--tooltip-width, 200px) - var(--screen-margin))
+  );
+  transform: none;
 }
 
 .badge {
@@ -1905,29 +1913,8 @@ input[value="1"]:checked + .btn-radio.correct {
     max-width: 100%;
   }
 
-  .round-bubble::before {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
   .round-bubble::after {
-    --screen-margin: 15px;
-
-    /* vertical positioning: place tooltip directly below bubble */
-    top: 100%;
-    margin-top: 12px;
-    /* horizontal positioning: shift tooltip to the left, ideally centering at the bubble X position, but always stay within screen bounds */
-    left: clamp(
-      calc(-1 * var(--bubble-x, 0px) + var(--screen-margin)),
-      calc(-0.5 * var(--tooltip-width, 200px) + 50%),
-      calc(100vw + -1 * var(--bubble-x, 0px) - var(--tooltip-width, 200px) - var(--screen-margin))
-    );
-    transform: none !important;
-
-    width: max-content;
-    max-width: calc(100vw - (var(--screen-margin) * 2));
-    box-sizing: border-box;
-    text-align: center;
+    max-width: calc(100vw - 2 * var(--screen-margin));
   }
 
   .export-section {
