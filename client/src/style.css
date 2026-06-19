@@ -1557,6 +1557,7 @@ input[value="1"]:checked + .btn-radio.correct {
 }
 
 .round-bubble {
+  position: relative;
   font-size: 0.75rem;
   padding: 4px 8px;
   border-radius: var(--border-radius-small);
@@ -1575,6 +1576,7 @@ input[value="1"]:checked + .btn-radio.correct {
 @media (hover: hover) and (min-width: 768px) {
   .round-bubble.correct:hover {
     transform: scale(1.05);
+    z-index: 10;
   }
 }
 @media (hover: hover) {
@@ -1598,7 +1600,7 @@ input[value="1"]:checked + .btn-radio.correct {
   content: '';
   position: absolute;
   margin-top: 23px;
-  transform: translateX(-50%);
+  left: 5px;
 
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
@@ -1617,7 +1619,8 @@ input[value="1"]:checked + .btn-radio.correct {
   margin-top: 32px;
   width: max-content;
   max-width: 200px;
-  transform: translateX(-50%);
+  transform: translateX(calc(-55% - 2px));
+
   background: var(--bg-dark);
   color: var(--text-main);
   padding: 8px 12px;
@@ -1744,7 +1747,7 @@ input[value="1"]:checked + .btn-radio.correct {
   100% {
     transform: scale(1);
     opacity: 1;
-    box-shadow: 0 0 0px transparent;
+    box-shadow: 0 0 0 transparent;
   }
 }
 
@@ -1902,18 +1905,29 @@ input[value="1"]:checked + .btn-radio.correct {
     max-width: 100%;
   }
 
-  .round-bubble.show-tooltip {
-    transform: none !important;
+  .round-bubble::before {
+    left: 50%;
+    transform: translateX(-50%);
   }
+
   .round-bubble::after {
-    left: 10px;
-    right: 10px;
+    --screen-margin: 15px;
+
+    /* vertical positioning: place tooltip directly below bubble */
+    top: 100%;
+    margin-top: 12px;
+    /* horizontal positioning: shift tooltip to the left, ideally centering at the bubble X position, but always stay within screen bounds */
+    left: clamp(
+      calc(-1 * var(--bubble-x, 0px) + var(--screen-margin)),
+      calc(-0.5 * var(--tooltip-width, 200px) + 50%),
+      calc(100vw + -1 * var(--bubble-x, 0px) - var(--tooltip-width, 200px) - var(--screen-margin))
+    );
     transform: none !important;
 
+    width: max-content;
+    max-width: calc(100vw - (var(--screen-margin) * 2));
+    box-sizing: border-box;
     text-align: center;
-    width: auto;
-    max-width: calc(100vw - 20px);
-    z-index: 99999;
   }
 
   .export-section {

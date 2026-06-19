@@ -131,13 +131,27 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                       const tooltipId = `round-${player.userId}-${r.round}`; // Unique ID per bubble
                       const isTooltipOpen = activeTooltipType === tooltipId;
 
+                      const measureBubbleBounds = (el: HTMLDivElement | null) => {
+                        if (!el) return;
+                        const rect = el.getBoundingClientRect();
+                        el.style.setProperty('--bubble-x', `${rect.left}px`);
+                        // computed styles of the tooltip with a width dynamically adjusted to fit the text
+                        const computedStyle = window.getComputedStyle(el, '::after');
+                        el.style.setProperty('--tooltip-width', computedStyle.width);
+                      };
+
                       return (
                         <div
                           key={r.round}
                           className={`round-bubble ${r.scoreValue > 0 ? 'correct' : 'incorrect'} ${r.isFirst ? 'first' : ''} ${isTooltipOpen ? "show-tooltip" : ""}`}
                           data-tooltip={`Round ${r.round}: ${r.guess || 'No guess'}`}
+
+                          // Measure actual position and width of current bubble when tapped/hovered on
+                          onMouseEnter={(e) => measureBubbleBounds(e.currentTarget as HTMLDivElement)}
                           onTouchStart={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
+                            measureBubbleBounds(e.currentTarget as HTMLDivElement);
                             setActiveTooltipType(isTooltipOpen ? null : tooltipId);
                           }}
                         >
