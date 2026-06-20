@@ -1647,6 +1647,12 @@ input[value="1"]:checked + .btn-radio.correct {
   transform: none;
 }
 
+.export-section {
+  margin-bottom: 20px;
+  display: flex;
+  gap: var(--gap-medium);
+}
+
 .badge {
   display: inline-flex;
   font-size: 10px;
