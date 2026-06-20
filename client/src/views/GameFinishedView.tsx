@@ -2,11 +2,13 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useState } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { gameState, auth, discordSdk, participants, isMac } from "../main";
+import { auth, discordSdk, gameState, isMac, participants } from "../main";
 import { findUser, getActionKeyLabel, getUserId } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 import { getAvatarUrl, getDisplayName } from "@yasq/shared";
+import { RoundBubblesGroup } from "../components/RoundBubble";
+import { useExclusiveTooltip } from "../hooks/useExclusiveTooltip";
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
@@ -16,23 +18,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const [hasPosted, setHasPosted] = useState(false);
   const [channels, setChannels] = useState<{id: string, name: string, category: string}[]>([]);
   const [selectedChannel, setSelectedChannel] = useState('');
-  const [activeTooltipType, setActiveTooltipType] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!activeTooltipType) return;
-
-    const closeAllTooltips = () => setActiveTooltipType(null);
-
-    window.addEventListener("touchstart", closeAllTooltips);
-    window.addEventListener("click", closeAllTooltips);
-    window.addEventListener("scroll", closeAllTooltips, true);
-
-    return () => {
-      window.removeEventListener("touchstart", closeAllTooltips);
-      window.removeEventListener("click", closeAllTooltips);
-      window.removeEventListener("scroll", closeAllTooltips, true);
-    };
-  }, [activeTooltipType]);
+  const { activeTooltipId, setActiveTooltipId } = useExclusiveTooltip();
 
   useEffect(() => {
     backend.getFinalResults(discordSdk.instanceId).then((data) => {
@@ -126,40 +112,12 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
 
                 <div className="history-grid">
                   <div className="history-label">Round Breakdown:</div>
-                  <div className="round-bubbles">
-                    {player.roundHistory.map((r: any) => {
-                      const tooltipId = `round-${player.userId}-${r.round}`; // Unique ID per bubble
-                      const isTooltipOpen = activeTooltipType === tooltipId;
-
-                      const measureBubbleBounds = (el: HTMLDivElement | null) => {
-                        if (!el) return;
-                        const rect = el.getBoundingClientRect();
-                        el.style.setProperty('--bubble-x', `${rect.left}px`);
-                        // computed styles of the tooltip with a width dynamically adjusted to fit the text
-                        const computedStyle = window.getComputedStyle(el, '::after');
-                        el.style.setProperty('--tooltip-width', computedStyle.width);
-                      };
-
-                      return (
-                        <div
-                          key={r.round}
-                          className={`round-bubble ${r.scoreValue > 0 ? 'correct' : 'incorrect'} ${r.isFirst ? 'first' : ''} ${isTooltipOpen ? "show-tooltip" : ""}`}
-                          data-tooltip={`Round ${r.round}: ${r.guess || 'No guess'}`}
-
-                          // Measure actual position and width of current bubble when tapped/hovered on
-                          onMouseEnter={(e) => measureBubbleBounds(e.currentTarget as HTMLDivElement)}
-                          onTouchStart={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            measureBubbleBounds(e.currentTarget as HTMLDivElement);
-                            setActiveTooltipType(isTooltipOpen ? null : tooltipId);
-                          }}
-                        >
-                          {r.points}
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <RoundBubblesGroup
+                    rounds={player.roundHistory}
+                    userId={player.userId}
+                    activeTooltipId={activeTooltipId}
+                    setActiveTooltipId={setActiveTooltipId}
+                  />
                 </div>
               </div>
             </div>

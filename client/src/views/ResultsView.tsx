@@ -8,11 +8,14 @@ import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
 import { Tag } from "../utils/types";
 import { getAvatarUrl, getDisplayName } from "@yasq/shared";
+import { RoundBubblesGroup } from "../components/RoundBubble";
+import { useExclusiveTooltip } from "../hooks/useExclusiveTooltip";
 
 export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);
 
   const [hasInteracted, setHasInteracted] = useState(false);
+  const { activeTooltipId, setActiveTooltipId } = useExclusiveTooltip();
 
   const handleReady = async () => {
     setHasInteracted(true);
@@ -101,15 +104,12 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                     <div className="name">{getDisplayName(user)}</div>
 
                     <div className="round-result-box">
-                      <div className="round-bubbles">
-                        <div
-                          className={`round-bubble ${res.scoreValue > 0 ? 'correct' : 'incorrect'} ${res.isFirst ? 'first' : ''}`}
-                          title={res.guess || 'No guess'}
-                        >
-                          {res.points}
-                        </div>
-                      </div>
-
+                      <RoundBubblesGroup
+                        rounds={[res]}
+                        userId={res.userId}
+                        activeTooltipId={activeTooltipId}
+                        setActiveTooltipId={setActiveTooltipId}
+                      />
                       <span className="time-display">
                         {res.time}s
                       </span>
