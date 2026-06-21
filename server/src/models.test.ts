@@ -181,20 +181,24 @@ describe('GameInstance - submitResults', () => {
     const entry3 = game.leaderboard.getEntry(PLAYER_3);
 
     // Math for Player 1:
-    // Multiplier = 2 (first correct guess) => FirstCorrect = 5000
-    // Base = 100 * 1.0 * 2 = 200
-    // First Bonus = 200 * 1.2 = 240
+    // First correct guess => FirstCorrect = 5000
+    // Base = 100 * 1.0 = 100
+    // Time Bonus = Base * 1.0 = 100
+    // First Bonus = Base * 0.2 = 20
+    // Total Score = 100 + 100 + 20 = 220
     expect(entry1).toBeDefined();
-    expect(entry1!.totalScore).toBe(240);
+    expect(entry1!.totalScore).toBe(220);
     expect(entry1!.roundHistory).toHaveLength(1);
     expect(entry1!.roundHistory[0]?.isFirst).toBe(true);
     expect(entry1!.roundHistory[0]?.scoreValue).toBe(1);
 
     // Math for Player 2:
-    // Recall: FirstCorrect = 5000, MAX_TIME_MULTPLIER = 2
-    // Multiplier = 2 - ((10000-5000) / (20000 - 5000)) = 1.6666
-    // Base = 100 * 1.0 * 1.6666 = 166.6 ~= 167
+    // Recall: FirstCorrect = 5000
+    // Time Bonus Multiplier = 1 - ((10000-5000) / (20000 - 5000)) = 0.6666
+    // Base = 100 * 1.0 = 100
+    // Time Bonus = Base * 0.6666 = 66.666 ~= 67
     // No First Bonus
+    // Total Score = 100 + 67 + 0 = 167
     expect(entry2).toBeDefined();
     expect(entry2!.totalScore).toBe(167);
     expect(entry2!.roundHistory).toHaveLength(1);
@@ -202,10 +206,12 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]?.scoreValue).toBe(1);
 
     // Math for Player 3:
-    // Recall: FirstCorrect = 5000, MAX_TIME_MULTPLIER = 2
-    // Multiplier = 2 - ((15000-5000) / (20000 - 5000)) = 1.3333
-    // Base = 100 * 1.0 * 1.3333 = 133.3 ~= 133
+    // Recall: FirstCorrect = 5000
+    // Time Bonus Multiplier = 1 - ((15000-5000) / (20000 - 5000)) = 0.3333
+    // Base = 100 * 1.0 = 100
+    // Time Bonus = Base * 0.3333 = 33.333 ~= 33
     // No First Bonus
+    // Total Score = 100 + 33 + 0 = 133
     expect(entry3).toBeDefined();
     expect(entry3!.totalScore).toBe(133);
     expect(entry3!.roundHistory).toHaveLength(1);
@@ -229,10 +235,11 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.roundHistory[0]?.scoreValue).toBe(0);
 
     // Math for Player 2:
-    // Recall: MAX_TIME_MULTPLIER = 2
-    // Multiplier = 2 (first partially correct guess) => FirstCorrect = 10000
-    // Base = 100 * 0.5 * 2 = 100
+    // First partially correct guess => FirstCorrect = 10000
+    // Base = 100 * 0.5 = 50
+    // Time Bonus = Base * 1.0 = 50
     // No First Bonus
+    // Total Score = 50 + 50 + 0 = 100
     expect(entry2).toBeDefined();
     expect(entry2!.totalScore).toBe(100);
     expect(entry2!.roundHistory).toHaveLength(1);
@@ -240,12 +247,14 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]?.scoreValue).toBe(0.5);
 
     // Math for Player 3:
-    // Recall: FirstCorrect = 10000, MAX_TIME_MULTPLIER = 2
-    // Multiplier = 2 - ((15000-10000) / (20000 - 10000)) = 1.5
-    // Base = 100 * 1.0 * 1.5 = 150
-    // First Bonus = 150 * 1.2 = 180
+    // Recall: FirstCorrect = 10000
+    // Time Bonus Multiplier = 1 - ((15000-10000) / (20000 - 10000)) = 0.5
+    // Base = 100 * 1.0 = 100
+    // Time Bonus = Base * 0.5 = 50
+    // First fully correct guess => First Bonus = Base * 0.2 = 20
+    // Total Score = 100 + 50 + 20 = 170
     expect(entry3).toBeDefined();
-    expect(entry3!.totalScore).toBe(180);
+    expect(entry3!.totalScore).toBe(170);
     expect(entry3!.roundHistory).toHaveLength(1);
     expect(entry3!.roundHistory[0]?.isFirst).toBe(true);
     expect(entry3!.roundHistory[0]?.scoreValue).toBe(1);
@@ -292,21 +301,25 @@ describe('GameInstance - submitResults', () => {
     const entry3 = game.leaderboard.getEntry(PLAYER_3);
 
     // Math for Player 1:
-    // Multiplier = 2 (first correct guess) => FirstCorrect = 5000
-    // Base = 100 * 1.0 * 2 = 200
-    // First Bonus = 200 * 1.2 = 240
-    // Streak Bonus = 240 * (1 + (4 - 1) * 0.05) = 276
-    // Streak Breaker Bonus = 276 * (1 + 4 * 0.05) = 331
-    expect(entry1!.totalScore).toBe(331);
+    // First correct guess => FirstCorrect = 5000
+    // Base = 100 * 1.0 = 100 (correct guess)
+    // Time Bonus = Base * 1.0 = 100
+    // First Bonus = Base * 0.2 = 20
+    // Streak Bonus = Base * (4 - 1) * 0.05 = 15
+    // Streak Breaker Bonus = Base * (4 * 0.05) = 20
+    // Total Score = 100 + 100 + 20 + 15 + 20 = 255
+    expect(entry1!.totalScore).toBe(255);
     expect(game.streaks[PLAYER_1]).toBe(4); // Incremented to 4
 
     // Math for Player 2:
-    // Multiplier = 2 - ((10000-5000) / (20000 - 5000)) = 1.6666
-    // Base = 100 * 0.5 * 1.6666 = 83.3333
+    // Time Bonus Multiplier = 1 - ((10000-5000) / (20000 - 5000)) = 0.6666
+    // Base = 100 * 0.5 = 50 (partially correct guess)
+    // Time Bonus = Base * 0.6666 = 33.333 ~= 33
     // No First Bonus
-    // Streak Bonus = 83.3333 * (1 + (2 - 1) * 0.05) = 87.5 ~= 88
+    // Streak Bonus = Base * (2 - 1) * 0.05 = 2.5 ~= 3
     // No Streak Breaker Bonus
-    expect(entry2!.totalScore).toBe(88);
+    // Total: 50 + 33 + 0 + 3 + 0 = 86
+    expect(entry2!.totalScore).toBe(86);
     expect(game.streaks[PLAYER_2]).toBe(2); // Kept at 2
 
     // Player 3: No points, streak set to 0
@@ -387,14 +400,14 @@ describe('GameInstance - timeMultiplier:LINEAR', () => {
 
   it('should decay time multipliers linearly between the first successful guess and the end of the track', () => {
     const PRECISION = 8;
-    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
-    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.9, PRECISION);
-    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.8, PRECISION);
-    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.7, PRECISION);
-    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.6, PRECISION);
-    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.4, PRECISION);
-    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.2, PRECISION);
-    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(0.9, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(0.8, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(0.7, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(0.6, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(0.4, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.2, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 
@@ -417,14 +430,14 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
     // Function values are calculated as follows:
     // x: scaled evaluation point (in [0,1)), k: EXPONENTIAL_DECAY_INTENSITY constant
     // f(x) = (1/e^(k * x) - 1/e^k) / (1 - 1/e^k)
-    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
-    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.75901993, PRECISION);
-    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.57134447, PRECISION);
-    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.42518267, PRECISION);
-    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.31135175, PRECISION);
-    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.15365819, PRECISION);
-    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.05801221, PRECISION);
-    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(0.75901993, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(0.57134447, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(0.42518267, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(0.31135175, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(0.15365819, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.05801221, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 
@@ -444,17 +457,17 @@ describe('GameInstance - timeMultiplier:LOGISTIC', () => {
 
   it('should decay time multipliers logistically/sigmoidally between the first successful guess and the end of the track', () => {
     const PRECISION = 6;
-    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(2.0, PRECISION);
-    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(1.99275028, PRECISION);
-    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(1.96907309, PRECISION);
-    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(1.90425200, PRECISION);
-    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(1.75276270, PRECISION);
-    expect(game.calculateTimeMultiplier(7000, FIRST_SUCCESS)).toBeCloseTo(1.5, PRECISION);
-    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(1.24723729, PRECISION);
-    expect(game.calculateTimeMultiplier(9000, FIRST_SUCCESS)).toBeCloseTo(1.09574799, PRECISION);
-    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(1.03092690, PRECISION);
-    expect(game.calculateTimeMultiplier(11_000, FIRST_SUCCESS)).toBeCloseTo(1.00724971, PRECISION);
-    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(0.99275028, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(0.96907309, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(0.90425200, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(0.75276270, PRECISION);
+    expect(game.calculateTimeMultiplier(7000, FIRST_SUCCESS)).toBeCloseTo(0.5, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(0.24723729, PRECISION);
+    expect(game.calculateTimeMultiplier(9000, FIRST_SUCCESS)).toBeCloseTo(0.09574799, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.03092690, PRECISION);
+    expect(game.calculateTimeMultiplier(11_000, FIRST_SUCCESS)).toBeCloseTo(0.00724971, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 

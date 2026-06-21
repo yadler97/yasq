@@ -1,4 +1,5 @@
 import {
+  BonusType,
   DEFAULT_FIRST_BONUS_MULTIPLIER,
   DEFAULT_ROUNDS,
   DEFAULT_STREAK_BONUS_MULTIPLIER,
@@ -26,5 +27,12 @@ export class GameSettings<T = Joker[]> {
     public firstBonusMultiplier: FirstBonusMultiplier = DEFAULT_FIRST_BONUS_MULTIPLIER,
     public timeBonus: TimeBonus | null = DEFAULT_TIME_BONUS,
     public streakBonusMultiplier: StreakBonusMultiplier = DEFAULT_STREAK_BONUS_MULTIPLIER,
+  ) {}
+}
+
+export class PointsBonus {
+  constructor(
+    public type: BonusType,
+    public multiplier: number,
   ) {}
 }
