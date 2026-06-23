@@ -26,5 +26,8 @@
     "@playwright/test": "^1.60.0",
     "concurrently": "^10.0.3",
     "wait-on": "^9.0.10"
+  },
+  "dependencies": {
+    "discord-api-types": "^0.38.49"
   }
 }

@@ -18,6 +18,7 @@ import sharp from "sharp";
 import path from "path";
 import fs from "fs";
 import fsAsync from 'fs/promises';
+import { LogCategory, logger } from "./utils/logger.js";
 
 export class GameInstance {
   public instanceId: string;
@@ -272,7 +273,7 @@ export class GameInstance {
     setTimeout(() => {
       if (this.state === GameState.PLAYING && this.currentRound === roundAtStart && this.currentGame === gameAtStart) {
         this.state = GameState.ROUND_COMPLETED;
-        console.log(`[TIMER] Round ${roundAtStart} expired.`);
+        logger.debug(this.instanceId, `Timer for round ${roundAtStart} expired`, LogCategory.GAME);
 
         roundFinishedCallback()
         this.removeTempFiles()

@@ -3,6 +3,7 @@ import { GameInstance, Leaderboard, TrackInfo } from '../src/models.js';
 import { GameSettings, Joker } from '@yasq/shared';
 import type { Server } from "socket.io";
 import { broadcastGameStatus } from "../src/helper.js";
+import { logger } from '../src/utils/logger.js';
 
 export const setupMockRoutes = (server: Server, instances: Record<string, GameInstance>) => {
   const router = express.Router();
@@ -131,7 +132,7 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
 
     if (instances[instanceId]) {
       delete instances[instanceId];
-      console.log(`Successfully purged test instance: ${instanceId}`);
+      logger.debug(instanceId, `Successfully deleted test instance`);
       return res.status(200).send({ message: `Instance ${instanceId} deleted` });
     }
 

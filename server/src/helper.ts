@@ -1,8 +1,10 @@
 import type { Server } from "socket.io";
-import type { GameInstance } from "./models.js";
-import { STATIC_FILES_DIR, TEMP_FILES_DIR, UI_UPDATES_DELAY_IN_E2E, WS_GAME_STATUS_UPDATE_EVENT, type Participant } from "@yasq/shared";
 import fs from "fs";
 import path from "path";
+import { ChannelType, type APIChannel, type APITextChannel } from "discord-api-types/v10";
+
+import type { GameInstance } from "./models.js";
+import { STATIC_FILES_DIR, TEMP_FILES_DIR, UI_UPDATES_DELAY_IN_E2E, WS_GAME_STATUS_UPDATE_EVENT, type Participant } from "@yasq/shared";
 
 const tokenCache = new Map<string, { userId: string, expires: number }>();
 const TTL = 10 * 60 * 1000; // Cache for 10 minutes
@@ -112,4 +114,29 @@ export function setupTempDir(projectRootDir: string): string {
   }
 
   return tempDir
+}
+
+export function filterDiscordTextChannels(channels: APIChannel[]) {
+  // 1. Create a map of all categories
+  const categoryMap = new Map();
+  channels.filter(c => c.type === ChannelType.GuildCategory).forEach(c => categoryMap.set(c.id, c.name));
+
+  // 2. Filter text channels and inject the category name
+  const textChannels = channels
+    .filter((c: APIChannel) => c.type === ChannelType.GuildText)
+    .map((c: APITextChannel) => ({
+      id: c.id,
+      name: c.name,
+      category: c.parent_id ? categoryMap.get(c.parent_id) : ""
+    }))
+    .sort((a, b) => {
+      // Compare categories first
+      const categoryCompare = a.category.localeCompare(b.category);
+      if (categoryCompare !== 0) return categoryCompare;
+
+      // If categories are the same, compare channel names
+      return a.name.localeCompare(b.name);
+    });
+
+  return textChannels;
 }

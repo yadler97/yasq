@@ -12,6 +12,7 @@ import { setupRoutes } from "./routes/routes.js";
 import { setupMockRoutes } from "./routes/mockRoutes.js";
 import { getGameStatusPayload, invalidateToken, setupTempDir, validateToken } from "./src/helper.js";
 import { STATIC_FILES_DIR, TEMP_FILES_DIR, WS_GAME_STATUS_UPDATE_EVENT, WS_JOIN_INSTANCE_EVENT } from "@yasq/shared";
+import { LogCategory, logger } from "./src/utils/logger.js";
 
 dotenv.config({ path: "../.env" });
 
@@ -92,6 +93,7 @@ server.on('connection', (socket) => {
     const game = instances[instanceId];
 
     game.registeredUsers.add(userId);
+    logger.debug(instanceId, `Player ${userId} joined the game`, LogCategory.GENERAL);
 
     server.to(instanceId).emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
   });
@@ -104,6 +106,7 @@ server.on('connection', (socket) => {
     if (!game) return;
 
     game.registeredUsers.delete(userId);
+    logger.debug(instanceId, `Player ${userId} left the game`, LogCategory.GENERAL);
 
     invalidateToken(socket.handshake.auth.token);
 
@@ -111,7 +114,7 @@ server.on('connection', (socket) => {
       const isGameActive = game.pickNewHost();
 
       if (!isGameActive) {
-        console.log(`Terminating empty instance: ${instanceId}`);
+        logger.debug(instanceId, `Terminating empty instance`, LogCategory.GENERAL);
         game.dispose();
         delete instances[instanceId];
       }

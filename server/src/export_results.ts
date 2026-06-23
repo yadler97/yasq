@@ -5,18 +5,19 @@ import { fileURLToPath } from 'url';
 
 import { getAvatarUrl, getDisplayName, type Participant } from '@yasq/shared';
 import type { Leaderboard, LeaderboardEntry, RoundResult } from './models.js';
+import { logger } from './utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export async function generateResultsImage(tempDir: string, leaderboardData: Leaderboard, userData: Map<string, Participant>) {
+export async function generateResultsImage(instanceId: string, tempDir: string, leaderboardData: Leaderboard, userData: Map<string, Participant>) {
   const outputPath = path.join(tempDir, 'results.png');
   const cssFilePath = path.join(__dirname, '../../client/src/style.css');
   let cssContent = '';
   try {
     cssContent = fs.readFileSync(cssFilePath, 'utf8');
   } catch (err) {
-    console.error("Could not load your client-side stylesheet:", err);
+    logger.error(instanceId, `Could not load client-side stylesheet`, err);
   }
 
   const currentDateFormatted = new Intl.DateTimeFormat('en-GB', {
@@ -121,7 +122,7 @@ export async function generateResultsImage(tempDir: string, leaderboardData: Lea
 
     // Store image in local temp dir
     fs.writeFileSync(outputPath, imageBuffer);
-    console.log(`Successfully stored layout image locally to: ${outputPath}`);
+    logger.debug(instanceId, `Successfully stored image file to: ${outputPath}`);
   } finally {
     await browser.close();
   }

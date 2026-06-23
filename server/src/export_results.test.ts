@@ -47,7 +47,7 @@ describe.skip('generateResultsImage', () => {
     const leaderboardData = Leaderboard.fromJSON(JSON.parse(rawJsonData));
 
     // Generate image
-    await generateResultsImage(directoryPath, leaderboardData, mockUserData);
+    await generateResultsImage(instanceId, directoryPath, leaderboardData, mockUserData);
 
     // Verify file asset existence on disk
     expect(fs.existsSync(testOutputPath)).toBe(true);

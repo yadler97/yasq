@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { validateToken, invalidateToken } from './helper.js';
+import { validateToken, invalidateToken, filterDiscordTextChannels } from './helper.js';
+import { ChannelType } from 'discord-api-types/v10';
 
 describe('validateToken', () => {
   beforeEach(() => {
@@ -51,5 +52,42 @@ describe('validateToken', () => {
 
     const result = await validateToken("mock_999");
     expect(result).toBe("999");
+  });
+});
+
+describe('filterDiscordTextChannels', () => {
+  const mockChannels = [
+    { id: '1', type: ChannelType.GuildCategory, name: 'category 1' },
+    { id: '2', type: ChannelType.GuildText, name: 'text channel 1', parent_id: '1' },
+    { id: '3', type: ChannelType.GuildText, name: 'text channel 2', parent_id: '1' },
+    { id: '4', type: ChannelType.GuildCategory, name: 'category 2' },
+    { id: '5', type: ChannelType.GuildText, name: 'text channel 3', parent_id: '4' },
+    { id: '6', type: ChannelType.GuildText, name: 'text channel 4', parent_id: null }, // No category
+    { id: '7', type: ChannelType.GuildVoice, name: 'voice channel 1'}
+  ];
+
+  it('should filter only type 0 channels and sort them by category then name', () => {
+    const result = filterDiscordTextChannels(mockChannels as any[]);
+
+    // Verify filtering
+    expect(result.length).toBe(4);
+    expect(result.every(c => c.id !== '1' && c.id !== '4' && c.id !== '7')).toBe(true);
+
+    // Verify sorting order
+    expect(result[0]!.name).toBe('text channel 4');
+    expect(result[0]!.category).toBe('');
+
+    expect(result[1]!.name).toBe('text channel 1');
+    expect(result[1]!.category).toBe('category 1');
+
+    expect(result[2]!.name).toBe('text channel 2');
+    expect(result[2]!.category).toBe('category 1');
+
+    expect(result[3]!.name).toBe('text channel 3');
+    expect(result[3]!.category).toBe('category 2');
+  });
+
+  it('should handle an empty array gracefully', () => {
+    expect(filterDiscordTextChannels([])).toEqual([]);
   });
 });
