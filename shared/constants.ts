@@ -77,3 +77,5 @@ export const WS_JOIN_INSTANCE_EVENT: string = 'join_instance';
 export const WS_GAME_STATUS_UPDATE_EVENT: string = 'game_status_update';
 
 export const UI_UPDATES_DELAY_IN_E2E: number = 1000;
+
+export const MAX_GUESS_LENGTH = 100;

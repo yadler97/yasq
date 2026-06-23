@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 import { GameInstance, Track } from '../src/models.js';
 import type { InstanceGuildQuery, InstanceQuery, InstanceUserQuery } from '../src/types.js';
-import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker } from '@yasq/shared';
+import { COUNTDOWN_DURATION, GameState, INT32_MAX_VALUE, Joker, MAX_GUESS_LENGTH } from '@yasq/shared';
 import { broadcastGameStatus, filterDiscordTextChannels, userDataCache } from '../src/helper.js';
 import { isAllowed } from '../src/access_control.js';
 import { generateResultsImage } from '../src/export_results.js';
@@ -178,6 +178,10 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
 
     if (!game.registeredUsers.has(userId)) {
       return res.status(403).send({ error: "User not registered in this instance." });
+    }
+
+    if (guess.length > MAX_GUESS_LENGTH) {
+      return res.status(400).send({ error: `Guess must be between 1 and ${MAX_GUESS_LENGTH} characters.` });
     }
 
     const { current, total } = game.submitGuess(userId, guess);

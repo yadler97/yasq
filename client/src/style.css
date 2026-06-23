@@ -1293,7 +1293,8 @@ kbd {
   border: 1pt solid var(--border-input-header);
   border-radius: var(--border-radius-medium);
   background-color: var(--bg-input);
-  height: 35px;
+  min-height: 35px;
+  height: auto;
   padding-left: 10px;
   padding-right: 10px;
 }
@@ -1909,10 +1910,6 @@ input[value="1"]:checked + .btn-radio.correct {
 
   .results-title {
     font-size: xx-large;
-  }
-
-  .guess-text {
-    height: auto;
   }
 
   .tag-badge {

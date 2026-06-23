@@ -3,7 +3,7 @@ import { useEffect, useRef } from "preact/hooks";
 
 import * as backend from "../utils/backend";
 import { audioPlayer, auth, discordSdk, gameState, isMac, participants } from "../main";
-import { getAvatarUrl, getDisplayName, Joker, POLLING_INTERVAL } from "@yasq/shared";
+import { getAvatarUrl, getDisplayName, Joker, MAX_GUESS_LENGTH, POLLING_INTERVAL } from "@yasq/shared";
 import { ALL_JOKER_ICONS } from '../components/JokerIcons';
 import { capitalize, findUser, getActionKeyLabel } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
@@ -354,6 +354,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   placeholder="Enter game title..."
                   autoFocus
                   autoComplete="off"
+                  maxLength={MAX_GUESS_LENGTH}
                 />
                 <button type="submit" id="btn-submit">Submit Guess</button>
               </form>
