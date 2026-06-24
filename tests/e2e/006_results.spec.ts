@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { generatePlayers, Player } from './helper.js'
-import mockLeaderboard from '../mock_data/mockLeaderboard.json';
+import mockLeaderboard from '../../mock_data/mockLeaderboard.json';
 import { TestApi } from './api.js';
 import { ResultsPage } from './pages/ResultsPage.js';
 import { Sidebar } from './pages/components/Sidebar.js';
