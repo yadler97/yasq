@@ -64,7 +64,7 @@ describe('setupGame', () => {
     expect(body.status).toContain('LOBBY');
   });
 
-  it('should return a 400 Bad Request error when rounds are set to 0', async () => {
+  it('should return 400 Bad Request when rounds are set to 0', async () => {
     const token = 'token_1';
 
     const setupRes = await setupGame(token, currentInstanceId,
@@ -83,7 +83,7 @@ describe('setupGame', () => {
     expect(body.error).toContain('Rounds and track duration must be greater than 0.');
   });
 
-  it('should return a 400 Bad Request error when track duration exceeds the maximum allowed value', async () => {
+  it('should return 400 Bad Request when track duration exceeds the maximum allowed value', async () => {
     const token = 'token_1';
 
     const setupRes = await setupGame(token, currentInstanceId,
