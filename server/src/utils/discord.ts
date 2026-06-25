@@ -2,10 +2,10 @@ import fs from 'fs';
 
 const DISCORD_API = "https://discord.com/api";
 
-const isMockMode = process.env.VITE_MOCK_MODE === 'true';
+const isMockMode = () => process.env.VITE_MOCK_MODE === 'true';
 
 export async function exchangeCodeForToken(code: string): Promise<string> {
-  if (isMockMode && code === "mock_code") {
+  if (isMockMode() && code === "mock_code") {
     return "mock_token_for_dev";
   }
 
@@ -33,7 +33,7 @@ export async function exchangeCodeForToken(code: string): Promise<string> {
 }
 
 export async function getDiscordUser(access_token: string) {
-  if (isMockMode) {
+  if (isMockMode()) {
     const mockId = access_token.split("_")[1] || "0";
     return {
       id: mockId,
@@ -57,7 +57,7 @@ export async function postResultsToChannel(
   filePath: string,
   instanceId: string
 ) {
-  if (isMockMode) {
+  if (isMockMode()) {
     return { success: true };
   }
 
@@ -86,7 +86,7 @@ export async function postResultsToChannel(
 }
 
 export async function getChannelsForGuild(guildId: string) {
-  if (isMockMode) {
+  if (isMockMode()) {
     return [
       { id: '1', name: 'text channel 1', type: 0 },
       { id: '2', name: 'text channel 2', type: 0 }
