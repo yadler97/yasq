@@ -135,7 +135,7 @@ export function setupServer() {
   app.use(`/${TEMP_FILES_DIR}`, express.static(tempDir));
 
   // Register routes for REST communication between clients and server
-  app.use('/api', setupRoutes(server, instances, isMockMode, allTracks, allPlaylists));
+  app.use('/api', setupRoutes(server, instances, allTracks, allPlaylists));
 
   // Add a simple endpoint for health checks
   app.get("/health", (req, res) => {
