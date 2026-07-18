@@ -121,6 +121,10 @@ test.describe('Host UI', () => {
     await page.keyboard.press('Enter');
     await expect(setup.listContainer).toBeVisible();
 
+    // Wait until first element is focussed
+    const firstItem = setup.getPlayerItem(players[1].id);
+    await expect(firstItem).toBeFocused();
+
     // Navigate to third player (players[2])
     await page.keyboard.press('ArrowDown');
     const targetItem = setup.getPlayerItem(players[2].id);
