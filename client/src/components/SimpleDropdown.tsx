@@ -17,6 +17,10 @@ export const SimpleDropdown = ({
   useEffect(() => {
     if (!isOpen.value) return;
 
+    // Move focus to the first item immediately after rendering
+    const firstItem = document.querySelector(".dropdown-menu .dropdown-item") as HTMLElement;
+    firstItem?.focus();
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         isOpen.value = false;
@@ -46,11 +50,6 @@ export const SimpleDropdown = ({
           if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
             e.preventDefault();
             isOpen.value = true;
-            // Move focus to the first item immediately after rendering
-            setTimeout(() => {
-              const firstItem = document.querySelector(".dropdown-menu .dropdown-item") as HTMLElement;
-              firstItem?.focus();
-            }, 0);
           }
         }}
       >

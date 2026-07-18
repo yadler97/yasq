@@ -1,4 +1,5 @@
 import { useSignal } from "@preact/signals";
+import { useEffect } from "preact/hooks";
 
 import { auth, discordSdk, gameState, participants } from "../main";
 import * as backend from "../utils/backend";
@@ -11,6 +12,14 @@ export const HostTransferDropdown = () => {
   const isTransferring = useSignal(false);
 
   const players = participants.value.filter(p => p.id !== gameState.value.hostId);
+
+  useEffect(() => {
+    if (isOpen.value) {
+      // Move focus to the first item in the list asynchronously once rendered
+      const firstItem = document.querySelector(".dropdown-item") as HTMLElement;
+      firstItem?.focus();
+    }
+  }, [isOpen.value]);
 
   const performTransfer = async () => {
     if (!selectedPlayer.value) return;
@@ -43,11 +52,6 @@ export const HostTransferDropdown = () => {
               if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
                 e.preventDefault();
                 isOpen.value = true;
-                // Move focus to the first item in the list asynchronously once rendered
-                setTimeout(() => {
-                  const firstItem = document.querySelector(".dropdown-item") as HTMLElement;
-                  firstItem?.focus();
-                }, 0);
               }
             }}
           >
