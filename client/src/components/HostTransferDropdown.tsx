@@ -1,9 +1,10 @@
 import { useSignal } from "@preact/signals";
+import { useEffect } from "preact/hooks";
 
 import { auth, discordSdk, gameState, participants } from "../main";
 import * as backend from "../utils/backend";
-import { NonDraggableImg } from "./NonDraggableImg";
 import { getAvatarUrl, getDisplayName } from "@yasq/shared";
+import { DiscordAvatar } from "./DiscordAvatar";
 
 export const HostTransferDropdown = () => {
   const isOpen = useSignal(false);
@@ -11,6 +12,14 @@ export const HostTransferDropdown = () => {
   const isTransferring = useSignal(false);
 
   const players = participants.value.filter(p => p.id !== gameState.value.hostId);
+
+  useEffect(() => {
+    if (isOpen.value) {
+      // Move focus to the first item in the list asynchronously once rendered
+      const firstItem = document.querySelector(".dropdown-item") as HTMLElement;
+      firstItem?.focus();
+    }
+  }, [isOpen.value]);
 
   const performTransfer = async () => {
     if (!selectedPlayer.value) return;
@@ -43,16 +52,16 @@ export const HostTransferDropdown = () => {
               if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
                 e.preventDefault();
                 isOpen.value = true;
-                // Move focus to the first item in the list asynchronously once rendered
-                setTimeout(() => {
-                  const firstItem = document.querySelector(".dropdown-item") as HTMLElement;
-                  firstItem?.focus();
-                }, 0);
               }
             }}
           >
             {selectedPlayer.value ? (
-              <><NonDraggableImg src={selectedPlayer.value.avatar} className="avatar-tiny" /><span>{selectedPlayer.value.name}</span></>
+              <><DiscordAvatar
+                src={selectedPlayer.value.avatar}
+                userName={selectedPlayer.value.name}
+                tiny={true}
+              />
+                <span>{selectedPlayer.value.name}</span></>
             ) : "Select a player..."}
           </button>
 
@@ -65,7 +74,7 @@ export const HostTransferDropdown = () => {
             >
               {players.length === 0 ? (
                 <div className="dropdown-item dropdown-item-empty" tabIndex={0}>No other players</div>
-              ) : players.map((p, index) => {
+              ) : players.map(p => {
                 const selectThisPlayer = () => {
                   selectedPlayer.value = { id: p.id, name: getDisplayName(p), avatar: getAvatarUrl(p) };
                   isOpen.value = false;
@@ -107,7 +116,11 @@ export const HostTransferDropdown = () => {
                       }
                     }}
                   >
-                    <NonDraggableImg src={getAvatarUrl(p)} className="avatar-tiny" />
+                    <DiscordAvatar
+                      src={getAvatarUrl(p)}
+                      userName={getDisplayName(p)}
+                      tiny={true}
+                    />
                     <span>{getDisplayName(p)}</span>
                   </div>
                 );

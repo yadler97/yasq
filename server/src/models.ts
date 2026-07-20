@@ -1,5 +1,6 @@
 import {
   BASE_POINTS,
+  BonusType,
   COUNTDOWN_DURATION,
   EXPONENTIAL_DECAY_INTENSITY,
   GameSettings,
@@ -8,6 +9,7 @@ import {
   Joker,
   MAX_TIME_MULTIPLIER,
   MIN_TIME_MULTIPLIER,
+  PointsBonus,
   STATIC_FILES_DIR,
   TEMP_FILES_DIR,
   TimeBonus
@@ -126,7 +128,7 @@ export class GameInstance {
     // 3. Calculate lost streaks
     this.currentRoundLostStreaks = this.calculateLostStreaks();
     const totalLostStreaks = Object.values(this.currentRoundLostStreaks).reduce((sum, streak) => sum + streak, 0);
-    const streakBreakerMultiplier = 1 + (totalLostStreaks * this.settings.streakBonusMultiplier);
+    const streakBreakerMultiplier = totalLostStreaks * this.settings.streakBonusMultiplier;
 
     // 4. Calculate and add RoundResult for every registered user
     this.registeredUsers.forEach(userId => {
@@ -137,45 +139,48 @@ export class GameInstance {
       this.updateStreak(userId, scoreMultiplier);
 
       const isFirst = userId === fastestFullyCorrectUserId;
-      let pointsEarned = 0;
+      const playerBasePoints = BASE_POINTS * scoreMultiplier;
+      let pointsEarned = Math.round(playerBasePoints);
+      let awardedBonuses: PointsBonus[] = [];
 
       if (scoreMultiplier > 0) {
         const timeTaken = data?.timeTaken || this.settings.trackDuration; // Fallback to max duration if missing
         const timeMultiplier = this.calculateTimeMultiplier(timeTaken, firstPartiallyCorrectTime);
-        pointsEarned = BASE_POINTS * scoreMultiplier * timeMultiplier;
-        if (isFirst) pointsEarned *= (1 + this.settings.firstBonusMultiplier);
+        if (timeMultiplier > 0) {
+          awardedBonuses.push(new PointsBonus(BonusType.TIME_BONUS, timeMultiplier));
+        }
+
+        if (isFirst && this.settings.firstBonusMultiplier > 0) {
+          awardedBonuses.push(new PointsBonus(BonusType.FIRST_BONUS, this.settings.firstBonusMultiplier));
+        }
 
         const currentStreak = this.streaks[userId] || 0;
-        if (currentStreak > 1) {
-          const streakMultiplier = 1 + (currentStreak - 1) * this.settings.streakBonusMultiplier;
-          pointsEarned *= streakMultiplier;
+        if (currentStreak > 1 && this.settings.streakBonusMultiplier > 0) {
+          const streakMultiplier = (currentStreak - 1) * this.settings.streakBonusMultiplier;
+          awardedBonuses.push(new PointsBonus(BonusType.STREAK_BONUS, streakMultiplier));
+        }
+
+        if (scoreMultiplier === 1 && streakBreakerMultiplier > 0) {
+          awardedBonuses.push(new PointsBonus(BonusType.STREAK_BREAKER, streakBreakerMultiplier));
+        }
+
+        // Apply collected bonuses
+        for (const bonus of awardedBonuses) {
+          pointsEarned += Math.round(playerBasePoints * bonus.multiplier);
         }
       }
 
-      if (scoreMultiplier === 1) {
-        pointsEarned *= streakBreakerMultiplier;
-      }
-
-      // Round to avoid fractional points and ensure it's an integer
-      pointsEarned = Math.round(pointsEarned);
-
-      // Create new entry if not existing yet
-      if (!this.leaderboard.hasEntry(userId)) {
-        this.leaderboard.addEntry(new LeaderboardEntry(userId));
-      }
-
       // Find the user's existing entry and add this round
-      const entry = this.leaderboard.getEntry(userId);
-      if (entry) {
-        entry.addRound(new RoundResult(
-          this.currentRound,
-          data?.text || "No Guess Submitted",
-          pointsEarned,
-          data?.scoreValue || 0,
-          isFirst,
-          data ? (data.timeTaken / 1000).toFixed(1) : (this.settings.trackDuration / 1000).toFixed(1)
-        ));
-      }
+      const entry = this.leaderboard.getOrCreate(userId);
+      entry.addRound(new RoundResult(
+        this.currentRound,
+        data?.text || "No Guess Submitted",
+        pointsEarned,
+        data?.scoreValue || 0.0,
+        isFirst,
+        data ? (data.timeTaken / 1000).toFixed(1) : (this.settings.trackDuration / 1000).toFixed(1),
+        awardedBonuses
+      ));
     });
 
     this.state = GameState.RESULTS;
@@ -215,7 +220,7 @@ export class GameInstance {
   }
 
   public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
-    if (this.settings.timeBonus === null) return 1.0  // apply no time bonus
+    if (this.settings.timeBonus === null) return 0.0  // apply no time bonus
 
     const totalTime = this.settings.trackDuration;
 
@@ -535,7 +540,8 @@ export class RoundResult {
     public points: number,
     public scoreValue: number,
     public isFirst: boolean,
-    public time: string
+    public time: string,
+    public awardedBonuses: PointsBonus[] = []
   ) {}
 }
 
@@ -560,7 +566,7 @@ export class LeaderboardEntry {
     const entry = new LeaderboardEntry(data.userId);
     entry.totalScore = data.totalScore || 0;
     entry.roundHistory = (data.roundHistory || []).map((r: any) =>
-      new RoundResult(r.round, r.guess, r.points, r.scoreValue, r.isFirst, r.time)
+      new RoundResult(r.round, r.guess, r.points, r.scoreValue, r.isFirst, r.time, r.awardedBonuses)
     );
     return entry;
   }
@@ -581,6 +587,13 @@ export class Leaderboard {
     return this.entries.find(e => e.userId === userId);
   }
 
+  public getOrCreate(userId: string): LeaderboardEntry {
+    if (!this.hasEntry(userId)) {
+      this.addEntry(new LeaderboardEntry(userId));
+    }
+    return this.getEntry(userId)!;
+  }
+
   // Add an entry and maintain the sorted order
   public addEntry(entry: LeaderboardEntry): void {
     this.entries.push(entry);
@@ -594,10 +607,18 @@ export class Leaderboard {
     return this.entries;
   }
 
+  public getWinnerId(): string | null {
+    return this.entries[0]?.userId || null;
+  }
+
   public getRoundResults(round: number): { userId: string; points: number }[] {
     return this.entries.map(entry => {
       const roundResult = entry.roundHistory.find(r => r.round === round);
-      return { userId: entry.userId, points: roundResult?.points || 0 };
+      return {
+        userId: entry.userId,
+        points: roundResult?.points || 0,
+        awardedBonuses: roundResult?.awardedBonuses || []
+      };
     });
   }
 
@@ -607,21 +628,18 @@ export class Leaderboard {
       : this.entries;
 
     return entries.map(entry => {
-      const r = entry.roundHistory.find(rh => rh.round === round);
+      const r = entry.roundHistory.findLast(rh => rh.round === round);
       return {
         userId: entry.userId,
-        guess: r?.guess,
-        points: r?.points,
-        scoreValue: r?.scoreValue,
-        isFirst: r?.isFirst,
-        time: r?.time
+        guess: r?.guess ?? null,
+        points: r?.points ?? null,
+        scoreValue: r?.scoreValue ?? 0.0,
+        isFirst: r?.isFirst ?? false,
+        time: r?.time ?? null,
+        awardedBonuses: r?.awardedBonuses ?? [],
       };
     })
     .sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
-  }
-
-  public getWinnerId(): string | null {
-    return this.entries[0]?.userId || null;
   }
 
   static fromJSON(data: any): Leaderboard {
