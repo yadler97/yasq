@@ -53,7 +53,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     # This prevents E2E from running (and wasting time) if core unit/integration tests fail
-    needs: [run-unit-tests, run-integration-tests]
+    needs: [ run-unit-tests, run-integration-tests ]
 
     container:
       image: mcr.microsoft.com/playwright:v1.60.0-noble
