@@ -4,7 +4,7 @@ import { setupServer } from '../../server';
 import { FirstBonusMultiplier, StreakBonusMultiplier, TimeBonus } from '@yasq/shared';
 import type { Server } from 'http';
 import { AddressInfo } from 'net';
-import { TestApi } from './api';
+import { TestApi } from '../utils/api.js';
 import { exchangeCodeForToken, getDiscordUser } from '../../server/src/utils/discord';
 
 let httpServer: Server;
@@ -48,13 +48,13 @@ afterAll(async () => {
 
 beforeEach(async (context) => {
   currentInstanceId = `test-instance-${context.task.id}`;
-  api = new TestApi(baseUrl, currentInstanceId);
+  api = new TestApi(baseUrl, currentInstanceId, true);
 });
 
 describe('setupGame', () => {
 
   beforeEach(async () => {
-    await api.setupSession([{ id: '1' }], 'SETUP');
+    await api.setupSession([{ id: '1', username: 'TestPlayer' }], 'SETUP');
   });
 
   it('should return 200 OK when valid settings are provided', async () => {
