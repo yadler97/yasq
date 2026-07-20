@@ -1,3 +1,4 @@
+import { Joker } from '@yasq/shared';
 import { setBaseUrl } from '../../client/src/utils/backend';
 import { Player } from './helper';
 
@@ -53,6 +54,12 @@ export class TestApi {
   async patchLeaderboard(entries: { userId: string; roundHistory: any[] }[]) {
     return this.http('PATCH', `/api/test/instance/${this.instanceId}`, {
       data: { leaderboard: { entries } }
+    });
+  }
+
+  async patchEnabledJokers(jokers: Joker[]) {
+    return this.http('PATCH', `/api/test/instance/${this.instanceId}`, {
+      data: { settings: { enabledJokers: jokers } }
     });
   }
 }
