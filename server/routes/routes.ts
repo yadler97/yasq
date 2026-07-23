@@ -223,7 +223,7 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
     logger.debug(instanceId, `Host submitted corrections: ${JSON.stringify(corrections, null, 2)}`, LogCategory.GAME);
     game.submitResults(corrections);
 
-    logger.debug(instanceId, `Results calculated for round #${game.currentRound}: ${JSON.stringify(game.leaderboard.getRoundResults(game.currentRound))}`, LogCategory.GAME);
+    logger.debug(instanceId, `Results calculated for round #${game.currentRound}: ${JSON.stringify(game.leaderboard.getRoundOverview(game.currentRound))}`, LogCategory.GAME);
 
     triggerUpdate(instanceId);
 
@@ -239,14 +239,12 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
     }
 
     // Get the result for the current round of the requested user
-    const roundResult = game.leaderboard.getRoundSummary(
+    const roundResult = game.leaderboard.getRoundResults(
       game.currentRound,
       game.isHost(userId) ? undefined : userId
     );
 
-    if (roundResult.length === 0) {
-      return res.status(403).send({ error: "User not found in leaderboard." });
-    }
+    const roundSummary = game.leaderboard.getRoundSummary(game.currentRound);
 
     const correctPlayers = game.leaderboard.getAll().flatMap(playerEntry => {
       const currentRoundResult = playerEntry.roundHistory.findLast(r => r.round === game.currentRound);
@@ -256,6 +254,7 @@ export const setupRoutes = (server: Server, instances: Record<string, GameInstan
     res.send({
       round: game.currentRound,
       result: roundResult,
+      summary: roundSummary,
       correctAnswer: game.trackInfo?.track.game,
       trackTitle: game.trackInfo?.track.title,
       tags: game.trackInfo?.track.tags || [],
