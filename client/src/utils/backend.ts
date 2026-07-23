@@ -1,4 +1,5 @@
-import { GameSettings, Joker } from "@yasq/shared";
+import { BonusType, GameSettings, Joker, Participant, PointsBonus, TimeBonus, TimeBonusSummary } from "@yasq/shared";
+import { RoundResult } from "./types";
 
 let baseUrl = '';
 
@@ -119,7 +120,44 @@ export async function getRoundResults(instanceId: string, userId: string) {
     throw error;
   }
 
-  return response.json();
+  let roundData = await response.json();
+
+  roundData.result = roundData.result.map((roundResult: RoundResult) => {
+    roundResult.awardedBonuses = roundResult.awardedBonuses?.map((bonus: { type: BonusType; multiplier: number }) =>
+      new PointsBonus(bonus.type, bonus.multiplier)
+    ) ?? [];
+
+    return roundResult;
+  })
+
+  return roundData;
+}
+
+export interface TimeBonusPlotPayload {
+  participants: Participant[];
+  timeBonusSummary: TimeBonusSummary | null;
+}
+
+const sampleBonusCache = new Map<TimeBonus, TimeBonusPlotPayload>();
+
+export async function getSampleTimeBonusSummary(bonusType: TimeBonus): Promise<TimeBonusPlotPayload> {
+  if (sampleBonusCache.has(bonusType)) {
+    return sampleBonusCache.get(bonusType)!;
+  }
+
+  const response = await fetch(`/api/get-sample-time-bonus-summary?type=${bonusType}`);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    const error = new Error(errorData.error || 'Request failed');
+    (error as any).status = response.status;
+    throw error;
+  }
+
+  const payload: TimeBonusPlotPayload = await response.json();
+  sampleBonusCache.set(bonusType, payload);  // cache responses because they always yield the same data
+
+  return payload;
 }
 
 export async function startNextRound(access_token: string, instanceId: string) {
