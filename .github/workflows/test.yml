@@ -8,6 +8,29 @@ on:
     branches: [main]
 
 jobs:
+  # Job 0: Lint and Format Check
+  lint-and-format:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npm run format:check
+
   # Job 1: Run Unit Tests
   run-unit-tests:
     timeout-minutes: 5
