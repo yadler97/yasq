@@ -51,7 +51,7 @@ export const SimpleDropdown = ({
       <button
         className={`dropdown-trigger ${isFiltering ? 'active' : ''}`}
         onClick={() => (isOpen.value = !isOpen.value)}
-        onKeyDown={(e) => {
+        onKeyDown={e => {
           if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
             e.preventDefault();
             isOpen.value = true;
@@ -70,7 +70,7 @@ export const SimpleDropdown = ({
           />
           <div
             className="dropdown-menu"
-            onWheel={(e) => {
+            onWheel={e => {
               const container = e.currentTarget.querySelector(
                 '.scrollbar-container'
               ) as HTMLElement;
@@ -88,7 +88,7 @@ export const SimpleDropdown = ({
             }}
           >
             <div className="scrollbar-container">
-              {options.map((opt) => {
+              {options.map(opt => {
                 const selectOption = (currentTarget: HTMLElement) => {
                   onChange(opt);
                   closeMenuAndFocusTrigger(currentTarget);
@@ -99,8 +99,8 @@ export const SimpleDropdown = ({
                     key={opt}
                     className={`dropdown-item single-select ${value === opt ? 'active' : ''}`}
                     tabIndex={0} // Makes the item focusable via Tab or script
-                    onClick={(e) => selectOption(e.currentTarget)}
-                    onKeyDown={(e) => {
+                    onClick={e => selectOption(e.currentTarget)}
+                    onKeyDown={e => {
                       const target = e.currentTarget;
 
                       if (e.key === 'Enter' || e.key === ' ') {

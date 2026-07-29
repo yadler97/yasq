@@ -16,7 +16,7 @@ export const HostTransferDropdown = () => {
   const isTransferring = useSignal(false);
 
   const players = participants.value.filter(
-    (p) => p.id !== gameState.value.hostId
+    p => p.id !== gameState.value.hostId
   );
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export const HostTransferDropdown = () => {
             aria-haspopup="listbox"
             aria-expanded={isOpen.value}
             onClick={() => (isOpen.value = !isOpen.value)}
-            onKeyDown={(e) => {
+            onKeyDown={e => {
               if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
                 e.preventDefault();
                 isOpen.value = true;
@@ -92,7 +92,7 @@ export const HostTransferDropdown = () => {
                   No other players
                 </div>
               ) : (
-                players.map((p) => {
+                players.map(p => {
                   const selectThisPlayer = () => {
                     selectedPlayer.value = {
                       id: p.id,
@@ -113,11 +113,11 @@ export const HostTransferDropdown = () => {
                       className="dropdown-item"
                       role="option"
                       tabIndex={0} // 2. Make each list item focusable
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         selectThisPlayer();
                       }}
-                      onKeyDown={(e) => {
+                      onKeyDown={e => {
                         // 3. Handle list traversal via keys inside the dropdown list
                         const target = e.currentTarget;
                         if (e.key === 'Enter' || e.key === ' ') {

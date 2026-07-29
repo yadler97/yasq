@@ -74,7 +74,7 @@ export const TimeBonusPlot = ({
   const svgCurvePath = useMemo(() => {
     if (!curvePoints.length) return '';
     const strings = curvePoints.map(
-      (pt) => `${getX(pt.time).toFixed(1)},${getY(pt.multiplier).toFixed(1)}`
+      pt => `${getX(pt.time).toFixed(1)},${getY(pt.multiplier).toFixed(1)}`
     );
     return `M ${strings.join(' L ')}`;
   }, [curvePoints, totalTime]);
@@ -95,7 +95,7 @@ export const TimeBonusPlot = ({
 
   // Identify the first player with a successful or partially correct guess
   const firstSuccessInfo = useMemo(() => {
-    const validGuesses = playerGuessTimes.filter((p) => p.multiplier !== null);
+    const validGuesses = playerGuessTimes.filter(p => p.multiplier !== null);
     if (validGuesses.length === 0) return null;
 
     const earliest = validGuesses.reduce((prev, curr) =>
@@ -173,7 +173,7 @@ export const TimeBonusPlot = ({
     });
 
     // Find the closest data point of the time bonus curve
-    curvePoints.forEach((pt) => {
+    curvePoints.forEach(pt => {
       const plotX = getX(pt.time);
       const dist = Math.abs(plotX - svgX);
       if (dist < minCurveDist) {
@@ -194,7 +194,7 @@ export const TimeBonusPlot = ({
     });
 
     // Find the closest data point of a player's guess
-    sortedPlayerGuessTimes.forEach((pt) => {
+    sortedPlayerGuessTimes.forEach(pt => {
       const plotX = getX(pt.time);
       const dist = Math.abs(plotX - svgX);
       if (dist < minPlayerDist) {

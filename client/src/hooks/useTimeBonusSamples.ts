@@ -24,7 +24,7 @@ export const useTimeBonusSamples = (
     // Prefetch the time bonus plot payload for each time bonus type
     isLoading.value = true;
     Promise.all(
-      Object.keys(TimeBonus).map(async (bonusType) => {
+      Object.keys(TimeBonus).map(async bonusType => {
         try {
           const payload = await backend.getSampleTimeBonusSummary(
             bonusType as TimeBonus
@@ -38,7 +38,7 @@ export const useTimeBonusSamples = (
           return null;
         }
       })
-    ).then((results) => {
+    ).then(results => {
       const newSamplesMap = new Map<TimeBonus, TimeBonusPlotPayload>();
       for (const result of results) {
         if (result) {

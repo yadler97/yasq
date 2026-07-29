@@ -59,7 +59,7 @@ export const Sidebar = () => {
       <div className="sidebar-box participants">
         <h3>Participating Players</h3>
         <div id="participant-list">
-          {sortedParticipants.map((p) => {
+          {sortedParticipants.map(p => {
             const isPlayerHost = p.id === gameState.value.hostId;
             const isPlayerReady = gameState.value.readyUsers.includes(p.id);
             const hasPlayerGuessed = gameState.value.guessedPlayers.includes(
@@ -118,7 +118,7 @@ export const Sidebar = () => {
                 max="1"
                 step="0.01"
                 value={volume.value}
-                onInput={(e) => {
+                onInput={e => {
                   const target = e.currentTarget as HTMLInputElement;
                   const val = parseFloat(target.value);
                   volume.value = val;

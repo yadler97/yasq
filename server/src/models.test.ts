@@ -90,9 +90,9 @@ describe('GameInstance - startGame', () => {
     const entries = game.leaderboard.getAll();
 
     // Verify player is there
-    const hasPlayer = entries.some((e) => e.userId === PLAYER_1);
+    const hasPlayer = entries.some(e => e.userId === PLAYER_1);
     // Verify host is NOT there
-    const hasHost = entries.some((e) => e.userId === HOST);
+    const hasHost = entries.some(e => e.userId === HOST);
 
     expect(hasPlayer).toBe(true);
     expect(hasHost).toBe(false);
@@ -487,14 +487,14 @@ describe('GameInstance - submitResults', () => {
       FIRST_SUCCESS_TIME
     );
     const timeBonus1 = awardedBonuses1.find(
-      (bonus) => bonus.type == BonusType.TIME_BONUS
+      bonus => bonus.type == BonusType.TIME_BONUS
     );
     expect(timeBonus1).toBeDefined();
     expect(timeBonus1?.multiplier).toBeCloseTo(fractionalTimeMultiplier1, 3);
     expect(timeBonus1?.toAbsolute(BASE_POINTS_1)).toEqual(50);
     // Check rounding (+ pity point) of streak bonus
     const streakBonus1 = awardedBonuses1.find(
-      (bonus) => bonus.type == BonusType.STREAK_BONUS
+      bonus => bonus.type == BonusType.STREAK_BONUS
     );
     expect(streakBonus1).toBeDefined();
     expect(streakBonus1!.multiplier * BASE_POINTS_1).toBeLessThan(0.5);
@@ -522,7 +522,7 @@ describe('GameInstance - submitResults', () => {
       FIRST_SUCCESS_TIME
     );
     const timeBonus2 = awardedBonuses2.find(
-      (bonus) => bonus.type == BonusType.TIME_BONUS
+      bonus => bonus.type == BonusType.TIME_BONUS
     );
     expect(timeBonus2).toBeDefined();
     expect(timeBonus2?.multiplier).toBeCloseTo(fractionalTimeMultiplier2, 3);
@@ -534,7 +534,7 @@ describe('GameInstance - submitResults', () => {
     ); // absolute points were rounded correctly
     // Check rounding of streak bonus
     const streakBonus2 = awardedBonuses2.find(
-      (bonus) => bonus.type == BonusType.STREAK_BONUS
+      bonus => bonus.type == BonusType.STREAK_BONUS
     );
     expect(streakBonus2).toBeUndefined(); // no streak bonus awarded at all, not even a pity point, since the streak was 0
     // Total points math is also correct
@@ -560,7 +560,7 @@ describe('GameInstance - submitResults', () => {
       FIRST_SUCCESS_TIME
     );
     const timeBonus3 = awardedBonuses3.find(
-      (bonus) => bonus.type == BonusType.TIME_BONUS
+      bonus => bonus.type == BonusType.TIME_BONUS
     );
     expect(timeBonus3).toBeDefined();
     expect(timeBonus3?.multiplier).toBeCloseTo(fractionalTimeMultiplier3, 3);
@@ -573,7 +573,7 @@ describe('GameInstance - submitResults', () => {
     // Check rounding (+ pity point) of streak bonus
     const fractionalStreakBonus = 4 * 0.008 * BASE_POINTS_3; // streak of four
     const streakBonus3 = awardedBonuses3.find(
-      (bonus) => bonus.type == BonusType.STREAK_BONUS
+      bonus => bonus.type == BonusType.STREAK_BONUS
     );
     expect(streakBonus3).toBeDefined();
     expect(streakBonus3!.multiplier * BASE_POINTS_3).toBeCloseTo(
@@ -1108,11 +1108,11 @@ describe('GameInstance - getAnswersHint', () => {
     expect(uniqueCount).toBe(4);
 
     // Check if wrong answers are all included in our wrongTracks list
-    const wrongTitles = wrongTracks.map((t) => t.game);
-    const selectedWrongAnswers = hint.filter((title) => title !== GAME_A);
+    const wrongTitles = wrongTracks.map(t => t.game);
+    const selectedWrongAnswers = hint.filter(title => title !== GAME_A);
 
     expect(selectedWrongAnswers.length).toBe(3);
-    selectedWrongAnswers.forEach((title) => {
+    selectedWrongAnswers.forEach(title => {
       expect(wrongTitles).toContain(title);
     });
   });

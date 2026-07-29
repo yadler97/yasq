@@ -89,7 +89,7 @@ export function setupServer() {
     }
   });
 
-  server.on('connection', (socket) => {
+  server.on('connection', socket => {
     socket.on(WS_JOIN_INSTANCE_EVENT, ({ instanceId }) => {
       socket.join(instanceId);
       socket.data.instanceId = instanceId;

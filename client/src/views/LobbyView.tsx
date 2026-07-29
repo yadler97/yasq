@@ -17,9 +17,9 @@ export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(
-    (p) => p.id !== gameState.value.hostId
+    p => p.id !== gameState.value.hostId
   );
-  const readyUsers = playersExcludingHost.filter((p) =>
+  const readyUsers = playersExcludingHost.filter(p =>
     gameState.value.readyUsers.includes(p.id)
   ).length;
   const allPlayersReady =
@@ -69,9 +69,9 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
           <dd>
             <div className="joker-column">
               {gameState.value.gameSettings.enabledJokers.length ? (
-                gameState.value.gameSettings.enabledJokers.map((jokerType) => {
+                gameState.value.gameSettings.enabledJokers.map(jokerType => {
                   const JokerIcon = ALL_JOKER_ICONS.find(
-                    (Icon) => Icon.jokerType === jokerType
+                    Icon => Icon.jokerType === jokerType
                   );
                   const isTooltipOpen = activeTooltipType === jokerType;
 
@@ -80,7 +80,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
                       <div
                         className={`joker-indicator ${isTooltipOpen ? 'show-tooltip' : ''}`}
                         data-tooltip={JokerIcon?.description}
-                        onTouchStart={(e) => {
+                        onTouchStart={e => {
                           e.stopPropagation();
                           setActiveTooltipType(
                             isTooltipOpen ? null : jokerType

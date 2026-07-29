@@ -36,7 +36,7 @@ export const TagFilterDropdown = ({
     const typeFilters = current[type] || [];
 
     if (typeFilters.includes(value)) {
-      current[type] = typeFilters.filter((v) => v !== value);
+      current[type] = typeFilters.filter(v => v !== value);
     } else {
       current[type] = [...typeFilters, value];
     }
@@ -63,7 +63,7 @@ export const TagFilterDropdown = ({
         <button
           className={`dropdown-trigger ${activeCount > 0 ? 'active' : ''}`}
           onClick={() => (isOpen.value = !isOpen.value)}
-          onKeyDown={(e) => {
+          onKeyDown={e => {
             if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
               e.preventDefault();
               isOpen.value = true;
@@ -89,7 +89,7 @@ export const TagFilterDropdown = ({
           />
           <div
             className="dropdown-menu"
-            onWheel={(e) => {
+            onWheel={e => {
               const container = e.currentTarget.querySelector(
                 '.scrollbar-container'
               ) as HTMLElement;
@@ -110,7 +110,7 @@ export const TagFilterDropdown = ({
               {Object.entries(availableTags).map(([type, values]) => (
                 <div key={type} className="dropdown-group">
                   <div className="group-header">{type}</div>
-                  {values.sort().map((val) => {
+                  {values.sort().map(val => {
                     const isSelected = selectedTags.value[type]?.includes(val);
                     const count = reachableTags.get(val) || 0;
                     const isDisabled = !isSelected && !reachableTags.has(val);
@@ -119,7 +119,7 @@ export const TagFilterDropdown = ({
                       <label
                         key={val}
                         className={`dropdown-item ${isDisabled ? 'disabled' : ''}`}
-                        onKeyDown={(e) => {
+                        onKeyDown={e => {
                           const target = e.currentTarget;
 
                           if (e.key === 'Enter' || e.key === ' ') {

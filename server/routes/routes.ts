@@ -287,7 +287,7 @@ export const setupRoutes = (
 
           // Find which joker (if any) was used in this round
           const jokerUsed = Object.keys(userJokers).find(
-            (joker) => userJokers[joker as Joker] === currentRound
+            joker => userJokers[joker as Joker] === currentRound
           );
 
           return [userId, { ...guess, joker: jokerUsed }];
@@ -356,9 +356,9 @@ export const setupRoutes = (
 
     const roundSummary = game.leaderboard.getRoundSummary(game.currentRound);
 
-    const correctPlayers = game.leaderboard.getAll().flatMap((playerEntry) => {
+    const correctPlayers = game.leaderboard.getAll().flatMap(playerEntry => {
       const currentRoundResult = playerEntry.roundHistory.findLast(
-        (r) => r.round === game.currentRound
+        r => r.round === game.currentRound
       );
       return currentRoundResult?.scoreValue === 1 ? [playerEntry.userId] : [];
     });
@@ -555,7 +555,7 @@ export const setupRoutes = (
       const game = req.game!;
 
       // Filter out the ones the user has already used
-      const available = [...game.settings.enabledJokers].filter((joker) =>
+      const available = [...game.settings.enabledJokers].filter(joker =>
         game.canUseJoker(userId, joker)
       );
 
@@ -644,7 +644,7 @@ export const setupRoutes = (
         .json({ error: 'Results image has not been generated yet.' });
     }
 
-    res.download(filePath, `yasq-results.png`, (err) => {
+    res.download(filePath, `yasq-results.png`, err => {
       if (err) {
         console.error('Error transferring file to client:', err);
         if (!res.headersSent) {

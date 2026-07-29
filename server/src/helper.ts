@@ -125,8 +125,8 @@ export function filterDiscordTextChannels(channels: APIChannel[]) {
   // 1. Create a map of all categories
   const categoryMap = new Map();
   channels
-    .filter((c) => c.type === ChannelType.GuildCategory)
-    .forEach((c) => categoryMap.set(c.id, c.name));
+    .filter(c => c.type === ChannelType.GuildCategory)
+    .forEach(c => categoryMap.set(c.id, c.name));
 
   // 2. Filter text channels and inject the category name
   const textChannels = channels

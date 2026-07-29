@@ -17,11 +17,11 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
     if (isHost) {
       backend
         .getGuesses(auth.value.access_token, discordSdk.instanceId)
-        .then((data) => {
+        .then(data => {
           reviewData.value = data;
           // Pre-populate corrections with 0 (Wrong) for everyone who guessed
           const initial: Record<string, number> = {};
-          Object.keys(data.guesses).forEach((uid) => (initial[uid] = 0));
+          Object.keys(data.guesses).forEach(uid => (initial[uid] = 0));
           corrections.value = initial;
         });
     }
@@ -77,7 +77,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                 {guess.joker &&
                   (() => {
                     const JokerIcon = ALL_JOKER_ICONS.find(
-                      (icon) => icon.jokerType === guess.joker
+                      icon => icon.jokerType === guess.joker
                     );
                     return JokerIcon ? (
                       <div
@@ -149,7 +149,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
           <p>
             No Guess submitted:{' '}
             {reviewData.value.timedOut
-              .map((id) => {
+              .map(id => {
                 const user = findUser(participants.value, id);
                 return user ? getDisplayName(user) : 'Unknown';
               })

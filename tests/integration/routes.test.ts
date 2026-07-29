@@ -43,7 +43,7 @@ beforeAll(async () => {
   process.env.VITE_MOCK_MODE = 'true';
   httpServer = setupServer();
 
-  await new Promise<void>((resolve) => {
+  await new Promise<void>(resolve => {
     httpServer.listen(0, () => {
       // Get the port assigned by the OS
       const address = httpServer.address() as AddressInfo;
@@ -67,11 +67,11 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (httpServer) {
-    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
+    await new Promise<void>(resolve => httpServer.close(() => resolve()));
   }
 });
 
-beforeEach(async (context) => {
+beforeEach(async context => {
   currentInstanceId = `test-instance-${context.task.id}`;
   api = new TestApi(baseUrl, currentInstanceId, true);
 });

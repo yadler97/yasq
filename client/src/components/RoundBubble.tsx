@@ -12,7 +12,7 @@ export const RoundBubblesGroup = ({
 }: RoundBubblesGroupProps) => {
   return (
     <div className="round-bubbles">
-      {rounds.map((r) => (
+      {rounds.map(r => (
         <RoundBubble key={r.round} roundResult={r} userId={userId} />
       ))}
     </div>
@@ -50,14 +50,14 @@ export const RoundBubble = ({ roundResult, userId }: RoundBubbleProps) => {
     <div
       className={`round-bubble has-tooltip ${roundResult.scoreValue > 0 ? 'correct' : 'incorrect'} ${roundResult.isFirst ? 'first' : ''} ${isTooltipOpen ? 'show-tooltip' : ''}`}
       data-tooltip={tooltipContent}
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         measureBounds(e.currentTarget as HTMLDivElement);
         setActiveTooltipId(tooltipId);
       }}
       onMouseLeave={() => {
         if (activeTooltipId === tooltipId) setActiveTooltipId(null);
       }}
-      onTouchStart={(e) => {
+      onTouchStart={e => {
         e.preventDefault();
         e.stopPropagation();
         measureBounds(e.currentTarget as HTMLDivElement);

@@ -57,14 +57,14 @@ export const DiscordAvatarWithTooltip = ({
     <div
       className={`discord-avatar-wrapper has-tooltip ${isTooltipOpen ? 'show-tooltip' : ''}`}
       data-tooltip={userName}
-      onMouseEnter={(e) => {
+      onMouseEnter={e => {
         measureBounds(e.currentTarget as HTMLDivElement);
         setActiveTooltipId(tooltipId);
       }}
       onMouseLeave={() => {
         if (activeTooltipId === tooltipId) setActiveTooltipId(null);
       }}
-      onTouchStart={(e) => {
+      onTouchStart={e => {
         e.preventDefault();
         e.stopPropagation();
         measureBounds(e.currentTarget as HTMLDivElement);

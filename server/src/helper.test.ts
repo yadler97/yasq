@@ -96,7 +96,7 @@ describe('filterDiscordTextChannels', () => {
     // Verify filtering
     expect(result.length).toBe(4);
     expect(
-      result.every((c) => c.id !== '1' && c.id !== '4' && c.id !== '7')
+      result.every(c => c.id !== '1' && c.id !== '4' && c.id !== '7')
     ).toBe(true);
 
     // Verify sorting order

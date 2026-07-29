@@ -69,7 +69,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
                 <button
                   key={choice}
                   className="choice-button"
-                  onClick={async (e) => {
+                  onClick={async e => {
                     e.preventDefault();
                     await submit(choice);
                   }}
@@ -102,7 +102,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
 
           <button
             className="choice-button"
-            onClick={async (e) => {
+            onClick={async e => {
               e.preventDefault();
               await submit(activeHint.data.text);
             }}
@@ -139,7 +139,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
     if (isHost) return;
     backend
       .getAvailableJokers(auth.value.access_token, discordSdk.instanceId)
-      .then((data) => {
+      .then(data => {
         availableJokers.value = data.available;
       });
   }, [gameState.value.currentRound]);
@@ -168,7 +168,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
       }
       // Joker becomes unusable for the CURRENT round either way
       availableJokers.value = availableJokers.value.filter(
-        (j) => j !== jokerType
+        j => j !== jokerType
       );
       isSelectingSpyTarget.value = false;
     } catch (err) {
@@ -298,7 +298,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                       '/game_covers/default.svg'
                     }
                     alt={`Cover of ${activeTrackInfo.value.correctAnswer}`}
-                    onError={(e) => {
+                    onError={e => {
                       (e.currentTarget as HTMLImageElement).src =
                         '/game_covers/default.svg';
                     }}
@@ -340,13 +340,13 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <hr className="divider" />
               <div className="spy-hint-player-list">
                 {gameState.value.guessedPlayers.filter(
-                  (id) => id !== auth.value.userId
+                  id => id !== auth.value.userId
                 ).length === 0 ? (
                   <p className="no-results">
                     No player has submitted a guess yet.
                   </p>
                 ) : (
-                  gameState.value.guessedPlayers.map((targetId) => {
+                  gameState.value.guessedPlayers.map(targetId => {
                     const user = findUser(participants.value, targetId);
 
                     return (
@@ -389,7 +389,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <form
                 id="game-guesser-form"
                 className="game-guesser-form"
-                onSubmit={async (e) => {
+                onSubmit={async e => {
                   e.preventDefault();
                   const form = e.currentTarget;
                   const input = form.elements.namedItem(
@@ -419,7 +419,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <div className="joker-list">
                 {ALL_JOKER_ICONS
                   // Only show jokers that were enabled by the host during setup
-                  .filter((Icon) =>
+                  .filter(Icon =>
                     gameState.value.gameSettings.enabledJokers.includes(
                       Icon.jokerType
                     )
@@ -433,9 +433,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     const jokerName = Icon.jokerType
                       .toLowerCase()
                       .split('_')
-                      .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                      )
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                       .join(' ');
 
                     // Construct the tooltip text

@@ -20,7 +20,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const [selectedChannel, setSelectedChannel] = useState('');
 
   useEffect(() => {
-    backend.getFinalResults(discordSdk.instanceId).then((data) => {
+    backend.getFinalResults(discordSdk.instanceId).then(data => {
       leaderboard.value = data.leaderboard;
     });
   }, []);
@@ -61,18 +61,16 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
         discordSdk.instanceId,
         discordSdk.guildId!
       )
-      .then((data) => setChannels(data));
+      .then(data => setChannels(data));
   }, [isHost]);
 
   const playersExcludingHost = participants.value.filter(
-    (p) => p.id !== gameState.value.hostId
+    p => p.id !== gameState.value.hostId
   );
   const readyCount = gameState.value.readyUsers.length;
   const allPlayersReady =
     playersExcludingHost.length > 0 &&
-    playersExcludingHost.every((p) =>
-      gameState.value.readyUsers.includes(p.id)
-    );
+    playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
 
   const handleRestart = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
@@ -143,7 +141,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
             <select
               value={selectedChannel}
               disabled={channels.length === 0 || isPosting || hasPosted}
-              onChange={(e) => {
+              onChange={e => {
                 const target = e.target as HTMLSelectElement;
                 setSelectedChannel(target.value);
               }}
@@ -153,7 +151,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
               ) : (
                 <>
                   <option value="">Select a channel...</option>
-                  {channels.map((channel) => (
+                  {channels.map(channel => (
                     <option key={channel.id} value={channel.id}>
                       {channel.category ? `${channel.category} > ` : ''}#
                       {channel.name}

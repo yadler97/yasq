@@ -28,26 +28,24 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   useEffect(() => {
     backend
       .getRoundResults(discordSdk.instanceId, getUserId(auth.value))
-      .then((data) => {
+      .then(data => {
         roundData.value = data;
       })
-      .catch((_) => {
+      .catch(_ => {
         roundData.value = { error: 'SERVER_ERROR' };
       });
   }, [isHost]);
 
   // Logic for the Host's "Next Round" button
   const playersExcludingHost = participants.value.filter(
-    (p) => p.id !== gameState.value.hostId
+    p => p.id !== gameState.value.hostId
   );
-  const participantLookup = new Map(participants.value.map((p) => [p.id, p]));
+  const participantLookup = new Map(participants.value.map(p => [p.id, p]));
   const currentPlayer = participantLookup.get(getUserId(auth.value)) ?? null;
   const readyCount = gameState.value.readyUsers.length;
   const allPlayersReady =
     playersExcludingHost.length > 0 &&
-    playersExcludingHost.every((p) =>
-      gameState.value.readyUsers.includes(p.id)
-    );
+    playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
 
   const handleNextRound = async () => {
     await backend.startNextRound(
@@ -76,7 +74,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             <NonDraggableImg
               src={roundData.value.gameCover || '/game_covers/default.svg'}
               alt={`Cover of ${roundData.value.correctAnswer}`}
-              onError={(e) => {
+              onError={e => {
                 (e.currentTarget as HTMLImageElement).src =
                   '/game_covers/default.svg';
               }}
@@ -216,7 +214,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           <NonDraggableImg
             src={roundData.value.gameCover || '/game_covers/default.svg'}
             alt={`Cover of ${roundData.value.correctAnswer}`}
-            onError={(e) => {
+            onError={e => {
               (e.currentTarget as HTMLImageElement).src =
                 '/game_covers/default.svg';
             }}

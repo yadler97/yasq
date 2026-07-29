@@ -72,7 +72,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       : null;
 
   const sampleParticipants = new Map(
-    (activeTimeBonusSample?.participants || []).map((p) => [p.id, p])
+    (activeTimeBonusSample?.participants || []).map(p => [p.id, p])
   );
 
   const toggleJoker = (type: Joker) => {
@@ -138,9 +138,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
               min="1"
               max="20"
               value={roundCount.value}
-              onInput={(e) =>
-                (roundCount.value = e.currentTarget.valueAsNumber)
-              }
+              onInput={e => (roundCount.value = e.currentTarget.valueAsNumber)}
             />
           </label>
           <label className="setting-item">
@@ -151,7 +149,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
               min="10"
               max="120"
               value={trackDuration.value}
-              onInput={(e) =>
+              onInput={e =>
                 (trackDuration.value = e.currentTarget.valueAsNumber)
               }
             />
@@ -162,13 +160,13 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
               <span>Active Jokers</span>
             </label>
             <div className="joker-config-row">
-              {ALL_JOKER_ICONS.map((Icon) => {
+              {ALL_JOKER_ICONS.map(Icon => {
                 const isActive = activeJokers.value.has(Icon.jokerType);
 
                 const jokerName = Icon.jokerType
                   .toLowerCase()
                   .split('_')
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                   .join(' ');
 
                 return (
@@ -208,7 +206,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                     value={selectedBonus.value}
                     onChange={selectTimeBonus}
                   >
-                    {Object.values(OptionalTimeBonus).map((value) => (
+                    {Object.values(OptionalTimeBonus).map(value => (
                       <option key={value} value={value}>
                         {HOST_TIME_BONUS_LABELS[value]}
                       </option>
@@ -232,7 +230,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                   <div className="button-group">
                     {Object.values(FirstBonusMultiplier)
                       .filter((val): val is number => typeof val === 'number')
-                      .map((value) => (
+                      .map(value => (
                         <Fragment key={value}>
                           <input
                             type="radio"
@@ -240,7 +238,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                             name="first-bonus"
                             value={value}
                             checked={firstBonusMultiplier.value === value}
-                            onChange={(_) => {
+                            onChange={_ => {
                               firstBonusMultiplier.value = value;
                             }}
                           />
@@ -260,7 +258,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                   <div className="button-group">
                     {Object.values(StreakBonusMultiplier)
                       .filter((val): val is number => typeof val === 'number')
-                      .map((value) => (
+                      .map(value => (
                         <Fragment key={value}>
                           <input
                             type="radio"
@@ -268,7 +266,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                             name="streak-bonus"
                             value={value}
                             checked={streakBonusMultiplier.value === value}
-                            onChange={(_) => {
+                            onChange={_ => {
                               streakBonusMultiplier.value = value;
                             }}
                           />

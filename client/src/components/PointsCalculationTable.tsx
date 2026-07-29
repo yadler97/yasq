@@ -37,7 +37,7 @@ export const PointsCalculationTable = ({
   const calculationEntries: PointsCalculationEntry[] = [
     new PointsCalculationEntry('Base points', awardedBasePoints),
     ...awardedBonuses.map(
-      (bonus) =>
+      bonus =>
         new PointsCalculationEntry(
           BONUS_LABELS[bonus.type],
           bonus.toAbsolute(awardedBasePoints)

@@ -49,7 +49,7 @@ export function generateSampleTimeBonusSummary(
     { playerId: '6000000001000000001', time: 28000, scoreValue: 0.5 },
   ];
 
-  const playerGuessTimes: PlayerTimeBonusPoint[] = rawGuesses.map((g) => ({
+  const playerGuessTimes: PlayerTimeBonusPoint[] = rawGuesses.map(g => ({
     playerId: g.playerId,
     time: g.time,
     multiplier:

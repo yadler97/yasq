@@ -25,7 +25,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
     backend
       .getTrackList(auth.value.access_token, discordSdk.instanceId)
-      .then((data) => {
+      .then(data => {
         tracks.value = data.tracks.map((t: Track, i: number) => ({
           ...t,
           originalIndex: i,
@@ -39,12 +39,12 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   const baseFilteredTracks = computed(() => {
     if (!tracks.value) return [];
 
-    return tracks.value.filter((track) => {
+    return tracks.value.filter(track => {
       // Filter playlist
       let matchesPlaylist = true;
       if (selectedPlaylistName.value !== 'All playlists') {
         const activePlaylist = playlists.value.find(
-          (p) => p.name === selectedPlaylistName.value
+          p => p.name === selectedPlaylistName.value
         );
         matchesPlaylist = activePlaylist
           ? activePlaylist.tracks.includes(track.audio)
@@ -71,10 +71,10 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     let results = [...baseFilteredTracks.value];
 
     if (activeCategories.length > 0) {
-      results = results.filter((track) =>
+      results = results.filter(track =>
         activeCategories.every(([type, selectedVals]) =>
           track.tags?.some(
-            (t) => t.type === type && selectedVals.includes(t.value)
+            t => t.type === type && selectedVals.includes(t.value)
           )
         )
       );
@@ -85,7 +85,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
       if (sortOrder.value === 'Default Order') {
         // Maintain playlist order if playlist is selected
         const activePlaylist = playlists.value.find(
-          (p) => p.name === selectedPlaylistName.value
+          p => p.name === selectedPlaylistName.value
         );
         if (activePlaylist) {
           return (
@@ -112,7 +112,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
   const selectRandom = async () => {
     // Only pick from tracks that are currently visible and NOT played
-    const eligibleTracks = filteredTracks.value.filter((t) => !t.played);
+    const eligibleTracks = filteredTracks.value.filter(t => !t.played);
     if (eligibleTracks.length === 0) return;
 
     const randomTrack =
@@ -126,8 +126,8 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
   const availableTagsByType = computed(() => {
     const groups: Record<string, string[]> = {};
-    tracks.value?.forEach((track) => {
-      track.tags?.forEach((tag) => {
+    tracks.value?.forEach(track => {
+      track.tags?.forEach(tag => {
         if (!groups[tag.type]) groups[tag.type] = [];
         if (!groups[tag.type].includes(tag.value))
           groups[tag.type].push(tag.value);
@@ -141,21 +141,21 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     const categories = Object.keys(availableTagsByType.value);
     const validTags = new Map<string, number>();
 
-    categories.forEach((catToSkip) => {
+    categories.forEach(catToSkip => {
       const otherFilters = Object.entries(currentFilters).filter(
         ([type, vals]) => type !== catToSkip && vals.length > 0
       );
 
-      const reachableInCat = baseFilteredTracks.value.filter((track) =>
+      const reachableInCat = baseFilteredTracks.value.filter(track =>
         otherFilters.every(([type, selectedVals]) =>
           track.tags.some(
-            (t) => t.type === type && selectedVals.includes(t.value)
+            t => t.type === type && selectedVals.includes(t.value)
           )
         )
       );
 
-      reachableInCat.forEach((track) => {
-        track.tags?.forEach((tag) => {
+      reachableInCat.forEach(track => {
+        track.tags?.forEach(tag => {
           if (tag.type === catToSkip) {
             validTags.set(tag.value, (validTags.get(tag.value) || 0) + 1);
           }
@@ -189,14 +189,14 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         <SimpleDropdown
           options={['Default Order', 'A-Z', 'Z-A']}
           value={sortOrder.value}
-          onChange={(val) => (sortOrder.value = val as SortOption)}
+          onChange={val => (sortOrder.value = val as SortOption)}
         />
 
         {playlists.value.length > 0 && (
           <SimpleDropdown
-            options={['All playlists', ...playlists.value.map((p) => p.name)]}
+            options={['All playlists', ...playlists.value.map(p => p.name)]}
             value={selectedPlaylistName.value}
-            onChange={(val) => (selectedPlaylistName.value = val)}
+            onChange={val => (selectedPlaylistName.value = val)}
           />
         )}
 
@@ -215,7 +215,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
             className={`track-search ${searchTerm.value ? 'active' : ''}`}
             placeholder="Search game or track name..."
             value={searchTerm.value}
-            onInput={(e) =>
+            onInput={e =>
               (searchTerm.value = (e.currentTarget as HTMLInputElement).value)
             }
           />
@@ -230,7 +230,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         </div>
 
         <button
-          disabled={filteredTracks.value.filter((t) => !t.played).length === 0}
+          disabled={filteredTracks.value.filter(t => !t.played).length === 0}
           onClick={selectRandom}
           title="Select a random track from the current list"
         >
@@ -243,10 +243,10 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
             id="hide-played"
             className="hide-played-checkbox"
             checked={hidePlayed.value}
-            onChange={(e) =>
+            onChange={e =>
               (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)
             }
-            onKeyDown={(e) => {
+            onKeyDown={e => {
               if (e.key === ' ' || e.key === 'Enter') {
                 e.preventDefault();
                 hidePlayed.value = !hidePlayed.value;
@@ -261,7 +261,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         {filteredTracks.value.length === 0 ? (
           <p className="no-results">No tracks found matching your search.</p>
         ) : (
-          filteredTracks.value.map((track) => (
+          filteredTracks.value.map(track => (
             <div
               key={track.audio}
               className={`track-card ${track.played ? 'played' : ''}`}
@@ -270,7 +270,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
                 <NonDraggableImg
                   src={`/game_covers/${track.cover || 'default.svg'}`}
                   alt={`Cover of ${track.game}`}
-                  onError={(e) => {
+                  onError={e => {
                     (e.currentTarget as HTMLImageElement).src =
                       '/game_covers/default.svg';
                   }}
@@ -298,7 +298,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
               <button
                 className="track-select-btn"
                 disabled={track.played}
-                onClick={async (e) => {
+                onClick={async e => {
                   // Preact's way of preventing double-clicks:
                   // The button becomes disabled because tracks.value will update
                   // or the state will change to 'PLAYING' via the backend call.

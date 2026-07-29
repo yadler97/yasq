@@ -142,7 +142,7 @@ render(<App />, document.getElementById('app')!);
   socket.emit(WS_JOIN_INSTANCE_EVENT, { instanceId: discordSdk.instanceId });
 
   // Update the client-side game state whenever the server pushes an update
-  socket.on(WS_GAME_STATUS_UPDATE_EVENT, (updatedState) => {
+  socket.on(WS_GAME_STATUS_UPDATE_EVENT, updatedState => {
     gameState.value = updatedState;
   });
 

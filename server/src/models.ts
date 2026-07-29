@@ -65,7 +65,7 @@ export class GameInstance {
 
   public startGame(): void {
     this.readyUsers = new Set();
-    this.registeredUsers.forEach((userId) => {
+    this.registeredUsers.forEach(userId => {
       if (this.isHost(userId)) return; // Skip host
       if (!this.leaderboard.hasEntry(userId)) {
         this.leaderboard.addEntry(new LeaderboardEntry(userId));
@@ -92,7 +92,7 @@ export class GameInstance {
       timeTaken
     );
     const totalPlayers = Array.from(this.registeredUsers).filter(
-      (userId) => !this.isHost(userId)
+      userId => !this.isHost(userId)
     ).length;
     const guessersCount = Object.keys(
       this.guesses[this.currentRound] ?? {}
@@ -113,7 +113,7 @@ export class GameInstance {
 
     // Convert Set to Array to use filter
     return Array.from(this.registeredUsers).filter(
-      (userId) => !currentGuesses[userId] && !this.isHost(userId)
+      userId => !currentGuesses[userId] && !this.isHost(userId)
     );
   }
 
@@ -159,7 +159,7 @@ export class GameInstance {
     this.leaderboard.addSummary(roundSummary);
 
     // Calculate bonus points and add a RoundResult for every registered user
-    this.registeredUsers.forEach((userId) => {
+    this.registeredUsers.forEach(userId => {
       if (this.isHost(userId)) return; // Skip host
 
       const data = roundGuesses[userId];
@@ -175,7 +175,7 @@ export class GameInstance {
         if (roundSummary.timeBonusSummary !== null) {
           const timeBonusMultiplier =
             roundSummary.timeBonusSummary.playerGuessTimes.find(
-              (bonus) => bonus.playerId === userId
+              bonus => bonus.playerId === userId
             )?.multiplier ?? 0.0;
 
           if (timeBonusMultiplier > 0) {
@@ -252,7 +252,7 @@ export class GameInstance {
     const roundGuesses = this.guesses[this.currentRound] || {};
     const lostStreaks: Record<string, number> = {};
 
-    this.registeredUsers.forEach((userId) => {
+    this.registeredUsers.forEach(userId => {
       if (this.isHost(userId)) return;
 
       const data = roundGuesses[userId];
@@ -290,8 +290,8 @@ export class GameInstance {
     const playerTimePoints: PlayerTimeBonusPoint[] = [
       ...this.registeredUsers.values(),
     ]
-      .filter((userId) => !this.isHost(userId))
-      .map((userId) => {
+      .filter(userId => !this.isHost(userId))
+      .map(userId => {
         const scoreValue = roundGuesses[userId]?.scoreValue || 0.0;
         const timeTaken =
           roundGuesses[userId]?.timeTaken || this.settings.trackDuration;
@@ -446,7 +446,7 @@ export class GameInstance {
 
     return title
       .split('')
-      .map((c) => {
+      .map(c => {
         // Keep special characters
         if (!/[a-zA-Z0-9]/.test(c)) return c;
 
@@ -472,9 +472,7 @@ export class GameInstance {
 
     // Get all unique game titles except the correct one
     const otherTitles = Array.from(
-      new Set(
-        tracks.map((t) => t.game).filter((title) => title !== correctAnswer)
-      )
+      new Set(tracks.map(t => t.game).filter(title => title !== correctAnswer))
     );
 
     const seed: number = this.hashWithGameState(correctAnswer);
@@ -698,9 +696,7 @@ export class LeaderboardEntry {
   }
 
   addRound(result: RoundResult) {
-    const alreadyExists = this.roundHistory.some(
-      (r) => r.round === result.round
-    );
+    const alreadyExists = this.roundHistory.some(r => r.round === result.round);
     if (alreadyExists) return;
 
     this.roundHistory.push(result);
@@ -745,11 +741,11 @@ export class Leaderboard {
   }
 
   public hasEntry(userId: string): boolean {
-    return this.entries.some((e) => e.userId === userId);
+    return this.entries.some(e => e.userId === userId);
   }
 
   public getEntry(userId: string): LeaderboardEntry | undefined {
-    return this.entries.find((e) => e.userId === userId);
+    return this.entries.find(e => e.userId === userId);
   }
 
   public getOrCreate(userId: string): LeaderboardEntry {
@@ -781,8 +777,8 @@ export class Leaderboard {
   }
 
   public getRoundOverview(round: number): { userId: string; points: number }[] {
-    return this.entries.map((entry) => {
-      const roundResult = entry.roundHistory.find((r) => r.round === round);
+    return this.entries.map(entry => {
+      const roundResult = entry.roundHistory.find(r => r.round === round);
       return {
         userId: entry.userId,
         points: roundResult?.points || 0,
@@ -792,12 +788,12 @@ export class Leaderboard {
 
   public getRoundResults(round: number, userId?: string) {
     const entries = userId
-      ? this.entries.filter((e) => e.userId === userId)
+      ? this.entries.filter(e => e.userId === userId)
       : this.entries;
 
     return entries
-      .map((entry) => {
-        const r = entry.roundHistory.findLast((rh) => rh.round === round);
+      .map(entry => {
+        const r = entry.roundHistory.findLast(rh => rh.round === round);
         return {
           userId: entry.userId,
           guess: r?.guess ?? null,
@@ -813,7 +809,7 @@ export class Leaderboard {
 
   public getRoundSummary(round: number) {
     return (
-      this.roundSummaries.findLast((summary) => summary.round === round) ?? null
+      this.roundSummaries.findLast(summary => summary.round === round) ?? null
     );
   }
 

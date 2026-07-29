@@ -6,7 +6,7 @@ export function findUser(
   participants: Participant[],
   userId: string
 ): Participant {
-  const realUser = participants.find((p) => p.id === userId);
+  const realUser = participants.find(p => p.id === userId);
 
   // Return user if present in game
   if (realUser) {
@@ -29,7 +29,7 @@ export function capitalize(str: string) {
   return str
     .toLowerCase()
     .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
