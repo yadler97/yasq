@@ -85,7 +85,7 @@ export function setupServer() {
       socket.data.userId = userId;
       next();
     } catch (err) {
-      next(new Error('Invalid token'));
+      next(new Error(`Invalid token: ${err}`));
     }
   });
 

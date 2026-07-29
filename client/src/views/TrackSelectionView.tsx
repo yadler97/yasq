@@ -268,9 +268,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
             >
               <div className="cover-wrapper">
                 <NonDraggableImg
-                  src={
-                    `/game_covers/${track.cover}` || '/game_covers/default.svg'
-                  }
+                  src={`/game_covers/${track.cover || 'default.svg'}`}
                   alt={`Cover of ${track.game}`}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src =

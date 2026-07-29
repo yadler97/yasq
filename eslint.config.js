@@ -23,6 +23,11 @@ export default [
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+      },
       ecmaVersion: 'latest',
       sourceType: 'module',
       parserOptions: {
@@ -46,6 +51,7 @@ export default [
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-function-return-types': 'off',
+      '@typescript-eslint/no-namespace': 'off',
     },
   },
   prettier,

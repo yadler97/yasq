@@ -215,9 +215,9 @@ describe('GameInstance - submitResults', () => {
     expect(entry1).toBeDefined();
     expect(entry1!.totalScore).toBe(220);
     expect(entry1!.roundHistory).toHaveLength(1);
-    expect(entry1!.roundHistory[0]?.isFirst).toBe(true);
-    expect(entry1!.roundHistory[0]?.scoreValue).toBe(1);
-    const awardedBonuses1 = entry1!.roundHistory[0]?.awardedBonuses!;
+    expect(entry1!.roundHistory[0]!.isFirst).toBe(true);
+    expect(entry1!.roundHistory[0]!.scoreValue).toBe(1);
+    const awardedBonuses1 = entry1!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses1.length).toBe(2);
     expect(awardedBonuses1).toContainEqual(
       matchesBonus(BonusType.TIME_BONUS, 1.0)
@@ -236,9 +236,9 @@ describe('GameInstance - submitResults', () => {
     expect(entry2).toBeDefined();
     expect(entry2!.totalScore).toBe(167);
     expect(entry2!.roundHistory).toHaveLength(1);
-    expect(entry2!.roundHistory[0]?.isFirst).toBe(false);
-    expect(entry2!.roundHistory[0]?.scoreValue).toBe(1);
-    const awardedBonuses2 = entry2!.roundHistory[0]?.awardedBonuses!;
+    expect(entry2!.roundHistory[0]!.isFirst).toBe(false);
+    expect(entry2!.roundHistory[0]!.scoreValue).toBe(1);
+    const awardedBonuses2 = entry2!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses2.length).toBe(1);
     expect(awardedBonuses2).toContainEqual(
       matchesBonus(BonusType.TIME_BONUS, 0.6666)
@@ -254,9 +254,9 @@ describe('GameInstance - submitResults', () => {
     expect(entry3).toBeDefined();
     expect(entry3!.totalScore).toBe(133);
     expect(entry3!.roundHistory).toHaveLength(1);
-    expect(entry3!.roundHistory[0]?.isFirst).toBe(false);
-    expect(entry3!.roundHistory[0]?.scoreValue).toBe(1);
-    const awardedBonuses3 = entry3!.roundHistory[0]?.awardedBonuses!;
+    expect(entry3!.roundHistory[0]!.isFirst).toBe(false);
+    expect(entry3!.roundHistory[0]!.scoreValue).toBe(1);
+    const awardedBonuses3 = entry1!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses3.length).toBe(1);
     expect(awardedBonuses3).toContainEqual(
       matchesBonus(BonusType.TIME_BONUS, 0.3333)
@@ -275,9 +275,9 @@ describe('GameInstance - submitResults', () => {
     expect(entry1).toBeDefined();
     expect(entry1!.totalScore).toBe(0);
     expect(entry1!.roundHistory).toHaveLength(1);
-    expect(entry1!.roundHistory[0]?.isFirst).toBe(false);
-    expect(entry1!.roundHistory[0]?.scoreValue).toBe(0);
-    const awardedBonuses1 = entry1!.roundHistory[0]?.awardedBonuses!;
+    expect(entry1!.roundHistory[0]!.isFirst).toBe(false);
+    expect(entry1!.roundHistory[0]!.scoreValue).toBe(0);
+    const awardedBonuses1 = entry1!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses1.length).toBe(0);
 
     // Math for Player 2:
@@ -289,9 +289,9 @@ describe('GameInstance - submitResults', () => {
     expect(entry2).toBeDefined();
     expect(entry2!.totalScore).toBe(100);
     expect(entry2!.roundHistory).toHaveLength(1);
-    expect(entry2!.roundHistory[0]?.isFirst).toBe(false);
-    expect(entry2!.roundHistory[0]?.scoreValue).toBe(0.5);
-    const awardedBonuses2 = entry2!.roundHistory[0]?.awardedBonuses!;
+    expect(entry2!.roundHistory[0]!.isFirst).toBe(false);
+    expect(entry2!.roundHistory[0]!.scoreValue).toBe(0.5);
+    const awardedBonuses2 = entry2!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses2.length).toBe(1);
     expect(awardedBonuses2).toContainEqual(
       matchesBonus(BonusType.TIME_BONUS, 1.0)
@@ -307,9 +307,9 @@ describe('GameInstance - submitResults', () => {
     expect(entry3).toBeDefined();
     expect(entry3!.totalScore).toBe(170);
     expect(entry3!.roundHistory).toHaveLength(1);
-    expect(entry3!.roundHistory[0]?.isFirst).toBe(true);
-    expect(entry3!.roundHistory[0]?.scoreValue).toBe(1);
-    const awardedBonuses3 = entry3!.roundHistory[0]?.awardedBonuses!;
+    expect(entry3!.roundHistory[0]!.isFirst).toBe(true);
+    expect(entry3!.roundHistory[0]!.scoreValue).toBe(1);
+    const awardedBonuses3 = entry3!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses3.length).toBe(2);
     expect(awardedBonuses3).toContainEqual(
       matchesBonus(BonusType.TIME_BONUS, 0.5)
@@ -497,10 +497,10 @@ describe('GameInstance - submitResults', () => {
       (bonus) => bonus.type == BonusType.STREAK_BONUS
     );
     expect(streakBonus1).toBeDefined();
-    expect(streakBonus1?.multiplier! * BASE_POINTS_1).toBeLessThan(0.5);
-    expect(streakBonus1?.toAbsolute(BASE_POINTS_1)).toEqual(1); // pity point even though the fractional result was less than 0.5
+    expect(streakBonus1!.multiplier * BASE_POINTS_1).toBeLessThan(0.5);
+    expect(streakBonus1!.toAbsolute(BASE_POINTS_1)).toEqual(1); // pity point even though the fractional result was less than 0.5
     // Total points math is also correct
-    expect(entry1?.totalScore).toEqual(
+    expect(entry1!.totalScore).toEqual(
       Math.round(BASE_POINTS_1) +
         EXPECTED_TIME_BONUS_POINTS_1 +
         EXPECTED_STREAK_BONUS_POINTS_1
@@ -576,11 +576,11 @@ describe('GameInstance - submitResults', () => {
       (bonus) => bonus.type == BonusType.STREAK_BONUS
     );
     expect(streakBonus3).toBeDefined();
-    expect(streakBonus3?.multiplier! * BASE_POINTS_3).toBeCloseTo(
+    expect(streakBonus3!.multiplier * BASE_POINTS_3).toBeCloseTo(
       fractionalStreakBonus,
       3
     );
-    expect(streakBonus3?.multiplier! * BASE_POINTS_3).not.toEqual(
+    expect(streakBonus3!.multiplier * BASE_POINTS_3).not.toEqual(
       EXPECTED_STREAK_BONUS_POINTS_3
     ); // result would be fractional
     expect(streakBonus3?.toAbsolute(BASE_POINTS_3)).toEqual(

@@ -5,8 +5,8 @@ export const mockDiscordSdk = {
   ready: () => Promise.resolve(),
 
   // Mocking the subscribe/unsubscribe system
-  subscribe: (event, callback) => {},
-  unsubscribe: (event, callback) => {},
+  subscribe: (_event, _callback) => {},
+  unsubscribe: (_event, _callback) => {},
 
   commands: {
     // Mock Authorize
