@@ -15,12 +15,13 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
 
   useEffect(() => {
     if (isHost) {
-      backend.getGuesses(auth.value.access_token, discordSdk.instanceId)
-        .then(data => {
+      backend
+        .getGuesses(auth.value.access_token, discordSdk.instanceId)
+        .then((data) => {
           reviewData.value = data;
           // Pre-populate corrections with 0 (Wrong) for everyone who guessed
           const initial: Record<string, number> = {};
-          Object.keys(data.guesses).forEach(uid => initial[uid] = 0);
+          Object.keys(data.guesses).forEach((uid) => (initial[uid] = 0));
           corrections.value = initial;
         });
     }
@@ -45,34 +46,48 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const handleSubmit = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
     btn.disabled = true;
-    await backend.submitRoundResults(auth.value.access_token, discordSdk.instanceId, corrections.value);
+    await backend.submitRoundResults(
+      auth.value.access_token,
+      discordSdk.instanceId,
+      corrections.value,
+    );
   };
 
   return (
     <div id="results" className="centered">
       <h2>Results</h2>
-      <p>The correct answer was: <strong>{reviewData.value.answer}</strong></p>
+      <p>
+        The correct answer was: <strong>{reviewData.value.answer}</strong>
+      </p>
 
       <div id="guess-list">
         {Object.entries(reviewData.value.guesses).map(([userId, guess]) => {
           const user = findUser(participants.value, userId);
-          const displayName = user ? getDisplayName(user) : 'Unknown';
-          const avatarUrl = user ? getAvatarUrl(user) : '';
+          const displayName = user ? getDisplayName(user) : "Unknown";
+          const avatarUrl = user ? getAvatarUrl(user) : "";
 
           return (
             <div key={userId} className="guess-item">
               <div className="user-info">
                 <DiscordAvatar src={avatarUrl} userName={displayName} />
                 <span className="username">{displayName}</span>
-                <span className="correction-guess guess-text">"{guess.text}"</span>
-                {guess.joker && (() => {
-                  const JokerIcon = ALL_JOKER_ICONS.find(icon => icon.jokerType === guess.joker);
-                  return JokerIcon ? (
-                    <div className="joker-indicator" data-tooltip={JokerIcon?.description}>
-                      {JokerIcon && <JokerIcon />}
-                    </div>
-                  ) : null;
-                })()}
+                <span className="correction-guess guess-text">
+                  "{guess.text}"
+                </span>
+                {guess.joker &&
+                  (() => {
+                    const JokerIcon = ALL_JOKER_ICONS.find(
+                      (icon) => icon.jokerType === guess.joker,
+                    );
+                    return JokerIcon ? (
+                      <div
+                        className="joker-indicator"
+                        data-tooltip={JokerIcon?.description}
+                      >
+                        {JokerIcon && <JokerIcon />}
+                      </div>
+                    ) : null;
+                  })()}
               </div>
 
               <div className="button-group">
@@ -82,9 +97,13 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                   name={`score-${userId}`}
                   value="0"
                   checked={corrections.value[userId] === 0}
-                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 0 }; }}
+                  onChange={() => {
+                    corrections.value = { ...corrections.value, [userId]: 0 };
+                  }}
                 />
-                <label htmlFor={`wrong-${userId}`} className="btn-radio wrong">Wrong</label>
+                <label htmlFor={`wrong-${userId}`} className="btn-radio wrong">
+                  Wrong
+                </label>
 
                 <input
                   type="radio"
@@ -92,9 +111,16 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                   name={`score-${userId}`}
                   value="0.5"
                   checked={corrections.value[userId] === 0.5}
-                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 0.5 }; }}
+                  onChange={() => {
+                    corrections.value = { ...corrections.value, [userId]: 0.5 };
+                  }}
                 />
-                <label htmlFor={`partial-${userId}`} className="btn-radio partial">Partial</label>
+                <label
+                  htmlFor={`partial-${userId}`}
+                  className="btn-radio partial"
+                >
+                  Partial
+                </label>
 
                 <input
                   type="radio"
@@ -102,9 +128,16 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                   name={`score-${userId}`}
                   value="1"
                   checked={corrections.value[userId] === 1}
-                  onChange={() => { corrections.value = { ...corrections.value, [userId]: 1 }; }}
+                  onChange={() => {
+                    corrections.value = { ...corrections.value, [userId]: 1 };
+                  }}
                 />
-                <label htmlFor={`correct-${userId}`} className="btn-radio correct">Correct</label>
+                <label
+                  htmlFor={`correct-${userId}`}
+                  className="btn-radio correct"
+                >
+                  Correct
+                </label>
               </div>
             </div>
           );
@@ -113,12 +146,15 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
 
       {reviewData.value.timedOut.length > 0 && (
         <div className="timed-out-section">
-          <p>No Guess submitted: {
-            reviewData.value.timedOut.map(id => {
-              const user = findUser(participants.value, id);
-              return user ? getDisplayName(user) : 'Unknown';
-            }).join(', ')
-          }</p>
+          <p>
+            No Guess submitted:{" "}
+            {reviewData.value.timedOut
+              .map((id) => {
+                const user = findUser(participants.value, id);
+                return user ? getDisplayName(user) : "Unknown";
+              })
+              .join(", ")}
+          </p>
         </div>
       )}
 

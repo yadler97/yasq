@@ -14,8 +14,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [hasPosted, setHasPosted] = useState(false);
-  const [channels, setChannels] = useState<{id: string, name: string, category: string}[]>([]);
-  const [selectedChannel, setSelectedChannel] = useState('');
+  const [channels, setChannels] = useState<
+    { id: string; name: string; category: string }[]
+  >([]);
+  const [selectedChannel, setSelectedChannel] = useState("");
 
   useEffect(() => {
     backend.getFinalResults(discordSdk.instanceId).then((data) => {
@@ -35,7 +37,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       const response = await backend.postResultsToDiscordChannel(
         auth.value.access_token,
         discordSdk.instanceId,
-        selectedChannel
+        selectedChannel,
       );
 
       if (response.ok) {
@@ -53,17 +55,24 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   useEffect(() => {
     if (!isHost) return;
 
-    backend.getChannels(
-      auth.value.access_token,
-      discordSdk.instanceId,
-      discordSdk.guildId!
-    ).then(data => setChannels(data));
+    backend
+      .getChannels(
+        auth.value.access_token,
+        discordSdk.instanceId,
+        discordSdk.guildId!,
+      )
+      .then((data) => setChannels(data));
   }, [isHost]);
 
-  const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
+  const playersExcludingHost = participants.value.filter(
+    (p) => p.id !== gameState.value.hostId,
+  );
   const readyCount = gameState.value.readyUsers.length;
-  const allPlayersReady = playersExcludingHost.length > 0 &&
-                          playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
+  const allPlayersReady =
+    playersExcludingHost.length > 0 &&
+    playersExcludingHost.every((p) =>
+      gameState.value.readyUsers.includes(p.id),
+    );
 
   const handleRestart = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
@@ -80,7 +89,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
           const user = findUser(participants.value, player.userId);
 
           const total = leaderboard.value.length;
-          const staggerIndex = (total - 1) - index;
+          const staggerIndex = total - 1 - index;
           const delay = staggerIndex * 1.5;
           const isWinner = index === 0;
 
@@ -91,14 +100,23 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
               style={{ animationDelay: `${delay}s` }}
             >
               <div
-                className={`player-card ${isWinner ? 'winner' : ''}`}
-                style={{ animationDelay: `${delay + 0.4}s`, zIndex: (1000 - index) }}
+                className={`player-card ${isWinner ? "winner" : ""}`}
+                style={{
+                  animationDelay: `${delay + 0.4}s`,
+                  zIndex: 1000 - index,
+                }}
               >
                 {isWinner && <div className="shimmer-layer" />}
                 <div className="player-main-info">
                   <div className="rank">#{index + 1}</div>
-                  <DiscordAvatar src={getAvatarUrl(user)} userName={getDisplayName(user)} />
-                  <div className="name">{isWinner ? '👑 ' : ''}{getDisplayName(user)}</div>
+                  <DiscordAvatar
+                    src={getAvatarUrl(user)}
+                    userName={getDisplayName(user)}
+                  />
+                  <div className="name">
+                    {isWinner ? "👑 " : ""}
+                    {getDisplayName(user)}
+                  </div>
                   <div className="total-score">{player.totalScore} pts</div>
                 </div>
 
@@ -117,12 +135,9 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
 
       {isHost ? (
         <div>
-          <div className='export-section'>
-            <button
-              onClick={handleDownload}
-              disabled={isDownloading}
-            >
-              {isDownloading ? 'Downloading...' : '📥 Download Results Image'}
+          <div className="export-section">
+            <button onClick={handleDownload} disabled={isDownloading}>
+              {isDownloading ? "Downloading..." : "📥 Download Results Image"}
             </button>
 
             <select
@@ -138,9 +153,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
               ) : (
                 <>
                   <option value="">Select a channel...</option>
-                  {channels.map(channel => (
+                  {channels.map((channel) => (
                     <option key={channel.id} value={channel.id}>
-                      {channel.category ? `${channel.category} > ` : ""}#{channel.name}
+                      {channel.category ? `${channel.category} > ` : ""}#
+                      {channel.name}
                     </option>
                   ))}
                 </>
@@ -152,8 +168,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
               disabled={isPosting || hasPosted || !selectedChannel}
             >
               {hasPosted
-                ? '✅ Posted to Channel'
-                : (isPosting ? 'Posting to Discord...' : '💬 Post Directly to Channel')}
+                ? "✅ Posted to Channel"
+                : isPosting
+                  ? "Posting to Discord..."
+                  : "💬 Post Directly to Channel"}
             </button>
           </div>
 
@@ -168,7 +186,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
           </button>
         </div>
       ) : (
-        <ReadyButton promptText={"Ready for New Game"}/>
+        <ReadyButton promptText={"Ready for New Game"} />
       )}
     </div>
   );

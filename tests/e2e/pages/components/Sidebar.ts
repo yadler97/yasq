@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator } from "@playwright/test";
 
 type BadgeType = "host" | "ready" | "guessed" | "winner" | "streak";
 

@@ -7,5 +7,7 @@ export function getAvatarUrl(participant: Participant) {
 }
 
 export function getDisplayName(participant: Participant) {
-  return participant.nickname || participant.global_name || participant.username;
+  return (
+    participant.nickname || participant.global_name || participant.username
+  );
 }

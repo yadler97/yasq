@@ -1,19 +1,20 @@
-import { GameSettings, Joker, PointsBonus, TimeBonus, TimeBonusSummary } from "@yasq/shared";
+import { GameSettings, Joker, PointsBonus, TimeBonus } from "@yasq/shared";
 
 /** Extension of the {@link TimeBonus} enum for selection in the UI */
 export const OptionalTimeBonus = {
   ...TimeBonus,
-  NONE: 'NONE',
+  NONE: "NONE",
 } as const;
 
 // Derive TypeScript type from the runtime object
-export type TOptionalTimeBonus = typeof OptionalTimeBonus[keyof typeof OptionalTimeBonus];
+export type TOptionalTimeBonus =
+  (typeof OptionalTimeBonus)[keyof typeof OptionalTimeBonus];
 
 export interface GameStatus {
   state: string;
   hostId: string | null;
   readyUsers: string[];
-  guessedPlayers: string[],
+  guessedPlayers: string[];
   currentRound: number;
   lastWinnerId: string | null;
   gameSettings: GameSettings;
@@ -44,7 +45,7 @@ export interface Playlist {
 export interface ReviewData {
   round: number;
   answer: string;
-  guesses: Record<string, { text: string, joker: Joker }>;
+  guesses: Record<string, { text: string; joker: Joker }>;
   timedOut: string[];
 }
 

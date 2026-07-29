@@ -1,9 +1,12 @@
-import { Participant } from "./types";
+import { Participant } from "@yasq/shared";
 
 const userCache = new Map<string, Participant>();
 
-export function findUser(participants: Participant[], userId: string): Participant {
-  const realUser = participants.find(p => p.id === userId);
+export function findUser(
+  participants: Participant[],
+  userId: string,
+): Participant {
+  const realUser = participants.find((p) => p.id === userId);
 
   // Return user if present in game
   if (realUser) {
@@ -23,10 +26,11 @@ export function getUserId(auth: any) {
 }
 
 export function capitalize(str: string) {
-  return str.toLowerCase()
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return str
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 export function formatBonusMultiplier(rate: number): string {
@@ -36,5 +40,5 @@ export function formatBonusMultiplier(rate: number): string {
 }
 
 export const getActionKeyLabel = (isMac: boolean) => {
-  return isMac ? '⌘' : 'Alt';
+  return isMac ? "⌘" : "Alt";
 };

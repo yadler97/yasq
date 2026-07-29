@@ -1,11 +1,14 @@
-import express from 'express';
-import { GameInstance, Leaderboard, TrackInfo } from '../src/models.js';
-import { GameSettings, Joker } from '@yasq/shared';
+import express from "express";
+import { GameInstance, Leaderboard, TrackInfo } from "../src/models.js";
+import { GameSettings, Joker } from "@yasq/shared";
 import type { Server } from "socket.io";
 import { broadcastGameStatus } from "../src/helper.js";
-import { logger } from '../src/utils/logger.js';
+import { logger } from "../src/utils/logger.js";
 
-export const setupMockRoutes = (server: Server, instances: Record<string, GameInstance>) => {
+export const setupMockRoutes = (
+  server: Server,
+  instances: Record<string, GameInstance>,
+) => {
   const router = express.Router();
 
   const triggerUpdate = (instanceId: string): void => {
@@ -20,7 +23,7 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
       instanceId,
       registeredUsers = [],
       hostId = registeredUsers[0]?.id, // Default host is the first player in the list
-      state = 'LOBBY',
+      state = "LOBBY",
       currentRound = 1,
       readyUserIds = [],
       settings = new GameSettings<Set<Joker>>(),
@@ -32,7 +35,7 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
       lastWinnerId,
       usedJokers = {},
       streaks = {},
-      currentRoundLostStreaks = {}
+      currentRoundLostStreaks = {},
     } = req.body;
 
     if (!instanceId) {
@@ -41,7 +44,7 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
 
     // Set the mock state
     const game = new GameInstance(instanceId, hostId);
-    const registeredUserIds = registeredUsers.map((u: { id: string; }) => u.id);
+    const registeredUserIds = registeredUsers.map((u: { id: string }) => u.id);
     game.registeredUsers = new Set(registeredUserIds);
     game.state = state;
     game.currentRound = currentRound;
@@ -64,7 +67,9 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
 
     triggerUpdate(instanceId);
 
-    res.status(200).send({ message: "Mock data loaded", instance: instances[instanceId] });
+    res
+      .status(200)
+      .send({ message: "Mock data loaded", instance: instances[instanceId] });
   });
 
   router.patch("/instance/:instanceId", (req, res) => {
@@ -78,12 +83,19 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
     const updates = req.body;
 
     if (updates.state !== undefined) game.state = updates.state;
-    if (updates.currentRound !== undefined) game.currentRound = updates.currentRound;
+    if (updates.currentRound !== undefined)
+      game.currentRound = updates.currentRound;
     if (updates.hostId !== undefined) game.hostId = updates.hostId;
-    if (updates.currentGame !== undefined) game.currentGame = updates.currentGame;
-    if (updates.lastWinnerId !== undefined) game.lastWinnerId = updates.lastWinnerId;
+    if (updates.currentGame !== undefined)
+      game.currentGame = updates.currentGame;
+    if (updates.lastWinnerId !== undefined)
+      game.lastWinnerId = updates.lastWinnerId;
     if (updates.registeredUsers) {
-      game.registeredUsers = new Set(updates.registeredUsers.map((u: any) => typeof u === 'string' ? u : u.id));
+      game.registeredUsers = new Set(
+        updates.registeredUsers.map((u: any) =>
+          typeof u === "string" ? u : u.id,
+        ),
+      );
     }
     if (updates.readyUsers) {
       game.readyUsers = new Set(updates.readyUsers);
@@ -103,7 +115,7 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
         updates.trackInfo.startTime,
         updates.trackInfo.endTime,
         updates.trackInfo.track,
-        updates.trackInfo.gameCoverUrl
+        updates.trackInfo.gameCoverUrl,
       );
     }
     if (updates.guesses) {
@@ -133,7 +145,9 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
     if (instances[instanceId]) {
       delete instances[instanceId];
       logger.debug(instanceId, `Successfully deleted test instance`);
-      return res.status(200).send({ message: `Instance ${instanceId} deleted` });
+      return res
+        .status(200)
+        .send({ message: `Instance ${instanceId} deleted` });
     }
 
     triggerUpdate(instanceId);

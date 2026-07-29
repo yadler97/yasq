@@ -13,7 +13,7 @@ import {
   GameSettings,
   Joker,
   StreakBonusMultiplier,
-  TimeBonus
+  TimeBonus,
 } from "@yasq/shared";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
@@ -23,48 +23,56 @@ import { formatBonusMultiplier } from "../utils/helper";
 import { TimeBonusPlot } from "../components/TimeBonusPlot";
 import { useTimeBonusSamples } from "../hooks/useTimeBonusSamples";
 
-
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
-  [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + ' (linear)',
-  [TimeBonus.EXPONENTIAL]: PLAYER_TIME_BONUS_LABELS[TimeBonus.EXPONENTIAL] + ' (exponential)',
-  [TimeBonus.LOGISTIC]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LOGISTIC] + ' (logistic)',
-  NONE: '❌ No time bonus'
+  [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + " (linear)",
+  [TimeBonus.EXPONENTIAL]:
+    PLAYER_TIME_BONUS_LABELS[TimeBonus.EXPONENTIAL] + " (exponential)",
+  [TimeBonus.LOGISTIC]:
+    PLAYER_TIME_BONUS_LABELS[TimeBonus.LOGISTIC] + " (logistic)",
+  NONE: "❌ No time bonus",
 };
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
-  const roundCount = useSignal(gameState.value.gameSettings.rounds || DEFAULT_ROUNDS);
-  const trackDuration = useSignal(gameState.value.gameSettings.trackDuration
-    ? gameState.value.gameSettings.trackDuration / 1000
-    : DEFAULT_TRACK_DURATION);
+  const roundCount = useSignal(
+    gameState.value.gameSettings.rounds || DEFAULT_ROUNDS,
+  );
+  const trackDuration = useSignal(
+    gameState.value.gameSettings.trackDuration
+      ? gameState.value.gameSettings.trackDuration / 1000
+      : DEFAULT_TRACK_DURATION,
+  );
   const isSubmitting = useSignal(false);
   const isAdvancedOpen = useSignal(false);
   const firstBonusMultiplier = useSignal<FirstBonusMultiplier>(
-    gameState.value.gameSettings.firstBonusMultiplier || FirstBonusMultiplier.OFF
+    gameState.value.gameSettings.firstBonusMultiplier ||
+      FirstBonusMultiplier.OFF,
   );
   const streakBonusMultiplier = useSignal<StreakBonusMultiplier>(
-    gameState.value.gameSettings.streakBonusMultiplier || StreakBonusMultiplier.OFF
+    gameState.value.gameSettings.streakBonusMultiplier ||
+      StreakBonusMultiplier.OFF,
   );
 
   const activeJokers = useSignal<Set<Joker>>(
     new Set(
       gameState.value.gameSettings.enabledJokers?.length
         ? gameState.value.gameSettings.enabledJokers
-        : DEFAULT_ENABLED_JOKERS
-    )
+        : DEFAULT_ENABLED_JOKERS,
+    ),
   );
 
   const selectedBonus = useSignal<TOptionalTimeBonus>(
-    gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE
+    gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE,
   );
 
   const { timeBonusSamples, isLoading } = useTimeBonusSamples(isHost);
 
-  const activeTimeBonusSample = selectedBonus.value !== OptionalTimeBonus.NONE
-    ? timeBonusSamples.value.get(selectedBonus.value as TimeBonus)
-    : null;
+  const activeTimeBonusSample =
+    selectedBonus.value !== OptionalTimeBonus.NONE
+      ? timeBonusSamples.value.get(selectedBonus.value as TimeBonus)
+      : null;
 
   const sampleParticipants = new Map(
-    (activeTimeBonusSample?.participants || []).map(p => [p.id, p])
+    (activeTimeBonusSample?.participants || []).map((p) => [p.id, p]),
   );
 
   const toggleJoker = (type: Joker) => {
@@ -78,7 +86,8 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
   };
 
   const selectTimeBonus = (e: TargetedEvent<HTMLSelectElement, Event>) => {
-    selectedBonus.value =  (e.target as HTMLSelectElement).value as TOptionalTimeBonus;
+    selectedBonus.value = (e.target as HTMLSelectElement)
+      .value as TOptionalTimeBonus;
   };
 
   const handleConfirmSettings = async () => {
@@ -89,15 +98,18 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       trackDuration: trackDuration.value,
       enabledJokers: [...activeJokers.value],
       firstBonusMultiplier: firstBonusMultiplier.value,
-      timeBonus: selectedBonus.value === OptionalTimeBonus.NONE ? null : selectedBonus.value,
-      streakBonusMultiplier: streakBonusMultiplier.value
+      timeBonus:
+        selectedBonus.value === OptionalTimeBonus.NONE
+          ? null
+          : selectedBonus.value,
+      streakBonusMultiplier: streakBonusMultiplier.value,
     };
 
     try {
       await backend.setupGame(
         auth.value.access_token,
         discordSdk.instanceId,
-        currentSettings
+        currentSettings,
       );
     } catch (e) {
       console.error("Setup failed:", e);
@@ -120,32 +132,51 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
           <hr className="divider" />
           <label className="setting-item">
             <span>Number of Rounds</span>
-            <input type="number" id="rounds-input" min="1" max="20" value={roundCount.value}
-              onInput={(e) => (roundCount.value = e.currentTarget.valueAsNumber)} />
+            <input
+              type="number"
+              id="rounds-input"
+              min="1"
+              max="20"
+              value={roundCount.value}
+              onInput={(e) =>
+                (roundCount.value = e.currentTarget.valueAsNumber)
+              }
+            />
           </label>
           <label className="setting-item">
             <span>Track Duration (sec)</span>
-            <input type="number" id="duration-input" min="10" max="120" value={trackDuration.value}
-              onInput={(e) => (trackDuration.value = e.currentTarget.valueAsNumber)} />
+            <input
+              type="number"
+              id="duration-input"
+              min="10"
+              max="120"
+              value={trackDuration.value}
+              onInput={(e) =>
+                (trackDuration.value = e.currentTarget.valueAsNumber)
+              }
+            />
           </label>
 
           <div>
-            <label className="setting-item"><span>Active Jokers</span></label>
+            <label className="setting-item">
+              <span>Active Jokers</span>
+            </label>
             <div className="joker-config-row">
               {ALL_JOKER_ICONS.map((Icon) => {
                 const isActive = activeJokers.value.has(Icon.jokerType);
 
-                const jokerName = Icon.jokerType.toLowerCase()
-                  .split('_')
-                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(' ');
+                const jokerName = Icon.jokerType
+                  .toLowerCase()
+                  .split("_")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ");
 
                 return (
                   <button
                     key={Icon.jokerType}
                     type="button"
-                    id={`config-${Icon.jokerType.toLowerCase().replace(/_/g, '-')}`}
-                    className={`joker-config-btn ${isActive ? 'active' : 'inactive'}`}
+                    id={`config-${Icon.jokerType.toLowerCase().replace(/_/g, "-")}`}
+                    className={`joker-config-btn ${isActive ? "active" : "inactive"}`}
                     onClick={() => toggleJoker(Icon.jokerType)}
                     title={jokerName}
                   >
@@ -164,14 +195,19 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
               onClick={() => (isAdvancedOpen.value = !isAdvancedOpen.value)}
             >
               <span>Advanced Settings</span>
-              <span className={`arrow-indicator ${isAdvancedOpen.value ? "open" : ""}`} />
+              <span
+                className={`arrow-indicator ${isAdvancedOpen.value ? "open" : ""}`}
+              />
             </button>
 
             {isAdvancedOpen.value && (
               <div className="advanced-content-panel">
                 <div className="setting-item">
                   <span>Time Bonus</span>
-                  <select value={selectedBonus.value} onChange={selectTimeBonus}>
+                  <select
+                    value={selectedBonus.value}
+                    onChange={selectTimeBonus}
+                  >
                     {Object.values(OptionalTimeBonus).map((value) => (
                       <option key={value} value={value}>
                         {HOST_TIME_BONUS_LABELS[value]}
@@ -179,7 +215,9 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                     ))}
                   </select>
                   {isLoading.value ? (
-                    <p className="info-message time-bonus-loading">Loading sample data...</p>
+                    <p className="info-message time-bonus-loading">
+                      Loading sample data...
+                    </p>
                   ) : (
                     <TimeBonusPlot
                       currentPlayer={null}
@@ -213,8 +251,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                             {formatBonusMultiplier(value)}
                           </label>
                         </Fragment>
-                      ))
-                    }
+                      ))}
                   </div>
                 </div>
 
@@ -242,15 +279,18 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                             {formatBonusMultiplier(value)}
                           </label>
                         </Fragment>
-                      ))
-                    }
+                      ))}
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          <button id="btn-start" disabled={isSubmitting.value} onClick={handleConfirmSettings}>
+          <button
+            id="btn-start"
+            disabled={isSubmitting.value}
+            onClick={handleConfirmSettings}
+          >
             {isSubmitting.value ? "Saving..." : "Confirm"}
           </button>
 

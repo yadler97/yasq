@@ -26,6 +26,6 @@ export const useExclusiveTooltip = () => {
     activeTooltipId: activeTooltipId.value,
     setActiveTooltipId: (id: string | null) => {
       activeTooltipId.value = id;
-    }
+    },
   };
 };

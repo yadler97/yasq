@@ -1,7 +1,7 @@
-import { render } from 'preact';
-import { signal } from '@preact/signals';
+import { render } from "preact";
+import { signal } from "@preact/signals";
 import { DiscordSDK } from "@discord/embedded-app-sdk";
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client";
 
 import * as backend from "./utils/backend";
 import { getUserId } from "./utils/helper";
@@ -14,14 +14,14 @@ import {
   MAX_VOLUME,
   Participant,
   WS_GAME_STATUS_UPDATE_EVENT,
-  WS_JOIN_INSTANCE_EVENT
-} from '@yasq/shared';
+  WS_JOIN_INSTANCE_EVENT,
+} from "@yasq/shared";
 import { mockDiscordSdk } from "../../mock_data/mockDiscordSdk";
 
-import { GameHeader } from './components/GameHeader';
-import { Sidebar } from './components/Sidebar';
+import { GameHeader } from "./components/GameHeader";
+import { Sidebar } from "./components/Sidebar";
 
-import { SetupView } from './views/SetupView';
+import { SetupView } from "./views/SetupView";
 import { LobbyView } from "./views/LobbyView";
 import { SelectionView } from "./views/TrackSelectionView";
 import { ArenaView } from "./views/PlayingView";
@@ -31,8 +31,10 @@ import { FinalResultsView } from "./views/GameFinishedView";
 
 import "./style.css";
 
-const isMockMode = import.meta.env.VITE_MOCK_MODE === 'true';
-export const discordSdk = isMockMode ? mockDiscordSdk : new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
+const isMockMode = import.meta.env.VITE_MOCK_MODE === "true";
+export const discordSdk = isMockMode
+  ? mockDiscordSdk
+  : new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
 export const auth = signal<any | null>(null);
 export const gameState = signal<GameStatus>({
@@ -44,20 +46,22 @@ export const gameState = signal<GameStatus>({
   lastWinnerId: null,
   gameSettings: new GameSettings<Joker[]>(),
   streaks: {},
-  lostStreaks: {}
+  lostStreaks: {},
 });
 export const participants = signal<Participant[]>([]);
 export const volume = signal(DEFAULT_VOLUME_SLIDER_VAL);
 
 export const audioPlayer = new Audio();
-const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+const audioContext = new (
+  window.AudioContext || (window as any).webkitAudioContext
+)();
 const source = audioContext.createMediaElementSource(audioPlayer);
 export const gainNode = audioContext.createGain();
 source.connect(gainNode);
 gainNode.connect(audioContext.destination);
 gainNode.gain.value = DEFAULT_VOLUME_SLIDER_VAL * MAX_VOLUME;
 
-export const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+export const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
 
 const App = () => {
   if (!auth.value) return <div className="centered">Authenticating...</div>;
@@ -66,14 +70,18 @@ const App = () => {
     return <div className="centered">Starting Game...</div>;
   }
 
-  const isHost = String(getUserId(auth.value)) === String(gameState.value.hostId);
+  const isHost =
+    String(getUserId(auth.value)) === String(gameState.value.hostId);
 
   return (
     <>
       <div className="container">
         <div className="game-column">
           <GameHeader />
-          <div className="game-area" key={`view-${isHost}-${gameState.value.state}`}>
+          <div
+            className="game-area"
+            key={`view-${isHost}-${gameState.value.state}`}
+          >
             {renderView(isHost)}
           </div>
         </div>
@@ -87,7 +95,7 @@ const App = () => {
 const renderView = (isHost: boolean) => {
   switch (gameState.value.state) {
     case GameState.SETUP:
-      return <SetupView isHost={isHost} />
+      return <SetupView isHost={isHost} />;
     case GameState.LOBBY:
       return <LobbyView isHost={isHost} />;
     case GameState.TRACK_SELECTION:
@@ -103,7 +111,7 @@ const renderView = (isHost: boolean) => {
   }
 };
 
-render(<App />, document.getElementById('app')!);
+render(<App />, document.getElementById("app")!);
 
 (async () => {
   await discordSdk.ready();
@@ -115,11 +123,7 @@ render(<App />, document.getElementById('app')!);
     response_type: "code",
     state: "",
     prompt: "none",
-    scope: [
-      "identify",
-      "guilds",
-      "applications.commands"
-    ],
+    scope: ["identify", "guilds", "applications.commands"],
   });
 
   // Retrieve an access_token from your activity's server
@@ -142,8 +146,13 @@ render(<App />, document.getElementById('app')!);
     gameState.value = updatedState;
   });
 
-  participants.value = (await discordSdk.commands.getInstanceConnectedParticipants()).participants;
-  discordSdk.subscribe('ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE', (e: any) => participants.value = e.participants);
+  participants.value = (
+    await discordSdk.commands.getInstanceConnectedParticipants()
+  ).participants;
+  discordSdk.subscribe(
+    "ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE",
+    (e: any) => (participants.value = e.participants),
+  );
 
-  render(<App />, document.getElementById('app')!);
+  render(<App />, document.getElementById("app")!);
 })();

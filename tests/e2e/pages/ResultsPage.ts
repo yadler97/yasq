@@ -1,4 +1,4 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator } from "@playwright/test";
 
 export class ResultsPage {
   readonly page: Page;
@@ -14,27 +14,29 @@ export class ResultsPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.playerResults = page.locator('.player-result');
-    this.resultsContainer = page.locator('#results');
-    this.readyBtn = page.locator('#btn-ready');
-    this.correctPlayersContainer = page.locator('#correct-players');
-    this.ownResults = page.locator('#own-results');
-    this.ownGuess = this.ownResults.locator('#guess');
-    this.ownScoreBubble = this.ownResults.locator('#score');
-    this.tagsContainer = this.resultsContainer.locator('#tags');
-    this.tagBadges = this.tagsContainer.locator('.tag-badge');
+    this.playerResults = page.locator(".player-result");
+    this.resultsContainer = page.locator("#results");
+    this.readyBtn = page.locator("#btn-ready");
+    this.correctPlayersContainer = page.locator("#correct-players");
+    this.ownResults = page.locator("#own-results");
+    this.ownGuess = this.ownResults.locator("#guess");
+    this.ownScoreBubble = this.ownResults.locator("#score");
+    this.tagsContainer = this.resultsContainer.locator("#tags");
+    this.tagBadges = this.tagsContainer.locator(".tag-badge");
   }
 
   getPlayerResult(index: number) {
     const root = this.playerResults.nth(index);
     return {
-      name: root.locator('.name'),
-      bubble: root.locator('.round-bubble'),
-      time: root.locator('.time-display')
+      name: root.locator(".name"),
+      bubble: root.locator(".round-bubble"),
+      time: root.locator(".time-display"),
     };
   }
 
-  getPersonalResultStatus(status: 'correct' | 'partial' | 'incorrect'): Locator {
+  getPersonalResultStatus(
+    status: "correct" | "partial" | "incorrect",
+  ): Locator {
     return this.ownResults.locator(`.user-guess-result.${status}`);
   }
 

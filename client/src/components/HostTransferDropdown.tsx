@@ -8,10 +8,16 @@ import { DiscordAvatar } from "./DiscordAvatar";
 
 export const HostTransferDropdown = () => {
   const isOpen = useSignal(false);
-  const selectedPlayer = useSignal<{id: string, name: string, avatar: string} | null>(null);
+  const selectedPlayer = useSignal<{
+    id: string;
+    name: string;
+    avatar: string;
+  } | null>(null);
   const isTransferring = useSignal(false);
 
-  const players = participants.value.filter(p => p.id !== gameState.value.hostId);
+  const players = participants.value.filter(
+    (p) => p.id !== gameState.value.hostId,
+  );
 
   useEffect(() => {
     if (isOpen.value) {
@@ -25,7 +31,11 @@ export const HostTransferDropdown = () => {
     if (!selectedPlayer.value) return;
     isTransferring.value = true;
     try {
-      await backend.assignNewHost(auth.value.access_token, discordSdk.instanceId, selectedPlayer.value.id);
+      await backend.assignNewHost(
+        auth.value.access_token,
+        discordSdk.instanceId,
+        selectedPlayer.value.id,
+      );
     } catch (e) {
       console.error(e);
     }
@@ -38,16 +48,17 @@ export const HostTransferDropdown = () => {
 
   return (
     <div className="setting-item">
-      <label htmlFor="host-dropdown" className="setting-label"><span>Transfer Host</span></label>
+      <label htmlFor="host-dropdown" className="setting-label">
+        <span>Transfer Host</span>
+      </label>
       <div className="transfer-controls-row">
-
         <div className="custom-dropdown" id="host-dropdown">
           <button
             type="button"
             className="dropdown-header"
             aria-haspopup="listbox"
             aria-expanded={isOpen.value}
-            onClick={() => isOpen.value = !isOpen.value}
+            onClick={() => (isOpen.value = !isOpen.value)}
             onKeyDown={(e) => {
               if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
                 e.preventDefault();
@@ -56,75 +67,99 @@ export const HostTransferDropdown = () => {
             }}
           >
             {selectedPlayer.value ? (
-              <><DiscordAvatar
-                src={selectedPlayer.value.avatar}
-                userName={selectedPlayer.value.name}
-                tiny={true}
-              />
-                <span>{selectedPlayer.value.name}</span></>
-            ) : "Select a player..."}
+              <>
+                <DiscordAvatar
+                  src={selectedPlayer.value.avatar}
+                  userName={selectedPlayer.value.name}
+                  tiny={true}
+                />
+                <span>{selectedPlayer.value.name}</span>
+              </>
+            ) : (
+              "Select a player..."
+            )}
           </button>
 
           {isOpen.value && (
             <div
               className="dropdown-list"
               id="dropdown-list"
-              style={{ display: 'block' }}
+              style={{ display: "block" }}
               role="listbox"
             >
               {players.length === 0 ? (
-                <div className="dropdown-item dropdown-item-empty" tabIndex={0}>No other players</div>
-              ) : players.map(p => {
-                const selectThisPlayer = () => {
-                  selectedPlayer.value = { id: p.id, name: getDisplayName(p), avatar: getAvatarUrl(p) };
-                  isOpen.value = false;
-                  // Send focus back to the main dropdown button after selecting
-                  (document.querySelector(".dropdown-header") as HTMLElement)?.focus();
-                };
+                <div className="dropdown-item dropdown-item-empty" tabIndex={0}>
+                  No other players
+                </div>
+              ) : (
+                players.map((p) => {
+                  const selectThisPlayer = () => {
+                    selectedPlayer.value = {
+                      id: p.id,
+                      name: getDisplayName(p),
+                      avatar: getAvatarUrl(p),
+                    };
+                    isOpen.value = false;
+                    // Send focus back to the main dropdown button after selecting
+                    (
+                      document.querySelector(".dropdown-header") as HTMLElement
+                    )?.focus();
+                  };
 
-                return (
-                  <div
-                    data-id={p.id}
-                    key={p.id}
-                    className="dropdown-item"
-                    role="option"
-                    tabIndex={0} // 2. Make each list item focusable
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      selectThisPlayer();
-                    }}
-                    onKeyDown={(e) => {
-                      // 3. Handle list traversal via keys inside the dropdown list
-                      const target = e.currentTarget;
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
+                  return (
+                    <div
+                      data-id={p.id}
+                      key={p.id}
+                      className="dropdown-item"
+                      role="option"
+                      tabIndex={0} // 2. Make each list item focusable
+                      onClick={(e) => {
+                        e.stopPropagation();
                         selectThisPlayer();
-                      } else if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        (target.nextElementSibling as HTMLElement)?.focus();
-                      } else if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        if (target.previousElementSibling) {
-                          (target.previousElementSibling as HTMLElement)?.focus();
-                        } else {
-                          (document.querySelector(".dropdown-header") as HTMLElement)?.focus();
+                      }}
+                      onKeyDown={(e) => {
+                        // 3. Handle list traversal via keys inside the dropdown list
+                        const target = e.currentTarget;
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          selectThisPlayer();
+                        } else if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          (target.nextElementSibling as HTMLElement)?.focus();
+                        } else if (e.key === "ArrowUp") {
+                          e.preventDefault();
+                          if (target.previousElementSibling) {
+                            (
+                              target.previousElementSibling as HTMLElement
+                            )?.focus();
+                          } else {
+                            (
+                              document.querySelector(
+                                ".dropdown-header",
+                              ) as HTMLElement
+                            )?.focus();
+                          }
+                        } else if (e.key === "Escape") {
+                          e.preventDefault();
+                          isOpen.value = false;
+                          (
+                            document.querySelector(
+                              ".dropdown-header",
+                            ) as HTMLElement
+                          )?.focus();
                         }
-                      } else if (e.key === "Escape") {
-                        e.preventDefault();
-                        isOpen.value = false;
-                        (document.querySelector(".dropdown-header") as HTMLElement)?.focus();
-                      }
-                    }}
-                  >
-                    <DiscordAvatar
-                      src={getAvatarUrl(p)}
-                      userName={getDisplayName(p)}
-                      tiny={true}
-                    />
-                    <span>{getDisplayName(p)}</span>
-                  </div>
-                );
-              })}
+                      }}
+                    >
+                      <DiscordAvatar
+                        src={getAvatarUrl(p)}
+                        userName={getDisplayName(p)}
+                        tiny={true}
+                      />
+                      <span>{getDisplayName(p)}</span>
+                    </div>
+                  );
+                })
+              )}
             </div>
           )}
         </div>

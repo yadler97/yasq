@@ -1,11 +1,10 @@
 import { BASE_POINTS, BonusType, PointsBonus } from "@yasq/shared";
-import { h } from 'preact';
 
 const BONUS_LABELS: Record<BonusType, string> = {
-  [BonusType.TIME_BONUS]: 'Time bonus',
-  [BonusType.FIRST_BONUS]: 'First bonus',
-  [BonusType.STREAK_BONUS]: 'Streak bonus',
-  [BonusType.STREAK_BREAKER]: 'Streak breaker bonus',
+  [BonusType.TIME_BONUS]: "Time bonus",
+  [BonusType.FIRST_BONUS]: "First bonus",
+  [BonusType.STREAK_BONUS]: "Streak bonus",
+  [BonusType.STREAK_BREAKER]: "Streak breaker bonus",
 };
 
 class PointsCalculationEntry {
@@ -15,27 +14,41 @@ class PointsCalculationEntry {
   ) {}
 }
 
-
 interface BonusTableProps {
   baseMultiplier: number;
   awardedBonuses: PointsBonus[];
 }
 
-export const PointsCalculationTable = ({ baseMultiplier, awardedBonuses }: BonusTableProps) => {
+export const PointsCalculationTable = ({
+  baseMultiplier,
+  awardedBonuses,
+}: BonusTableProps) => {
   const awardedBasePoints = BASE_POINTS * baseMultiplier;
 
   // Show simple message instead of a table if no bonuses were awarded
   if (awardedBonuses.length === 0) {
-    return <span className="empty-points-table">No bonuses awarded. {awardedBasePoints} points is your total.</span>;
+    return (
+      <span className="empty-points-table">
+        No bonuses awarded. {awardedBasePoints} points is your total.
+      </span>
+    );
   }
 
   const calculationEntries: PointsCalculationEntry[] = [
     new PointsCalculationEntry("Base points", awardedBasePoints),
-    ...awardedBonuses.map((bonus) =>
-      new PointsCalculationEntry(BONUS_LABELS[bonus.type], bonus.toAbsolute(awardedBasePoints)))
+    ...awardedBonuses.map(
+      (bonus) =>
+        new PointsCalculationEntry(
+          BONUS_LABELS[bonus.type],
+          bonus.toAbsolute(awardedBasePoints),
+        ),
+    ),
   ];
 
-  const totalPoints = calculationEntries.reduce((sum, item) => sum + item.points, 0);
+  const totalPoints = calculationEntries.reduce(
+    (sum, item) => sum + item.points,
+    0,
+  );
 
   return (
     <table className="points-table">
@@ -43,10 +56,13 @@ export const PointsCalculationTable = ({ baseMultiplier, awardedBonuses }: Bonus
         {calculationEntries.map((entry, idx) => {
           const isFirst = idx === 0;
           return (
-            <tr key={entry.title} className={isFirst ? "base-row" : "bonus-row"}>
+            <tr
+              key={entry.title}
+              className={isFirst ? "base-row" : "bonus-row"}
+            >
               <td className="label-col">{entry.title}</td>
               <td className="points-col">
-                {isFirst ? '' : '+ '}
+                {isFirst ? "" : "+ "}
                 {entry.points}
               </td>
               <td className="unit-col">pt.</td>
@@ -62,4 +78,4 @@ export const PointsCalculationTable = ({ baseMultiplier, awardedBonuses }: Bonus
       </tbody>
     </table>
   );
-}
+};

@@ -1,14 +1,14 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import { STATIC_FILES_DIR } from "@yasq/shared";
 
-const isMockMode = process.env.VITE_MOCK_MODE === 'true'
+const isMockMode = process.env.VITE_MOCK_MODE === "true";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const permissionsPath = isMockMode
-  ? path.join(__dirname, '..', '..', 'mock_data', 'mockPermissions.json')
-  : path.join(__dirname, '..', STATIC_FILES_DIR, 'permissions.json');
+  ? path.join(__dirname, "..", "..", "mock_data", "mockPermissions.json")
+  : path.join(__dirname, "..", STATIC_FILES_DIR, "permissions.json");
 
 // Internal lookup tables
 const WHITELISTS = new Map<string, Set<string>>(); // Filename -> Set of UserIDs
@@ -17,7 +17,7 @@ const BLACKLISTS = new Map<string, Set<string>>();
 export function loadPermissions() {
   if (fs.existsSync(permissionsPath)) {
     try {
-      const rawData = fs.readFileSync(permissionsPath, 'utf-8');
+      const rawData = fs.readFileSync(permissionsPath, "utf-8");
       const data = JSON.parse(rawData);
 
       WHITELISTS.clear();
@@ -28,7 +28,7 @@ export function loadPermissions() {
           const userSet = new Set<string>(set.userIds as string[]);
 
           for (const file of set.files) {
-            if (set.type === 'whitelist') {
+            if (set.type === "whitelist") {
               WHITELISTS.set(file, userSet);
             } else {
               BLACKLISTS.set(file, userSet);
@@ -40,7 +40,9 @@ export function loadPermissions() {
       console.error(`Error parsing JSON from ${permissionsPath}:`, err);
     }
   } else {
-    console.log(`Permissions file not found at ${permissionsPath}. Starting with no restrictions.`);
+    console.log(
+      `Permissions file not found at ${permissionsPath}. Starting with no restrictions.`,
+    );
   }
 }
 

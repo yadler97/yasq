@@ -10,18 +10,34 @@ interface DiscordAvatarProps {
 }
 
 // Discord avatar image with alt-text but no tooltip logic
-export const DiscordAvatar = ({ src, userName, tiny = false, className = "" }: DiscordAvatarProps) => {
+export const DiscordAvatar = ({
+  src,
+  userName,
+  tiny = false,
+  className = "",
+}: DiscordAvatarProps) => {
   const cssClass = tiny ? "avatar-tiny" : "avatar-small";
-  return <NonDraggableImg src={src} alt={`Avatar of ${userName}`} className={`${cssClass} ${className}`} />;
+  return (
+    <NonDraggableImg
+      src={src}
+      alt={`Avatar of ${userName}`}
+      className={`${cssClass} ${className}`}
+    />
+  );
 };
-
 
 interface DiscordAvatarWithTooltipProps extends DiscordAvatarProps {
   userId: string;
 }
 
 // Discord avatar image extended by a dynamic custom tooltip
-export const DiscordAvatarWithTooltip = ({ src, userName, tiny = false, className = "", userId }: DiscordAvatarWithTooltipProps) => {
+export const DiscordAvatarWithTooltip = ({
+  src,
+  userName,
+  tiny = false,
+  className = "",
+  userId,
+}: DiscordAvatarWithTooltipProps) => {
   const { activeTooltipId, setActiveTooltipId } = useExclusiveTooltip();
   const instanceId = useId();
 
@@ -31,9 +47,9 @@ export const DiscordAvatarWithTooltip = ({ src, userName, tiny = false, classNam
   const measureBounds = (el: HTMLDivElement) => {
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    el.style.setProperty('--trigger-x', `${rect.left}px`);
-    const computedStyle = window.getComputedStyle(el, '::after');
-    el.style.setProperty('--tooltip-width', computedStyle.width);
+    el.style.setProperty("--trigger-x", `${rect.left}px`);
+    const computedStyle = window.getComputedStyle(el, "::after");
+    el.style.setProperty("--tooltip-width", computedStyle.width);
   };
 
   // Wrap the basic DiscordAvatar component in a container that adds a reactive tooltip
@@ -55,7 +71,12 @@ export const DiscordAvatarWithTooltip = ({ src, userName, tiny = false, classNam
         setActiveTooltipId(isTooltipOpen ? null : tooltipId);
       }}
     >
-      <DiscordAvatar src={src} userName={userName} tiny={tiny} className={className} />
+      <DiscordAvatar
+        src={src}
+        userName={userName}
+        tiny={tiny}
+        className={className}
+      />
     </div>
   );
 };

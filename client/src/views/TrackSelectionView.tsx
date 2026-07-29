@@ -23,10 +23,15 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   useEffect(() => {
     if (!isHost) return;
 
-    backend.getTrackList(auth.value.access_token, discordSdk.instanceId).then((data) => {
-      tracks.value = data.tracks.map((t: Track, i: number) => ({ ...t, originalIndex: i }));
-      playlists.value = data.playlists;
-    });
+    backend
+      .getTrackList(auth.value.access_token, discordSdk.instanceId)
+      .then((data) => {
+        tracks.value = data.tracks.map((t: Track, i: number) => ({
+          ...t,
+          originalIndex: i,
+        }));
+        playlists.value = data.playlists;
+      });
   }, [isHost]);
 
   // Computed signal: This automatically re-filters whenever tracks,
@@ -34,12 +39,16 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   const baseFilteredTracks = computed(() => {
     if (!tracks.value) return [];
 
-    return tracks.value.filter(track => {
+    return tracks.value.filter((track) => {
       // Filter playlist
       let matchesPlaylist = true;
       if (selectedPlaylistName.value !== "All playlists") {
-        const activePlaylist = playlists.value.find(p => p.name === selectedPlaylistName.value);
-        matchesPlaylist = activePlaylist ? activePlaylist.tracks.includes(track.audio) : false;
+        const activePlaylist = playlists.value.find(
+          (p) => p.name === selectedPlaylistName.value,
+        );
+        matchesPlaylist = activePlaylist
+          ? activePlaylist.tracks.includes(track.audio)
+          : false;
       }
 
       // Filter search
@@ -55,16 +64,19 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   });
 
   const filteredTracks = computed(() => {
-    const activeCategories = Object.entries(selectedTags.value)
-      .filter(([_, vals]) => vals.length > 0);
+    const activeCategories = Object.entries(selectedTags.value).filter(
+      ([_, vals]) => vals.length > 0,
+    );
 
     let results = [...baseFilteredTracks.value];
 
     if (activeCategories.length > 0) {
-      results = results.filter(track =>
+      results = results.filter((track) =>
         activeCategories.every(([type, selectedVals]) =>
-          track.tags?.some(t => t.type === type && selectedVals.includes(t.value))
-        )
+          track.tags?.some(
+            (t) => t.type === type && selectedVals.includes(t.value),
+          ),
+        ),
       );
     }
 
@@ -72,9 +84,14 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     return results.sort((a, b) => {
       if (sortOrder.value === "Default Order") {
         // Maintain playlist order if playlist is selected
-        const activePlaylist = playlists.value.find(p => p.name === selectedPlaylistName.value);
+        const activePlaylist = playlists.value.find(
+          (p) => p.name === selectedPlaylistName.value,
+        );
         if (activePlaylist) {
-          return activePlaylist.tracks.indexOf(a.audio) - activePlaylist.tracks.indexOf(b.audio);
+          return (
+            activePlaylist.tracks.indexOf(a.audio) -
+            activePlaylist.tracks.indexOf(b.audio)
+          );
         }
         // Otherwise use standard order
         return (a.originalIndex ?? 0) - (b.originalIndex ?? 0);
@@ -95,19 +112,25 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
   const selectRandom = async () => {
     // Only pick from tracks that are currently visible and NOT played
-    const eligibleTracks = filteredTracks.value.filter(t => !t.played);
+    const eligibleTracks = filteredTracks.value.filter((t) => !t.played);
     if (eligibleTracks.length === 0) return;
 
-    const randomTrack = eligibleTracks[Math.floor(Math.random() * eligibleTracks.length)];
-    await backend.playTrack(auth.value.access_token, randomTrack.audio, discordSdk.instanceId);
+    const randomTrack =
+      eligibleTracks[Math.floor(Math.random() * eligibleTracks.length)];
+    await backend.playTrack(
+      auth.value.access_token,
+      randomTrack.audio,
+      discordSdk.instanceId,
+    );
   };
 
   const availableTagsByType = computed(() => {
     const groups: Record<string, string[]> = {};
-    tracks.value?.forEach(track => {
-      track.tags?.forEach(tag => {
+    tracks.value?.forEach((track) => {
+      track.tags?.forEach((tag) => {
         if (!groups[tag.type]) groups[tag.type] = [];
-        if (!groups[tag.type].includes(tag.value)) groups[tag.type].push(tag.value);
+        if (!groups[tag.type].includes(tag.value))
+          groups[tag.type].push(tag.value);
       });
     });
     return groups;
@@ -118,18 +141,21 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     const categories = Object.keys(availableTagsByType.value);
     const validTags = new Map<string, number>();
 
-    categories.forEach(catToSkip => {
-      const otherFilters = Object.entries(currentFilters)
-        .filter(([type, vals]) => type !== catToSkip && vals.length > 0);
-
-      const reachableInCat = baseFilteredTracks.value.filter(track =>
-        otherFilters.every(([type, selectedVals]) =>
-          track.tags.some(t => t.type === type && selectedVals.includes(t.value))
-        )
+    categories.forEach((catToSkip) => {
+      const otherFilters = Object.entries(currentFilters).filter(
+        ([type, vals]) => type !== catToSkip && vals.length > 0,
       );
 
-      reachableInCat.forEach(track => {
-        track.tags?.forEach(tag => {
+      const reachableInCat = baseFilteredTracks.value.filter((track) =>
+        otherFilters.every(([type, selectedVals]) =>
+          track.tags.some(
+            (t) => t.type === type && selectedVals.includes(t.value),
+          ),
+        ),
+      );
+
+      reachableInCat.forEach((track) => {
+        track.tags?.forEach((tag) => {
           if (tag.type === catToSkip) {
             validTags.set(tag.value, (validTags.get(tag.value) || 0) + 1);
           }
@@ -168,7 +194,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
         {playlists.value.length > 0 && (
           <SimpleDropdown
-            options={["All playlists", ...playlists.value.map(p => p.name)]}
+            options={["All playlists", ...playlists.value.map((p) => p.name)]}
             value={selectedPlaylistName.value}
             onChange={(val) => (selectedPlaylistName.value = val)}
           />
@@ -183,8 +209,16 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         )}
 
         <div className="search-wrapper">
-          <input type="text" id="track-search" className={`track-search ${searchTerm.value ? 'active' : ''}`} placeholder="Search game or track name..."
-            value={searchTerm.value} onInput={(e) => (searchTerm.value = (e.currentTarget as HTMLInputElement).value)} />
+          <input
+            type="text"
+            id="track-search"
+            className={`track-search ${searchTerm.value ? "active" : ""}`}
+            placeholder="Search game or track name..."
+            value={searchTerm.value}
+            onInput={(e) =>
+              (searchTerm.value = (e.currentTarget as HTMLInputElement).value)
+            }
+          />
           {searchTerm.value && (
             <button
               onClick={() => (searchTerm.value = "")}
@@ -196,7 +230,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         </div>
 
         <button
-          disabled={filteredTracks.value.filter(t => !t.played).length === 0}
+          disabled={filteredTracks.value.filter((t) => !t.played).length === 0}
           onClick={selectRandom}
           title="Select a random track from the current list"
         >
@@ -209,7 +243,9 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
             id="hide-played"
             className="hide-played-checkbox"
             checked={hidePlayed.value}
-            onChange={(e) => (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)}
+            onChange={(e) =>
+              (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)
+            }
             onKeyDown={(e) => {
               if (e.key === " " || e.key === "Enter") {
                 e.preventDefault();
@@ -225,24 +261,38 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         {filteredTracks.value.length === 0 ? (
           <p className="no-results">No tracks found matching your search.</p>
         ) : (
-          filteredTracks.value.map(track => (
-            <div key={track.audio} className={`track-card ${track.played ? 'played' : ''}`}>
+          filteredTracks.value.map((track) => (
+            <div
+              key={track.audio}
+              className={`track-card ${track.played ? "played" : ""}`}
+            >
               <div className="cover-wrapper">
                 <NonDraggableImg
-                  src={`/game_covers/${track.cover}` || '/game_covers/default.svg'}
+                  src={
+                    `/game_covers/${track.cover}` || "/game_covers/default.svg"
+                  }
                   alt={`Cover of ${track.game}`}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/game_covers/default.svg'; }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src =
+                      "/game_covers/default.svg";
+                  }}
                 />
                 {track.played && <span className="played-overlay">PLAYED</span>}
               </div>
 
               <div className="track-info">
                 <span className="game-name">
-                  <HighlightText text={track.game} highlight={searchTerm.value} />
+                  <HighlightText
+                    text={track.game}
+                    highlight={searchTerm.value}
+                  />
                 </span>
                 <span className="track-title">
                   <i>
-                    <HighlightText text={track.title} highlight={searchTerm.value} />
+                    <HighlightText
+                      text={track.title}
+                      highlight={searchTerm.value}
+                    />
                   </i>
                 </span>
               </div>
@@ -255,10 +305,14 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
                   // The button becomes disabled because tracks.value will update
                   // or the state will change to 'PLAYING' via the backend call.
                   (e.currentTarget as HTMLButtonElement).disabled = true;
-                  await backend.playTrack(auth.value.access_token, track.audio, discordSdk.instanceId);
+                  await backend.playTrack(
+                    auth.value.access_token,
+                    track.audio,
+                    discordSdk.instanceId,
+                  );
                 }}
               >
-                {track.played ? 'Already Played' : 'Select Track'}
+                {track.played ? "Already Played" : "Select Track"}
               </button>
             </div>
           ))
@@ -268,7 +322,13 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   );
 };
 
-const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+const HighlightText = ({
+  text,
+  highlight,
+}: {
+  text: string;
+  highlight: string;
+}) => {
   if (!highlight.trim()) return <span>{text}</span>;
 
   // Split text by the highlight term, keeping the delimiter for case sensitivity
@@ -278,10 +338,12 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
     <span>
       {parts.map((part, i) =>
         part.toLowerCase() === highlight.toLowerCase() ? (
-          <mark key={i} className="search-highlight">{part}</mark>
+          <mark key={i} className="search-highlight">
+            {part}
+          </mark>
         ) : (
           part
-        )
+        ),
       )}
     </span>
   );

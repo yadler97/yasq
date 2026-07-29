@@ -14,13 +14,12 @@ export const useReadyButtonLogic = () => {
     await backend.updateReadyStatus(
       auth.value.access_token,
       discordSdk.instanceId,
-      !gameState.value.readyUsers.includes(getUserId(auth.value))
+      !gameState.value.readyUsers.includes(getUserId(auth.value)),
     );
   };
 
   return { hasInteracted, handleReady };
 };
-
 
 interface ReadyButtonProps {
   isHost?: boolean;
@@ -32,7 +31,8 @@ export const ReadyButton = ({ promptText }: ReadyButtonProps) => {
 
   const userId = getUserId(auth.value);
   const isReady = gameState.value.readyUsers.includes(userId);
-  const isFinalRound = gameState.value.currentRound >= gameState.value.gameSettings.rounds;
+  const isFinalRound =
+    gameState.value.currentRound >= gameState.value.gameSettings.rounds;
 
   useKeyboardShortcut({ key: "R", altKey: !isMac, metaKey: isMac }, () => {
     void handleReady();
@@ -51,8 +51,7 @@ export const ReadyButton = ({ promptText }: ReadyButtonProps) => {
             ? promptText
             : isFinalRound
               ? "Ready for Final Results"
-              : "Ready for Next Round"
-        }
+              : "Ready for Next Round"}
       </button>
       <span className="shortcut-badge">
         <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>R</kbd>

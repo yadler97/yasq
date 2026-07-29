@@ -8,7 +8,7 @@ import {
   FirstBonusMultiplier,
   Joker,
   StreakBonusMultiplier,
-  TimeBonus
+  TimeBonus,
 } from "@yasq/shared";
 
 export interface Participant {
@@ -45,17 +45,14 @@ export interface PlayerTimeBonusPoint {
 export interface TimeBonusSummary {
   totalTime: number;
   curvePoints: TimeBonusPoint[];
-  playerGuessTimes: PlayerTimeBonusPoint[]
+  playerGuessTimes: PlayerTimeBonusPoint[];
 }
 
 export class PointsBonus {
   public type: BonusType;
   public multiplier: number;
 
-  constructor(
-    type: BonusType,
-    multiplier: number,
-  ) {
+  constructor(type: BonusType, multiplier: number) {
     this.type = type;
     // Truncate number to four decimal places to clip-off potential floating point noise
     this.multiplier = Math.round(multiplier * 10_000) / 10_000;
@@ -64,7 +61,7 @@ export class PointsBonus {
   public toAbsolute(awardedBasePoints: number) {
     const fractionalBonus = awardedBasePoints * this.multiplier;
     return fractionalBonus > 0 && fractionalBonus < 1
-      ? 1   // pity point so the bonus does not disappear entirely from the total points calculation
+      ? 1 // pity point so the bonus does not disappear entirely from the total points calculation
       : Math.round(fractionalBonus);
   }
 }

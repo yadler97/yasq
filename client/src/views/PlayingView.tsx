@@ -2,9 +2,22 @@ import { useSignal } from "@preact/signals";
 import { useEffect, useRef } from "preact/hooks";
 
 import * as backend from "../utils/backend";
-import { audioPlayer, auth, discordSdk, gameState, isMac, participants } from "../main";
-import { getAvatarUrl, getDisplayName, Joker, MAX_GUESS_LENGTH, POLLING_INTERVAL } from "@yasq/shared";
-import { ALL_JOKER_ICONS } from '../components/JokerIcons';
+import {
+  audioPlayer,
+  auth,
+  discordSdk,
+  gameState,
+  isMac,
+  participants,
+} from "../main";
+import {
+  getAvatarUrl,
+  getDisplayName,
+  Joker,
+  MAX_GUESS_LENGTH,
+  POLLING_INTERVAL,
+} from "@yasq/shared";
+import { ALL_JOKER_ICONS } from "../components/JokerIcons";
 import { capitalize, findUser, getActionKeyLabel } from "../utils/helper";
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
@@ -12,11 +25,11 @@ import { Tag } from "../utils/types";
 import { DiscordAvatar } from "../components/DiscordAvatar";
 
 type JokerHint =
-  | { type: Joker.OBFUSCATION;      data: string }
-  | { type: Joker.MULTIPLE_CHOICE;  data: string[] }
-  | { type: Joker.TRIVIA;           data: Tag[] }
-  | { type: Joker.SPY;              data: { text: string, targetId: string } }
-  | { type: Joker.GLIMPSE;          data: string };
+  | { type: Joker.OBFUSCATION; data: string }
+  | { type: Joker.MULTIPLE_CHOICE; data: string[] }
+  | { type: Joker.TRIVIA; data: Tag[] }
+  | { type: Joker.SPY; data: { text: string; targetId: string } }
+  | { type: Joker.GLIMPSE; data: string };
 
 type SubmitFunction = (guess: string) => Promise<void>;
 
@@ -44,9 +57,12 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
       return (
         <div className="choices-grid">
           {activeHint.data.map((choice: string, index: number) => {
-            useKeyboardShortcut({ key: (index + 1).toString(), altKey: !isMac, metaKey: isMac }, () => {
-              submit(choice);
-            });
+            useKeyboardShortcut(
+              { key: (index + 1).toString(), altKey: !isMac, metaKey: isMac },
+              () => {
+                submit(choice);
+              },
+            );
 
             return (
               <div className="choice-button-wrapper">
@@ -56,7 +72,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
                   onClick={async (e) => {
                     e.preventDefault();
                     await submit(choice);
-                  } }
+                  }}
                 >
                   {choice}
                 </button>
@@ -64,8 +80,8 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
                   <kbd>{getActionKeyLabel(isMac)}</kbd> + <kbd>{index + 1}</kbd>
                 </span>
               </div>
-            )})
-          }
+            );
+          })}
         </div>
       );
 
@@ -75,7 +91,10 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
       return (
         <div className="spy-hint-display">
           <div className="spy-target-info">
-            <DiscordAvatar src={getAvatarUrl(targetUser)} userName={getDisplayName(targetUser)} />
+            <DiscordAvatar
+              src={getAvatarUrl(targetUser)}
+              userName={getDisplayName(targetUser)}
+            />
             <span>
               <strong>{getDisplayName(targetUser)}</strong>
             </span>
@@ -85,7 +104,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
             className="choice-button"
             onClick={async (e) => {
               e.preventDefault();
-              await submit(activeHint.data.text)
+              await submit(activeHint.data.text);
             }}
           >
             {activeHint.data.text}
@@ -118,9 +137,11 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
 
   useEffect(() => {
     if (isHost) return;
-    backend.getAvailableJokers(auth.value.access_token, discordSdk.instanceId).then((data) => {
-      availableJokers.value = data.available;
-    })
+    backend
+      .getAvailableJokers(auth.value.access_token, discordSdk.instanceId)
+      .then((data) => {
+        availableJokers.value = data.available;
+      });
   }, [gameState.value.currentRound]);
 
   const handleJokerUsage = async (jokerType: Joker, targetId?: string) => {
@@ -130,18 +151,25 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
     }
 
     try {
-      const response = await backend.useJoker(auth.value.access_token, discordSdk.instanceId, jokerType, targetId);
+      const response = await backend.useJoker(
+        auth.value.access_token,
+        discordSdk.instanceId,
+        jokerType,
+        targetId,
+      );
       const payload = await response.json();
       if (response.status === 200) {
         activeHint.value = {
           type: jokerType,
-          data: targetId ? { text: payload.hint, targetId } : payload.hint
+          data: targetId ? { text: payload.hint, targetId } : payload.hint,
         };
       } else {
         jokerError.value = payload.error;
       }
       // Joker becomes unusable for the CURRENT round either way
-      availableJokers.value = availableJokers.value.filter(j => j !== jokerType);
+      availableJokers.value = availableJokers.value.filter(
+        (j) => j !== jokerType,
+      );
       isSelectingSpyTarget.value = false;
     } catch (err) {
       console.error("Failed to use joker:", err);
@@ -152,7 +180,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   const resetJokerHint = () => {
     activeHint.value = null;
     jokerError.value = null;
-  }
+  };
 
   const submitGuess = async (guess: string) => {
     hasSubmitted.value = true;
@@ -160,7 +188,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
     await backend.submitGuess(
       auth.value.access_token,
       discordSdk.instanceId,
-      guess
+      guess,
     );
   };
 
@@ -176,7 +204,11 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   useEffect(() => {
     const sync = async () => {
       try {
-        const { url, startTime, endTime, ...hostData } = await backend.getCurrentTrack( auth.value.access_token, discordSdk.instanceId);
+        const { url, startTime, endTime, ...hostData } =
+          await backend.getCurrentTrack(
+            auth.value.access_token,
+            discordSdk.instanceId,
+          );
         if (!url) return;
 
         if (isHost) {
@@ -187,7 +219,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         const totalDurationMs = endTime - startTime;
         const timePassedMs = now - startTime;
 
-        const progressBar = document.getElementById('progress-bar');
+        const progressBar = document.getElementById("progress-bar");
 
         // 1. Countdown Phase (before startTime)
         if (timePassedMs < 0) {
@@ -197,22 +229,24 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
           // Ensure player is paused and ready at the start
           audioPlayer.pause();
           audioPlayer.currentTime = 0;
-          if (audioPlayer.src !== window.location.origin + url) audioPlayer.src = url;
+          if (audioPlayer.src !== window.location.origin + url)
+            audioPlayer.src = url;
 
           if (progressBar) {
-            progressBar.style.width = '100%';
+            progressBar.style.width = "100%";
           }
           return; // Don't play the track until the countdown finishes
         }
 
         // 2. Playing Phase
         countdown.value = null;
-        let percentage = 100 - (timePassedMs / totalDurationMs * 100);
+        let percentage = 100 - (timePassedMs / totalDurationMs) * 100;
         percentage = Math.max(0, Math.min(100, percentage));
 
         if (progressBar) {
           progressBar.style.width = `${percentage}%`;
-          progressBar.style.backgroundColor = percentage < 20 ? '#f04747' : '#5865f2';
+          progressBar.style.backgroundColor =
+            percentage < 20 ? "#f04747" : "#5865f2";
         }
 
         // Check if we need to load a new source
@@ -231,7 +265,6 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         if (audioPlayer.paused) {
           audioPlayer.play().catch(() => {});
         }
-
       } catch (err) {
         console.error("Arena sync error:", err);
       }
@@ -260,16 +293,30 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                 <hr className="divider" />
                 <div className="track-details">
                   <NonDraggableImg
-                    src={activeTrackInfo.value.gameCover || '/game_covers/default.svg'}
+                    src={
+                      activeTrackInfo.value.gameCover ||
+                      "/game_covers/default.svg"
+                    }
                     alt={`Cover of ${activeTrackInfo.value.correctAnswer}`}
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/game_covers/default.svg'; }}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src =
+                        "/game_covers/default.svg";
+                    }}
                   />
                   <div>
-                    <p><strong>{activeTrackInfo.value.correctAnswer}</strong></p>
-                    <p><i>{activeTrackInfo.value.trackTitle}</i></p>
+                    <p>
+                      <strong>{activeTrackInfo.value.correctAnswer}</strong>
+                    </p>
+                    <p>
+                      <i>{activeTrackInfo.value.trackTitle}</i>
+                    </p>
                     <div className="tags-container left">
                       {activeTrackInfo.value.tags.map((tag: Tag) => (
-                        <span key={tag.type} title={capitalize(tag.type)} className="tag-badge">
+                        <span
+                          key={tag.type}
+                          title={capitalize(tag.type)}
+                          className="tag-badge"
+                        >
                           {tag.value}
                         </span>
                       ))}
@@ -292,10 +339,14 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <h2>Pick a player to spy on:</h2>
               <hr className="divider" />
               <div className="spy-hint-player-list">
-                {gameState.value.guessedPlayers.filter(id => id !== auth.value.userId).length === 0 ? (
-                  <p className="no-results">No player has submitted a guess yet.</p>
+                {gameState.value.guessedPlayers.filter(
+                  (id) => id !== auth.value.userId,
+                ).length === 0 ? (
+                  <p className="no-results">
+                    No player has submitted a guess yet.
+                  </p>
                 ) : (
-                  gameState.value.guessedPlayers.map(targetId => {
+                  gameState.value.guessedPlayers.map((targetId) => {
                     const user = findUser(participants.value, targetId);
 
                     return (
@@ -304,14 +355,19 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                         className="spy-select-button"
                         onClick={() => handleJokerUsage(Joker.SPY, targetId)}
                       >
-                        <DiscordAvatar src={getAvatarUrl(user)} userName={getDisplayName(user)} />
+                        <DiscordAvatar
+                          src={getAvatarUrl(user)}
+                          userName={getDisplayName(user)}
+                        />
                         <span>{getDisplayName(user)}</span>
                       </button>
                     );
                   })
                 )}
               </div>
-              <button onClick={() => isSelectingSpyTarget.value = false}>Cancel</button>
+              <button onClick={() => (isSelectingSpyTarget.value = false)}>
+                Cancel
+              </button>
             </div>
           )}
 
@@ -336,7 +392,9 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                 onSubmit={async (e) => {
                   e.preventDefault();
                   const form = e.currentTarget;
-                  const input = form.elements.namedItem('guess-input') as HTMLInputElement;
+                  const input = form.elements.namedItem(
+                    "guess-input",
+                  ) as HTMLInputElement;
                   const guess = input.value.trim();
                   if (!guess) return;
 
@@ -353,38 +411,56 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   autoComplete="off"
                   maxLength={MAX_GUESS_LENGTH}
                 />
-                <button type="submit" id="btn-submit">Submit Guess</button>
+                <button type="submit" id="btn-submit">
+                  Submit Guess
+                </button>
               </form>
 
               <div className="joker-list">
                 {ALL_JOKER_ICONS
                   // Only show jokers that were enabled by the host during setup
-                  .filter(Icon => gameState.value.gameSettings.enabledJokers.includes(Icon.jokerType))
+                  .filter((Icon) =>
+                    gameState.value.gameSettings.enabledJokers.includes(
+                      Icon.jokerType,
+                    ),
+                  )
                   .map((Icon, index) => {
                     const type = Icon.jokerType;
                     const isAvailable = availableJokers.value.includes(type);
                     const hasUsedJokerThisRound = activeHint.value !== null;
 
                     // Format name: MULTIPLE_CHOICE -> Multiple Choice
-                    const jokerName = Icon.jokerType.toLowerCase()
-                      .split('_')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ');
+                    const jokerName = Icon.jokerType
+                      .toLowerCase()
+                      .split("_")
+                      .map(
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                      )
+                      .join(" ");
 
                     // Construct the tooltip text
-                    const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
+                    const tooltipText = isAvailable
+                      ? jokerName
+                      : `${jokerName} (Already Used)`;
 
-                    useKeyboardShortcut({ key: (index + 1).toString(), altKey: !isMac, metaKey: isMac }, () => {
-                      if (isAvailable && !hasUsedJokerThisRound) {
-                        handleJokerUsage(type);
-                      }
-                    });
+                    useKeyboardShortcut(
+                      {
+                        key: (index + 1).toString(),
+                        altKey: !isMac,
+                        metaKey: isMac,
+                      },
+                      () => {
+                        if (isAvailable && !hasUsedJokerThisRound) {
+                          handleJokerUsage(type);
+                        }
+                      },
+                    );
 
                     return (
                       <div key={type} className="joker-btn-wrapper">
                         <button
                           className="joker-icon-btn"
-                          id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
+                          id={`btn-joker-${type.toLowerCase().replace(/_/g, "-")}`}
                           title={tooltipText}
                           onClick={() => handleJokerUsage(type)}
                           disabled={!isAvailable || hasUsedJokerThisRound}
@@ -392,16 +468,19 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                           <Icon className="joker-svg" />
                         </button>
                         <span className="shortcut-badge">
-                          <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>{index + 1}</kbd>
+                          <kbd>{getActionKeyLabel(isMac)}</kbd>+
+                          <kbd>{index + 1}</kbd>
                         </span>
                       </div>
                     );
-                })}
+                  })}
               </div>
             </div>
           ) : (
             <div className="waiting-container">
-              <p className="waiting-msg" id="waiting-msg">Guess submitted! Waiting for others...</p>
+              <p className="waiting-msg" id="waiting-msg">
+                Guess submitted! Waiting for others...
+              </p>
             </div>
           )}
         </div>
