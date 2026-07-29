@@ -1,45 +1,45 @@
-import express from "express";
-import dotenv from "dotenv";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import { createServer } from "http";
-import { Server } from "socket.io";
+import express from 'express';
+import dotenv from 'dotenv';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
-import { GameInstance } from "./src/models.js";
+import { GameInstance } from './src/models.js';
 
-import { setupRoutes } from "./routes/routes.js";
-import { setupMockRoutes } from "./routes/mockRoutes.js";
+import { setupRoutes } from './routes/routes.js';
+import { setupMockRoutes } from './routes/mockRoutes.js';
 import {
   getGameStatusPayload,
   invalidateToken,
   setupTempDir,
   validateToken,
-} from "./src/helper.js";
+} from './src/helper.js';
 import {
   STATIC_FILES_DIR,
   TEMP_FILES_DIR,
   WS_GAME_STATUS_UPDATE_EVENT,
   WS_JOIN_INSTANCE_EVENT,
-} from "@yasq/shared";
-import { LogCategory, logger } from "./src/utils/logger.js";
+} from '@yasq/shared';
+import { LogCategory, logger } from './src/utils/logger.js';
 
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: '../.env' });
 
 export function setupServer() {
-  const isMockMode = process.env.VITE_MOCK_MODE === "true";
+  const isMockMode = process.env.VITE_MOCK_MODE === 'true';
   const instances: Record<string, GameInstance> = {};
 
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const tracksPath = isMockMode
-    ? path.join(__dirname, "..", "mock_data", "mockTracks.json")
-    : path.join(__dirname, STATIC_FILES_DIR, "tracks.json");
+    ? path.join(__dirname, '..', 'mock_data', 'mockTracks.json')
+    : path.join(__dirname, STATIC_FILES_DIR, 'tracks.json');
 
   let allTracks = [];
 
   if (fs.existsSync(tracksPath)) {
     try {
-      const tracksRaw = fs.readFileSync(tracksPath, "utf-8");
+      const tracksRaw = fs.readFileSync(tracksPath, 'utf-8');
       allTracks = JSON.parse(tracksRaw);
     } catch (err) {
       console.error(`Error parsing JSON from ${tracksPath}:`, err);
@@ -51,32 +51,32 @@ export function setupServer() {
   }
 
   const playlistsPath = isMockMode
-    ? path.join(__dirname, "..", "mock_data", "mockPlaylists.json")
-    : path.join(__dirname, STATIC_FILES_DIR, "playlists.json");
+    ? path.join(__dirname, '..', 'mock_data', 'mockPlaylists.json')
+    : path.join(__dirname, STATIC_FILES_DIR, 'playlists.json');
 
   let allPlaylists = [];
 
   if (fs.existsSync(playlistsPath)) {
     try {
-      const playlistsRaw = fs.readFileSync(playlistsPath, "utf-8");
+      const playlistsRaw = fs.readFileSync(playlistsPath, 'utf-8');
       allPlaylists = JSON.parse(playlistsRaw);
     } catch (err) {
       console.error(`Error parsing JSON from ${playlistsPath}:`, err);
     }
   } else {
     console.log(
-      `Playlists file not found at ${playlistsPath}. Starting with no playlists.`,
+      `Playlists file not found at ${playlistsPath}. Starting with no playlists.`
     );
   }
 
   const app = express();
 
   const httpServer = createServer(app);
-  const server = new Server(httpServer, { cors: { origin: "*" } });
+  const server = new Server(httpServer, { cors: { origin: '*' } });
 
   server.use(async (socket, next) => {
     const token = socket.handshake.auth.token;
-    if (!token) return next(new Error("Missing token"));
+    if (!token) return next(new Error('Missing token'));
 
     try {
       const userId = await validateToken(token);
@@ -85,11 +85,11 @@ export function setupServer() {
       socket.data.userId = userId;
       next();
     } catch (err) {
-      next(new Error("Invalid token"));
+      next(new Error('Invalid token'));
     }
   });
 
-  server.on("connection", (socket) => {
+  server.on('connection', (socket) => {
     socket.on(WS_JOIN_INSTANCE_EVENT, ({ instanceId }) => {
       socket.join(instanceId);
       socket.data.instanceId = instanceId;
@@ -108,7 +108,7 @@ export function setupServer() {
       logger.debug(
         instanceId,
         `Player ${userId} joined the game`,
-        LogCategory.GENERAL,
+        LogCategory.GENERAL
       );
 
       server
@@ -116,7 +116,7 @@ export function setupServer() {
         .emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
     });
 
-    socket.on("disconnect", () => {
+    socket.on('disconnect', () => {
       const { userId, instanceId } = socket.data;
       if (!userId || !instanceId) return;
 
@@ -127,7 +127,7 @@ export function setupServer() {
       logger.debug(
         instanceId,
         `Player ${userId} left the game`,
-        LogCategory.GENERAL,
+        LogCategory.GENERAL
       );
 
       invalidateToken(socket.handshake.auth.token);
@@ -139,7 +139,7 @@ export function setupServer() {
           logger.debug(
             instanceId,
             `Terminating empty instance`,
-            LogCategory.GENERAL,
+            LogCategory.GENERAL
           );
           game.dispose();
           delete instances[instanceId];
@@ -155,12 +155,12 @@ export function setupServer() {
   // Allow express to parse JSON bodies
   app.use(express.json());
   app.use(
-    "/music",
-    express.static(path.join(__dirname, STATIC_FILES_DIR, "music")),
+    '/music',
+    express.static(path.join(__dirname, STATIC_FILES_DIR, 'music'))
   );
   app.use(
-    "/game_covers",
-    express.static(path.join(__dirname, STATIC_FILES_DIR, "game_covers")),
+    '/game_covers',
+    express.static(path.join(__dirname, STATIC_FILES_DIR, 'game_covers'))
   );
 
   // Folder for serving temporary static files
@@ -168,17 +168,17 @@ export function setupServer() {
   app.use(`/${TEMP_FILES_DIR}`, express.static(tempDir));
 
   // Register routes for REST communication between clients and server
-  app.use("/api", setupRoutes(server, instances, allTracks, allPlaylists));
+  app.use('/api', setupRoutes(server, instances, allTracks, allPlaylists));
 
   // Add a simple endpoint for health checks
-  app.get("/health", (req, res) => {
+  app.get('/health', (req, res) => {
     res.status(200).json({ ok: true });
   });
 
   // Only register mock routes when server is started in mock mode
   if (isMockMode) {
-    console.log("[MODE] Server is running in mock mode");
-    app.use("/api/test", setupMockRoutes(server, instances));
+    console.log('[MODE] Server is running in mock mode');
+    app.use('/api/test', setupMockRoutes(server, instances));
   }
 
   return httpServer;

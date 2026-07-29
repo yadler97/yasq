@@ -1,9 +1,9 @@
-import { GameSettings, Joker, PointsBonus, TimeBonus } from "@yasq/shared";
+import { GameSettings, Joker, PointsBonus, TimeBonus } from '@yasq/shared';
 
 /** Extension of the {@link TimeBonus} enum for selection in the UI */
 export const OptionalTimeBonus = {
   ...TimeBonus,
-  NONE: "NONE",
+  NONE: 'NONE',
 } as const;
 
 // Derive TypeScript type from the runtime object

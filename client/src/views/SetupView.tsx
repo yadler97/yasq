@@ -1,10 +1,10 @@
-import { useSignal } from "@preact/signals";
-import { Fragment } from "preact/jsx-runtime";
-import { TargetedEvent } from "preact";
+import { useSignal } from '@preact/signals';
+import { Fragment } from 'preact/jsx-runtime';
+import { TargetedEvent } from 'preact';
 
-import * as backend from "../utils/backend";
-import { auth, discordSdk, gameState } from "../main";
-import { ALL_JOKER_ICONS } from "../components/JokerIcons";
+import * as backend from '../utils/backend';
+import { auth, discordSdk, gameState } from '../main';
+import { ALL_JOKER_ICONS } from '../components/JokerIcons';
 import {
   DEFAULT_ENABLED_JOKERS,
   DEFAULT_ROUNDS,
@@ -14,54 +14,54 @@ import {
   Joker,
   StreakBonusMultiplier,
   TimeBonus,
-} from "@yasq/shared";
-import { NonDraggableImg } from "../components/NonDraggableImg";
-import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
-import { PLAYER_TIME_BONUS_LABELS } from "./LobbyView";
-import { HostTransferDropdown } from "../components/HostTransferDropdown";
-import { formatBonusMultiplier } from "../utils/helper";
-import { TimeBonusPlot } from "../components/TimeBonusPlot";
-import { useTimeBonusSamples } from "../hooks/useTimeBonusSamples";
+} from '@yasq/shared';
+import { NonDraggableImg } from '../components/NonDraggableImg';
+import { OptionalTimeBonus, TOptionalTimeBonus } from '../utils/types';
+import { PLAYER_TIME_BONUS_LABELS } from './LobbyView';
+import { HostTransferDropdown } from '../components/HostTransferDropdown';
+import { formatBonusMultiplier } from '../utils/helper';
+import { TimeBonusPlot } from '../components/TimeBonusPlot';
+import { useTimeBonusSamples } from '../hooks/useTimeBonusSamples';
 
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
-  [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + " (linear)",
+  [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + ' (linear)',
   [TimeBonus.EXPONENTIAL]:
-    PLAYER_TIME_BONUS_LABELS[TimeBonus.EXPONENTIAL] + " (exponential)",
+    PLAYER_TIME_BONUS_LABELS[TimeBonus.EXPONENTIAL] + ' (exponential)',
   [TimeBonus.LOGISTIC]:
-    PLAYER_TIME_BONUS_LABELS[TimeBonus.LOGISTIC] + " (logistic)",
-  NONE: "❌ No time bonus",
+    PLAYER_TIME_BONUS_LABELS[TimeBonus.LOGISTIC] + ' (logistic)',
+  NONE: '❌ No time bonus',
 };
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
   const roundCount = useSignal(
-    gameState.value.gameSettings.rounds || DEFAULT_ROUNDS,
+    gameState.value.gameSettings.rounds || DEFAULT_ROUNDS
   );
   const trackDuration = useSignal(
     gameState.value.gameSettings.trackDuration
       ? gameState.value.gameSettings.trackDuration / 1000
-      : DEFAULT_TRACK_DURATION,
+      : DEFAULT_TRACK_DURATION
   );
   const isSubmitting = useSignal(false);
   const isAdvancedOpen = useSignal(false);
   const firstBonusMultiplier = useSignal<FirstBonusMultiplier>(
     gameState.value.gameSettings.firstBonusMultiplier ||
-      FirstBonusMultiplier.OFF,
+      FirstBonusMultiplier.OFF
   );
   const streakBonusMultiplier = useSignal<StreakBonusMultiplier>(
     gameState.value.gameSettings.streakBonusMultiplier ||
-      StreakBonusMultiplier.OFF,
+      StreakBonusMultiplier.OFF
   );
 
   const activeJokers = useSignal<Set<Joker>>(
     new Set(
       gameState.value.gameSettings.enabledJokers?.length
         ? gameState.value.gameSettings.enabledJokers
-        : DEFAULT_ENABLED_JOKERS,
-    ),
+        : DEFAULT_ENABLED_JOKERS
+    )
   );
 
   const selectedBonus = useSignal<TOptionalTimeBonus>(
-    gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE,
+    gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE
   );
 
   const { timeBonusSamples, isLoading } = useTimeBonusSamples(isHost);
@@ -72,7 +72,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       : null;
 
   const sampleParticipants = new Map(
-    (activeTimeBonusSample?.participants || []).map((p) => [p.id, p]),
+    (activeTimeBonusSample?.participants || []).map((p) => [p.id, p])
   );
 
   const toggleJoker = (type: Joker) => {
@@ -109,10 +109,10 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       await backend.setupGame(
         auth.value.access_token,
         discordSdk.instanceId,
-        currentSettings,
+        currentSettings
       );
     } catch (e) {
-      console.error("Setup failed:", e);
+      console.error('Setup failed:', e);
       isSubmitting.value = false;
     }
   };
@@ -167,16 +167,16 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
 
                 const jokerName = Icon.jokerType
                   .toLowerCase()
-                  .split("_")
+                  .split('_')
                   .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(" ");
+                  .join(' ');
 
                 return (
                   <button
                     key={Icon.jokerType}
                     type="button"
-                    id={`config-${Icon.jokerType.toLowerCase().replace(/_/g, "-")}`}
-                    className={`joker-config-btn ${isActive ? "active" : "inactive"}`}
+                    id={`config-${Icon.jokerType.toLowerCase().replace(/_/g, '-')}`}
+                    className={`joker-config-btn ${isActive ? 'active' : 'inactive'}`}
                     onClick={() => toggleJoker(Icon.jokerType)}
                     title={jokerName}
                   >
@@ -196,7 +196,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
             >
               <span>Advanced Settings</span>
               <span
-                className={`arrow-indicator ${isAdvancedOpen.value ? "open" : ""}`}
+                className={`arrow-indicator ${isAdvancedOpen.value ? 'open' : ''}`}
               />
             </button>
 
@@ -231,7 +231,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                   <span>First Correct Answer Bonus</span>
                   <div className="button-group">
                     {Object.values(FirstBonusMultiplier)
-                      .filter((val): val is number => typeof val === "number")
+                      .filter((val): val is number => typeof val === 'number')
                       .map((value) => (
                         <Fragment key={value}>
                           <input
@@ -246,7 +246,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                           />
                           <label
                             htmlFor={`first-bonus-${value}`}
-                            className={`btn-radio ${firstBonusMultiplier.value === value ? "active" : ""}`}
+                            className={`btn-radio ${firstBonusMultiplier.value === value ? 'active' : ''}`}
                           >
                             {formatBonusMultiplier(value)}
                           </label>
@@ -259,7 +259,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                   <span>Streak Bonus</span>
                   <div className="button-group">
                     {Object.values(StreakBonusMultiplier)
-                      .filter((val): val is number => typeof val === "number")
+                      .filter((val): val is number => typeof val === 'number')
                       .map((value) => (
                         <Fragment key={value}>
                           <input
@@ -274,7 +274,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                           />
                           <label
                             htmlFor={`streak-bonus-${value}`}
-                            className={`btn-radio ${streakBonusMultiplier.value === value ? "active" : ""}`}
+                            className={`btn-radio ${streakBonusMultiplier.value === value ? 'active' : ''}`}
                           >
                             {formatBonusMultiplier(value)}
                           </label>
@@ -291,7 +291,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
             disabled={isSubmitting.value}
             onClick={handleConfirmSettings}
           >
-            {isSubmitting.value ? "Saving..." : "Confirm"}
+            {isSubmitting.value ? 'Saving...' : 'Confirm'}
           </button>
 
           <hr className="divider" />

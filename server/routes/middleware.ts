@@ -1,8 +1,8 @@
-import type { NextFunction, Request, Response } from "express";
+import type { NextFunction, Request, Response } from 'express';
 
-import { validateToken } from "../src/helper.js";
-import type { GameInstance } from "../src/models.js";
-import { LogCategory, logger } from "../src/utils/logger.js";
+import { validateToken } from '../src/helper.js';
+import type { GameInstance } from '../src/models.js';
+import { LogCategory, logger } from '../src/utils/logger.js';
 
 declare global {
   namespace Express {
@@ -16,7 +16,7 @@ declare global {
 }
 
 export const createGameMiddlewares = (
-  instances: Record<string, GameInstance>,
+  instances: Record<string, GameInstance>
 ) => {
   /**
    * Authenticate a user via the Discord OAuth2 API based on the request's authorization header.
@@ -24,17 +24,17 @@ export const createGameMiddlewares = (
   const authenticateUser = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     const authHeader = req.headers.authorization;
     if (!authHeader)
-      return res.status(401).send({ error: "No token provided" });
+      return res.status(401).send({ error: 'No token provided' });
 
-    const token = authHeader.split(" ")[1] || "";
+    const token = authHeader.split(' ')[1] || '';
     const userId = await validateToken(token);
 
     if (!userId) {
-      return res.status(401).send({ error: "Invalid Discord token" });
+      return res.status(401).send({ error: 'Invalid Discord token' });
     }
 
     req.token = token;
@@ -50,7 +50,7 @@ export const createGameMiddlewares = (
     const game = instances[instanceId];
 
     if (!game) {
-      return res.status(400).send({ error: "Instance not found" });
+      return res.status(400).send({ error: 'Instance not found' });
     }
 
     req.game = game;
@@ -67,11 +67,11 @@ export const createGameMiddlewares = (
       logger.warn(
         req.body.instanceId,
         `Unauthorized host attempt by user ${userId}`,
-        LogCategory.SECURITY,
+        LogCategory.SECURITY
       );
       return res
         .status(403)
-        .json({ error: "Only host can perform this action" });
+        .json({ error: 'Only host can perform this action' });
     }
 
     next();

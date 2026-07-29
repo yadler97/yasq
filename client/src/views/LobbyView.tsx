@@ -1,33 +1,33 @@
-import { useEffect, useState } from "preact/hooks";
+import { useEffect, useState } from 'preact/hooks';
 
-import * as backend from "../utils/backend";
-import { auth, discordSdk, gameState, participants } from "../main";
-import { capitalize, formatBonusMultiplier } from "../utils/helper";
-import { ALL_JOKER_ICONS } from "../components/JokerIcons";
-import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
-import { TimeBonus } from "@yasq/shared";
-import { ReadyButton } from "../components/ReadyButton";
+import * as backend from '../utils/backend';
+import { auth, discordSdk, gameState, participants } from '../main';
+import { capitalize, formatBonusMultiplier } from '../utils/helper';
+import { ALL_JOKER_ICONS } from '../components/JokerIcons';
+import { OptionalTimeBonus, TOptionalTimeBonus } from '../utils/types';
+import { TimeBonus } from '@yasq/shared';
+import { ReadyButton } from '../components/ReadyButton';
 
 export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
-  [TimeBonus.LINEAR]: "⏳ Steady Pace",
-  [TimeBonus.EXPONENTIAL]: "🔥 Quick Fire",
-  [TimeBonus.LOGISTIC]: "⚖️ Balanced",
-  NONE: "❌ No time bonus",
+  [TimeBonus.LINEAR]: '⏳ Steady Pace',
+  [TimeBonus.EXPONENTIAL]: '🔥 Quick Fire',
+  [TimeBonus.LOGISTIC]: '⚖️ Balanced',
+  NONE: '❌ No time bonus',
 };
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(
-    (p) => p.id !== gameState.value.hostId,
+    (p) => p.id !== gameState.value.hostId
   );
   const readyUsers = playersExcludingHost.filter((p) =>
-    gameState.value.readyUsers.includes(p.id),
+    gameState.value.readyUsers.includes(p.id)
   ).length;
   const allPlayersReady =
     playersExcludingHost.length > 0 &&
     readyUsers === playersExcludingHost.length;
 
   const [activeTooltipType, setActiveTooltipType] = useState<string | null>(
-    null,
+    null
   );
 
   useEffect(() => {
@@ -35,12 +35,12 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
 
     const closeAllTooltips = () => setActiveTooltipType(null);
 
-    window.addEventListener("touchstart", closeAllTooltips);
-    window.addEventListener("click", closeAllTooltips);
+    window.addEventListener('touchstart', closeAllTooltips);
+    window.addEventListener('click', closeAllTooltips);
 
     return () => {
-      window.removeEventListener("touchstart", closeAllTooltips);
-      window.removeEventListener("click", closeAllTooltips);
+      window.removeEventListener('touchstart', closeAllTooltips);
+      window.removeEventListener('click', closeAllTooltips);
     };
   }, [activeTooltipType]);
 
@@ -71,19 +71,19 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
               {gameState.value.gameSettings.enabledJokers.length ? (
                 gameState.value.gameSettings.enabledJokers.map((jokerType) => {
                   const JokerIcon = ALL_JOKER_ICONS.find(
-                    (Icon) => Icon.jokerType === jokerType,
+                    (Icon) => Icon.jokerType === jokerType
                   );
                   const isTooltipOpen = activeTooltipType === jokerType;
 
                   return (
                     <div key={jokerType} className="joker-row-item">
                       <div
-                        className={`joker-indicator ${isTooltipOpen ? "show-tooltip" : ""}`}
+                        className={`joker-indicator ${isTooltipOpen ? 'show-tooltip' : ''}`}
                         data-tooltip={JokerIcon?.description}
                         onTouchStart={(e) => {
                           e.stopPropagation();
                           setActiveTooltipType(
-                            isTooltipOpen ? null : jokerType,
+                            isTooltipOpen ? null : jokerType
                           );
                         }}
                         onMouseLeave={() => setActiveTooltipType(null)}
@@ -114,14 +114,14 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
           <dt>🥇 First Bonus</dt>
           <dd>
             {formatBonusMultiplier(
-              gameState.value.gameSettings.firstBonusMultiplier,
+              gameState.value.gameSettings.firstBonusMultiplier
             )}
           </dd>
 
           <dt>🔥 Streak Bonus</dt>
           <dd>
             {formatBonusMultiplier(
-              gameState.value.gameSettings.streakBonusMultiplier,
+              gameState.value.gameSettings.streakBonusMultiplier
             )}
           </dd>
         </dl>
@@ -141,11 +141,11 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             onClick={handleStart}
           >
             {allPlayersReady
-              ? "Start Game"
+              ? 'Start Game'
               : `Waiting... (${readyUsers}/${playersExcludingHost.length})`}
           </button>
         ) : (
-          <ReadyButton promptText={"Ready Up"} />
+          <ReadyButton promptText={'Ready Up'} />
         )}
       </div>
     </div>

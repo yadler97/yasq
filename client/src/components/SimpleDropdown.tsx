@@ -1,5 +1,5 @@
-import { useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { useSignal } from '@preact/signals';
+import { useEffect } from 'preact/hooks';
 
 export const SimpleDropdown = ({
   options,
@@ -14,7 +14,7 @@ export const SimpleDropdown = ({
   const isFiltering = value !== options[0];
   const longestOption = options.reduce(
     (a, b) => (a.length > b.length ? a : b),
-    "",
+    ''
   );
 
   useEffect(() => {
@@ -22,44 +22,44 @@ export const SimpleDropdown = ({
 
     // Move focus to the first item immediately after rendering
     const firstItem = document.querySelector(
-      ".dropdown-menu .dropdown-item",
+      '.dropdown-menu .dropdown-item'
     ) as HTMLElement;
     firstItem?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         isOpen.value = false;
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen.value]);
 
   const closeMenuAndFocusTrigger = (currentTarget: HTMLElement) => {
     isOpen.value = false;
     // Walk up the DOM tree to find the local dropdown container's trigger button
-    const container = currentTarget.closest(".filter-dropdown");
-    (container?.querySelector(".dropdown-trigger") as HTMLElement)?.focus();
+    const container = currentTarget.closest('.filter-dropdown');
+    (container?.querySelector('.dropdown-trigger') as HTMLElement)?.focus();
   };
 
   return (
     <div
       className="filter-dropdown"
-      style={{ "--longest-text": `"${longestOption}"` }}
+      style={{ '--longest-text': `"${longestOption}"` }}
     >
       <button
-        className={`dropdown-trigger ${isFiltering ? "active" : ""}`}
+        className={`dropdown-trigger ${isFiltering ? 'active' : ''}`}
         onClick={() => (isOpen.value = !isOpen.value)}
         onKeyDown={(e) => {
-          if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
+          if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
             e.preventDefault();
             isOpen.value = true;
           }
         }}
       >
         <span className="current-value">{value}</span>
-        <span className={`arrow ${isOpen.value ? "up" : "down"}`}>▼</span>
+        <span className={`arrow ${isOpen.value ? 'up' : 'down'}`}>▼</span>
       </button>
 
       {isOpen.value && (
@@ -72,7 +72,7 @@ export const SimpleDropdown = ({
             className="dropdown-menu"
             onWheel={(e) => {
               const container = e.currentTarget.querySelector(
-                ".scrollbar-container",
+                '.scrollbar-container'
               ) as HTMLElement;
               if (!container) return;
 
@@ -97,19 +97,19 @@ export const SimpleDropdown = ({
                 return (
                   <div
                     key={opt}
-                    className={`dropdown-item single-select ${value === opt ? "active" : ""}`}
+                    className={`dropdown-item single-select ${value === opt ? 'active' : ''}`}
                     tabIndex={0} // Makes the item focusable via Tab or script
                     onClick={(e) => selectOption(e.currentTarget)}
                     onKeyDown={(e) => {
                       const target = e.currentTarget;
 
-                      if (e.key === "Enter" || e.key === " ") {
+                      if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         selectOption(target);
-                      } else if (e.key === "ArrowDown") {
+                      } else if (e.key === 'ArrowDown') {
                         e.preventDefault();
                         (target.nextElementSibling as HTMLElement)?.focus();
-                      } else if (e.key === "ArrowUp") {
+                      } else if (e.key === 'ArrowUp') {
                         e.preventDefault();
                         if (target.previousElementSibling) {
                           (
@@ -119,7 +119,7 @@ export const SimpleDropdown = ({
                           // Return focus back up to the button if at the top item
                           closeMenuAndFocusTrigger(target);
                         }
-                      } else if (e.key === "Escape") {
+                      } else if (e.key === 'Escape') {
                         e.preventDefault();
                         isOpen.value = false;
                         closeMenuAndFocusTrigger(target);

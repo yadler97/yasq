@@ -1,5 +1,5 @@
-import { Signal, useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { Signal, useSignal } from '@preact/signals';
+import { useEffect } from 'preact/hooks';
 
 export const TagFilterDropdown = ({
   availableTags,
@@ -17,18 +17,18 @@ export const TagFilterDropdown = ({
 
     // Move focus to the first item immediately after rendering
     const firstItem = document.querySelector(
-      ".dropdown-menu .dropdown-item:not(.disabled)",
+      '.dropdown-menu .dropdown-item:not(.disabled)'
     ) as HTMLElement;
     firstItem?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === 'Escape') {
         isOpen.value = false;
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen.value]);
 
   const toggleTag = (type: string, value: string) => {
@@ -53,25 +53,25 @@ export const TagFilterDropdown = ({
   const closeMenuAndFocusTrigger = (currentTarget: HTMLElement) => {
     isOpen.value = false;
     // Walk up the DOM tree to find the local dropdown container's trigger button
-    const container = currentTarget.closest(".filter-dropdown");
-    (container?.querySelector(".dropdown-trigger") as HTMLElement)?.focus();
+    const container = currentTarget.closest('.filter-dropdown');
+    (container?.querySelector('.dropdown-trigger') as HTMLElement)?.focus();
   };
 
   return (
     <div className="filter-dropdown">
       <div className="dropdown-trigger-wrapper">
         <button
-          className={`dropdown-trigger ${activeCount > 0 ? "active" : ""}`}
+          className={`dropdown-trigger ${activeCount > 0 ? 'active' : ''}`}
           onClick={() => (isOpen.value = !isOpen.value)}
           onKeyDown={(e) => {
-            if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
+            if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
               e.preventDefault();
               isOpen.value = true;
             }
           }}
         >
-          {activeCount > 0 ? `Filters (${activeCount})` : "Filter by Tags"}
-          <span className={`arrow ${isOpen.value ? "up" : "down"}`}>▼</span>
+          {activeCount > 0 ? `Filters (${activeCount})` : 'Filter by Tags'}
+          <span className={`arrow ${isOpen.value ? 'up' : 'down'}`}>▼</span>
         </button>
 
         {activeCount > 0 && (
@@ -91,7 +91,7 @@ export const TagFilterDropdown = ({
             className="dropdown-menu"
             onWheel={(e) => {
               const container = e.currentTarget.querySelector(
-                ".scrollbar-container",
+                '.scrollbar-container'
               ) as HTMLElement;
               if (!container) return;
 
@@ -118,19 +118,19 @@ export const TagFilterDropdown = ({
                     return (
                       <label
                         key={val}
-                        className={`dropdown-item ${isDisabled ? "disabled" : ""}`}
+                        className={`dropdown-item ${isDisabled ? 'disabled' : ''}`}
                         onKeyDown={(e) => {
                           const target = e.currentTarget;
 
-                          if (e.key === "Enter" || e.key === " ") {
+                          if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             toggleTag(type, val);
-                          } else if (e.key === "ArrowDown") {
+                          } else if (e.key === 'ArrowDown') {
                             e.preventDefault();
                             const enabledItems = Array.from(
                               document.querySelectorAll(
-                                ".dropdown-menu .dropdown-item:not(.disabled)",
-                              ),
+                                '.dropdown-menu .dropdown-item:not(.disabled)'
+                              )
                             ) as HTMLElement[];
                             const currentIndex = enabledItems.indexOf(target);
                             if (
@@ -139,12 +139,12 @@ export const TagFilterDropdown = ({
                             ) {
                               enabledItems[currentIndex + 1].focus();
                             }
-                          } else if (e.key === "ArrowUp") {
+                          } else if (e.key === 'ArrowUp') {
                             e.preventDefault();
                             const enabledItems = Array.from(
                               document.querySelectorAll(
-                                ".dropdown-menu .dropdown-item:not(.disabled)",
-                              ),
+                                '.dropdown-menu .dropdown-item:not(.disabled)'
+                              )
                             ) as HTMLElement[];
                             const currentIndex = enabledItems.indexOf(target);
                             if (currentIndex > 0) {
@@ -152,7 +152,7 @@ export const TagFilterDropdown = ({
                             } else {
                               closeMenuAndFocusTrigger(target);
                             }
-                          } else if (e.key === "Escape") {
+                          } else if (e.key === 'Escape') {
                             e.preventDefault();
                             isOpen.value = false;
                             closeMenuAndFocusTrigger(target);

@@ -1,5 +1,5 @@
-import { GameState } from "@yasq/shared";
-import { gameState } from "../main";
+import { GameState } from '@yasq/shared';
+import { gameState } from '../main';
 
 export const GameHeader = () => {
   const { state, currentRound, gameSettings } = gameState.value;
@@ -12,7 +12,7 @@ export const GameHeader = () => {
       case GameState.RESULTS:
         return `Round ${currentRound} of ${gameSettings.rounds}`;
       default:
-        return "YASQ";
+        return 'YASQ';
     }
   };
 

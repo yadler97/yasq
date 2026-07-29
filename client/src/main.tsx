@@ -1,11 +1,11 @@
-import { render } from "preact";
-import { signal } from "@preact/signals";
-import { DiscordSDK } from "@discord/embedded-app-sdk";
-import { io } from "socket.io-client";
+import { render } from 'preact';
+import { signal } from '@preact/signals';
+import { DiscordSDK } from '@discord/embedded-app-sdk';
+import { io } from 'socket.io-client';
 
-import * as backend from "./utils/backend";
-import { getUserId } from "./utils/helper";
-import { GameStatus } from "./utils/types";
+import * as backend from './utils/backend';
+import { getUserId } from './utils/helper';
+import { GameStatus } from './utils/types';
 import {
   DEFAULT_VOLUME_SLIDER_VAL,
   GameSettings,
@@ -15,23 +15,23 @@ import {
   Participant,
   WS_GAME_STATUS_UPDATE_EVENT,
   WS_JOIN_INSTANCE_EVENT,
-} from "@yasq/shared";
-import { mockDiscordSdk } from "../../mock_data/mockDiscordSdk";
+} from '@yasq/shared';
+import { mockDiscordSdk } from '../../mock_data/mockDiscordSdk';
 
-import { GameHeader } from "./components/GameHeader";
-import { Sidebar } from "./components/Sidebar";
+import { GameHeader } from './components/GameHeader';
+import { Sidebar } from './components/Sidebar';
 
-import { SetupView } from "./views/SetupView";
-import { LobbyView } from "./views/LobbyView";
-import { SelectionView } from "./views/TrackSelectionView";
-import { ArenaView } from "./views/PlayingView";
-import { HostReviewView } from "./views/RoundCompletedView";
-import { RoundResultsView } from "./views/ResultsView";
-import { FinalResultsView } from "./views/GameFinishedView";
+import { SetupView } from './views/SetupView';
+import { LobbyView } from './views/LobbyView';
+import { SelectionView } from './views/TrackSelectionView';
+import { ArenaView } from './views/PlayingView';
+import { HostReviewView } from './views/RoundCompletedView';
+import { RoundResultsView } from './views/ResultsView';
+import { FinalResultsView } from './views/GameFinishedView';
 
-import "./style.css";
+import './style.css';
 
-const isMockMode = import.meta.env.VITE_MOCK_MODE === "true";
+const isMockMode = import.meta.env.VITE_MOCK_MODE === 'true';
 export const discordSdk = isMockMode
   ? mockDiscordSdk
   : new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
@@ -61,7 +61,7 @@ source.connect(gainNode);
 gainNode.connect(audioContext.destination);
 gainNode.gain.value = DEFAULT_VOLUME_SLIDER_VAL * MAX_VOLUME;
 
-export const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+export const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 
 const App = () => {
   if (!auth.value) return <div className="centered">Authenticating...</div>;
@@ -111,19 +111,19 @@ const renderView = (isHost: boolean) => {
   }
 };
 
-render(<App />, document.getElementById("app")!);
+render(<App />, document.getElementById('app')!);
 
 (async () => {
   await discordSdk.ready();
-  console.log("Discord SDK is ready");
+  console.log('Discord SDK is ready');
 
   // Authorize with Discord Client
   const { code } = await discordSdk.commands.authorize({
     client_id: import.meta.env.VITE_DISCORD_CLIENT_ID,
-    response_type: "code",
-    state: "",
-    prompt: "none",
-    scope: ["identify", "guilds", "applications.commands"],
+    response_type: 'code',
+    state: '',
+    prompt: 'none',
+    scope: ['identify', 'guilds', 'applications.commands'],
   });
 
   // Retrieve an access_token from your activity's server
@@ -133,7 +133,7 @@ render(<App />, document.getElementById("app")!);
   auth.value = await discordSdk.commands.authenticate({ access_token });
 
   if (auth.value == null) {
-    throw new Error("Authenticate command failed");
+    throw new Error('Authenticate command failed');
   }
 
   // Establish a websocket communication for continuous game state updates
@@ -150,9 +150,9 @@ render(<App />, document.getElementById("app")!);
     await discordSdk.commands.getInstanceConnectedParticipants()
   ).participants;
   discordSdk.subscribe(
-    "ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE",
-    (e: any) => (participants.value = e.participants),
+    'ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE',
+    (e: any) => (participants.value = e.participants)
   );
 
-  render(<App />, document.getElementById("app")!);
+  render(<App />, document.getElementById('app')!);
 })();

@@ -1,6 +1,6 @@
-import { Joker } from "@yasq/shared";
+import { Joker } from '@yasq/shared';
 
-const ObfuscationIcon = ({ size = 24, className = "" }) => (
+const ObfuscationIcon = ({ size = 24, className = '' }) => (
   <svg
     width={size}
     height={size}
@@ -18,9 +18,9 @@ const ObfuscationIcon = ({ size = 24, className = "" }) => (
 );
 ObfuscationIcon.jokerType = Joker.OBFUSCATION;
 ObfuscationIcon.description =
-  "Reveals the game title with most letters hidden by underscores";
+  'Reveals the game title with most letters hidden by underscores';
 
-const TriviaIcon = ({ size = 24, className = "" }) => (
+const TriviaIcon = ({ size = 24, className = '' }) => (
   <svg
     width={size}
     height={size}
@@ -38,9 +38,9 @@ const TriviaIcon = ({ size = 24, className = "" }) => (
   </svg>
 );
 TriviaIcon.jokerType = Joker.TRIVIA;
-TriviaIcon.description = "Reveals metadata about the game";
+TriviaIcon.description = 'Reveals metadata about the game';
 
-const MultipleChoiceIcon = ({ size = 24, className = "" }) => (
+const MultipleChoiceIcon = ({ size = 24, className = '' }) => (
   <svg
     width={size}
     height={size}
@@ -60,9 +60,9 @@ const MultipleChoiceIcon = ({ size = 24, className = "" }) => (
 );
 MultipleChoiceIcon.jokerType = Joker.MULTIPLE_CHOICE;
 MultipleChoiceIcon.description =
-  "Provides four game titles to choose from, with only one being the correct answer";
+  'Provides four game titles to choose from, with only one being the correct answer';
 
-const SpyIcon = ({ size = 24, className = "" }) => (
+const SpyIcon = ({ size = 24, className = '' }) => (
   <svg
     width={size}
     height={size}
@@ -81,7 +81,7 @@ const SpyIcon = ({ size = 24, className = "" }) => (
   </svg>
 );
 SpyIcon.jokerType = Joker.SPY;
-SpyIcon.description = "Allows you to copy the answer of another player";
+SpyIcon.description = 'Allows you to copy the answer of another player';
 
 /**
  * Eye Scan SVG Icon
@@ -89,7 +89,7 @@ SpyIcon.description = "Allows you to copy the answer of another player";
  * Source: https://www.svgrepo.com/svg/524042/eye-scan
  * License: CC Attribution License
  */
-const GlimpseIcon = ({ size = 24, className = "" }) => (
+const GlimpseIcon = ({ size = 24, className = '' }) => (
   <svg
     width={size}
     height={size}

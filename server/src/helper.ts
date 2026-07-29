@@ -1,21 +1,21 @@
-import type { Server } from "socket.io";
-import fs from "fs";
-import path from "path";
+import type { Server } from 'socket.io';
+import fs from 'fs';
+import path from 'path';
 import {
   ChannelType,
   type APIChannel,
   type APITextChannel,
-} from "discord-api-types/v10";
+} from 'discord-api-types/v10';
 
-import type { GameInstance } from "./models.js";
+import type { GameInstance } from './models.js';
 import {
   STATIC_FILES_DIR,
   TEMP_FILES_DIR,
   UI_UPDATES_DELAY_IN_E2E,
   WS_GAME_STATUS_UPDATE_EVENT,
   type Participant,
-} from "@yasq/shared";
-import { getDiscordUser } from "./utils/discord.js";
+} from '@yasq/shared';
+import { getDiscordUser } from './utils/discord.js';
 
 const tokenCache = new Map<string, { userId: string; expires: number }>();
 const TTL = 10 * 60 * 1000; // Cache for 10 minutes
@@ -50,7 +50,7 @@ export async function validateToken(token: string) {
     userDataCache.set(userId, profile);
     return userId;
   } catch (error) {
-    console.error("Discord Auth Error:", error);
+    console.error('Discord Auth Error:', error);
     return null;
   }
 }
@@ -89,7 +89,7 @@ export function getGameStatusPayload(game: GameInstance) {
 export function broadcastGameStatus(
   server: Server,
   instanceId: string,
-  game: GameInstance,
+  game: GameInstance
 ) {
   const emitUpdate = () => {
     server
@@ -97,7 +97,7 @@ export function broadcastGameStatus(
       .emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
   };
 
-  if (process.env.UI_TEST_MODE === "true") {
+  if (process.env.UI_TEST_MODE === 'true') {
     // Artificial delay so the UI tests can safely check for transient UI states
     setTimeout(emitUpdate, UI_UPDATES_DELAY_IN_E2E);
   } else {
@@ -134,7 +134,7 @@ export function filterDiscordTextChannels(channels: APIChannel[]) {
     .map((c: APITextChannel) => ({
       id: c.id,
       name: c.name,
-      category: c.parent_id ? categoryMap.get(c.parent_id) : "",
+      category: c.parent_id ? categoryMap.get(c.parent_id) : '',
     }))
     .sort((a, b) => {
       // Compare categories first

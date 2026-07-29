@@ -1,13 +1,13 @@
-import { useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { useSignal } from '@preact/signals';
+import { useEffect } from 'preact/hooks';
 
-import * as backend from "../utils/backend";
-import { auth, discordSdk, participants } from "../main";
-import { findUser } from "../utils/helper";
-import { ALL_JOKER_ICONS } from "../components/JokerIcons";
-import { ReviewData } from "../utils/types";
-import { getAvatarUrl, getDisplayName } from "@yasq/shared";
-import { DiscordAvatar } from "../components/DiscordAvatar";
+import * as backend from '../utils/backend';
+import { auth, discordSdk, participants } from '../main';
+import { findUser } from '../utils/helper';
+import { ALL_JOKER_ICONS } from '../components/JokerIcons';
+import { ReviewData } from '../utils/types';
+import { getAvatarUrl, getDisplayName } from '@yasq/shared';
+import { DiscordAvatar } from '../components/DiscordAvatar';
 
 export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const reviewData = useSignal<ReviewData | null>(null);
@@ -49,7 +49,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
     await backend.submitRoundResults(
       auth.value.access_token,
       discordSdk.instanceId,
-      corrections.value,
+      corrections.value
     );
   };
 
@@ -63,8 +63,8 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
       <div id="guess-list">
         {Object.entries(reviewData.value.guesses).map(([userId, guess]) => {
           const user = findUser(participants.value, userId);
-          const displayName = user ? getDisplayName(user) : "Unknown";
-          const avatarUrl = user ? getAvatarUrl(user) : "";
+          const displayName = user ? getDisplayName(user) : 'Unknown';
+          const avatarUrl = user ? getAvatarUrl(user) : '';
 
           return (
             <div key={userId} className="guess-item">
@@ -77,7 +77,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                 {guess.joker &&
                   (() => {
                     const JokerIcon = ALL_JOKER_ICONS.find(
-                      (icon) => icon.jokerType === guess.joker,
+                      (icon) => icon.jokerType === guess.joker
                     );
                     return JokerIcon ? (
                       <div
@@ -147,13 +147,13 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
       {reviewData.value.timedOut.length > 0 && (
         <div className="timed-out-section">
           <p>
-            No Guess submitted:{" "}
+            No Guess submitted:{' '}
             {reviewData.value.timedOut
               .map((id) => {
                 const user = findUser(participants.value, id);
-                return user ? getDisplayName(user) : "Unknown";
+                return user ? getDisplayName(user) : 'Unknown';
               })
-              .join(", ")}
+              .join(', ')}
           </p>
         </div>
       )}

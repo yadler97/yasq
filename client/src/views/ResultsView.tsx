@@ -1,21 +1,21 @@
-import { useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { useSignal } from '@preact/signals';
+import { useEffect } from 'preact/hooks';
 
-import * as backend from "../utils/backend";
-import { auth, discordSdk, gameState, participants } from "../main";
-import { capitalize, findUser, getUserId } from "../utils/helper";
-import { NonDraggableImg } from "../components/NonDraggableImg";
-import { Tag } from "../utils/types";
-import { getAvatarUrl, getDisplayName, Participant } from "@yasq/shared";
-import { RoundBubblesGroup } from "../components/RoundBubble";
-import { PointsCalculationTable } from "../components/PointsCalculationTable";
-import { RollingNumber } from "../components/RollingNumber";
+import * as backend from '../utils/backend';
+import { auth, discordSdk, gameState, participants } from '../main';
+import { capitalize, findUser, getUserId } from '../utils/helper';
+import { NonDraggableImg } from '../components/NonDraggableImg';
+import { Tag } from '../utils/types';
+import { getAvatarUrl, getDisplayName, Participant } from '@yasq/shared';
+import { RoundBubblesGroup } from '../components/RoundBubble';
+import { PointsCalculationTable } from '../components/PointsCalculationTable';
+import { RollingNumber } from '../components/RollingNumber';
 import {
   DiscordAvatar,
   DiscordAvatarWithTooltip,
-} from "../components/DiscordAvatar";
-import { TimeBonusPlot } from "../components/TimeBonusPlot";
-import { ReadyButton } from "../components/ReadyButton";
+} from '../components/DiscordAvatar';
+import { TimeBonusPlot } from '../components/TimeBonusPlot';
+import { ReadyButton } from '../components/ReadyButton';
 
 export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);
@@ -32,13 +32,13 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         roundData.value = data;
       })
       .catch((_) => {
-        roundData.value = { error: "SERVER_ERROR" };
+        roundData.value = { error: 'SERVER_ERROR' };
       });
   }, [isHost]);
 
   // Logic for the Host's "Next Round" button
   const playersExcludingHost = participants.value.filter(
-    (p) => p.id !== gameState.value.hostId,
+    (p) => p.id !== gameState.value.hostId
   );
   const participantLookup = new Map(participants.value.map((p) => [p.id, p]));
   const currentPlayer = participantLookup.get(getUserId(auth.value)) ?? null;
@@ -46,13 +46,13 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const allPlayersReady =
     playersExcludingHost.length > 0 &&
     playersExcludingHost.every((p) =>
-      gameState.value.readyUsers.includes(p.id),
+      gameState.value.readyUsers.includes(p.id)
     );
 
   const handleNextRound = async () => {
     await backend.startNextRound(
       auth.value.access_token,
-      discordSdk.instanceId,
+      discordSdk.instanceId
     );
   };
 
@@ -74,11 +74,11 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           <hr className="divider" />
           <div className="track-details">
             <NonDraggableImg
-              src={roundData.value.gameCover || "/game_covers/default.svg"}
+              src={roundData.value.gameCover || '/game_covers/default.svg'}
               alt={`Cover of ${roundData.value.correctAnswer}`}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src =
-                  "/game_covers/default.svg";
+                  '/game_covers/default.svg';
               }}
             />
             <div>
@@ -126,14 +126,14 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             {roundData.value.lostStreaks &&
               Object.keys(roundData.value.lostStreaks).length > 0 && (
                 <p>
-                  Lost Streaks:{" "}
+                  Lost Streaks:{' '}
                   <strong>
                     {Object.entries(roundData.value.lostStreaks)
                       .map(
                         ([userId, streak]) =>
-                          `${getDisplayName(findUser(participants.value, userId))} (${streak})`,
+                          `${getDisplayName(findUser(participants.value, userId))} (${streak})`
                       )
-                      .join(", ")}
+                      .join(', ')}
                   </strong>
                 </p>
               )}
@@ -163,8 +163,8 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           >
             {allPlayersReady
               ? isFinalRound
-                ? "Show Final Results"
-                : "Next Round"
+                ? 'Show Final Results'
+                : 'Next Round'
               : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
           </button>
         </div>
@@ -177,9 +177,9 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
       <div id="results" className="centered">
         <h2>Results Unavailable</h2>
         <p className="error-text">
-          {roundData.value.error === "SERVER_ERROR"
-            ? "A server error occurred."
-            : "An unexpected error occurred."}
+          {roundData.value.error === 'SERVER_ERROR'
+            ? 'A server error occurred.'
+            : 'An unexpected error occurred.'}
         </p>
 
         <ReadyButton />
@@ -195,10 +195,10 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   // Determine status class and message
   const { statusClass, statusMessage } = (() => {
     if (score === 1)
-      return { statusClass: "correct", statusMessage: "Correct! 🎉" };
+      return { statusClass: 'correct', statusMessage: 'Correct! 🎉' };
     if (score > 0)
-      return { statusClass: "partial", statusMessage: "So close! 🧗" };
-    return { statusClass: "incorrect", statusMessage: "Incorrect. 😢" };
+      return { statusClass: 'partial', statusMessage: 'So close! 🧗' };
+    return { statusClass: 'incorrect', statusMessage: 'Incorrect. 😢' };
   })();
 
   const correctPlayerIds = roundData.value?.correctPlayers || [];
@@ -214,11 +214,11 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         <hr className="divider" />
         <div className="track-details">
           <NonDraggableImg
-            src={roundData.value.gameCover || "/game_covers/default.svg"}
+            src={roundData.value.gameCover || '/game_covers/default.svg'}
             alt={`Cover of ${roundData.value.correctAnswer}`}
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).src =
-                "/game_covers/default.svg";
+                '/game_covers/default.svg';
             }}
           />
           <div>
@@ -252,7 +252,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                 <div className="user-guess-wrapper">
                   <span className="guess-label">Your guess:</span>
                   <span id="guess" className="user-guess guess-text">
-                    {userResult?.guess || "No guess submitted"}
+                    {userResult?.guess || 'No guess submitted'}
                   </span>
                 </div>
                 <div id="score" className="points-bubble">
@@ -288,14 +288,14 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           {roundData.value.lostStreaks &&
             Object.keys(roundData.value.lostStreaks).length > 0 && (
               <span>
-                Lost Streaks:{" "}
+                Lost Streaks:{' '}
                 <strong>
                   {Object.entries(roundData.value.lostStreaks)
                     .map(
                       ([userId, streak]) =>
-                        `${getDisplayName(findUser(participants.value, userId))} (${streak})`,
+                        `${getDisplayName(findUser(participants.value, userId))} (${streak})`
                     )
-                    .join(", ")}
+                    .join(', ')}
                 </strong>
               </span>
             )}
@@ -326,11 +326,11 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
               >
                 <span>
                   {isPointsDetailsOpen.value
-                    ? "Hide score details"
-                    : "See score details"}
+                    ? 'Hide score details'
+                    : 'See score details'}
                 </span>
                 <span
-                  className={`arrow-indicator ${isPointsDetailsOpen.value ? "open" : ""}`}
+                  className={`arrow-indicator ${isPointsDetailsOpen.value ? 'open' : ''}`}
                 />
               </button>
 

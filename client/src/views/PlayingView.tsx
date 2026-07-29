@@ -1,7 +1,7 @@
-import { useSignal } from "@preact/signals";
-import { useEffect, useRef } from "preact/hooks";
+import { useSignal } from '@preact/signals';
+import { useEffect, useRef } from 'preact/hooks';
 
-import * as backend from "../utils/backend";
+import * as backend from '../utils/backend';
 import {
   audioPlayer,
   auth,
@@ -9,20 +9,20 @@ import {
   gameState,
   isMac,
   participants,
-} from "../main";
+} from '../main';
 import {
   getAvatarUrl,
   getDisplayName,
   Joker,
   MAX_GUESS_LENGTH,
   POLLING_INTERVAL,
-} from "@yasq/shared";
-import { ALL_JOKER_ICONS } from "../components/JokerIcons";
-import { capitalize, findUser, getActionKeyLabel } from "../utils/helper";
-import { NonDraggableImg } from "../components/NonDraggableImg";
-import { useKeyboardShortcut } from "../hooks/useKeyboardShortcut";
-import { Tag } from "../utils/types";
-import { DiscordAvatar } from "../components/DiscordAvatar";
+} from '@yasq/shared';
+import { ALL_JOKER_ICONS } from '../components/JokerIcons';
+import { capitalize, findUser, getActionKeyLabel } from '../utils/helper';
+import { NonDraggableImg } from '../components/NonDraggableImg';
+import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
+import { Tag } from '../utils/types';
+import { DiscordAvatar } from '../components/DiscordAvatar';
 
 type JokerHint =
   | { type: Joker.OBFUSCATION; data: string }
@@ -61,7 +61,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
               { key: (index + 1).toString(), altKey: !isMac, metaKey: isMac },
               () => {
                 submit(choice);
-              },
+              }
             );
 
             return (
@@ -155,7 +155,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         auth.value.access_token,
         discordSdk.instanceId,
         jokerType,
-        targetId,
+        targetId
       );
       const payload = await response.json();
       if (response.status === 200) {
@@ -168,11 +168,11 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
       }
       // Joker becomes unusable for the CURRENT round either way
       availableJokers.value = availableJokers.value.filter(
-        (j) => j !== jokerType,
+        (j) => j !== jokerType
       );
       isSelectingSpyTarget.value = false;
     } catch (err) {
-      console.error("Failed to use joker:", err);
+      console.error('Failed to use joker:', err);
       isSelectingSpyTarget.value = false;
     }
   };
@@ -188,7 +188,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
     await backend.submitGuess(
       auth.value.access_token,
       discordSdk.instanceId,
-      guess,
+      guess
     );
   };
 
@@ -207,7 +207,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         const { url, startTime, endTime, ...hostData } =
           await backend.getCurrentTrack(
             auth.value.access_token,
-            discordSdk.instanceId,
+            discordSdk.instanceId
           );
         if (!url) return;
 
@@ -219,7 +219,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         const totalDurationMs = endTime - startTime;
         const timePassedMs = now - startTime;
 
-        const progressBar = document.getElementById("progress-bar");
+        const progressBar = document.getElementById('progress-bar');
 
         // 1. Countdown Phase (before startTime)
         if (timePassedMs < 0) {
@@ -233,7 +233,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
             audioPlayer.src = url;
 
           if (progressBar) {
-            progressBar.style.width = "100%";
+            progressBar.style.width = '100%';
           }
           return; // Don't play the track until the countdown finishes
         }
@@ -246,7 +246,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
         if (progressBar) {
           progressBar.style.width = `${percentage}%`;
           progressBar.style.backgroundColor =
-            percentage < 20 ? "#f04747" : "#5865f2";
+            percentage < 20 ? '#f04747' : '#5865f2';
         }
 
         // Check if we need to load a new source
@@ -266,7 +266,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
           audioPlayer.play().catch(() => {});
         }
       } catch (err) {
-        console.error("Arena sync error:", err);
+        console.error('Arena sync error:', err);
       }
     };
 
@@ -295,12 +295,12 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   <NonDraggableImg
                     src={
                       activeTrackInfo.value.gameCover ||
-                      "/game_covers/default.svg"
+                      '/game_covers/default.svg'
                     }
                     alt={`Cover of ${activeTrackInfo.value.correctAnswer}`}
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src =
-                        "/game_covers/default.svg";
+                        '/game_covers/default.svg';
                     }}
                   />
                   <div>
@@ -340,7 +340,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <hr className="divider" />
               <div className="spy-hint-player-list">
                 {gameState.value.guessedPlayers.filter(
-                  (id) => id !== auth.value.userId,
+                  (id) => id !== auth.value.userId
                 ).length === 0 ? (
                   <p className="no-results">
                     No player has submitted a guess yet.
@@ -393,7 +393,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   e.preventDefault();
                   const form = e.currentTarget;
                   const input = form.elements.namedItem(
-                    "guess-input",
+                    'guess-input'
                   ) as HTMLInputElement;
                   const guess = input.value.trim();
                   if (!guess) return;
@@ -421,8 +421,8 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   // Only show jokers that were enabled by the host during setup
                   .filter((Icon) =>
                     gameState.value.gameSettings.enabledJokers.includes(
-                      Icon.jokerType,
-                    ),
+                      Icon.jokerType
+                    )
                   )
                   .map((Icon, index) => {
                     const type = Icon.jokerType;
@@ -432,11 +432,11 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     // Format name: MULTIPLE_CHOICE -> Multiple Choice
                     const jokerName = Icon.jokerType
                       .toLowerCase()
-                      .split("_")
+                      .split('_')
                       .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
                       )
-                      .join(" ");
+                      .join(' ');
 
                     // Construct the tooltip text
                     const tooltipText = isAvailable
@@ -453,14 +453,14 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                         if (isAvailable && !hasUsedJokerThisRound) {
                           handleJokerUsage(type);
                         }
-                      },
+                      }
                     );
 
                     return (
                       <div key={type} className="joker-btn-wrapper">
                         <button
                           className="joker-icon-btn"
-                          id={`btn-joker-${type.toLowerCase().replace(/_/g, "-")}`}
+                          id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
                           title={tooltipText}
                           onClick={() => handleJokerUsage(type)}
                           disabled={!isAvailable || hasUsedJokerThisRound}

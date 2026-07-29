@@ -1,26 +1,26 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import fs from "fs";
-import { loadPermissions, isAllowed } from "./access_control.js";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import fs from 'fs';
+import { loadPermissions, isAllowed } from './access_control.js';
 
-const PLAYER_1 = "player_123";
-const PLAYER_2 = "player_456";
-const PLAYER_3 = "player_789";
+const PLAYER_1 = 'player_123';
+const PLAYER_2 = 'player_456';
+const PLAYER_3 = 'player_789';
 
-const TRACK_1 = "track_123.mp3";
-const TRACK_2 = "track_456.mp3";
-const TRACK_3 = "track_789.mp3";
+const TRACK_1 = 'track_123.mp3';
+const TRACK_2 = 'track_456.mp3';
+const TRACK_3 = 'track_789.mp3';
 
-vi.mock("fs");
+vi.mock('fs');
 
-describe("isAllowed", () => {
+describe('isAllowed', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  it("should correctly parse a whitelist from JSON", () => {
+  it('should correctly parse a whitelist from JSON', () => {
     const mockData = JSON.stringify([
       {
-        type: "whitelist",
+        type: 'whitelist',
         userIds: [PLAYER_1],
         files: [TRACK_1],
       },
@@ -36,10 +36,10 @@ describe("isAllowed", () => {
     expect(isAllowed(PLAYER_2, TRACK_1)).toBe(false); // Not whitelisted
   });
 
-  it("should correctly parse a blacklist from JSON", () => {
+  it('should correctly parse a blacklist from JSON', () => {
     const mockData = JSON.stringify([
       {
-        type: "blacklist",
+        type: 'blacklist',
         userIds: [PLAYER_1],
         files: [TRACK_2],
       },
@@ -54,7 +54,7 @@ describe("isAllowed", () => {
     expect(isAllowed(PLAYER_2, TRACK_2)).toBe(true); // Not blacklisted
   });
 
-  it("should start with no restrictions if file does not exist", () => {
+  it('should start with no restrictions if file does not exist', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
     loadPermissions();

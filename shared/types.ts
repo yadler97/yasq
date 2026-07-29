@@ -9,7 +9,7 @@ import {
   Joker,
   StreakBonusMultiplier,
   TimeBonus,
-} from "@yasq/shared";
+} from '@yasq/shared';
 
 export interface Participant {
   id: string;
@@ -26,7 +26,7 @@ export class GameSettings<T = Joker[]> {
     public enabledJokers: T = [] as T,
     public firstBonusMultiplier: FirstBonusMultiplier = DEFAULT_FIRST_BONUS_MULTIPLIER,
     public timeBonus: TimeBonus | null = DEFAULT_TIME_BONUS,
-    public streakBonusMultiplier: StreakBonusMultiplier = DEFAULT_STREAK_BONUS_MULTIPLIER,
+    public streakBonusMultiplier: StreakBonusMultiplier = DEFAULT_STREAK_BONUS_MULTIPLIER
   ) {}
 }
 

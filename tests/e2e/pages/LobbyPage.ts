@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator } from '@playwright/test';
 
 export class LobbyPage {
   readonly page: Page;
@@ -7,8 +7,8 @@ export class LobbyPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.startBtn = page.locator("#btn-start");
-    this.readyBtn = page.locator("#btn-ready");
+    this.startBtn = page.locator('#btn-start');
+    this.readyBtn = page.locator('#btn-ready');
   }
 
   async clickReady(): Promise<void> {

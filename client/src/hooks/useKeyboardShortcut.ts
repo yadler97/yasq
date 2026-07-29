@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef } from 'preact/hooks';
 
 type KeyCombo = {
   key: string;
@@ -10,7 +10,7 @@ type KeyCombo = {
 
 export const useKeyboardShortcut = (
   shortcut: KeyCombo,
-  callback: (e: KeyboardEvent) => void,
+  callback: (e: KeyboardEvent) => void
 ) => {
   const callbackRef = useRef(callback);
   callbackRef.current = callback;
@@ -31,8 +31,8 @@ export const useKeyboardShortcut = (
 
       const target = event.target as HTMLElement;
       const isTyping =
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
         target.isContentEditable;
 
       // Allow typing if any modifier is held down
@@ -47,7 +47,7 @@ export const useKeyboardShortcut = (
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [targetKey, reqCtrl, reqAlt, reqShift, reqMeta]);
 };

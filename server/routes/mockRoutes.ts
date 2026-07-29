@@ -1,13 +1,13 @@
-import express from "express";
-import { GameInstance, Leaderboard, TrackInfo } from "../src/models.js";
-import { GameSettings, Joker } from "@yasq/shared";
-import type { Server } from "socket.io";
-import { broadcastGameStatus } from "../src/helper.js";
-import { logger } from "../src/utils/logger.js";
+import express from 'express';
+import { GameInstance, Leaderboard, TrackInfo } from '../src/models.js';
+import { GameSettings, Joker } from '@yasq/shared';
+import type { Server } from 'socket.io';
+import { broadcastGameStatus } from '../src/helper.js';
+import { logger } from '../src/utils/logger.js';
 
 export const setupMockRoutes = (
   server: Server,
-  instances: Record<string, GameInstance>,
+  instances: Record<string, GameInstance>
 ) => {
   const router = express.Router();
 
@@ -18,12 +18,12 @@ export const setupMockRoutes = (
     }
   };
 
-  router.post("/setup-session", (req, res) => {
+  router.post('/setup-session', (req, res) => {
     const {
       instanceId,
       registeredUsers = [],
       hostId = registeredUsers[0]?.id, // Default host is the first player in the list
-      state = "LOBBY",
+      state = 'LOBBY',
       currentRound = 1,
       readyUserIds = [],
       settings = new GameSettings<Set<Joker>>(),
@@ -39,7 +39,7 @@ export const setupMockRoutes = (
     } = req.body;
 
     if (!instanceId) {
-      return res.status(400).send({ error: "instanceId is required" });
+      return res.status(400).send({ error: 'instanceId is required' });
     }
 
     // Set the mock state
@@ -69,15 +69,15 @@ export const setupMockRoutes = (
 
     res
       .status(200)
-      .send({ message: "Mock data loaded", instance: instances[instanceId] });
+      .send({ message: 'Mock data loaded', instance: instances[instanceId] });
   });
 
-  router.patch("/instance/:instanceId", (req, res) => {
+  router.patch('/instance/:instanceId', (req, res) => {
     const { instanceId } = req.params;
     const game = instances[instanceId];
 
     if (!game) {
-      return res.status(400).send({ error: "Instance not found" });
+      return res.status(400).send({ error: 'Instance not found' });
     }
 
     const updates = req.body;
@@ -93,8 +93,8 @@ export const setupMockRoutes = (
     if (updates.registeredUsers) {
       game.registeredUsers = new Set(
         updates.registeredUsers.map((u: any) =>
-          typeof u === "string" ? u : u.id,
-        ),
+          typeof u === 'string' ? u : u.id
+        )
       );
     }
     if (updates.readyUsers) {
@@ -115,7 +115,7 @@ export const setupMockRoutes = (
         updates.trackInfo.startTime,
         updates.trackInfo.endTime,
         updates.trackInfo.track,
-        updates.trackInfo.gameCoverUrl,
+        updates.trackInfo.gameCoverUrl
       );
     }
     if (updates.guesses) {
@@ -136,10 +136,10 @@ export const setupMockRoutes = (
 
     triggerUpdate(instanceId);
 
-    res.status(200).send({ message: "Instance updated", instance: game });
+    res.status(200).send({ message: 'Instance updated', instance: game });
   });
 
-  router.delete("/instance/:instanceId", (req, res) => {
+  router.delete('/instance/:instanceId', (req, res) => {
     const { instanceId } = req.params;
 
     if (instances[instanceId]) {

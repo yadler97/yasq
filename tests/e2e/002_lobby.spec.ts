@@ -1,10 +1,10 @@
-import { test, expect } from "@playwright/test";
-import { generatePlayers, Player } from "../utils/helper.js";
-import { LobbyPage } from "./pages/LobbyPage.js";
-import { TestApi } from "../utils/api.js";
-import { Sidebar } from "./pages/components/Sidebar.js";
+import { test, expect } from '@playwright/test';
+import { generatePlayers, Player } from '../utils/helper.js';
+import { LobbyPage } from './pages/LobbyPage.js';
+import { TestApi } from '../utils/api.js';
+import { Sidebar } from './pages/components/Sidebar.js';
 
-test.describe("Host UI", () => {
+test.describe('Host UI', () => {
   let players: Player[] = [];
   let currentInstanceId: string;
   let api: TestApi;
@@ -22,22 +22,22 @@ test.describe("Host UI", () => {
         window.__MOCK_USER_NAME__ = user.username;
         window.__MOCK_INSTANCE_ID__ = instanceId;
       },
-      { allPlayers: players, user: user, instanceId: currentInstanceId },
+      { allPlayers: players, user: user, instanceId: currentInstanceId }
     );
 
     // Setup current game state
-    api = new TestApi("http://localhost:3001", currentInstanceId);
-    await api.setupSession(players, "LOBBY");
+    api = new TestApi('http://localhost:3001', currentInstanceId);
+    await api.setupSession(players, 'LOBBY');
 
     // Navigate to the app
-    await page.goto("/?mock=true");
+    await page.goto('/?mock=true');
   });
 
   test.afterEach(async () => {
     await api.deleteSession();
   });
 
-  test("should toggle start button based on participant ready-state updates", async ({
+  test('should toggle start button based on participant ready-state updates', async ({
     page,
   }) => {
     const lobbyPage = new LobbyPage(page);
@@ -65,7 +65,7 @@ test.describe("Host UI", () => {
     await expect(lobbyPage.startBtn).toBeDisabled();
   });
 
-  test("should display correct badges for host and ready status", async ({
+  test('should display correct badges for host and ready status', async ({
     page,
   }) => {
     const sidebar = new Sidebar(page);
@@ -74,23 +74,23 @@ test.describe("Host UI", () => {
     const player = players[1];
 
     // Check for the HOST badge
-    await expect(sidebar.getBadge(host.username, "host")).toBeVisible();
-    await expect(sidebar.getBadge(host.username, "host")).toHaveText("HOST");
+    await expect(sidebar.getBadge(host.username, 'host')).toBeVisible();
+    await expect(sidebar.getBadge(host.username, 'host')).toHaveText('HOST');
 
     // Set ready and check for the READY badge
     await api.setReady(player, true);
-    await expect(sidebar.getBadge(player.username, "ready")).toBeVisible();
-    await expect(sidebar.getBadge(player.username, "ready")).toHaveText(
-      "READY",
+    await expect(sidebar.getBadge(player.username, 'ready')).toBeVisible();
+    await expect(sidebar.getBadge(player.username, 'ready')).toHaveText(
+      'READY'
     );
 
     // Unset ready and check badge gone
     await api.setReady(player, false);
-    await expect(sidebar.getBadge(player.username, "ready")).toBeHidden();
+    await expect(sidebar.getBadge(player.username, 'ready')).toBeHidden();
   });
 });
 
-test.describe("Player UI", () => {
+test.describe('Player UI', () => {
   let players: Player[] = [];
   let currentInstanceId: string;
   let api: TestApi;
@@ -108,29 +108,29 @@ test.describe("Player UI", () => {
         window.__MOCK_USER_NAME__ = user.username;
         window.__MOCK_INSTANCE_ID__ = instanceId;
       },
-      { allPlayers: players, user: user, instanceId: currentInstanceId },
+      { allPlayers: players, user: user, instanceId: currentInstanceId }
     );
 
     // Setup current game state
-    api = new TestApi("http://localhost:3001", currentInstanceId);
-    await api.setupSession(players, "LOBBY");
+    api = new TestApi('http://localhost:3001', currentInstanceId);
+    await api.setupSession(players, 'LOBBY');
 
     // Navigate to the app
-    await page.goto("/?mock=true");
+    await page.goto('/?mock=true');
   });
 
   test.afterEach(async () => {
     await api.deleteSession();
   });
 
-  test("should display ready button and toggle status", async ({ page }) => {
+  test('should display ready button and toggle status', async ({ page }) => {
     const lobby = new LobbyPage(page);
     const sidebar = new Sidebar(page);
     const player = players[1];
 
     // Verify Ready Button Visible
     await expect(lobby.readyBtn).toBeVisible();
-    await expect(lobby.readyBtn).toHaveText("Ready Up");
+    await expect(lobby.readyBtn).toHaveText('Ready Up');
 
     // Click the Ready button
     await lobby.readyBtn.click();
@@ -139,15 +139,15 @@ test.describe("Player UI", () => {
     await expect(lobby.readyBtn).toHaveText("I'm Ready! ✅");
 
     // Verify the Badge appears in the player list
-    await expect(sidebar.getBadge(player.username, "ready")).toBeVisible();
+    await expect(sidebar.getBadge(player.username, 'ready')).toBeVisible();
 
     // Click the Ready button again
     await lobby.readyBtn.click();
 
     // Verify the button text changes
-    await expect(lobby.readyBtn).toHaveText("Ready Up");
+    await expect(lobby.readyBtn).toHaveText('Ready Up');
 
     // Verify the Badge disappears in the player list
-    await expect(sidebar.getBadge(player.username, "ready")).toBeHidden();
+    await expect(sidebar.getBadge(player.username, 'ready')).toBeHidden();
   });
 });

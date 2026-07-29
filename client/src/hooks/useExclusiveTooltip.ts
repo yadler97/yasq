@@ -1,4 +1,4 @@
-import { effect, signal } from "@preact/signals";
+import { effect, signal } from '@preact/signals';
 
 const activeTooltipId = signal<string | null>(null);
 
@@ -10,14 +10,14 @@ effect(() => {
     activeTooltipId.value = null;
   };
 
-  window.addEventListener("touchstart", closeAll);
-  window.addEventListener("click", closeAll);
-  window.addEventListener("scroll", closeAll, true);
+  window.addEventListener('touchstart', closeAll);
+  window.addEventListener('click', closeAll);
+  window.addEventListener('scroll', closeAll, true);
 
   return () => {
-    window.removeEventListener("touchstart", closeAll);
-    window.removeEventListener("click", closeAll);
-    window.removeEventListener("scroll", closeAll, true);
+    window.removeEventListener('touchstart', closeAll);
+    window.removeEventListener('click', closeAll);
+    window.removeEventListener('scroll', closeAll, true);
   };
 });
 

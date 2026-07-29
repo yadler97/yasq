@@ -1,16 +1,16 @@
-import { BASE_POINTS, BonusType, PointsBonus } from "@yasq/shared";
+import { BASE_POINTS, BonusType, PointsBonus } from '@yasq/shared';
 
 const BONUS_LABELS: Record<BonusType, string> = {
-  [BonusType.TIME_BONUS]: "Time bonus",
-  [BonusType.FIRST_BONUS]: "First bonus",
-  [BonusType.STREAK_BONUS]: "Streak bonus",
-  [BonusType.STREAK_BREAKER]: "Streak breaker bonus",
+  [BonusType.TIME_BONUS]: 'Time bonus',
+  [BonusType.FIRST_BONUS]: 'First bonus',
+  [BonusType.STREAK_BONUS]: 'Streak bonus',
+  [BonusType.STREAK_BREAKER]: 'Streak breaker bonus',
 };
 
 class PointsCalculationEntry {
   constructor(
     public title: string,
-    public points: number,
+    public points: number
   ) {}
 }
 
@@ -35,19 +35,19 @@ export const PointsCalculationTable = ({
   }
 
   const calculationEntries: PointsCalculationEntry[] = [
-    new PointsCalculationEntry("Base points", awardedBasePoints),
+    new PointsCalculationEntry('Base points', awardedBasePoints),
     ...awardedBonuses.map(
       (bonus) =>
         new PointsCalculationEntry(
           BONUS_LABELS[bonus.type],
-          bonus.toAbsolute(awardedBasePoints),
-        ),
+          bonus.toAbsolute(awardedBasePoints)
+        )
     ),
   ];
 
   const totalPoints = calculationEntries.reduce(
     (sum, item) => sum + item.points,
-    0,
+    0
   );
 
   return (
@@ -58,11 +58,11 @@ export const PointsCalculationTable = ({
           return (
             <tr
               key={entry.title}
-              className={isFirst ? "base-row" : "bonus-row"}
+              className={isFirst ? 'base-row' : 'bonus-row'}
             >
               <td className="label-col">{entry.title}</td>
               <td className="points-col">
-                {isFirst ? "" : "+ "}
+                {isFirst ? '' : '+ '}
                 {entry.points}
               </td>
               <td className="unit-col">pt.</td>

@@ -1,20 +1,20 @@
-import { Signal, useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
-import * as backend from "../utils/backend";
-import { TimeBonusPlotPayload } from "../utils/backend";
-import { TimeBonus } from "@yasq/shared";
+import { Signal, useSignal } from '@preact/signals';
+import { useEffect } from 'preact/hooks';
+import * as backend from '../utils/backend';
+import { TimeBonusPlotPayload } from '../utils/backend';
+import { TimeBonus } from '@yasq/shared';
 
 /**
  * Fetch and cache sample data to display in a {@link TimeBonusPlot} for each variant of {@link TimeBonus}.
  */
 export const useTimeBonusSamples = (
-  isHost: boolean,
+  isHost: boolean
 ): {
   timeBonusSamples: Signal<Map<TimeBonus, TimeBonusPlotPayload>>;
   isLoading: Signal<boolean>;
 } => {
   const samplesCache = useSignal<Map<TimeBonus, TimeBonusPlotPayload>>(
-    new Map(),
+    new Map()
   );
   const isLoading = useSignal(false);
 
@@ -27,17 +27,17 @@ export const useTimeBonusSamples = (
       Object.keys(TimeBonus).map(async (bonusType) => {
         try {
           const payload = await backend.getSampleTimeBonusSummary(
-            bonusType as TimeBonus,
+            bonusType as TimeBonus
           );
           return [bonusType, payload] as const;
         } catch (err) {
           console.error(
             `Failed to prefetch sample for bonus type ${bonusType}:`,
-            err,
+            err
           );
           return null;
         }
-      }),
+      })
     ).then((results) => {
       const newSamplesMap = new Map<TimeBonus, TimeBonusPlotPayload>();
       for (const result of results) {

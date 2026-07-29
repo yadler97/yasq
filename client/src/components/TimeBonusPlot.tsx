@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "preact/hooks";
+import { useMemo, useRef, useState } from 'preact/hooks';
 import {
   getAvatarUrl,
   getDisplayName,
@@ -7,11 +7,11 @@ import {
   Participant,
   PlayerTimeBonusPoint,
   TimeBonusSummary,
-} from "@yasq/shared";
+} from '@yasq/shared';
 
 enum DataPointType {
-  CURVE = "curve",
-  PLAYER = "player",
+  CURVE = 'curve',
+  PLAYER = 'player',
 }
 
 type BaseHoverData = {
@@ -72,26 +72,26 @@ export const TimeBonusPlot = ({
 
   // Compute the SVG path for the decaying time bonus curve
   const svgCurvePath = useMemo(() => {
-    if (!curvePoints.length) return "";
+    if (!curvePoints.length) return '';
     const strings = curvePoints.map(
-      (pt) => `${getX(pt.time).toFixed(1)},${getY(pt.multiplier).toFixed(1)}`,
+      (pt) => `${getX(pt.time).toFixed(1)},${getY(pt.multiplier).toFixed(1)}`
     );
-    return `M ${strings.join(" L ")}`;
+    return `M ${strings.join(' L ')}`;
   }, [curvePoints, totalTime]);
 
   // Determine the colour theme for a player marker
   const getMarkerColor = (p: PlayerTimeBonusPoint) => {
-    if (p.playerId === currentPlayer?.id) return "var(--color-marker-current)";
-    if (p.multiplier === null) return "var(--color-marker-incorrect)";
-    if (p.fullyCorrect) return "var(--color-marker-correct)";
-    return "var(--color-marker-partial)";
+    if (p.playerId === currentPlayer?.id) return 'var(--color-marker-current)';
+    if (p.multiplier === null) return 'var(--color-marker-incorrect)';
+    if (p.fullyCorrect) return 'var(--color-marker-correct)';
+    return 'var(--color-marker-partial)';
   };
 
   const tooltipBorderColor = hoverData
     ? hoverData.type === DataPointType.PLAYER
       ? getMarkerColor(hoverData.player)
-      : "var(--color-curve)"
-    : "var(--color-plot-tooltip-border)";
+      : 'var(--color-curve)'
+    : 'var(--color-plot-tooltip-border)';
 
   // Identify the first player with a successful or partially correct guess
   const firstSuccessInfo = useMemo(() => {
@@ -99,7 +99,7 @@ export const TimeBonusPlot = ({
     if (validGuesses.length === 0) return null;
 
     const earliest = validGuesses.reduce((prev, curr) =>
-      curr.time < prev.time ? curr : prev,
+      curr.time < prev.time ? curr : prev
     );
     return {
       playerId: earliest.playerId,
@@ -134,7 +134,7 @@ export const TimeBonusPlot = ({
   }, [playerGuessTimes, hoverData]);
 
   const getClientX = (e: MouseEvent | TouchEvent): number | null => {
-    if ("touches" in e) {
+    if ('touches' in e) {
       if (e.touches && e.touches.length > 0) {
         return e.touches[0].clientX;
       }
@@ -154,7 +154,7 @@ export const TimeBonusPlot = ({
     const relativeX = pointerX - svgRect.left;
     const svgX = Math.max(
       0,
-      Math.min(plotWidth, (relativeX / svgRect.width) * plotWidth),
+      Math.min(plotWidth, (relativeX / svgRect.width) * plotWidth)
     );
 
     let closestCurvePoint: HoverData | null = null;
@@ -213,10 +213,10 @@ export const TimeBonusPlot = ({
         const player = participants.get(pt.playerId) ?? null;
         const playerName =
           pt.playerId === currentPlayer?.id
-            ? "You"
+            ? 'You'
             : player !== null
               ? getDisplayName(player)
-              : "Unknown Player";
+              : 'Unknown Player';
 
         closestPlayerPoint = {
           type: DataPointType.PLAYER,
@@ -353,8 +353,8 @@ export const TimeBonusPlot = ({
           return (
             <g
               key={`${p.playerId}-${idx}`}
-              class={`player-marker ${isHovered ? "is-hovered" : ""} ${isCurrentPlayer ? "current" : ""}`}
-              style={{ "--marker-color": getMarkerColor(p) }}
+              class={`player-marker ${isHovered ? 'is-hovered' : ''} ${isCurrentPlayer ? 'current' : ''}`}
+              style={{ '--marker-color': getMarkerColor(p) }}
             >
               <line
                 x1={playerX}
@@ -435,7 +435,7 @@ export const TimeBonusPlot = ({
               >
                 {hoverData.player.multiplier !== null
                   ? `${(100 * hoverData.player.multiplier).toFixed(1)}%`
-                  : "Incorrect"}
+                  : 'Incorrect'}
               </span>
               <span class="tooltip-time">
                 Time: {hoverData.player.time.toFixed(1)}s
@@ -445,7 +445,7 @@ export const TimeBonusPlot = ({
             <>
               <span
                 class="tooltip-multiplier"
-                style={{ color: "var(--color-curve)" }}
+                style={{ color: 'var(--color-curve)' }}
               >
                 {(100 * hoverData.multiplier).toFixed(1)}%
               </span>

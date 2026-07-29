@@ -1,10 +1,10 @@
-import { useSignal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { useSignal } from '@preact/signals';
+import { useEffect } from 'preact/hooks';
 
-import { auth, discordSdk, gameState, participants } from "../main";
-import * as backend from "../utils/backend";
-import { getAvatarUrl, getDisplayName } from "@yasq/shared";
-import { DiscordAvatar } from "./DiscordAvatar";
+import { auth, discordSdk, gameState, participants } from '../main';
+import * as backend from '../utils/backend';
+import { getAvatarUrl, getDisplayName } from '@yasq/shared';
+import { DiscordAvatar } from './DiscordAvatar';
 
 export const HostTransferDropdown = () => {
   const isOpen = useSignal(false);
@@ -16,13 +16,13 @@ export const HostTransferDropdown = () => {
   const isTransferring = useSignal(false);
 
   const players = participants.value.filter(
-    (p) => p.id !== gameState.value.hostId,
+    (p) => p.id !== gameState.value.hostId
   );
 
   useEffect(() => {
     if (isOpen.value) {
       // Move focus to the first item in the list asynchronously once rendered
-      const firstItem = document.querySelector(".dropdown-item") as HTMLElement;
+      const firstItem = document.querySelector('.dropdown-item') as HTMLElement;
       firstItem?.focus();
     }
   }, [isOpen.value]);
@@ -34,7 +34,7 @@ export const HostTransferDropdown = () => {
       await backend.assignNewHost(
         auth.value.access_token,
         discordSdk.instanceId,
-        selectedPlayer.value.id,
+        selectedPlayer.value.id
       );
     } catch (e) {
       console.error(e);
@@ -60,7 +60,7 @@ export const HostTransferDropdown = () => {
             aria-expanded={isOpen.value}
             onClick={() => (isOpen.value = !isOpen.value)}
             onKeyDown={(e) => {
-              if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
+              if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
                 e.preventDefault();
                 isOpen.value = true;
               }
@@ -76,7 +76,7 @@ export const HostTransferDropdown = () => {
                 <span>{selectedPlayer.value.name}</span>
               </>
             ) : (
-              "Select a player..."
+              'Select a player...'
             )}
           </button>
 
@@ -84,7 +84,7 @@ export const HostTransferDropdown = () => {
             <div
               className="dropdown-list"
               id="dropdown-list"
-              style={{ display: "block" }}
+              style={{ display: 'block' }}
               role="listbox"
             >
               {players.length === 0 ? (
@@ -102,7 +102,7 @@ export const HostTransferDropdown = () => {
                     isOpen.value = false;
                     // Send focus back to the main dropdown button after selecting
                     (
-                      document.querySelector(".dropdown-header") as HTMLElement
+                      document.querySelector('.dropdown-header') as HTMLElement
                     )?.focus();
                   };
 
@@ -120,13 +120,13 @@ export const HostTransferDropdown = () => {
                       onKeyDown={(e) => {
                         // 3. Handle list traversal via keys inside the dropdown list
                         const target = e.currentTarget;
-                        if (e.key === "Enter" || e.key === " ") {
+                        if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
                           selectThisPlayer();
-                        } else if (e.key === "ArrowDown") {
+                        } else if (e.key === 'ArrowDown') {
                           e.preventDefault();
                           (target.nextElementSibling as HTMLElement)?.focus();
-                        } else if (e.key === "ArrowUp") {
+                        } else if (e.key === 'ArrowUp') {
                           e.preventDefault();
                           if (target.previousElementSibling) {
                             (
@@ -135,16 +135,16 @@ export const HostTransferDropdown = () => {
                           } else {
                             (
                               document.querySelector(
-                                ".dropdown-header",
+                                '.dropdown-header'
                               ) as HTMLElement
                             )?.focus();
                           }
-                        } else if (e.key === "Escape") {
+                        } else if (e.key === 'Escape') {
                           e.preventDefault();
                           isOpen.value = false;
                           (
                             document.querySelector(
-                              ".dropdown-header",
+                              '.dropdown-header'
                             ) as HTMLElement
                           )?.focus();
                         }
@@ -169,7 +169,7 @@ export const HostTransferDropdown = () => {
           disabled={!selectedPlayer.value || isTransferring.value}
           onClick={performTransfer}
         >
-          {isTransferring.value ? "Transferring..." : "Transfer"}
+          {isTransferring.value ? 'Transferring...' : 'Transfer'}
         </button>
       </div>
     </div>

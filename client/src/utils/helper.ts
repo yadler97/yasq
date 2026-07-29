@@ -1,10 +1,10 @@
-import { Participant } from "@yasq/shared";
+import { Participant } from '@yasq/shared';
 
 const userCache = new Map<string, Participant>();
 
 export function findUser(
   participants: Participant[],
-  userId: string,
+  userId: string
 ): Participant {
   const realUser = participants.find((p) => p.id === userId);
 
@@ -15,7 +15,7 @@ export function findUser(
   }
 
   // Lookup cache if not present in game
-  return userCache.get(userId) || { id: "0", username: "Unknown" };
+  return userCache.get(userId) || { id: '0', username: 'Unknown' };
 }
 
 export function getUserId(auth: any) {
@@ -28,17 +28,17 @@ export function getUserId(auth: any) {
 export function capitalize(str: string) {
   return str
     .toLowerCase()
-    .split("_")
+    .split('_')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .join(' ');
 }
 
 export function formatBonusMultiplier(rate: number): string {
-  if (rate === 0) return "Off";
+  if (rate === 0) return 'Off';
   const percent = (Math.round(rate * 100 * 10) / 10).toFixed(1);
   return `+${parseFloat(percent)}%`;
 }
 
 export const getActionKeyLabel = (isMac: boolean) => {
-  return isMac ? "⌘" : "Alt";
+  return isMac ? '⌘' : 'Alt';
 };

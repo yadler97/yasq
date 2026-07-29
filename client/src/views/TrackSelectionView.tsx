@@ -1,20 +1,20 @@
-import { useSignal, computed, signal } from "@preact/signals";
-import { useEffect } from "preact/hooks";
+import { useSignal, computed, signal } from '@preact/signals';
+import { useEffect } from 'preact/hooks';
 
-import { auth } from "../main";
-import { discordSdk } from "../main";
-import * as backend from "../utils/backend";
-import { Track, Playlist } from "../utils/types";
-import { NonDraggableImg } from "../components/NonDraggableImg";
-import { TagFilterDropdown } from "../components/TagFilterComponent";
-import { SimpleDropdown } from "../components/SimpleDropdown";
+import { auth } from '../main';
+import { discordSdk } from '../main';
+import * as backend from '../utils/backend';
+import { Track, Playlist } from '../utils/types';
+import { NonDraggableImg } from '../components/NonDraggableImg';
+import { TagFilterDropdown } from '../components/TagFilterComponent';
+import { SimpleDropdown } from '../components/SimpleDropdown';
 
-const selectedPlaylistName = signal<string>("All playlists");
+const selectedPlaylistName = signal<string>('All playlists');
 const selectedTags = signal<Record<string, string[]>>({});
-const searchTerm = signal("");
+const searchTerm = signal('');
 const hidePlayed = signal(false);
-type SortOption = "Default Order" | "A-Z" | "Z-A";
-const sortOrder = signal<SortOption>("Default Order");
+type SortOption = 'Default Order' | 'A-Z' | 'Z-A';
+const sortOrder = signal<SortOption>('Default Order');
 
 export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   const tracks = useSignal<Track[] | null>(null);
@@ -42,9 +42,9 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     return tracks.value.filter((track) => {
       // Filter playlist
       let matchesPlaylist = true;
-      if (selectedPlaylistName.value !== "All playlists") {
+      if (selectedPlaylistName.value !== 'All playlists') {
         const activePlaylist = playlists.value.find(
-          (p) => p.name === selectedPlaylistName.value,
+          (p) => p.name === selectedPlaylistName.value
         );
         matchesPlaylist = activePlaylist
           ? activePlaylist.tracks.includes(track.audio)
@@ -65,7 +65,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
   const filteredTracks = computed(() => {
     const activeCategories = Object.entries(selectedTags.value).filter(
-      ([_, vals]) => vals.length > 0,
+      ([_, vals]) => vals.length > 0
     );
 
     let results = [...baseFilteredTracks.value];
@@ -74,18 +74,18 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
       results = results.filter((track) =>
         activeCategories.every(([type, selectedVals]) =>
           track.tags?.some(
-            (t) => t.type === type && selectedVals.includes(t.value),
-          ),
-        ),
+            (t) => t.type === type && selectedVals.includes(t.value)
+          )
+        )
       );
     }
 
     // Apply Sorting (Default Order, A-Z, or Z-A)
     return results.sort((a, b) => {
-      if (sortOrder.value === "Default Order") {
+      if (sortOrder.value === 'Default Order') {
         // Maintain playlist order if playlist is selected
         const activePlaylist = playlists.value.find(
-          (p) => p.name === selectedPlaylistName.value,
+          (p) => p.name === selectedPlaylistName.value
         );
         if (activePlaylist) {
           return (
@@ -103,10 +103,10 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
       // Secondary Sort: If games are the same, sort by Track Title
       if (gameComp === 0) {
         const titleComp = a.title.localeCompare(b.title);
-        return sortOrder.value === "A-Z" ? titleComp : -titleComp;
+        return sortOrder.value === 'A-Z' ? titleComp : -titleComp;
       }
 
-      return sortOrder.value === "A-Z" ? gameComp : -gameComp;
+      return sortOrder.value === 'A-Z' ? gameComp : -gameComp;
     });
   });
 
@@ -120,7 +120,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     await backend.playTrack(
       auth.value.access_token,
       randomTrack.audio,
-      discordSdk.instanceId,
+      discordSdk.instanceId
     );
   };
 
@@ -143,15 +143,15 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
     categories.forEach((catToSkip) => {
       const otherFilters = Object.entries(currentFilters).filter(
-        ([type, vals]) => type !== catToSkip && vals.length > 0,
+        ([type, vals]) => type !== catToSkip && vals.length > 0
       );
 
       const reachableInCat = baseFilteredTracks.value.filter((track) =>
         otherFilters.every(([type, selectedVals]) =>
           track.tags.some(
-            (t) => t.type === type && selectedVals.includes(t.value),
-          ),
-        ),
+            (t) => t.type === type && selectedVals.includes(t.value)
+          )
+        )
       );
 
       reachableInCat.forEach((track) => {
@@ -187,14 +187,14 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
       <h2>Select the next track to challenge players:</h2>
       <div className="controls">
         <SimpleDropdown
-          options={["Default Order", "A-Z", "Z-A"]}
+          options={['Default Order', 'A-Z', 'Z-A']}
           value={sortOrder.value}
           onChange={(val) => (sortOrder.value = val as SortOption)}
         />
 
         {playlists.value.length > 0 && (
           <SimpleDropdown
-            options={["All playlists", ...playlists.value.map((p) => p.name)]}
+            options={['All playlists', ...playlists.value.map((p) => p.name)]}
             value={selectedPlaylistName.value}
             onChange={(val) => (selectedPlaylistName.value = val)}
           />
@@ -212,7 +212,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
           <input
             type="text"
             id="track-search"
-            className={`track-search ${searchTerm.value ? "active" : ""}`}
+            className={`track-search ${searchTerm.value ? 'active' : ''}`}
             placeholder="Search game or track name..."
             value={searchTerm.value}
             onInput={(e) =>
@@ -221,7 +221,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
           />
           {searchTerm.value && (
             <button
-              onClick={() => (searchTerm.value = "")}
+              onClick={() => (searchTerm.value = '')}
               title="Clear search"
             >
               ✕
@@ -247,7 +247,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
               (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)
             }
             onKeyDown={(e) => {
-              if (e.key === " " || e.key === "Enter") {
+              if (e.key === ' ' || e.key === 'Enter') {
                 e.preventDefault();
                 hidePlayed.value = !hidePlayed.value;
               }
@@ -264,17 +264,17 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
           filteredTracks.value.map((track) => (
             <div
               key={track.audio}
-              className={`track-card ${track.played ? "played" : ""}`}
+              className={`track-card ${track.played ? 'played' : ''}`}
             >
               <div className="cover-wrapper">
                 <NonDraggableImg
                   src={
-                    `/game_covers/${track.cover}` || "/game_covers/default.svg"
+                    `/game_covers/${track.cover}` || '/game_covers/default.svg'
                   }
                   alt={`Cover of ${track.game}`}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src =
-                      "/game_covers/default.svg";
+                      '/game_covers/default.svg';
                   }}
                 />
                 {track.played && <span className="played-overlay">PLAYED</span>}
@@ -308,11 +308,11 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
                   await backend.playTrack(
                     auth.value.access_token,
                     track.audio,
-                    discordSdk.instanceId,
+                    discordSdk.instanceId
                   );
                 }}
               >
-                {track.played ? "Already Played" : "Select Track"}
+                {track.played ? 'Already Played' : 'Select Track'}
               </button>
             </div>
           ))
@@ -332,7 +332,7 @@ const HighlightText = ({
   if (!highlight.trim()) return <span>{text}</span>;
 
   // Split text by the highlight term, keeping the delimiter for case sensitivity
-  const parts = text.split(new RegExp(`(${highlight})`, "gi"));
+  const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
 
   return (
     <span>
@@ -343,7 +343,7 @@ const HighlightText = ({
           </mark>
         ) : (
           part
-        ),
+        )
       )}
     </span>
   );

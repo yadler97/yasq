@@ -1,5 +1,5 @@
-import { RoundResult } from "../utils/types";
-import { useExclusiveTooltip } from "../hooks/useExclusiveTooltip";
+import { RoundResult } from '../utils/types';
+import { useExclusiveTooltip } from '../hooks/useExclusiveTooltip';
 
 interface RoundBubblesGroupProps {
   rounds: RoundResult[];
@@ -35,20 +35,20 @@ export const RoundBubble = ({ roundResult, userId }: RoundBubbleProps) => {
   const measureBounds = (el: HTMLDivElement) => {
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    el.style.setProperty("--trigger-x", `${rect.left}px`);
+    el.style.setProperty('--trigger-x', `${rect.left}px`);
     // Computed styles of the tooltip with a width dynamically adjusted to fit the text
-    const computedStyle = window.getComputedStyle(el, "::after");
-    el.style.setProperty("--tooltip-width", computedStyle.width);
+    const computedStyle = window.getComputedStyle(el, '::after');
+    el.style.setProperty('--tooltip-width', computedStyle.width);
   };
 
   const optionalRoundPrefix = roundResult.round
     ? `Round ${roundResult.round}: `
-    : "";
-  const tooltipContent = `${optionalRoundPrefix}${roundResult.guess || "No guess"}`;
+    : '';
+  const tooltipContent = `${optionalRoundPrefix}${roundResult.guess || 'No guess'}`;
 
   return (
     <div
-      className={`round-bubble has-tooltip ${roundResult.scoreValue > 0 ? "correct" : "incorrect"} ${roundResult.isFirst ? "first" : ""} ${isTooltipOpen ? "show-tooltip" : ""}`}
+      className={`round-bubble has-tooltip ${roundResult.scoreValue > 0 ? 'correct' : 'incorrect'} ${roundResult.isFirst ? 'first' : ''} ${isTooltipOpen ? 'show-tooltip' : ''}`}
       data-tooltip={tooltipContent}
       onMouseEnter={(e) => {
         measureBounds(e.currentTarget as HTMLDivElement);

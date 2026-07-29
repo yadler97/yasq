@@ -1,6 +1,6 @@
-import { useId } from "preact/hooks";
-import { useExclusiveTooltip } from "../hooks/useExclusiveTooltip";
-import { NonDraggableImg } from "./NonDraggableImg";
+import { useId } from 'preact/hooks';
+import { useExclusiveTooltip } from '../hooks/useExclusiveTooltip';
+import { NonDraggableImg } from './NonDraggableImg';
 
 interface DiscordAvatarProps {
   src: string;
@@ -14,9 +14,9 @@ export const DiscordAvatar = ({
   src,
   userName,
   tiny = false,
-  className = "",
+  className = '',
 }: DiscordAvatarProps) => {
-  const cssClass = tiny ? "avatar-tiny" : "avatar-small";
+  const cssClass = tiny ? 'avatar-tiny' : 'avatar-small';
   return (
     <NonDraggableImg
       src={src}
@@ -35,7 +35,7 @@ export const DiscordAvatarWithTooltip = ({
   src,
   userName,
   tiny = false,
-  className = "",
+  className = '',
   userId,
 }: DiscordAvatarWithTooltipProps) => {
   const { activeTooltipId, setActiveTooltipId } = useExclusiveTooltip();
@@ -47,15 +47,15 @@ export const DiscordAvatarWithTooltip = ({
   const measureBounds = (el: HTMLDivElement) => {
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    el.style.setProperty("--trigger-x", `${rect.left}px`);
-    const computedStyle = window.getComputedStyle(el, "::after");
-    el.style.setProperty("--tooltip-width", computedStyle.width);
+    el.style.setProperty('--trigger-x', `${rect.left}px`);
+    const computedStyle = window.getComputedStyle(el, '::after');
+    el.style.setProperty('--tooltip-width', computedStyle.width);
   };
 
   // Wrap the basic DiscordAvatar component in a container that adds a reactive tooltip
   return (
     <div
-      className={`discord-avatar-wrapper has-tooltip ${isTooltipOpen ? "show-tooltip" : ""}`}
+      className={`discord-avatar-wrapper has-tooltip ${isTooltipOpen ? 'show-tooltip' : ''}`}
       data-tooltip={userName}
       onMouseEnter={(e) => {
         measureBounds(e.currentTarget as HTMLDivElement);
