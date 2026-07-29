@@ -256,7 +256,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry3!.roundHistory).toHaveLength(1);
     expect(entry3!.roundHistory[0]!.isFirst).toBe(false);
     expect(entry3!.roundHistory[0]!.scoreValue).toBe(1);
-    const awardedBonuses3 = entry1!.roundHistory[0]!.awardedBonuses;
+    const awardedBonuses3 = entry3!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses3.length).toBe(1);
     expect(awardedBonuses3).toContainEqual(
       matchesBonus(BonusType.TIME_BONUS, 0.3333)
