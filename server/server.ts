@@ -53,6 +53,10 @@ function setupFileWatcher(
   onFileChange: () => void,
   fileName: string
 ) {
+  if (!fs.existsSync(filePath)) {
+    return;
+  }
+
   let changeTimeout: NodeJS.Timeout | null = null;
 
   fs.watch(filePath, (_eventType, _filename) => {
