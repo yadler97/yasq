@@ -30,7 +30,7 @@ import { generateSampleTimeBonusSummary, SAMPLE_PARTICIPANTS } from "../src/util
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export const setupRoutes = (server: Server, instances: Record<string, GameInstance>, getTracks: () => any, getPlaylists: () => Playlist[]) => {
+export const setupRoutes = (server: Server, instances: Record<string, GameInstance>, getTracks: () => Track[], getPlaylists: () => Playlist[]) => {
   const { authenticateUser, fetchGame, isHost } = createGameMiddlewares(instances);
   const router = express.Router();
 
