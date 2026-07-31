@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-import { GameInstance, Track } from '../src/models.js';
+import { GameInstance } from '../src/models.js';
 import type {
   InstanceGuildQuery,
   InstanceQuery,
@@ -19,6 +19,8 @@ import {
   TimeBonus,
   type Participant,
   type TimeBonusSummary,
+  type Playlist,
+  type Track,
 } from '@yasq/shared';
 import {
   broadcastGameStatus,
@@ -46,8 +48,8 @@ const __dirname = path.dirname(__filename);
 export const setupRoutes = (
   server: Server,
   instances: Record<string, GameInstance>,
-  allTracks: any,
-  allPlaylists: any
+  getTracks: () => Track[],
+  getPlaylists: () => Playlist[]
 ) => {
   const { authenticateUser, fetchGame, isHost } =
     createGameMiddlewares(instances);
@@ -203,11 +205,11 @@ export const setupRoutes = (
       const userId = req.userId!;
       const game = req.game!;
 
-      if (allTracks.length === game.trackHistory.length) {
+      if (getTracks().length === game.trackHistory.length) {
         game.trackHistory = []; // Reset history if all tracks have been played
       }
 
-      const tracks = allTracks
+      const tracks = getTracks()
         .filter((t: any) => isAllowed(userId, t.audio))
         .map((t: Track, index: number) => ({
           id: index,
@@ -221,7 +223,7 @@ export const setupRoutes = (
 
       res.json({
         tracks: tracks,
-        playlists: allPlaylists,
+        playlists: getPlaylists(),
       });
     }
   );
@@ -463,7 +465,7 @@ export const setupRoutes = (
           .send({ error: 'You do not have permission to play this track.' });
       }
 
-      const track = allTracks.find((t: Track) => t.audio === fileName);
+      const track = getTracks().find((t: Track) => t.audio === fileName);
 
       if (!track) {
         return res.status(400).send({ error: 'Track not found.' });
@@ -588,7 +590,7 @@ export const setupRoutes = (
         hint = game.getTagHint();
         break;
       case Joker.MULTIPLE_CHOICE:
-        hint = game.getMultipleChoiceHint(allTracks);
+        hint = game.getMultipleChoiceHint(getTracks());
         break;
       case Joker.SPY:
         if (!targetId) {
