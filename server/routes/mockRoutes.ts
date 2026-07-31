@@ -113,9 +113,9 @@ export const setupMockRoutes = (
       game.trackInfo = {
         url: updates.trackInfo.url,
         startTime: updates.trackInfo.startTime,
-        endTime:updates.trackInfo.endTime,
+        endTime: updates.trackInfo.endTime,
         track: updates.trackInfo.track,
-        gameCoverUrl: updates.trackInfo.gameCoverUrl
+        gameCoverUrl: updates.trackInfo.gameCoverUrl,
       };
     }
     if (updates.guesses) {

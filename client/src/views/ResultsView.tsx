@@ -140,7 +140,9 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             <div id="host-details">
               <hr className="divider" />
               <div className="host-details-panel">
-                <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
+                <h3 className="section-heading time-bonus-heading">
+                  Time bonus calculation:
+                </h3>
                 <div className="center-box">
                   <TimeBonusPlot
                     currentPlayer={currentPlayer}
@@ -301,7 +303,9 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             <div id="host-details">
               <hr className="divider" />
               <div className="host-details-panel">
-                <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
+                <h3 className="section-heading time-bonus-heading">
+                  Time bonus calculation:
+                </h3>
                 <div className="center-box">
                   <TimeBonusPlot
                     currentPlayer={currentPlayer}
