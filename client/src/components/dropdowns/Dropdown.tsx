@@ -1,23 +1,23 @@
 import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 
-export const SimpleDropdown = ({
+export const Dropdown = ({
   options,
   value,
-  onChange
+  onChange,
+  disabled
 }: {
-  options: string[],
+  options: Record<string, string>,
   value: string,
-  onChange: (val: string) => void
+  onChange: (val: string) => void,
+  disabled?: boolean
 }) => {
   const isOpen = useSignal(false);
-  const isFiltering = value !== options[0];
-  const longestOption = options.reduce((a, b) => (a.length > b.length ? a : b), "");
+  const longestOption = Object.values(options).reduce((a, b) => (a.length > b.length ? a : b), "");
 
   useEffect(() => {
     if (!isOpen.value) return;
 
-    // Move focus to the first item immediately after rendering
     const firstItem = document.querySelector(".dropdown-menu .dropdown-item") as HTMLElement;
     firstItem?.focus();
 
@@ -33,7 +33,6 @@ export const SimpleDropdown = ({
 
   const closeMenuAndFocusTrigger = (currentTarget: HTMLElement) => {
     isOpen.value = false;
-    // Walk up the DOM tree to find the local dropdown container's trigger button
     const container = currentTarget.closest(".filter-dropdown");
     (container?.querySelector(".dropdown-trigger") as HTMLElement)?.focus();
   };
@@ -44,7 +43,9 @@ export const SimpleDropdown = ({
       style={{ "--longest-text": `"${longestOption}"` }}
     >
       <button
-        className={`dropdown-trigger ${isFiltering ? 'active' : ''}`}
+        className={`dropdown-trigger`}
+        style={{ width: "100%" }}
+        disabled={disabled}
         onClick={() => (isOpen.value = !isOpen.value)}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown" || e.key === " " || e.key === "Enter") {
@@ -53,8 +54,8 @@ export const SimpleDropdown = ({
           }
         }}
       >
-        <span className="current-value">{value}</span>
-        <span className={`arrow ${isOpen.value ? 'up' : 'down'}`}>▼</span>
+        <span className="current-value">{options[value]}</span>
+        <span className={`arrow-indicator ${isOpen.value ? "open" : ""}`} />
       </button>
 
       {isOpen.value && (
@@ -69,24 +70,23 @@ export const SimpleDropdown = ({
               const atTop = container.scrollTop === 0;
               const atBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
 
-              // If the wheel movement goes up at the top, or down at the bottom, stop it
               if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
                 e.preventDefault();
               }
             }}
           >
             <div className="scrollbar-container">
-              {options.map(opt => {
+              {Object.entries(options).map(([key, label]) => {
                 const selectOption = (currentTarget: HTMLElement) => {
-                  onChange(opt);
+                  onChange(key);
                   closeMenuAndFocusTrigger(currentTarget);
                 };
 
                 return (
                   <div
-                    key={opt}
-                    className={`dropdown-item single-select ${value === opt ? 'active' : ''}`}
-                    tabIndex={0} // Makes the item focusable via Tab or script
+                    key={key}
+                    className={`dropdown-item single-select ${value === key ? 'active' : ''}`}
+                    tabIndex={0}
                     onClick={(e) => selectOption(e.currentTarget)}
                     onKeyDown={(e) => {
                       const target = e.currentTarget;
@@ -102,7 +102,6 @@ export const SimpleDropdown = ({
                         if (target.previousElementSibling) {
                           (target.previousElementSibling as HTMLElement)?.focus();
                         } else {
-                          // Return focus back up to the button if at the top item
                           closeMenuAndFocusTrigger(target);
                         }
                       } else if (e.key === "Escape") {
@@ -112,7 +111,7 @@ export const SimpleDropdown = ({
                       }
                     }}
                   >
-                    {opt}
+                    {label}
                   </div>
                 );
               })}

@@ -6,8 +6,8 @@ import { discordSdk } from "../main";
 import * as backend from "../utils/backend";
 import { Track, Playlist } from "../utils/types";
 import { NonDraggableImg } from "../components/NonDraggableImg";
-import { TagFilterDropdown } from "../components/TagFilterComponent";
-import { SimpleDropdown } from "../components/SimpleDropdown";
+import { TagFilterDropdown } from "../components/dropdowns/TagFilterComponent";
+import { SimpleDropdown } from "../components/dropdowns/SimpleDropdown";
 
 const selectedPlaylistName = signal<string>("All playlists");
 const selectedTags = signal<Record<string, string[]>>({});

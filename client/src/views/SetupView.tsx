@@ -18,10 +18,11 @@ import {
 import { NonDraggableImg } from "../components/NonDraggableImg";
 import { OptionalTimeBonus, TOptionalTimeBonus } from "../utils/types";
 import { PLAYER_TIME_BONUS_LABELS } from "./LobbyView";
-import { HostTransferDropdown } from "../components/HostTransferDropdown";
+import { HostTransferDropdown } from "../components/dropdowns/HostTransferDropdown";
 import { formatBonusMultiplier } from "../utils/helper";
 import { TimeBonusPlot } from "../components/TimeBonusPlot";
 import { useTimeBonusSamples } from "../hooks/useTimeBonusSamples";
+import { Dropdown } from "../components/dropdowns/Dropdown";
 
 
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
@@ -171,13 +172,18 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
               <div className="advanced-content-panel">
                 <div className="setting-item">
                   <span>Time Bonus</span>
-                  <select value={selectedBonus.value} onChange={selectTimeBonus}>
-                    {Object.values(OptionalTimeBonus).map((value) => (
-                      <option key={value} value={value}>
-                        {HOST_TIME_BONUS_LABELS[value]}
-                      </option>
-                    ))}
-                  </select>
+                  <Dropdown
+                    options={Object.fromEntries(
+                      Object.values(OptionalTimeBonus).map(value => [
+                        value,
+                        HOST_TIME_BONUS_LABELS[value]
+                      ])
+                    )}
+                    value={selectedBonus.value}
+                    onChange={(key) => {
+                      selectedBonus.value = key as TOptionalTimeBonus;
+                    }}
+                  />
                   {isLoading.value ? (
                     <p className="info-message time-bonus-loading">Loading sample data...</p>
                   ) : (

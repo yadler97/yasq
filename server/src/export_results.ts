@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 
 export async function generateResultsImage(instanceId: string, tempDir: string, leaderboardData: Leaderboard, userData: Map<string, Participant>) {
   const outputPath = path.join(tempDir, 'results.png');
-  const cssFilePath = path.join(__dirname, '../../client/src/style.css');
+  const cssFilePath = path.join(__dirname, '../../client/src/style/style.css');
   let cssContent = '';
   try {
     cssContent = fs.readFileSync(cssFilePath, 'utf8');

@@ -29,7 +29,8 @@ import { HostReviewView } from "./views/RoundCompletedView";
 import { RoundResultsView } from "./views/ResultsView";
 import { FinalResultsView } from "./views/GameFinishedView";
 
-import "./style.css";
+import "./style/style.css";
+import "./style/dropdowns.css";
 
 const isMockMode = import.meta.env.VITE_MOCK_MODE === 'true';
 export const discordSdk = isMockMode ? mockDiscordSdk : new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);

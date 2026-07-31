@@ -1,10 +1,10 @@
 import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 
-import { auth, discordSdk, gameState, participants } from "../main";
-import * as backend from "../utils/backend";
+import { auth, discordSdk, gameState, participants } from "../../main";
+import * as backend from "../../utils/backend";
 import { getAvatarUrl, getDisplayName } from "@yasq/shared";
-import { DiscordAvatar } from "./DiscordAvatar";
+import { DiscordAvatar } from "../DiscordAvatar";
 
 export const HostTransferDropdown = () => {
   const isOpen = useSignal(false);
@@ -41,7 +41,7 @@ export const HostTransferDropdown = () => {
       <label htmlFor="host-dropdown" className="setting-label"><span>Transfer Host</span></label>
       <div className="transfer-controls-row">
 
-        <div className="custom-dropdown" id="host-dropdown">
+        <div className="host-dropdown" id="host-dropdown">
           <button
             type="button"
             className="dropdown-header"
@@ -56,13 +56,23 @@ export const HostTransferDropdown = () => {
             }}
           >
             {selectedPlayer.value ? (
-              <><DiscordAvatar
-                src={selectedPlayer.value.avatar}
-                userName={selectedPlayer.value.name}
-                tiny={true}
-              />
-                <span>{selectedPlayer.value.name}</span></>
-            ) : "Select a player..."}
+              <>
+                <div className="selected-player">
+                  <DiscordAvatar
+                    src={selectedPlayer.value.avatar}
+                    userName={selectedPlayer.value.name}
+                    tiny={true}
+                  />
+                  <span className="current-value">{selectedPlayer.value.name}</span>
+                </div>
+                <span className={`arrow-indicator ${isOpen.value ? "open" : ""}`} />
+              </>
+            ) : (
+              <>
+                <span className="current-value">Select a player...</span>
+                <span className={`arrow-indicator ${isOpen.value ? "open" : ""}`} />
+              </>
+            )}
           </button>
 
           {isOpen.value && (

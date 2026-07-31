@@ -56,7 +56,10 @@ export const TagFilterDropdown = ({
   };
 
   return (
-    <div className="filter-dropdown">
+    <div
+      className="filter-dropdown"
+      style={{ "--longest-text": `"Filter by Tags"` }}
+    >
       <div className="dropdown-trigger-wrapper">
         <button
           className={`dropdown-trigger ${activeCount > 0 ? 'active' : ''}`}
@@ -68,8 +71,8 @@ export const TagFilterDropdown = ({
             }
           }}
         >
-          {activeCount > 0 ? `Filters (${activeCount})` : 'Filter by Tags'}
-          <span className={`arrow ${isOpen.value ? 'up' : 'down'}`}>▼</span>
+          <span className="current-value">{activeCount > 0 ? `Filters (${activeCount})` : 'Filter by Tags'}</span>
+          <span className={`arrow-indicator ${isOpen.value ? "open" : ""}`} />
         </button>
 
         {activeCount > 0 && (

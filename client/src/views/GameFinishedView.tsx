@@ -8,6 +8,7 @@ import { getAvatarUrl, getDisplayName } from "@yasq/shared";
 import { RoundBubblesGroup } from "../components/RoundBubble";
 import { DiscordAvatar } from "../components/DiscordAvatar";
 import { ReadyButton } from "../components/ReadyButton";
+import { Dropdown } from "../components/dropdowns/Dropdown";
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
@@ -125,27 +126,18 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
               {isDownloading ? 'Downloading...' : '📥 Download Results Image'}
             </button>
 
-            <select
+            <Dropdown
+              options={Object.fromEntries([
+                ["", channels.length === 0 ? "No channels available" : "Select a channel..."],
+                ...channels.map(ch => [
+                  ch.id,
+                  `${ch.category ? `${ch.category} > ` : ""}#${ch.name}`
+                ])
+              ])}
               value={selectedChannel}
+              onChange={setSelectedChannel}
               disabled={channels.length === 0 || isPosting || hasPosted}
-              onChange={(e) => {
-                const target = e.target as HTMLSelectElement;
-                setSelectedChannel(target.value);
-              }}
-            >
-              {channels.length === 0 ? (
-                <option value="">No channels available</option>
-              ) : (
-                <>
-                  <option value="">Select a channel...</option>
-                  {channels.map(channel => (
-                    <option key={channel.id} value={channel.id}>
-                      {channel.category ? `${channel.category} > ` : ""}#{channel.name}
-                    </option>
-                  ))}
-                </>
-              )}
-            </select>
+            />
 
             <button
               onClick={handlePostToChannel}
