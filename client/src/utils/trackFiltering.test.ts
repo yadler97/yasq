@@ -44,8 +44,8 @@ describe("getBaseFilteredTracks", () => {
   it("should filter by playlist", () => {
     const result = getBaseFilteredTracks(mockTracks, mockPlaylists, "Playlist 1", "", false);
     expect(result).toHaveLength(2);
-    expect(result[0].audio).toBe(mockTracks[1].audio);
-    expect(result[1].audio).toBe(mockTracks[2].audio);
+    expect(result[0].game).toBe("Game B");
+    expect(result[1].game).toBe("Game C");
   });
 });
 
