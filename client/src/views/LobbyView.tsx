@@ -7,6 +7,15 @@ import { ALL_JOKER_ICONS } from '../components/JokerIcons';
 import { OptionalTimeBonus, TOptionalTimeBonus } from '../utils/types';
 import { TimeBonus } from '@yasq/shared';
 import { ReadyButton } from '../components/ReadyButton';
+import { TooltipDiv } from '../components/Tooltip';
+
+import * as backend from '../utils/backend';
+import { auth, discordSdk, gameState, participants } from '../main';
+import { capitalize, formatBonusMultiplier } from '../utils/helper';
+import { ALL_JOKER_ICONS } from '../components/JokerIcons';
+import { OptionalTimeBonus, TOptionalTimeBonus } from '../utils/types';
+import { TimeBonus } from '@yasq/shared';
+import { ReadyButton } from '../components/ReadyButton';
 
 export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
   [TimeBonus.LINEAR]: '⏳ Steady Pace',
@@ -73,23 +82,17 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
                   const JokerIcon = ALL_JOKER_ICONS.find(
                     Icon => Icon.jokerType === jokerType
                   );
-                  const isTooltipOpen = activeTooltipType === jokerType;
 
                   return (
                     <div key={jokerType} className="joker-row-item">
-                      <div
-                        className={`joker-indicator ${isTooltipOpen ? 'show-tooltip' : ''}`}
-                        data-tooltip={JokerIcon?.description}
-                        onTouchStart={e => {
-                          e.stopPropagation();
-                          setActiveTooltipType(
-                            isTooltipOpen ? null : jokerType
-                          );
-                        }}
-                        onMouseLeave={() => setActiveTooltipType(null)}
-                      >
-                        {JokerIcon && <JokerIcon />}
-                      </div>
+                      {JokerIcon && (
+                        <TooltipDiv
+                          text={JokerIcon?.description || 'Description not '}
+                          className={`joker-indicator`}
+                        >
+                          <JokerIcon />
+                        </TooltipDiv>
+                      )}
                       <span className="joker-text-name">
                         {capitalize(jokerType)}
                       </span>

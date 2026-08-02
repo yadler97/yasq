@@ -23,6 +23,7 @@ import { NonDraggableImg } from '../components/NonDraggableImg';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import { Tag } from '../utils/types';
 import { DiscordAvatar } from '../components/DiscordAvatar';
+import { TooltipDiv, WithTooltip } from '../components/Tooltip';
 
 type JokerHint =
   | { type: Joker.OBFUSCATION; data: string }
@@ -60,7 +61,7 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
             useKeyboardShortcut(
               { key: (index + 1).toString(), altKey: !isMac, metaKey: isMac },
               () => {
-                submit(choice);
+                void submit(choice);
               }
             );
 
@@ -312,13 +313,12 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     </p>
                     <div className="tags-container left">
                       {activeTrackInfo.value.tags.map((tag: Tag) => (
-                        <span
-                          key={tag.type}
-                          title={capitalize(tag.type)}
+                        <TooltipDiv
+                          text={capitalize(tag.type)}
                           className="tag-badge"
                         >
-                          {tag.value}
-                        </span>
+                          <span key={tag.type}>{tag.value}</span>
+                        </TooltipDiv>
                       ))}
                     </div>
                   </div>
@@ -449,22 +449,24 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                       },
                       () => {
                         if (isAvailable && !hasUsedJokerThisRound) {
-                          handleJokerUsage(type);
+                          void handleJokerUsage(type);
                         }
                       }
                     );
 
                     return (
                       <div key={type} className="joker-btn-wrapper">
-                        <button
-                          className="joker-icon-btn"
-                          id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
-                          title={tooltipText}
-                          onClick={() => handleJokerUsage(type)}
-                          disabled={!isAvailable || hasUsedJokerThisRound}
-                        >
-                          <Icon className="joker-svg" />
-                        </button>
+                        <WithTooltip text={tooltipText}>
+                          <button
+                            className="joker-icon-btn"
+                            id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
+                            onClick={() => handleJokerUsage(type)}
+                            disabled={!isAvailable || hasUsedJokerThisRound}
+                          >
+                            <Icon />
+                          </button>
+                        </WithTooltip>
+
                         <span className="shortcut-badge">
                           <kbd>{getActionKeyLabel(isMac)}</kbd>+
                           <kbd>{index + 1}</kbd>
