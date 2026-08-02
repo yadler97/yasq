@@ -63,8 +63,7 @@ export const WithTooltip = ({ text, children, id, disabled = false }: WithToolti
 
   return cloneElement(children, {
     'data-tooltip': text,
-    className:
-      `has-tooltip ${isTooltipOpen ? 'show-tooltip' : ''} ${childProps.className || ''}`.trim(),
+    className: `has-tooltip ${isTooltipOpen ? 'show-tooltip' : ''} ${childProps.className || ''}`.trim(),
     // Attach a bunch of event handlers that open/close the added tooltip as expected
     onMouseEnter: (e: MouseEvent) => {
       childProps.onMouseEnter?.(e);
@@ -132,15 +131,13 @@ interface TooltipDivProps {
   className?: string;
 }
 
-export const TooltipDiv = ({
-  text,
-  children,
-  id,
-  disabled = false,
-  className = '',
-}: TooltipDivProps) => {
+export const TooltipDiv = ({ text, children, id, disabled = false, className = '' }: TooltipDivProps) => {
   return (
-    <WithTooltip text={text} id={id} disabled={disabled}>
+    <WithTooltip
+      text={text}
+      id={id}
+      disabled={disabled}
+    >
       <div className={`${className}`}>{children}</div>
     </WithTooltip>
   );

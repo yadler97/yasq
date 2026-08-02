@@ -29,11 +29,7 @@ export const HostTransferDropdown = () => {
     if (!selectedPlayer.value) return;
     isTransferring.value = true;
     try {
-      await backend.assignNewHost(
-        auth.value.access_token,
-        discordSdk.instanceId,
-        selectedPlayer.value.id
-      );
+      await backend.assignNewHost(auth.value.access_token, discordSdk.instanceId, selectedPlayer.value.id);
     } catch (e) {
       console.error(e);
     }
@@ -46,11 +42,17 @@ export const HostTransferDropdown = () => {
 
   return (
     <div className="setting-item">
-      <label htmlFor="host-dropdown" className="setting-label">
+      <label
+        htmlFor="host-dropdown"
+        className="setting-label"
+      >
         <span>Transfer Host</span>
       </label>
       <div className="transfer-controls-row">
-        <div className="custom-dropdown" id="host-dropdown">
+        <div
+          className="custom-dropdown"
+          id="host-dropdown"
+        >
           <button
             type="button"
             className="dropdown-header"
@@ -86,7 +88,10 @@ export const HostTransferDropdown = () => {
               role="listbox"
             >
               {players.length === 0 ? (
-                <div className="dropdown-item dropdown-item-empty" tabIndex={0}>
+                <div
+                  className="dropdown-item dropdown-item-empty"
+                  tabIndex={0}
+                >
                   No other players
                 </div>
               ) : (

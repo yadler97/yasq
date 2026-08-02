@@ -63,15 +63,12 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
 
   // Functions to map time/multiplier to SVG coordinates
   const getX = (time: number) => (time / totalTime) * plotWidth;
-  const getY = (mult: number) =>
-    plotHeight - ((mult - MIN_MULT) / (MAX_MULT - MIN_MULT)) * plotHeight;
+  const getY = (mult: number) => plotHeight - ((mult - MIN_MULT) / (MAX_MULT - MIN_MULT)) * plotHeight;
 
   // Compute the SVG path for the decaying time bonus curve
   const svgCurvePath = useMemo(() => {
     if (!curvePoints.length) return '';
-    const strings = curvePoints.map(
-      pt => `${getX(pt.time).toFixed(1)},${getY(pt.multiplier).toFixed(1)}`
-    );
+    const strings = curvePoints.map(pt => `${getX(pt.time).toFixed(1)},${getY(pt.multiplier).toFixed(1)}`);
     return `M ${strings.join(' L ')}`;
   }, [curvePoints, totalTime]);
 
@@ -197,11 +194,7 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
 
         const player = participants.get(pt.playerId) ?? null;
         const playerName =
-          pt.playerId === currentPlayer?.id
-            ? 'You'
-            : player !== null
-              ? getDisplayName(player)
-              : 'Unknown Player';
+          pt.playerId === currentPlayer?.id ? 'You' : player !== null ? getDisplayName(player) : 'Unknown Player';
 
         closestPlayerPoint = {
           type: DataPointType.PLAYER,
@@ -238,15 +231,43 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
       onTouchEnd={handlePointerLeave}
       onTouchCancel={handlePointerLeave}
     >
-      <svg ref={svgRef} viewBox={`0 0 ${plotWidth} ${svgHeight}`} class="time-bonus-plot">
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${plotWidth} ${svgHeight}`}
+        class="time-bonus-plot"
+      >
         <defs>
-          <linearGradient id="curve-glow" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--color-curve)" stop-opacity="0.25" />
-            <stop offset="100%" stop-color="var(--color-curve)" stop-opacity="0" />
+          <linearGradient
+            id="curve-glow"
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="1"
+          >
+            <stop
+              offset="0%"
+              stop-color="var(--color-curve)"
+              stop-opacity="0.25"
+            />
+            <stop
+              offset="100%"
+              stop-color="var(--color-curve)"
+              stop-opacity="0"
+            />
           </linearGradient>
           {/* Additional gradient for the curve segment before the first successful guess */}
-          <linearGradient id="max-bonus-zone-glow" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--color-curve-start, #22c55e)" stop-opacity="0.12" />
+          <linearGradient
+            id="max-bonus-zone-glow"
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="1"
+          >
+            <stop
+              offset="0%"
+              stop-color="var(--color-curve-start, #22c55e)"
+              stop-opacity="0.12"
+            />
             <stop
               offset="100%"
               stop-color="var(--color-curve-start, #22c55e)"
@@ -254,8 +275,15 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
             />
           </linearGradient>
           {/* Clipping mask to turn avatar into round images */}
-          <clipPath id="avatar-clip" clipPathUnits="objectBoundingBox">
-            <circle cx="0.5" cy="0.5" r="0.5" />
+          <clipPath
+            id="avatar-clip"
+            clipPathUnits="objectBoundingBox"
+          >
+            <circle
+              cx="0.5"
+              cy="0.5"
+              r="0.5"
+            />
           </clipPath>
         </defs>
 
@@ -276,8 +304,17 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
           d={`${svgCurvePath} L ${plotWidth},${xAxisHeight} L 0,${xAxisHeight} Z`}
           fill="url(#curve-glow)"
         />
-        <path d={svgCurvePath} class="curve-line" />
-        <line x1={0} y1={xAxisHeight} x2={plotWidth} y2={xAxisHeight} class="axis-line" />
+        <path
+          d={svgCurvePath}
+          class="curve-line"
+        />
+        <line
+          x1={0}
+          y1={xAxisHeight}
+          x2={plotWidth}
+          y2={xAxisHeight}
+          class="axis-line"
+        />
 
         {/* Cursor hover indicator on graph */}
         {hoverData?.type === DataPointType.CURVE && (
@@ -289,7 +326,12 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
               y2={xAxisHeight}
               class="curve-hover-line"
             />
-            <circle cx={hoverData.plotX} cy={hoverData.plotY} r="5" class="curve-hover-node" />
+            <circle
+              cx={hoverData.plotX}
+              cy={hoverData.plotY}
+              r="5"
+              class="curve-hover-node"
+            />
           </g>
         )}
 
@@ -299,8 +341,7 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
           const isIncorrect = p.multiplier === null;
           const playerY = isIncorrect ? xAxisHeight : getY(p.multiplier!);
           const participant = participants.get(p.playerId);
-          const isHovered =
-            hoverData?.type === DataPointType.PLAYER && hoverData.player.playerId === p.playerId;
+          const isHovered = hoverData?.type === DataPointType.PLAYER && hoverData.player.playerId === p.playerId;
           const isCurrentPlayer = p.playerId === currentPlayer?.id;
 
           const avatarRadius = 18;
@@ -323,12 +364,30 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
 
               {/* Small marker on the curve at the awarded multiplier */}
               {isIncorrect ? (
-                <g class="player-node-x" transform={`translate(${playerX}, ${xAxisHeight})`}>
-                  <line x1="-4" y1="-4" x2="4" y2="4" />
-                  <line x1="-4" y1="4" x2="4" y2="-4" />
+                <g
+                  class="player-node-x"
+                  transform={`translate(${playerX}, ${xAxisHeight})`}
+                >
+                  <line
+                    x1="-4"
+                    y1="-4"
+                    x2="4"
+                    y2="4"
+                  />
+                  <line
+                    x1="-4"
+                    y1="4"
+                    x2="4"
+                    y2="-4"
+                  />
                 </g>
               ) : (
-                <circle cx={playerX} cy={playerY} r="5" class="player-node" />
+                <circle
+                  cx={playerX}
+                  cy={playerY}
+                  r="5"
+                  class="player-node"
+                />
               )}
 
               {/* Player avatar at the bottom of the plot */}
@@ -344,13 +403,21 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
                     clip-path="url(#avatar-clip)"
                   />
                 )}
-                <circle cx={playerX} cy={ringCenterY} r={avatarRadius} class="player-avatar-ring" />
+                <circle
+                  cx={playerX}
+                  cy={ringCenterY}
+                  r={avatarRadius}
+                  class="player-avatar-ring"
+                />
               </g>
 
               {/* Tiny chevron to highlight the position of the current player */}
               {isCurrentPlayer && (
                 <g transform={`translate(${playerX}, ${playerY - 14})`}>
-                  <path class="player-chevron" d="M -4.5,-10 L 4.5,-10 L 0,0 Z" />
+                  <path
+                    class="player-chevron"
+                    d="M -4.5,-10 L 4.5,-10 L 0,0 Z"
+                  />
                 </g>
               )}
             </g>
@@ -369,10 +436,16 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
         >
           {hoverData.type === DataPointType.PLAYER ? (
             <>
-              <span class="tooltip-title" style={{ color: getMarkerColor(hoverData.player) }}>
+              <span
+                class="tooltip-title"
+                style={{ color: getMarkerColor(hoverData.player) }}
+              >
                 {hoverData.title}
               </span>
-              <span class="tooltip-multiplier" style={{ color: getMarkerColor(hoverData.player) }}>
+              <span
+                class="tooltip-multiplier"
+                style={{ color: getMarkerColor(hoverData.player) }}
+              >
                 {hoverData.player.multiplier !== null
                   ? `${(100 * hoverData.player.multiplier).toFixed(1)}%`
                   : 'Incorrect'}
@@ -381,7 +454,10 @@ export const TimeBonusPlot = ({ currentPlayer, participants, data }: TimeBonusPl
             </>
           ) : (
             <>
-              <span class="tooltip-multiplier" style={{ color: 'var(--color-curve)' }}>
+              <span
+                class="tooltip-multiplier"
+                style={{ color: 'var(--color-curve)' }}
+              >
                 {(100 * hoverData.multiplier).toFixed(1)}%
               </span>
               <span class="tooltip-time">Time: {hoverData.time.toFixed(1)}s</span>

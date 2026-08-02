@@ -26,9 +26,5 @@ export const DiscordAvatar = ({
     />
   );
 
-  return hasTooltip ? (
-    <TooltipDiv text={userName}>{discordAvatarHtml}</TooltipDiv>
-  ) : (
-    discordAvatarHtml
-  );
+  return hasTooltip ? <TooltipDiv text={userName}>{discordAvatarHtml}</TooltipDiv> : discordAvatarHtml;
 };

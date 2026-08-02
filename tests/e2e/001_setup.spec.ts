@@ -66,9 +66,7 @@ test.describe('Host UI', () => {
     await expect(setup.waitingMsg).toBeVisible();
   });
 
-  test('should allow host to configure game and transfer host using only keyboard', async ({
-    page,
-  }) => {
+  test('should allow host to configure game and transfer host using only keyboard', async ({ page }) => {
     const setup = new SetupPage(page);
     await expect(setup.hostSettings).toBeVisible();
 

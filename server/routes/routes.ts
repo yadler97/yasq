@@ -24,11 +24,7 @@ import { generateResultsImage } from '../src/export_results.js';
 import { LogCategory, logger } from '../src/utils/logger.js';
 import { createGameMiddlewares } from './middleware.js';
 import type { APIChannel } from 'discord-api-types/v10';
-import {
-  exchangeCodeForToken,
-  getChannelsForGuild,
-  postResultsToChannel,
-} from '../src/utils/discord.js';
+import { exchangeCodeForToken, getChannelsForGuild, postResultsToChannel } from '../src/utils/discord.js';
 import { generateSampleTimeBonusSummary, SAMPLE_PARTICIPANTS } from '../src/utils/samples.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -222,9 +218,7 @@ export const setupRoutes = (
         const userJokers = game.usedJokers[userId] || {};
 
         // Find which joker (if any) was used in this round
-        const jokerUsed = Object.keys(userJokers).find(
-          joker => userJokers[joker as Joker] === currentRound
-        );
+        const jokerUsed = Object.keys(userJokers).find(joker => userJokers[joker as Joker] === currentRound);
 
         return [userId, { ...guess, joker: jokerUsed }];
       })
@@ -251,11 +245,7 @@ export const setupRoutes = (
     const { instanceId, corrections } = req.body;
     const game = req.game!;
 
-    logger.debug(
-      instanceId,
-      `Host submitted corrections: ${JSON.stringify(corrections, null, 2)}`,
-      LogCategory.GAME
-    );
+    logger.debug(instanceId, `Host submitted corrections: ${JSON.stringify(corrections, null, 2)}`, LogCategory.GAME);
     game.submitResults(corrections);
 
     logger.debug(
@@ -278,17 +268,12 @@ export const setupRoutes = (
     }
 
     // Get the result for the current round of the requested user
-    const roundResult = game.leaderboard.getRoundResults(
-      game.currentRound,
-      game.isHost(userId) ? undefined : userId
-    );
+    const roundResult = game.leaderboard.getRoundResults(game.currentRound, game.isHost(userId) ? undefined : userId);
 
     const roundSummary = game.leaderboard.getRoundSummary(game.currentRound);
 
     const correctPlayers = game.leaderboard.getAll().flatMap(playerEntry => {
-      const currentRoundResult = playerEntry.roundHistory.findLast(
-        r => r.round === game.currentRound
-      );
+      const currentRoundResult = playerEntry.roundHistory.findLast(r => r.round === game.currentRound);
       return currentRoundResult?.scoreValue === 1 ? [playerEntry.userId] : [];
     });
 
@@ -338,12 +323,7 @@ export const setupRoutes = (
 
     if (newState === GameState.GAME_FINISHED) {
       logger.info(instanceId, `Game ended!`, LogCategory.GAME);
-      void generateResultsImage(
-        game.instanceId,
-        game.temporaryDirectory(true),
-        game.leaderboard,
-        userDataCache
-      );
+      void generateResultsImage(game.instanceId, game.temporaryDirectory(true), game.leaderboard, userDataCache);
       logger.debug(
         instanceId,
         `Final leaderboard: ${JSON.stringify(game.leaderboard.getAll(), null, 2)}`,
@@ -366,11 +346,7 @@ export const setupRoutes = (
     const game = req.game!;
 
     if (!isAllowed(userId, fileName)) {
-      logger.warn(
-        instanceId,
-        `User ${userId} attempted to play restricted track: ${fileName}`,
-        LogCategory.SECURITY
-      );
+      logger.warn(instanceId, `User ${userId} attempted to play restricted track: ${fileName}`, LogCategory.SECURITY);
       return res.status(403).send({ error: 'You do not have permission to play this track.' });
     }
 
@@ -446,9 +422,7 @@ export const setupRoutes = (
     const game = req.game!;
 
     // Filter out the ones the user has already used
-    const available = [...game.settings.enabledJokers].filter(joker =>
-      game.canUseJoker(userId, joker)
-    );
+    const available = [...game.settings.enabledJokers].filter(joker => game.canUseJoker(userId, joker));
 
     res.send({
       available,
@@ -549,11 +523,7 @@ export const setupRoutes = (
     try {
       await postResultsToChannel(channelId, messageText, filePath, instanceId);
 
-      logger.debug(
-        instanceId,
-        `Results successfully posted to Discord channel ${channelId}`,
-        LogCategory.DISCORD
-      );
+      logger.debug(instanceId, `Results successfully posted to Discord channel ${channelId}`, LogCategory.DISCORD);
 
       return res.status(200).json({ success: true });
     } catch (error: any) {
@@ -567,11 +537,7 @@ export const setupRoutes = (
 
     // Return empty list if bot token is not set
     if (!process.env.DISCORD_BOT_TOKEN) {
-      logger.warn(
-        instanceId,
-        `DISCORD_BOT_TOKEN not set, returning empty list`,
-        LogCategory.DISCORD
-      );
+      logger.warn(instanceId, `DISCORD_BOT_TOKEN not set, returning empty list`, LogCategory.DISCORD);
       return res.json([]);
     }
 

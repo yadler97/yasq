@@ -98,9 +98,7 @@ test.describe('Host UI', () => {
     expect(await trackSelection.trackItems.count()).toBe(1);
 
     // Clear all filters
-    await trackSelection.tagFilterDropdown
-      .filter({ hasText: 'Filters (2)' })
-      .click({ force: true });
+    await trackSelection.tagFilterDropdown.filter({ hasText: 'Filters (2)' }).click({ force: true });
     await trackSelection.clearFiltersButton.click();
 
     // Verify all tracks are visible again after clearing filters (1)

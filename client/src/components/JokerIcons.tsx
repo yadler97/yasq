@@ -13,7 +13,12 @@ const ObfuscationIcon = ({ size = 24, className = '' }) => (
     className={className}
   >
     <path d="M2 19L7 5L12 19M5 14H9" />
-    <line x1="16" y1="19" x2="22" y2="19" />
+    <line
+      x1="16"
+      y1="19"
+      x2="22"
+      y2="19"
+    />
   </svg>
 );
 ObfuscationIcon.jokerType = Joker.OBFUSCATION;
@@ -32,8 +37,17 @@ const TriviaIcon = ({ size = 24, className = '' }) => (
     stroke-linejoin="round"
     className={className}
   >
-    <circle cx="11" cy="11" r="7" />
-    <line x1="22" y1="22" x2="16.65" y2="16.65" />
+    <circle
+      cx="11"
+      cy="11"
+      r="7"
+    />
+    <line
+      x1="22"
+      y1="22"
+      x2="16.65"
+      y2="16.65"
+    />
   </svg>
 );
 TriviaIcon.jokerType = Joker.TRIVIA;
@@ -51,15 +65,39 @@ const MultipleChoiceIcon = ({ size = 24, className = '' }) => (
     stroke-linejoin="round"
     className={className}
   >
-    <rect x="3" y="3" width="7" height="7" rx="1" />
-    <rect x="14" y="3" width="7" height="7" rx="1" fill="currentColor" />
-    <rect x="3" y="14" width="7" height="7" rx="1" />
-    <rect x="14" y="14" width="7" height="7" rx="1" />
+    <rect
+      x="3"
+      y="3"
+      width="7"
+      height="7"
+      rx="1"
+    />
+    <rect
+      x="14"
+      y="3"
+      width="7"
+      height="7"
+      rx="1"
+      fill="currentColor"
+    />
+    <rect
+      x="3"
+      y="14"
+      width="7"
+      height="7"
+      rx="1"
+    />
+    <rect
+      x="14"
+      y="14"
+      width="7"
+      height="7"
+      rx="1"
+    />
   </svg>
 );
 MultipleChoiceIcon.jokerType = Joker.MULTIPLE_CHOICE;
-MultipleChoiceIcon.description =
-  'Provides four game titles to choose from, with only one being the correct answer';
+MultipleChoiceIcon.description = 'Provides four game titles to choose from, with only one being the correct answer';
 
 const SpyIcon = ({ size = 24, className = '' }) => (
   <svg
@@ -103,7 +141,12 @@ const GlimpseIcon = ({ size = 24, className = '' }) => (
       d="M5.89243 14.0598C5.29748 13.3697 5 13.0246 5 12C5 10.9754 5.29747 10.6303 5.89242 9.94021C7.08037 8.56222 9.07268 7 12 7C14.9273 7 16.9196 8.56222 18.1076 9.94021C18.7025 10.6303 19 10.9754 19 12C19 13.0246 18.7025 13.3697 18.1076 14.0598C16.9196 15.4378 14.9273 17 12 17C9.07268 17 7.08038 15.4378 5.89243 14.0598Z"
       stroke-width="1.5"
     ></path>
-    <circle cx="12" cy="12" r="2" stroke-width="1.5"></circle>
+    <circle
+      cx="12"
+      cy="12"
+      r="2"
+      stroke-width="1.5"
+    ></circle>
     <path
       d="M10 22C6.22876 22 4.34315 22 3.17157 20.8284C2 19.6569 2 18.7712 2 15"
       stroke-width="1.5"
@@ -129,10 +172,4 @@ const GlimpseIcon = ({ size = 24, className = '' }) => (
 GlimpseIcon.jokerType = Joker.GLIMPSE;
 GlimpseIcon.description = "Reveals a blurred image of the game's cover art";
 
-export const ALL_JOKER_ICONS = [
-  ObfuscationIcon,
-  TriviaIcon,
-  MultipleChoiceIcon,
-  SpyIcon,
-  GlimpseIcon,
-];
+export const ALL_JOKER_ICONS = [ObfuscationIcon, TriviaIcon, MultipleChoiceIcon, SpyIcon, GlimpseIcon];

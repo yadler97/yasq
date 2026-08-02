@@ -28,7 +28,10 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
 
   if (!isHost) {
     return (
-      <div id="results" className="centered">
+      <div
+        id="results"
+        className="centered"
+      >
         <h2>Waiting for host to review answers...</h2>
       </div>
     );
@@ -45,15 +48,14 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const handleSubmit = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
     btn.disabled = true;
-    await backend.submitRoundResults(
-      auth.value.access_token,
-      discordSdk.instanceId,
-      corrections.value
-    );
+    await backend.submitRoundResults(auth.value.access_token, discordSdk.instanceId, corrections.value);
   };
 
   return (
-    <div id="results" className="centered">
+    <div
+      id="results"
+      className="centered"
+    >
       <h2>Results</h2>
       <p>
         The correct answer was: <strong>{reviewData.value.answer}</strong>
@@ -66,16 +68,25 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
           const avatarUrl = user ? getAvatarUrl(user) : '';
 
           return (
-            <div key={userId} className="guess-item">
+            <div
+              key={userId}
+              className="guess-item"
+            >
               <div className="user-info">
-                <DiscordAvatar src={avatarUrl} userName={displayName} />
+                <DiscordAvatar
+                  src={avatarUrl}
+                  userName={displayName}
+                />
                 <span className="username">{displayName}</span>
                 <span className="correction-guess guess-text">"{guess.text}"</span>
                 {guess.joker &&
                   (() => {
                     const JokerIcon = ALL_JOKER_ICONS.find(icon => icon.jokerType === guess.joker);
                     return JokerIcon ? (
-                      <TooltipDiv text={JokerIcon?.description} className="joker-indicator">
+                      <TooltipDiv
+                        text={JokerIcon?.description}
+                        className="joker-indicator"
+                      >
                         <JokerIcon />
                       </TooltipDiv>
                     ) : null;
@@ -93,7 +104,10 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                     corrections.value = { ...corrections.value, [userId]: 0 };
                   }}
                 />
-                <label htmlFor={`wrong-${userId}`} className="btn-radio wrong">
+                <label
+                  htmlFor={`wrong-${userId}`}
+                  className="btn-radio wrong"
+                >
                   Wrong
                 </label>
 
@@ -107,7 +121,10 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                     corrections.value = { ...corrections.value, [userId]: 0.5 };
                   }}
                 />
-                <label htmlFor={`partial-${userId}`} className="btn-radio partial">
+                <label
+                  htmlFor={`partial-${userId}`}
+                  className="btn-radio partial"
+                >
                   Partial
                 </label>
 
@@ -121,7 +138,10 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                     corrections.value = { ...corrections.value, [userId]: 1 };
                   }}
                 />
-                <label htmlFor={`correct-${userId}`} className="btn-radio correct">
+                <label
+                  htmlFor={`correct-${userId}`}
+                  className="btn-radio correct"
+                >
                   Correct
                 </label>
               </div>
@@ -144,7 +164,10 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
         </div>
       )}
 
-      <button id="btn-submit-reviewed-results" onClick={handleSubmit}>
+      <button
+        id="btn-submit-reviewed-results"
+        onClick={handleSubmit}
+      >
         Submit Reviewed Results
       </button>
     </div>

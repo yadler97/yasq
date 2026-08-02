@@ -16,9 +16,7 @@ export const TagFilterDropdown = ({
     if (!isOpen.value) return;
 
     // Move focus to the first item immediately after rendering
-    const firstItem = document.querySelector(
-      '.dropdown-menu .dropdown-item:not(.disabled)'
-    ) as HTMLElement;
+    const firstItem = document.querySelector('.dropdown-menu .dropdown-item:not(.disabled)') as HTMLElement;
     firstItem?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -75,7 +73,10 @@ export const TagFilterDropdown = ({
         </button>
 
         {activeCount > 0 && (
-          <button onClick={clearAll} title="Clear all filters">
+          <button
+            onClick={clearAll}
+            title="Clear all filters"
+          >
             ✕
           </button>
         )}
@@ -83,18 +84,18 @@ export const TagFilterDropdown = ({
 
       {isOpen.value && (
         <>
-          <div className="dropdown-overlay" onClick={() => (isOpen.value = false)} />
+          <div
+            className="dropdown-overlay"
+            onClick={() => (isOpen.value = false)}
+          />
           <div
             className="dropdown-menu"
             onWheel={e => {
-              const container = e.currentTarget.querySelector(
-                '.scrollbar-container'
-              ) as HTMLElement;
+              const container = e.currentTarget.querySelector('.scrollbar-container') as HTMLElement;
               if (!container) return;
 
               const atTop = container.scrollTop === 0;
-              const atBottom =
-                container.scrollHeight - container.scrollTop === container.clientHeight;
+              const atBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
 
               // If the wheel movement goes up at the top, or down at the bottom, stop it
               if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
@@ -104,7 +105,10 @@ export const TagFilterDropdown = ({
           >
             <div className="scrollbar-container">
               {Object.entries(availableTags).map(([type, values]) => (
-                <div key={type} className="dropdown-group">
+                <div
+                  key={type}
+                  className="dropdown-group"
+                >
                   <div className="group-header">{type}</div>
                   {values.sort().map(val => {
                     const isSelected = selectedTags.value[type]?.includes(val);
@@ -124,9 +128,7 @@ export const TagFilterDropdown = ({
                           } else if (e.key === 'ArrowDown') {
                             e.preventDefault();
                             const enabledItems = Array.from(
-                              document.querySelectorAll(
-                                '.dropdown-menu .dropdown-item:not(.disabled)'
-                              )
+                              document.querySelectorAll('.dropdown-menu .dropdown-item:not(.disabled)')
                             ) as HTMLElement[];
                             const currentIndex = enabledItems.indexOf(target);
                             if (currentIndex > -1 && currentIndex < enabledItems.length - 1) {
@@ -135,9 +137,7 @@ export const TagFilterDropdown = ({
                           } else if (e.key === 'ArrowUp') {
                             e.preventDefault();
                             const enabledItems = Array.from(
-                              document.querySelectorAll(
-                                '.dropdown-menu .dropdown-item:not(.disabled)'
-                              )
+                              document.querySelectorAll('.dropdown-menu .dropdown-item:not(.disabled)')
                             ) as HTMLElement[];
                             const currentIndex = enabledItems.indexOf(target);
                             if (currentIndex > 0) {

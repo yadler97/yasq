@@ -39,7 +39,10 @@ export const SimpleDropdown = ({
   };
 
   return (
-    <div className="filter-dropdown" style={{ '--longest-text': `"${longestOption}"` }}>
+    <div
+      className="filter-dropdown"
+      style={{ '--longest-text': `"${longestOption}"` }}
+    >
       <button
         className={`dropdown-trigger ${isFiltering ? 'active' : ''}`}
         onClick={() => (isOpen.value = !isOpen.value)}
@@ -56,18 +59,18 @@ export const SimpleDropdown = ({
 
       {isOpen.value && (
         <>
-          <div className="dropdown-overlay" onClick={() => (isOpen.value = false)} />
+          <div
+            className="dropdown-overlay"
+            onClick={() => (isOpen.value = false)}
+          />
           <div
             className="dropdown-menu"
             onWheel={e => {
-              const container = e.currentTarget.querySelector(
-                '.scrollbar-container'
-              ) as HTMLElement;
+              const container = e.currentTarget.querySelector('.scrollbar-container') as HTMLElement;
               if (!container) return;
 
               const atTop = container.scrollTop === 0;
-              const atBottom =
-                container.scrollHeight - container.scrollTop === container.clientHeight;
+              const atBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
 
               // If the wheel movement goes up at the top, or down at the bottom, stop it
               if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {

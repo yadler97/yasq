@@ -83,9 +83,7 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
     if (updates.currentGame !== undefined) game.currentGame = updates.currentGame;
     if (updates.lastWinnerId !== undefined) game.lastWinnerId = updates.lastWinnerId;
     if (updates.registeredUsers) {
-      game.registeredUsers = new Set(
-        updates.registeredUsers.map((u: any) => (typeof u === 'string' ? u : u.id))
-      );
+      game.registeredUsers = new Set(updates.registeredUsers.map((u: any) => (typeof u === 'string' ? u : u.id)));
     }
     if (updates.readyUsers) {
       game.readyUsers = new Set(updates.readyUsers);

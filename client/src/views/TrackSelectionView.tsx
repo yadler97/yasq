@@ -57,13 +57,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   // Computed signal: This automatically re-filters whenever tracks,
   // selectedPlaylistName, searchTerm, or hidePlayed changes.
   const baseFilteredTracks = computed(() =>
-    getBaseFilteredTracks(
-      tracks.value,
-      playlists.value,
-      selectedPlaylistName.value,
-      searchTerm.value,
-      hidePlayed.value
-    )
+    getBaseFilteredTracks(tracks.value, playlists.value, selectedPlaylistName.value, searchTerm.value, hidePlayed.value)
   );
 
   const filteredTracks = computed(() =>
@@ -148,7 +142,10 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
             onInput={e => (searchTerm.value = (e.currentTarget as HTMLInputElement).value)}
           />
           {searchTerm.value && (
-            <button onClick={() => (searchTerm.value = '')} title="Clear search">
+            <button
+              onClick={() => (searchTerm.value = '')}
+              title="Clear search"
+            >
               ✕
             </button>
           )}
@@ -180,12 +177,18 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
         </label>
       </div>
 
-      <div className="grid-container" id="track-selection-grid">
+      <div
+        className="grid-container"
+        id="track-selection-grid"
+      >
         {filteredTracks.value.length === 0 ? (
           <p className="no-results">No tracks found matching your search.</p>
         ) : (
           filteredTracks.value.map(track => (
-            <div key={track.audio} className={`track-card ${track.played ? 'played' : ''}`}>
+            <div
+              key={track.audio}
+              className={`track-card ${track.played ? 'played' : ''}`}
+            >
               <div className="cover-wrapper">
                 <NonDraggableImg
                   src={`/game_covers/${track.cover || 'default.svg'}`}
@@ -199,11 +202,17 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
               <div className="track-info">
                 <span className="game-name">
-                  <HighlightText text={track.game} highlight={searchTerm.value} />
+                  <HighlightText
+                    text={track.game}
+                    highlight={searchTerm.value}
+                  />
                 </span>
                 <span className="track-title">
                   <i>
-                    <HighlightText text={track.title} highlight={searchTerm.value} />
+                    <HighlightText
+                      text={track.title}
+                      highlight={searchTerm.value}
+                    />
                   </i>
                 </span>
               </div>
@@ -216,11 +225,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
                   // The button becomes disabled because tracks.value will update
                   // or the state will change to 'PLAYING' via the backend call.
                   (e.currentTarget as HTMLButtonElement).disabled = true;
-                  await backend.playTrack(
-                    auth.value.access_token,
-                    track.audio,
-                    discordSdk.instanceId
-                  );
+                  await backend.playTrack(auth.value.access_token, track.audio, discordSdk.instanceId);
                 }}
               >
                 {track.played ? 'Already Played' : 'Select Track'}
@@ -243,7 +248,10 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
     <span>
       {parts.map((part, i) =>
         part.toLowerCase() === highlight.toLowerCase() ? (
-          <mark key={i} className="search-highlight">
+          <mark
+            key={i}
+            className="search-highlight"
+          >
             {part}
           </mark>
         ) : (

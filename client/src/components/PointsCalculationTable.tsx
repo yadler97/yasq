@@ -24,18 +24,13 @@ export const PointsCalculationTable = ({ baseMultiplier, awardedBonuses }: Bonus
 
   // Show simple message instead of a table if no bonuses were awarded
   if (awardedBonuses.length === 0) {
-    return (
-      <span className="empty-points-table">
-        No bonuses awarded. {awardedBasePoints} points is your total.
-      </span>
-    );
+    return <span className="empty-points-table">No bonuses awarded. {awardedBasePoints} points is your total.</span>;
   }
 
   const calculationEntries: PointsCalculationEntry[] = [
     new PointsCalculationEntry('Base points', awardedBasePoints),
     ...awardedBonuses.map(
-      bonus =>
-        new PointsCalculationEntry(BONUS_LABELS[bonus.type], bonus.toAbsolute(awardedBasePoints))
+      bonus => new PointsCalculationEntry(BONUS_LABELS[bonus.type], bonus.toAbsolute(awardedBasePoints))
     ),
   ];
 
@@ -47,7 +42,10 @@ export const PointsCalculationTable = ({ baseMultiplier, awardedBonuses }: Bonus
         {calculationEntries.map((entry, idx) => {
           const isFirst = idx === 0;
           return (
-            <tr key={entry.title} className={isFirst ? 'base-row' : 'bonus-row'}>
+            <tr
+              key={entry.title}
+              className={isFirst ? 'base-row' : 'bonus-row'}
+            >
               <td className="label-col">{entry.title}</td>
               <td className="points-col">
                 {isFirst ? '' : '+ '}

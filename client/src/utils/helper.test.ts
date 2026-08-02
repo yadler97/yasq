@@ -1,12 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Participant } from '@yasq/shared';
-import {
-  findUser,
-  getUserId,
-  capitalize,
-  formatBonusMultiplier,
-  getActionKeyLabel,
-} from './helper';
+import { findUser, getUserId, capitalize, formatBonusMultiplier, getActionKeyLabel } from './helper';
 
 const mockParticipants: Participant[] = [
   { id: '1', username: 'MockPlayer1' },

@@ -117,21 +117,13 @@ export function getReachableTags(
   hidePlayed: boolean,
   selectedTags: Record<string, string[]>
 ): Map<string, number> {
-  const baseTracks = getBaseFilteredTracks(
-    tracks,
-    playlists,
-    selectedPlaylistName,
-    searchTerm,
-    hidePlayed
-  );
+  const baseTracks = getBaseFilteredTracks(tracks, playlists, selectedPlaylistName, searchTerm, hidePlayed);
   const availableTags = getAvailableTagsByType(tracks);
   const categories = Object.keys(availableTags);
   const validTags = new Map<string, number>();
 
   categories.forEach(catToSkip => {
-    const otherFilters = Object.entries(selectedTags).filter(
-      ([type, vals]) => type !== catToSkip && vals.length > 0
-    );
+    const otherFilters = Object.entries(selectedTags).filter(([type, vals]) => type !== catToSkip && vals.length > 0);
 
     const reachableInCat = baseTracks.filter(track =>
       otherFilters.every(([type, selectedVals]) =>

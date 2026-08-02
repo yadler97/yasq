@@ -10,13 +10,11 @@ import { Playlist, Track } from './types';
 import mockTracksData from '../../../mock_data/mockTracks.json';
 
 // Map the raw JSON data to satisfy the `Track` interface by adding default values for optional/required runtime fields
-const mockTracks: Track[] = (mockTracksData as Omit<Track, 'played' | 'originalIndex'>[]).map(
-  (t, index) => ({
-    ...t,
-    played: index === 1, // Make the second track played for testing hidePlayed
-    originalIndex: index,
-  })
-);
+const mockTracks: Track[] = (mockTracksData as Omit<Track, 'played' | 'originalIndex'>[]).map((t, index) => ({
+  ...t,
+  played: index === 1, // Make the second track played for testing hidePlayed
+  originalIndex: index,
+}));
 
 const mockPlaylists: Playlist[] = [
   {
@@ -61,20 +59,8 @@ describe('getFilteredAndSortedTracks', () => {
   });
 
   it('should keep default sorting of playlist', () => {
-    const filteredTracks = getBaseFilteredTracks(
-      mockTracks,
-      mockPlaylists,
-      'Playlist 1',
-      '',
-      false
-    );
-    const result = getFilteredAndSortedTracks(
-      filteredTracks,
-      mockPlaylists,
-      'Playlist 1',
-      'Default Order',
-      {}
-    );
+    const filteredTracks = getBaseFilteredTracks(mockTracks, mockPlaylists, 'Playlist 1', '', false);
+    const result = getFilteredAndSortedTracks(filteredTracks, mockPlaylists, 'Playlist 1', 'Default Order', {});
     expect(result).toHaveLength(2);
     expect(result[0].game).toBe('Game C');
     expect(result[1].game).toBe('Game B');
@@ -88,13 +74,7 @@ describe('getFilteredAndSortedTracks', () => {
   });
 
   it('should sort tracks in reverse alphabetical order (Z-A)', () => {
-    const result = getFilteredAndSortedTracks(
-      mockTracks.slice(0, 2),
-      [],
-      'All playlists',
-      'Z-A',
-      {}
-    );
+    const result = getFilteredAndSortedTracks(mockTracks.slice(0, 2), [], 'All playlists', 'Z-A', {});
     expect(result[0].game).toBe('Game B');
     expect(result[1].game).toBe('Game A');
   });

@@ -39,8 +39,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const currentPlayer = participantLookup.get(getUserId(auth.value)) ?? null;
   const readyCount = gameState.value.readyUsers.length;
   const allPlayersReady =
-    playersExcludingHost.length > 0 &&
-    playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
+    playersExcludingHost.length > 0 && playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
 
   const handleNextRound = async () => {
     await backend.startNextRound(auth.value.access_token, discordSdk.instanceId);
@@ -58,7 +57,10 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
     const results = roundData.value.result || [];
 
     return (
-      <div id="results" className="centered">
+      <div
+        id="results"
+        className="centered"
+      >
         <div className="card-container">
           <h2>Results</h2>
           <hr className="divider" />
@@ -79,7 +81,10 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
               </p>
               <div className="tags-container left">
                 {roundData.value.tags.map((tag: Tag) => (
-                  <TooltipDiv text={capitalize(tag.type)} className="tag-badge">
+                  <TooltipDiv
+                    text={capitalize(tag.type)}
+                    className="tag-badge"
+                  >
                     <span key={tag.type}>{tag.value}</span>
                   </TooltipDiv>
                 ))}
@@ -94,12 +99,21 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                 const user = findUser(participants.value, res.userId);
 
                 return (
-                  <div key={res.userId} className="player-result">
-                    <DiscordAvatar src={getAvatarUrl(user)} userName={getDisplayName(user)} />
+                  <div
+                    key={res.userId}
+                    className="player-result"
+                  >
+                    <DiscordAvatar
+                      src={getAvatarUrl(user)}
+                      userName={getDisplayName(user)}
+                    />
                     <div className="name">{getDisplayName(user)}</div>
 
                     <div className="round-result-box">
-                      <RoundBubblesGroup rounds={[res]} userId={res.userId} />
+                      <RoundBubblesGroup
+                        rounds={[res]}
+                        userId={res.userId}
+                      />
                       <span className="time-display">{res.time}s</span>
                     </div>
                   </div>
@@ -110,10 +124,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                 Lost Streaks:{' '}
                 <strong>
                   {Object.entries(roundData.value.lostStreaks)
-                    .map(
-                      ([userId, streak]) =>
-                        `${getDisplayName(findUser(participants.value, userId))} (${streak})`
-                    )
+                    .map(([userId, streak]) => `${getDisplayName(findUser(participants.value, userId))} (${streak})`)
                     .join(', ')}
                 </strong>
               </p>
@@ -137,7 +148,11 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         </div>
 
         <div id="lobby-host-ui-next-round">
-          <button id="btn-next-round" disabled={!allPlayersReady} onClick={handleNextRound}>
+          <button
+            id="btn-next-round"
+            disabled={!allPlayersReady}
+            onClick={handleNextRound}
+          >
             {allPlayersReady
               ? isFinalRound
                 ? 'Show Final Results'
@@ -151,12 +166,13 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
   if (roundData.value.error) {
     return (
-      <div id="results" className="centered">
+      <div
+        id="results"
+        className="centered"
+      >
         <h2>Results Unavailable</h2>
         <p className="error-text">
-          {roundData.value.error === 'SERVER_ERROR'
-            ? 'A server error occurred.'
-            : 'An unexpected error occurred.'}
+          {roundData.value.error === 'SERVER_ERROR' ? 'A server error occurred.' : 'An unexpected error occurred.'}
         </p>
 
         <ReadyButton />
@@ -182,7 +198,10 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
     .filter((p: any): p is Participant => !!p);
 
   return (
-    <div id="results" className="centered">
+    <div
+      id="results"
+      className="centered"
+    >
       <div className="card-container">
         <h2>Results</h2>
         <hr className="divider" />
@@ -201,9 +220,15 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             <p>
               <i>{roundData.value.trackTitle}</i>
             </p>
-            <div id="tags" className="tags-container left">
+            <div
+              id="tags"
+              className="tags-container left"
+            >
               {roundData.value.tags.map((tag: Tag) => (
-                <TooltipDiv text={capitalize(tag.type)} className="tag-badge">
+                <TooltipDiv
+                  text={capitalize(tag.type)}
+                  className="tag-badge"
+                >
                   <span key={tag.type}>{tag.value}</span>
                 </TooltipDiv>
               ))}
@@ -211,31 +236,39 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
           </div>
         </div>
         <hr className="divider" />
-        <div id="own-results" className="own-results">
+        <div
+          id="own-results"
+          className="own-results"
+        >
           {userResult ? (
             <>
               <p className={`user-guess-result ${statusClass}`}>{statusMessage}</p>
               <div className="user-evaluation">
                 <div className="user-guess-wrapper">
                   <span className="guess-label">Your guess:</span>
-                  <span id="guess" className="user-guess guess-text">
+                  <span
+                    id="guess"
+                    className="user-guess guess-text"
+                  >
                     {userResult?.guess || 'No guess submitted'}
                   </span>
                 </div>
-                <div id="score" className="points-bubble">
+                <div
+                  id="score"
+                  className="points-bubble"
+                >
                   <RollingNumber target={userResult?.points || 0} /> pt.
                 </div>
               </div>
             </>
           ) : (
-            <p className="info-message leaderboard-absent-message">
-              You were not in the leaderboard for this round.
-            </p>
+            <p className="info-message leaderboard-absent-message">You were not in the leaderboard for this round.</p>
           )}
-          <div id="correct-players" className="correct-players">
-            <span className="correct-players-label">
-              Correct players ({correctParticipants.length}):
-            </span>
+          <div
+            id="correct-players"
+            className="correct-players"
+          >
+            <span className="correct-players-label">Correct players ({correctParticipants.length}):</span>
             <div className="correct-players-list">
               {correctParticipants.length === 0 ? (
                 <span className="correct-players-empty">Nobody got it fully correct!</span>
@@ -255,10 +288,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
               Lost Streaks:{' '}
               <strong>
                 {Object.entries(roundData.value.lostStreaks)
-                  .map(
-                    ([userId, streak]) =>
-                      `${getDisplayName(findUser(participants.value, userId))} (${streak})`
-                  )
+                  .map(([userId, streak]) => `${getDisplayName(findUser(participants.value, userId))} (${streak})`)
                   .join(', ')}
               </strong>
             </span>
@@ -286,9 +316,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                 className="toggle-btn score-details-btn"
                 onClick={() => (isPointsDetailsOpen.value = !isPointsDetailsOpen.value)}
               >
-                <span>
-                  {isPointsDetailsOpen.value ? 'Hide score details' : 'See score details'}
-                </span>
+                <span>{isPointsDetailsOpen.value ? 'Hide score details' : 'See score details'}</span>
                 <span className={`arrow-indicator ${isPointsDetailsOpen.value ? 'open' : ''}`} />
               </button>
 
@@ -308,9 +336,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                   )}
                   {hasTimeBonus && (
                     <>
-                      <h3 className="section-heading time-bonus-heading">
-                        Time bonus calculation:
-                      </h3>
+                      <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
                       <div className="center-box">
                         <TimeBonusPlot
                           currentPlayer={currentPlayer}

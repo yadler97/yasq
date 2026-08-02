@@ -32,9 +32,7 @@ import { FinalResultsView } from './views/GameFinishedView';
 import './style.css';
 
 const isMockMode = import.meta.env.VITE_MOCK_MODE === 'true';
-export const discordSdk = isMockMode
-  ? mockDiscordSdk
-  : new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
+export const discordSdk = isMockMode ? mockDiscordSdk : new DiscordSDK(import.meta.env.VITE_DISCORD_CLIENT_ID);
 
 export const auth = signal<any | null>(null);
 export const gameState = signal<GameStatus>({
@@ -76,7 +74,10 @@ const App = () => {
       <div className="container">
         <div className="game-column">
           <GameHeader />
-          <div className="game-area" key={`view-${isHost}-${gameState.value.state}`}>
+          <div
+            className="game-area"
+            key={`view-${isHost}-${gameState.value.state}`}
+          >
             {renderView(isHost)}
           </div>
         </div>
@@ -142,10 +143,7 @@ render(<App />, document.getElementById('app')!);
   });
 
   participants.value = (await discordSdk.commands.getInstanceConnectedParticipants()).participants;
-  discordSdk.subscribe(
-    'ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE',
-    (e: any) => (participants.value = e.participants)
-  );
+  discordSdk.subscribe('ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE', (e: any) => (participants.value = e.participants));
 
   render(<App />, document.getElementById('app')!);
 })();

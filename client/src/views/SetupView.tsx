@@ -55,9 +55,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     )
   );
 
-  const selectedBonus = useSignal<TOptionalTimeBonus>(
-    gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE
-  );
+  const selectedBonus = useSignal<TOptionalTimeBonus>(gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE);
 
   const { timeBonusSamples, isLoading } = useTimeBonusSamples(isHost);
 
@@ -66,9 +64,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       ? timeBonusSamples.value.get(selectedBonus.value as TimeBonus)
       : null;
 
-  const sampleParticipants = new Map(
-    (activeTimeBonusSample?.participants || []).map(p => [p.id, p])
-  );
+  const sampleParticipants = new Map((activeTimeBonusSample?.participants || []).map(p => [p.id, p]));
 
   const toggleJoker = (type: Joker) => {
     const next = new Set(activeJokers.value);
@@ -106,7 +102,11 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
 
   return (
     <div className="view-container centered">
-      <NonDraggableImg src="/rocket.png" className="logo" alt="Discord" />
+      <NonDraggableImg
+        src="/rocket.png"
+        className="logo"
+        alt="Discord"
+      />
       <h1>Welcome to YASQ!</h1>
 
       {!isHost ? (
@@ -114,7 +114,10 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
           <h2>Waiting for host to setup game...</h2>
         </div>
       ) : (
-        <div className="card-container" id="host-settings">
+        <div
+          className="card-container"
+          id="host-settings"
+        >
           <h2>Game Setup</h2>
           <hr className="divider" />
           <label className="setting-item">
@@ -186,9 +189,15 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
               <div className="advanced-content-panel">
                 <div className="setting-item">
                   <span>Time Bonus</span>
-                  <select value={selectedBonus.value} onChange={selectTimeBonus}>
+                  <select
+                    value={selectedBonus.value}
+                    onChange={selectTimeBonus}
+                  >
                     {Object.values(OptionalTimeBonus).map(value => (
-                      <option key={value} value={value}>
+                      <option
+                        key={value}
+                        value={value}
+                      >
                         {HOST_TIME_BONUS_LABELS[value]}
                       </option>
                     ))}
@@ -263,7 +272,11 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
             )}
           </div>
 
-          <button id="btn-start" disabled={isSubmitting.value} onClick={handleConfirmSettings}>
+          <button
+            id="btn-start"
+            disabled={isSubmitting.value}
+            onClick={handleConfirmSettings}
+          >
             {isSubmitting.value ? 'Saving...' : 'Confirm'}
           </button>
 

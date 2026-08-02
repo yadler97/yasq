@@ -27,8 +27,7 @@ export const useKeyboardShortcut = (shortcut: KeyCombo, callback: (e: KeyboardEv
       const matchMeta = event.metaKey === reqMeta;
 
       const target = event.target as HTMLElement;
-      const isTyping =
-        target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+      const isTyping = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 
       // Allow typing if any modifier is held down
       if (isTyping && !event.ctrlKey && !event.altKey && !event.metaKey) {

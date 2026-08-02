@@ -10,7 +10,11 @@ export const RoundBubblesGroup = ({ rounds, userId }: RoundBubblesGroupProps) =>
   return (
     <div className="round-bubbles">
       {rounds.map(r => (
-        <RoundBubble key={r.round} roundResult={r} userId={userId} />
+        <RoundBubble
+          key={r.round}
+          roundResult={r}
+          userId={userId}
+        />
       ))}
     </div>
   );

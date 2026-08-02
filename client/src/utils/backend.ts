@@ -1,12 +1,4 @@
-import {
-  BonusType,
-  GameSettings,
-  Joker,
-  Participant,
-  PointsBonus,
-  TimeBonus,
-  TimeBonusSummary,
-} from '@yasq/shared';
+import { BonusType, GameSettings, Joker, Participant, PointsBonus, TimeBonus, TimeBonusSummary } from '@yasq/shared';
 import { RoundResult } from './types';
 
 let baseUrl = '';
@@ -24,11 +16,7 @@ export async function getToken(code: string) {
   return response.json();
 }
 
-export async function updateReadyStatus(
-  access_token: string,
-  instanceId: string,
-  isReady: boolean
-) {
+export async function updateReadyStatus(access_token: string, instanceId: string, isReady: boolean) {
   return fetch(`${baseUrl}/api/ready`, {
     method: 'POST',
     headers: {
@@ -127,9 +115,7 @@ export async function submitRoundResults(
 }
 
 export async function getRoundResults(instanceId: string, userId: string) {
-  const response = await fetch(
-    `${baseUrl}/api/get-results?instanceId=${instanceId}&userId=${userId}`
-  );
+  const response = await fetch(`${baseUrl}/api/get-results?instanceId=${instanceId}&userId=${userId}`);
 
   if (!response.ok) {
     const errorData = await response.json();
@@ -143,8 +129,7 @@ export async function getRoundResults(instanceId: string, userId: string) {
   roundData.result = roundData.result.map((roundResult: RoundResult) => {
     roundResult.awardedBonuses =
       roundResult.awardedBonuses?.map(
-        (bonus: { type: BonusType; multiplier: number }) =>
-          new PointsBonus(bonus.type, bonus.multiplier)
+        (bonus: { type: BonusType; multiplier: number }) => new PointsBonus(bonus.type, bonus.multiplier)
       ) ?? [];
 
     return roundResult;
@@ -160,9 +145,7 @@ export interface TimeBonusPlotPayload {
 
 const sampleBonusCache = new Map<TimeBonus, TimeBonusPlotPayload>();
 
-export async function getSampleTimeBonusSummary(
-  bonusType: TimeBonus
-): Promise<TimeBonusPlotPayload> {
+export async function getSampleTimeBonusSummary(bonusType: TimeBonus): Promise<TimeBonusPlotPayload> {
   if (sampleBonusCache.has(bonusType)) {
     return sampleBonusCache.get(bonusType)!;
   }
@@ -218,12 +201,7 @@ export async function getAvailableJokers(access_token: string, instanceId: strin
   return response.json();
 }
 
-export async function useJoker(
-  access_token: string,
-  instanceId: string,
-  jokerType: Joker,
-  targetId?: string
-) {
+export async function useJoker(access_token: string, instanceId: string, jokerType: Joker, targetId?: string) {
   return await fetch(`${baseUrl}/api/use-joker`, {
     method: 'POST',
     headers: {
@@ -271,11 +249,7 @@ export async function downloadResultsImage(instanceId: string, discordSdk: any) 
     .catch((err: any) => console.warn('Discord SDK prompt breakout error:', err));
 }
 
-export async function postResultsToDiscordChannel(
-  access_token: string,
-  instanceId: string,
-  channelId: string
-) {
+export async function postResultsToDiscordChannel(access_token: string, instanceId: string, channelId: string) {
   return fetch(`${baseUrl}/api/post-results-to-channel`, {
     method: 'POST',
     headers: {
@@ -287,13 +261,10 @@ export async function postResultsToDiscordChannel(
 }
 
 export async function getChannels(access_token: string, instanceId: string, guildId: string) {
-  const response = await fetch(
-    `${baseUrl}/api/get-channels?instanceId=${instanceId}&guildId=${guildId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    }
-  );
+  const response = await fetch(`${baseUrl}/api/get-channels?instanceId=${instanceId}&guildId=${guildId}`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
   return response.json();
 }

@@ -14,12 +14,8 @@ export class TrackSelectionPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.selectionTitle = page.locator(
-      'h2:has-text("Select the next track to challenge players:")'
-    );
-    this.waitingTitle = page.locator(
-      'h2:has-text("Waiting for players to submit their guesses...")'
-    );
+    this.selectionTitle = page.locator('h2:has-text("Select the next track to challenge players:")');
+    this.waitingTitle = page.locator('h2:has-text("Waiting for players to submit their guesses...")');
     this.trackList = page.locator('#track-selection-grid');
     this.trackItems = this.trackList.locator('button');
     this.searchInput = page.locator('#track-search');

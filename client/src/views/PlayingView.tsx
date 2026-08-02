@@ -3,13 +3,7 @@ import { useEffect, useRef } from 'preact/hooks';
 
 import * as backend from '../utils/backend';
 import { audioPlayer, auth, discordSdk, gameState, isMac, participants } from '../main';
-import {
-  getAvatarUrl,
-  getDisplayName,
-  Joker,
-  MAX_GUESS_LENGTH,
-  POLLING_INTERVAL,
-} from '@yasq/shared';
+import { getAvatarUrl, getDisplayName, Joker, MAX_GUESS_LENGTH, POLLING_INTERVAL } from '@yasq/shared';
 import { ALL_JOKER_ICONS } from '../components/JokerIcons';
 import { capitalize, findUser, getActionKeyLabel } from '../utils/helper';
 import { NonDraggableImg } from '../components/NonDraggableImg';
@@ -31,7 +25,10 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
   switch (activeHint.type) {
     case Joker.OBFUSCATION:
       return (
-        <p className="obfuscated-text" id="obfuscation-hint-text">
+        <p
+          className="obfuscated-text"
+          id="obfuscation-hint-text"
+        >
           {activeHint.data}
         </p>
       );
@@ -40,7 +37,10 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
       return (
         <div className="tags-container">
           {activeHint.data.map((tag: Tag) => (
-            <span key={tag.type} className="tag-badge">
+            <span
+              key={tag.type}
+              className="tag-badge"
+            >
               <strong>{tag.type}:</strong> {tag.value}
             </span>
           ))}
@@ -51,12 +51,9 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
       return (
         <div className="choices-grid">
           {activeHint.data.map((choice: string, index: number) => {
-            useKeyboardShortcut(
-              { key: (index + 1).toString(), altKey: !isMac, metaKey: isMac },
-              () => {
-                void submit(choice);
-              }
-            );
+            useKeyboardShortcut({ key: (index + 1).toString(), altKey: !isMac, metaKey: isMac }, () => {
+              void submit(choice);
+            });
 
             return (
               <div className="choice-button-wrapper">
@@ -85,7 +82,10 @@ const renderJokerHint = (activeHint: JokerHint, submit: SubmitFunction) => {
       return (
         <div className="spy-hint-display">
           <div className="spy-target-info">
-            <DiscordAvatar src={getAvatarUrl(targetUser)} userName={getDisplayName(targetUser)} />
+            <DiscordAvatar
+              src={getAvatarUrl(targetUser)}
+              userName={getDisplayName(targetUser)}
+            />
             <span>
               <strong>{getDisplayName(targetUser)}</strong>
             </span>
@@ -140,12 +140,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
     }
 
     try {
-      const response = await backend.useJoker(
-        auth.value.access_token,
-        discordSdk.instanceId,
-        jokerType,
-        targetId
-      );
+      const response = await backend.useJoker(auth.value.access_token, discordSdk.instanceId, jokerType, targetId);
       const payload = await response.json();
       if (response.status === 200) {
         activeHint.value = {
@@ -257,7 +252,10 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
   }, [isHost]);
 
   return (
-    <div id="game-arena" className="centered">
+    <div
+      id="game-arena"
+      className="centered"
+    >
       {countdown.value !== null && (
         <div id="countdown-overlay">
           <div id="countdown-number">{countdown.value}</div>
@@ -288,7 +286,10 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     </p>
                     <div className="tags-container left">
                       {activeTrackInfo.value.tags.map((tag: Tag) => (
-                        <TooltipDiv text={capitalize(tag.type)} className="tag-badge">
+                        <TooltipDiv
+                          text={capitalize(tag.type)}
+                          className="tag-badge"
+                        >
                           <span key={tag.type}>{tag.value}</span>
                         </TooltipDiv>
                       ))}
@@ -311,8 +312,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <h2>Pick a player to spy on:</h2>
               <hr className="divider" />
               <div className="spy-hint-player-list">
-                {gameState.value.guessedPlayers.filter(id => id !== auth.value.userId).length ===
-                0 ? (
+                {gameState.value.guessedPlayers.filter(id => id !== auth.value.userId).length === 0 ? (
                   <p className="no-results">No player has submitted a guess yet.</p>
                 ) : (
                   gameState.value.guessedPlayers.map(targetId => {
@@ -324,7 +324,10 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                         className="spy-select-button"
                         onClick={() => handleJokerUsage(Joker.SPY, targetId)}
                       >
-                        <DiscordAvatar src={getAvatarUrl(user)} userName={getDisplayName(user)} />
+                        <DiscordAvatar
+                          src={getAvatarUrl(user)}
+                          userName={getDisplayName(user)}
+                        />
                         <span>{getDisplayName(user)}</span>
                       </button>
                     );
@@ -371,7 +374,10 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                   autoComplete="off"
                   maxLength={MAX_GUESS_LENGTH}
                 />
-                <button type="submit" id="btn-submit">
+                <button
+                  type="submit"
+                  id="btn-submit"
+                >
                   Submit Guess
                 </button>
               </form>
@@ -379,9 +385,7 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
               <div className="joker-list">
                 {ALL_JOKER_ICONS
                   // Only show jokers that were enabled by the host during setup
-                  .filter(Icon =>
-                    gameState.value.gameSettings.enabledJokers.includes(Icon.jokerType)
-                  )
+                  .filter(Icon => gameState.value.gameSettings.enabledJokers.includes(Icon.jokerType))
                   .map((Icon, index) => {
                     const type = Icon.jokerType;
                     const isAvailable = availableJokers.value.includes(type);
@@ -411,7 +415,10 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
                     );
 
                     return (
-                      <div key={type} className="joker-btn-wrapper">
+                      <div
+                        key={type}
+                        className="joker-btn-wrapper"
+                      >
                         <WithTooltip text={tooltipText}>
                           <button
                             className="joker-icon-btn"
@@ -433,7 +440,10 @@ export const ArenaView = ({ isHost }: { isHost: boolean }) => {
             </div>
           ) : (
             <div className="waiting-container">
-              <p className="waiting-msg" id="waiting-msg">
+              <p
+                className="waiting-msg"
+                id="waiting-msg"
+              >
                 Guess submitted! Waiting for others...
               </p>
             </div>

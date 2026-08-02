@@ -10,12 +10,7 @@ import { GameInstance } from './src/models.js';
 
 import { setupRoutes } from './routes/routes.js';
 import { setupMockRoutes } from './routes/mockRoutes.js';
-import {
-  getGameStatusPayload,
-  invalidateToken,
-  setupTempDir,
-  validateToken,
-} from './src/helper.js';
+import { getGameStatusPayload, invalidateToken, setupTempDir, validateToken } from './src/helper.js';
 import {
   STATIC_FILES_DIR,
   TEMP_FILES_DIR,

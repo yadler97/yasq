@@ -38,12 +38,8 @@ export const Sidebar = () => {
   });
 
   const step = 0.01;
-  useKeyboardShortcut({ key: 'ArrowUp', altKey: !isMac, metaKey: isMac }, () =>
-    updateVolume(volume.value + step)
-  );
-  useKeyboardShortcut({ key: 'ArrowDown', altKey: !isMac, metaKey: isMac }, () =>
-    updateVolume(volume.value - step)
-  );
+  useKeyboardShortcut({ key: 'ArrowUp', altKey: !isMac, metaKey: isMac }, () => updateVolume(volume.value + step));
+  useKeyboardShortcut({ key: 'ArrowDown', altKey: !isMac, metaKey: isMac }, () => updateVolume(volume.value - step));
   useKeyboardShortcut({ key: 'M', altKey: !isMac, metaKey: isMac }, () => toggleMute());
 
   return (
@@ -63,8 +59,15 @@ export const Sidebar = () => {
             const isStreakBroken = brokenStreak > 0;
 
             return (
-              <div key={p.id} className="player-entry">
-                <DiscordAvatar src={getAvatarUrl(p)} userName={getDisplayName(p)} tiny={true} />
+              <div
+                key={p.id}
+                className="player-entry"
+              >
+                <DiscordAvatar
+                  src={getAvatarUrl(p)}
+                  userName={getDisplayName(p)}
+                  tiny={true}
+                />
                 <div className="player-info-container">
                   <span className="player-name">{getDisplayName(p)}</span>
                   <div className="badge-container">
@@ -111,7 +114,10 @@ export const Sidebar = () => {
               </span>
             </div>
             <div className="volume-stack">
-              <button className="mute-button" onClick={toggleMute}>
+              <button
+                className="mute-button"
+                onClick={toggleMute}
+              >
                 {volume.value === 0 ? '🔇' : '🔊'}
               </button>
               <span className="shortcut-badge">

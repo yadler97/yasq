@@ -57,11 +57,7 @@ export const createGameMiddlewares = (instances: Record<string, GameInstance>) =
     const userId = req.userId;
 
     if (!req.game?.isHost(userId!)) {
-      logger.warn(
-        req.body.instanceId,
-        `Unauthorized host attempt by user ${userId}`,
-        LogCategory.SECURITY
-      );
+      logger.warn(req.body.instanceId, `Unauthorized host attempt by user ${userId}`, LogCategory.SECURITY);
       return res.status(403).json({ error: 'Only host can perform this action' });
     }
 

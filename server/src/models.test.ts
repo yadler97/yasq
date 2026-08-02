@@ -458,10 +458,7 @@ describe('GameInstance - submitResults', () => {
     expect(awardedBonuses1.length).toBe(2);
 
     // Check rounding of time bonus
-    const fractionalTimeMultiplier1 = game.calculateTimeMultiplier(
-      GUESS_TIME_1,
-      FIRST_SUCCESS_TIME
-    );
+    const fractionalTimeMultiplier1 = game.calculateTimeMultiplier(GUESS_TIME_1, FIRST_SUCCESS_TIME);
     const timeBonus1 = awardedBonuses1.find(bonus => bonus.type == BonusType.TIME_BONUS);
     expect(timeBonus1).toBeDefined();
     expect(timeBonus1?.multiplier).toBeCloseTo(fractionalTimeMultiplier1, 3);
@@ -487,10 +484,7 @@ describe('GameInstance - submitResults', () => {
     expect(awardedBonuses2.length).toBe(1);
 
     // Check rounding of time bonus
-    const fractionalTimeMultiplier2 = game.calculateTimeMultiplier(
-      GUESS_TIME_2,
-      FIRST_SUCCESS_TIME
-    );
+    const fractionalTimeMultiplier2 = game.calculateTimeMultiplier(GUESS_TIME_2, FIRST_SUCCESS_TIME);
     const timeBonus2 = awardedBonuses2.find(bonus => bonus.type == BonusType.TIME_BONUS);
     expect(timeBonus2).toBeDefined();
     expect(timeBonus2?.multiplier).toBeCloseTo(fractionalTimeMultiplier2, 3);
@@ -515,10 +509,7 @@ describe('GameInstance - submitResults', () => {
     expect(awardedBonuses3.length).toBe(2);
 
     // Check rounding of time bonus
-    const fractionalTimeMultiplier3 = game.calculateTimeMultiplier(
-      GUESS_TIME_3,
-      FIRST_SUCCESS_TIME
-    );
+    const fractionalTimeMultiplier3 = game.calculateTimeMultiplier(GUESS_TIME_3, FIRST_SUCCESS_TIME);
     const timeBonus3 = awardedBonuses3.find(bonus => bonus.type == BonusType.TIME_BONUS);
     expect(timeBonus3).toBeDefined();
     expect(timeBonus3?.multiplier).toBeCloseTo(fractionalTimeMultiplier3, 3);
@@ -565,16 +556,12 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
 
     it(`should assign MAX_TIME_MULTIPLIER for guesses at/before the first success - ${bonusType}`, () => {
       const REALISTIC_SUCCESS = 3000;
-      expect(game.calculateTimeMultiplier(REALISTIC_SUCCESS, REALISTIC_SUCCESS)).toBe(
-        MAX_TIME_MULTIPLIER
-      );
+      expect(game.calculateTimeMultiplier(REALISTIC_SUCCESS, REALISTIC_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
       expect(game.calculateTimeMultiplier(0, REALISTIC_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
       expect(game.calculateTimeMultiplier(-100, REALISTIC_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
 
       const IMMEDIATE_SUCCESS = 0;
-      expect(game.calculateTimeMultiplier(IMMEDIATE_SUCCESS, IMMEDIATE_SUCCESS)).toBe(
-        MAX_TIME_MULTIPLIER
-      );
+      expect(game.calculateTimeMultiplier(IMMEDIATE_SUCCESS, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
       expect(game.calculateTimeMultiplier(0, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
       expect(game.calculateTimeMultiplier(-100, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
 
@@ -586,24 +573,14 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
 
     it(`should assign MIN_TIME_MULTIPLIER for guesses at/after the track ended - ${bonusType}`, () => {
       const REALISTIC_SUCCESS = 3000;
-      expect(game.calculateTimeMultiplier(TRACK_DURATION, REALISTIC_SUCCESS)).toBe(
-        MIN_TIME_MULTIPLIER
-      );
-      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, REALISTIC_SUCCESS)).toBe(
-        MIN_TIME_MULTIPLIER
-      );
+      expect(game.calculateTimeMultiplier(TRACK_DURATION, REALISTIC_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, REALISTIC_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
 
       const IMMEDIATE_SUCCESS = 0;
-      expect(game.calculateTimeMultiplier(TRACK_DURATION, IMMEDIATE_SUCCESS)).toBe(
-        MIN_TIME_MULTIPLIER
-      );
-      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, IMMEDIATE_SUCCESS)).toBe(
-        MIN_TIME_MULTIPLIER
-      );
+      expect(game.calculateTimeMultiplier(TRACK_DURATION, IMMEDIATE_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, IMMEDIATE_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
 
-      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, TRACK_DURATION)).toBe(
-        MIN_TIME_MULTIPLIER
-      );
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, TRACK_DURATION)).toBe(MIN_TIME_MULTIPLIER);
     });
   }
 });
@@ -1121,9 +1098,7 @@ describe('GameInstance - getGlimpseHint', () => {
     expect(fs.readdirSync(instanceTempDir)).toContain(modifiedImgName);
 
     // Temp image is different from original image
-    const originalImg = fs.readFileSync(
-      path.join(rootDir, STATIC_FILES_DIR, 'game_covers', track.cover)
-    );
+    const originalImg = fs.readFileSync(path.join(rootDir, STATIC_FILES_DIR, 'game_covers', track.cover));
     const modifiedImg = fs.readFileSync(path.join(instanceTempDir, modifiedImgName));
     expect(originalImg).not.toEqual(modifiedImg);
   });

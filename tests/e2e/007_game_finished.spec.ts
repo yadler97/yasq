@@ -41,9 +41,7 @@ test.describe('Player UI', () => {
     await api.deleteSession();
   });
 
-  test('should display final leaderboard with correct scores and round history', async ({
-    page,
-  }) => {
+  test('should display final leaderboard with correct scores and round history', async ({ page }) => {
     const gameFinished = new GameFinishedPage(page);
 
     // Verify total count

@@ -61,8 +61,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
   const readyCount = gameState.value.readyUsers.length;
   const allPlayersReady =
-    playersExcludingHost.length > 0 &&
-    playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
+    playersExcludingHost.length > 0 && playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
 
   const handleRestart = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
@@ -99,7 +98,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                 {isWinner && <div className="shimmer-layer" />}
                 <div className="player-main-info">
                   <div className="rank">#{index + 1}</div>
-                  <DiscordAvatar src={getAvatarUrl(user)} userName={getDisplayName(user)} />
+                  <DiscordAvatar
+                    src={getAvatarUrl(user)}
+                    userName={getDisplayName(user)}
+                  />
                   <div className="name">
                     {isWinner ? '👑 ' : ''}
                     {getDisplayName(user)}
@@ -109,7 +111,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
 
                 <div className="history-grid">
                   <div className="history-label">Round Breakdown:</div>
-                  <RoundBubblesGroup rounds={player.roundHistory} userId={player.userId} />
+                  <RoundBubblesGroup
+                    rounds={player.roundHistory}
+                    userId={player.userId}
+                  />
                 </div>
               </div>
             </div>
@@ -120,7 +125,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       {isHost ? (
         <div>
           <div className="export-section">
-            <button onClick={handleDownload} disabled={isDownloading}>
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+            >
               {isDownloading ? 'Downloading...' : '📥 Download Results Image'}
             </button>
 
@@ -138,7 +146,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                 <>
                   <option value="">Select a channel...</option>
                   {channels.map(channel => (
-                    <option key={channel.id} value={channel.id}>
+                    <option
+                      key={channel.id}
+                      value={channel.id}
+                    >
                       {channel.category ? `${channel.category} > ` : ''}#{channel.name}
                     </option>
                   ))}
@@ -150,18 +161,16 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
               onClick={handlePostToChannel}
               disabled={isPosting || hasPosted || !selectedChannel}
             >
-              {hasPosted
-                ? '✅ Posted to Channel'
-                : isPosting
-                  ? 'Posting to Discord...'
-                  : '💬 Post Directly to Channel'}
+              {hasPosted ? '✅ Posted to Channel' : isPosting ? 'Posting to Discord...' : '💬 Post Directly to Channel'}
             </button>
           </div>
 
-          <button id="btn-restart" disabled={!allPlayersReady} onClick={handleRestart}>
-            {allPlayersReady
-              ? 'Play Again'
-              : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
+          <button
+            id="btn-restart"
+            disabled={!allPlayersReady}
+            onClick={handleRestart}
+          >
+            {allPlayersReady ? 'Play Again' : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
           </button>
         </div>
       ) : (

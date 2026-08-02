@@ -18,11 +18,8 @@ export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
-  const readyUsers = playersExcludingHost.filter(p =>
-    gameState.value.readyUsers.includes(p.id)
-  ).length;
-  const allPlayersReady =
-    playersExcludingHost.length > 0 && readyUsers === playersExcludingHost.length;
+  const readyUsers = playersExcludingHost.filter(p => gameState.value.readyUsers.includes(p.id)).length;
+  const allPlayersReady = playersExcludingHost.length > 0 && readyUsers === playersExcludingHost.length;
 
   const [activeTooltipType, setActiveTooltipType] = useState<string | null>(null);
 
@@ -49,7 +46,10 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   };
 
   return (
-    <div id="lobby" className="centered">
+    <div
+      id="lobby"
+      className="centered"
+    >
       <div className="card-container">
         <h2>Game Settings</h2>
         <hr className="divider" />
@@ -69,7 +69,10 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
                   const JokerIcon = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
 
                   return (
-                    <div key={jokerType} className="joker-row-item">
+                    <div
+                      key={jokerType}
+                      className="joker-row-item"
+                    >
                       {JokerIcon && (
                         <TooltipDiv
                           text={JokerIcon?.description || 'Description not '}
@@ -89,13 +92,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
           </dd>
 
           <dt>⏱️ Time Bonus</dt>
-          <dd>
-            {
-              PLAYER_TIME_BONUS_LABELS[
-                gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE
-              ]
-            }
-          </dd>
+          <dd>{PLAYER_TIME_BONUS_LABELS[gameState.value.gameSettings.timeBonus ?? OptionalTimeBonus.NONE]}</dd>
 
           <dt>🥇 First Bonus</dt>
           <dd>{formatBonusMultiplier(gameState.value.gameSettings.firstBonusMultiplier)}</dd>
@@ -105,7 +102,10 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
         </dl>
 
         {isHost && (
-          <button onClick={handleEditSettings} title="Edit Game Settings">
+          <button
+            onClick={handleEditSettings}
+            title="Edit Game Settings"
+          >
             ⚙️ Edit
           </button>
         )}
@@ -113,10 +113,12 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
 
       <div className="lobby-footer">
         {isHost ? (
-          <button id="btn-start" disabled={!allPlayersReady} onClick={handleStart}>
-            {allPlayersReady
-              ? 'Start Game'
-              : `Waiting... (${readyUsers}/${playersExcludingHost.length})`}
+          <button
+            id="btn-start"
+            disabled={!allPlayersReady}
+            onClick={handleStart}
+          >
+            {allPlayersReady ? 'Start Game' : `Waiting... (${readyUsers}/${playersExcludingHost.length})`}
           </button>
         ) : (
           <ReadyButton promptText={'Ready Up'} />
