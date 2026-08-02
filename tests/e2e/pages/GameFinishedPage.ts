@@ -22,8 +22,7 @@ export class GameFinishedPage {
       score: card.locator('.total-score'),
       bubbles: card.locator('.round-bubble'),
       // Helper to filter bubbles by status class
-      getBubbles: (status: 'correct' | 'incorrect') =>
-        card.locator(`.round-bubble.${status}`),
+      getBubbles: (status: 'correct' | 'incorrect') => card.locator(`.round-bubble.${status}`),
     };
   }
 }

@@ -87,8 +87,6 @@ test.describe('Player UI', () => {
     const sidebar = new Sidebar(page); // Utilizing existing SidebarPage class
 
     await expect(sidebar.getBadge(players[1].username, 'winner')).toBeVisible();
-    await expect(sidebar.getBadge(players[1].username, 'winner')).toHaveText(
-      '👑'
-    );
+    await expect(sidebar.getBadge(players[1].username, 'winner')).toHaveText('👑');
   });
 });

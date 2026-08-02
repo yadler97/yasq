@@ -19,8 +19,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);
   const isPointsDetailsOpen = useSignal(false);
 
-  const isFinalRound =
-    gameState.value.currentRound >= gameState.value.gameSettings.rounds;
+  const isFinalRound = gameState.value.currentRound >= gameState.value.gameSettings.rounds;
   const hasTimeBonus = !!gameState.value.gameSettings.timeBonus;
 
   useEffect(() => {
@@ -35,9 +34,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   }, [isHost]);
 
   // Logic for the Host's "Next Round" button
-  const playersExcludingHost = participants.value.filter(
-    p => p.id !== gameState.value.hostId
-  );
+  const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
   const participantLookup = new Map(participants.value.map(p => [p.id, p]));
   const currentPlayer = participantLookup.get(getUserId(auth.value)) ?? null;
   const readyCount = gameState.value.readyUsers.length;
@@ -46,10 +43,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
     playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
 
   const handleNextRound = async () => {
-    await backend.startNextRound(
-      auth.value.access_token,
-      discordSdk.instanceId
-    );
+    await backend.startNextRound(auth.value.access_token, discordSdk.instanceId);
   };
 
   if (!roundData.value) {
@@ -73,8 +67,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
               src={roundData.value.gameCover || '/game_covers/default.svg'}
               alt={`Cover of ${roundData.value.correctAnswer}`}
               onError={e => {
-                (e.currentTarget as HTMLImageElement).src =
-                  '/game_covers/default.svg';
+                (e.currentTarget as HTMLImageElement).src = '/game_covers/default.svg';
               }}
             />
             <div>
@@ -102,10 +95,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
                 return (
                   <div key={res.userId} className="player-result">
-                    <DiscordAvatar
-                      src={getAvatarUrl(user)}
-                      userName={getDisplayName(user)}
-                    />
+                    <DiscordAvatar src={getAvatarUrl(user)} userName={getDisplayName(user)} />
                     <div className="name">{getDisplayName(user)}</div>
 
                     <div className="round-result-box">
@@ -115,28 +105,25 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                   </div>
                 );
               })}
-            {roundData.value.lostStreaks &&
-              Object.keys(roundData.value.lostStreaks).length > 0 && (
-                <p>
-                  Lost Streaks:{' '}
-                  <strong>
-                    {Object.entries(roundData.value.lostStreaks)
-                      .map(
-                        ([userId, streak]) =>
-                          `${getDisplayName(findUser(participants.value, userId))} (${streak})`
-                      )
-                      .join(', ')}
-                  </strong>
-                </p>
-              )}
+            {roundData.value.lostStreaks && Object.keys(roundData.value.lostStreaks).length > 0 && (
+              <p>
+                Lost Streaks:{' '}
+                <strong>
+                  {Object.entries(roundData.value.lostStreaks)
+                    .map(
+                      ([userId, streak]) =>
+                        `${getDisplayName(findUser(participants.value, userId))} (${streak})`
+                    )
+                    .join(', ')}
+                </strong>
+              </p>
+            )}
           </div>
           {hasTimeBonus && (
             <div id="host-details">
               <hr className="divider" />
               <div className="host-details-panel">
-                <h3 className="section-heading time-bonus-heading">
-                  Time bonus calculation:
-                </h3>
+                <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
                 <div className="center-box">
                   <TimeBonusPlot
                     currentPlayer={currentPlayer}
@@ -150,11 +137,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         </div>
 
         <div id="lobby-host-ui-next-round">
-          <button
-            id="btn-next-round"
-            disabled={!allPlayersReady}
-            onClick={handleNextRound}
-          >
+          <button id="btn-next-round" disabled={!allPlayersReady} onClick={handleNextRound}>
             {allPlayersReady
               ? isFinalRound
                 ? 'Show Final Results'
@@ -183,15 +166,12 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
   const userResult = roundData.value.result?.[0];
   const score = userResult?.scoreValue || 0;
-  const needsScoreDetails =
-    userResult && (hasTimeBonus || userResult.points > 0);
+  const needsScoreDetails = userResult && (hasTimeBonus || userResult.points > 0);
 
   // Determine status class and message
   const { statusClass, statusMessage } = (() => {
-    if (score === 1)
-      return { statusClass: 'correct', statusMessage: 'Correct! 🎉' };
-    if (score > 0)
-      return { statusClass: 'partial', statusMessage: 'So close! 🧗' };
+    if (score === 1) return { statusClass: 'correct', statusMessage: 'Correct! 🎉' };
+    if (score > 0) return { statusClass: 'partial', statusMessage: 'So close! 🧗' };
     return { statusClass: 'incorrect', statusMessage: 'Incorrect. 😢' };
   })();
 
@@ -211,8 +191,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             src={roundData.value.gameCover || '/game_covers/default.svg'}
             alt={`Cover of ${roundData.value.correctAnswer}`}
             onError={e => {
-              (e.currentTarget as HTMLImageElement).src =
-                '/game_covers/default.svg';
+              (e.currentTarget as HTMLImageElement).src = '/game_covers/default.svg';
             }}
           />
           <div>
@@ -235,9 +214,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
         <div id="own-results" className="own-results">
           {userResult ? (
             <>
-              <p className={`user-guess-result ${statusClass}`}>
-                {statusMessage}
-              </p>
+              <p className={`user-guess-result ${statusClass}`}>{statusMessage}</p>
               <div className="user-evaluation">
                 <div className="user-guess-wrapper">
                   <span className="guess-label">Your guess:</span>
@@ -261,9 +238,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
             </span>
             <div className="correct-players-list">
               {correctParticipants.length === 0 ? (
-                <span className="correct-players-empty">
-                  Nobody got it fully correct!
-                </span>
+                <span className="correct-players-empty">Nobody got it fully correct!</span>
               ) : (
                 correctParticipants.map((p: Participant) => (
                   <DiscordAvatar
@@ -275,27 +250,24 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
               )}
             </div>
           </div>
-          {roundData.value.lostStreaks &&
-            Object.keys(roundData.value.lostStreaks).length > 0 && (
-              <span>
-                Lost Streaks:{' '}
-                <strong>
-                  {Object.entries(roundData.value.lostStreaks)
-                    .map(
-                      ([userId, streak]) =>
-                        `${getDisplayName(findUser(participants.value, userId))} (${streak})`
-                    )
-                    .join(', ')}
-                </strong>
-              </span>
-            )}
+          {roundData.value.lostStreaks && Object.keys(roundData.value.lostStreaks).length > 0 && (
+            <span>
+              Lost Streaks:{' '}
+              <strong>
+                {Object.entries(roundData.value.lostStreaks)
+                  .map(
+                    ([userId, streak]) =>
+                      `${getDisplayName(findUser(participants.value, userId))} (${streak})`
+                  )
+                  .join(', ')}
+              </strong>
+            </span>
+          )}
           {hasTimeBonus && !userResult && (
             <div id="host-details">
               <hr className="divider" />
               <div className="host-details-panel">
-                <h3 className="section-heading time-bonus-heading">
-                  Time bonus calculation:
-                </h3>
+                <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
                 <div className="center-box">
                   <TimeBonusPlot
                     currentPlayer={currentPlayer}
@@ -312,27 +284,19 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                 type="button"
                 id="score-details-btn"
                 className="toggle-btn score-details-btn"
-                onClick={() =>
-                  (isPointsDetailsOpen.value = !isPointsDetailsOpen.value)
-                }
+                onClick={() => (isPointsDetailsOpen.value = !isPointsDetailsOpen.value)}
               >
                 <span>
-                  {isPointsDetailsOpen.value
-                    ? 'Hide score details'
-                    : 'See score details'}
+                  {isPointsDetailsOpen.value ? 'Hide score details' : 'See score details'}
                 </span>
-                <span
-                  className={`arrow-indicator ${isPointsDetailsOpen.value ? 'open' : ''}`}
-                />
+                <span className={`arrow-indicator ${isPointsDetailsOpen.value ? 'open' : ''}`} />
               </button>
 
               {isPointsDetailsOpen.value && (
                 <div className="score-details-panel">
                   {userResult.points > 0 && (
                     <>
-                      <h3 className="section-heading points-table-heading">
-                        Points calculation:
-                      </h3>
+                      <h3 className="section-heading points-table-heading">Points calculation:</h3>
                       <div className="center-box">
                         <PointsCalculationTable
                           baseMultiplier={userResult?.scoreValue}
@@ -351,9 +315,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                         <TimeBonusPlot
                           currentPlayer={currentPlayer}
                           participants={participantLookup}
-                          data={
-                            roundData.value.summary?.timeBonusSummary ?? null
-                          }
+                          data={roundData.value.summary?.timeBonusSummary ?? null}
                         />
                       </div>
                     </>

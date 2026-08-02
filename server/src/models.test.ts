@@ -221,12 +221,8 @@ describe('GameInstance - submitResults', () => {
     expect(entry1!.roundHistory[0]!.scoreValue).toBe(1);
     const awardedBonuses1 = entry1!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses1.length).toBe(2);
-    expect(awardedBonuses1).toContainEqual(
-      matchesBonus(BonusType.TIME_BONUS, 1.0)
-    );
-    expect(awardedBonuses1).toContainEqual(
-      matchesBonus(BonusType.FIRST_BONUS, 0.2)
-    );
+    expect(awardedBonuses1).toContainEqual(matchesBonus(BonusType.TIME_BONUS, 1.0));
+    expect(awardedBonuses1).toContainEqual(matchesBonus(BonusType.FIRST_BONUS, 0.2));
 
     // Math for Player 2:
     // Recall: FirstCorrect = 5000
@@ -242,9 +238,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]!.scoreValue).toBe(1);
     const awardedBonuses2 = entry2!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses2.length).toBe(1);
-    expect(awardedBonuses2).toContainEqual(
-      matchesBonus(BonusType.TIME_BONUS, 0.6666)
-    );
+    expect(awardedBonuses2).toContainEqual(matchesBonus(BonusType.TIME_BONUS, 0.6666));
 
     // Math for Player 3:
     // Recall: FirstCorrect = 5000
@@ -260,9 +254,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry3!.roundHistory[0]!.scoreValue).toBe(1);
     const awardedBonuses3 = entry3!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses3.length).toBe(1);
-    expect(awardedBonuses3).toContainEqual(
-      matchesBonus(BonusType.TIME_BONUS, 0.3333)
-    );
+    expect(awardedBonuses3).toContainEqual(matchesBonus(BonusType.TIME_BONUS, 0.3333));
   });
 
   it('should handle incorrect guesses correctly and assign first bonus to first correct player', () => {
@@ -295,9 +287,7 @@ describe('GameInstance - submitResults', () => {
     expect(entry2!.roundHistory[0]!.scoreValue).toBe(0.5);
     const awardedBonuses2 = entry2!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses2.length).toBe(1);
-    expect(awardedBonuses2).toContainEqual(
-      matchesBonus(BonusType.TIME_BONUS, 1.0)
-    );
+    expect(awardedBonuses2).toContainEqual(matchesBonus(BonusType.TIME_BONUS, 1.0));
 
     // Math for Player 3:
     // Recall: FirstCorrect = 10000
@@ -313,12 +303,8 @@ describe('GameInstance - submitResults', () => {
     expect(entry3!.roundHistory[0]!.scoreValue).toBe(1);
     const awardedBonuses3 = entry3!.roundHistory[0]!.awardedBonuses;
     expect(awardedBonuses3.length).toBe(2);
-    expect(awardedBonuses3).toContainEqual(
-      matchesBonus(BonusType.TIME_BONUS, 0.5)
-    );
-    expect(awardedBonuses3).toContainEqual(
-      matchesBonus(BonusType.FIRST_BONUS, 0.2)
-    );
+    expect(awardedBonuses3).toContainEqual(matchesBonus(BonusType.TIME_BONUS, 0.5));
+    expect(awardedBonuses3).toContainEqual(matchesBonus(BonusType.FIRST_BONUS, 0.2));
   });
 
   it('should correctly handle time multipliers and first-place bonus if there were no fully correct answers', () => {
@@ -377,18 +363,10 @@ describe('GameInstance - submitResults', () => {
     expect(game.streaks[PLAYER_1]).toBe(4); // Incremented to 4
     expect(roundResult1.scoreValue).toBe(1);
     expect(roundResult1.awardedBonuses.length).toBe(4);
-    expect(roundResult1.awardedBonuses).toContainEqual(
-      matchesBonus(BonusType.TIME_BONUS, 1.0)
-    );
-    expect(roundResult1.awardedBonuses).toContainEqual(
-      matchesBonus(BonusType.FIRST_BONUS, 0.2)
-    );
-    expect(roundResult1.awardedBonuses).toContainEqual(
-      matchesBonus(BonusType.STREAK_BONUS, 0.3)
-    );
-    expect(roundResult1.awardedBonuses).toContainEqual(
-      matchesBonus(BonusType.STREAK_BREAKER, 0.4)
-    );
+    expect(roundResult1.awardedBonuses).toContainEqual(matchesBonus(BonusType.TIME_BONUS, 1.0));
+    expect(roundResult1.awardedBonuses).toContainEqual(matchesBonus(BonusType.FIRST_BONUS, 0.2));
+    expect(roundResult1.awardedBonuses).toContainEqual(matchesBonus(BonusType.STREAK_BONUS, 0.3));
+    expect(roundResult1.awardedBonuses).toContainEqual(matchesBonus(BonusType.STREAK_BREAKER, 0.4));
 
     // Math for Player 2:
     // Time Bonus Multiplier = 1 - ((10000-5000) / (20000 - 5000)) = 0.6666
@@ -402,12 +380,8 @@ describe('GameInstance - submitResults', () => {
     expect(game.streaks[PLAYER_2]).toBe(2); // Kept at 2
     expect(roundResult2.scoreValue).toBe(0.5);
     expect(roundResult2.awardedBonuses.length).toBe(2);
-    expect(roundResult2.awardedBonuses).toContainEqual(
-      matchesBonus(BonusType.TIME_BONUS, 0.6666)
-    );
-    expect(roundResult2.awardedBonuses).toContainEqual(
-      matchesBonus(BonusType.STREAK_BONUS, 0.1)
-    );
+    expect(roundResult2.awardedBonuses).toContainEqual(matchesBonus(BonusType.TIME_BONUS, 0.6666));
+    expect(roundResult2.awardedBonuses).toContainEqual(matchesBonus(BonusType.STREAK_BONUS, 0.1));
 
     // Player 3: No points, streak set to 0
     expect(entry3!.totalScore).toBe(0);
@@ -488,24 +462,18 @@ describe('GameInstance - submitResults', () => {
       GUESS_TIME_1,
       FIRST_SUCCESS_TIME
     );
-    const timeBonus1 = awardedBonuses1.find(
-      bonus => bonus.type == BonusType.TIME_BONUS
-    );
+    const timeBonus1 = awardedBonuses1.find(bonus => bonus.type == BonusType.TIME_BONUS);
     expect(timeBonus1).toBeDefined();
     expect(timeBonus1?.multiplier).toBeCloseTo(fractionalTimeMultiplier1, 3);
     expect(timeBonus1?.toAbsolute(BASE_POINTS_1)).toEqual(50);
     // Check rounding (+ pity point) of streak bonus
-    const streakBonus1 = awardedBonuses1.find(
-      bonus => bonus.type == BonusType.STREAK_BONUS
-    );
+    const streakBonus1 = awardedBonuses1.find(bonus => bonus.type == BonusType.STREAK_BONUS);
     expect(streakBonus1).toBeDefined();
     expect(streakBonus1!.multiplier * BASE_POINTS_1).toBeLessThan(0.5);
     expect(streakBonus1!.toAbsolute(BASE_POINTS_1)).toEqual(1); // pity point even though the fractional result was less than 0.5
     // Total points math is also correct
     expect(entry1!.totalScore).toEqual(
-      Math.round(BASE_POINTS_1) +
-        EXPECTED_TIME_BONUS_POINTS_1 +
-        EXPECTED_STREAK_BONUS_POINTS_1
+      Math.round(BASE_POINTS_1) + EXPECTED_TIME_BONUS_POINTS_1 + EXPECTED_STREAK_BONUS_POINTS_1
     );
 
     // ------------ Player 2 ------------
@@ -523,27 +491,17 @@ describe('GameInstance - submitResults', () => {
       GUESS_TIME_2,
       FIRST_SUCCESS_TIME
     );
-    const timeBonus2 = awardedBonuses2.find(
-      bonus => bonus.type == BonusType.TIME_BONUS
-    );
+    const timeBonus2 = awardedBonuses2.find(bonus => bonus.type == BonusType.TIME_BONUS);
     expect(timeBonus2).toBeDefined();
     expect(timeBonus2?.multiplier).toBeCloseTo(fractionalTimeMultiplier2, 3);
-    expect(BASE_POINTS_2 * fractionalTimeMultiplier2).not.toEqual(
-      EXPECTED_TIME_BONUS_POINTS_2
-    ); // result would be fractional
-    expect(timeBonus2?.toAbsolute(BASE_POINTS_2)).toEqual(
-      EXPECTED_TIME_BONUS_POINTS_2
-    ); // absolute points were rounded correctly
+    expect(BASE_POINTS_2 * fractionalTimeMultiplier2).not.toEqual(EXPECTED_TIME_BONUS_POINTS_2); // result would be fractional
+    expect(timeBonus2?.toAbsolute(BASE_POINTS_2)).toEqual(EXPECTED_TIME_BONUS_POINTS_2); // absolute points were rounded correctly
     // Check rounding of streak bonus
-    const streakBonus2 = awardedBonuses2.find(
-      bonus => bonus.type == BonusType.STREAK_BONUS
-    );
+    const streakBonus2 = awardedBonuses2.find(bonus => bonus.type == BonusType.STREAK_BONUS);
     expect(streakBonus2).toBeUndefined(); // no streak bonus awarded at all, not even a pity point, since the streak was 0
     // Total points math is also correct
     expect(entry2?.totalScore).toEqual(
-      Math.round(BASE_POINTS_2) +
-        EXPECTED_TIME_BONUS_POINTS_2 +
-        EXPECTED_STREAK_BONUS_POINTS_2
+      Math.round(BASE_POINTS_2) + EXPECTED_TIME_BONUS_POINTS_2 + EXPECTED_STREAK_BONUS_POINTS_2
     );
 
     // ------------ Player 3 ------------
@@ -561,38 +519,21 @@ describe('GameInstance - submitResults', () => {
       GUESS_TIME_3,
       FIRST_SUCCESS_TIME
     );
-    const timeBonus3 = awardedBonuses3.find(
-      bonus => bonus.type == BonusType.TIME_BONUS
-    );
+    const timeBonus3 = awardedBonuses3.find(bonus => bonus.type == BonusType.TIME_BONUS);
     expect(timeBonus3).toBeDefined();
     expect(timeBonus3?.multiplier).toBeCloseTo(fractionalTimeMultiplier3, 3);
-    expect(BASE_POINTS_3 * fractionalTimeMultiplier3).not.toEqual(
-      EXPECTED_TIME_BONUS_POINTS_3
-    ); // result would be fractional
-    expect(timeBonus3?.toAbsolute(BASE_POINTS_3)).toEqual(
-      EXPECTED_TIME_BONUS_POINTS_3
-    ); // absolute points were rounded correctly
+    expect(BASE_POINTS_3 * fractionalTimeMultiplier3).not.toEqual(EXPECTED_TIME_BONUS_POINTS_3); // result would be fractional
+    expect(timeBonus3?.toAbsolute(BASE_POINTS_3)).toEqual(EXPECTED_TIME_BONUS_POINTS_3); // absolute points were rounded correctly
     // Check rounding (+ pity point) of streak bonus
     const fractionalStreakBonus = 4 * 0.008 * BASE_POINTS_3; // streak of four
-    const streakBonus3 = awardedBonuses3.find(
-      bonus => bonus.type == BonusType.STREAK_BONUS
-    );
+    const streakBonus3 = awardedBonuses3.find(bonus => bonus.type == BonusType.STREAK_BONUS);
     expect(streakBonus3).toBeDefined();
-    expect(streakBonus3!.multiplier * BASE_POINTS_3).toBeCloseTo(
-      fractionalStreakBonus,
-      3
-    );
-    expect(streakBonus3!.multiplier * BASE_POINTS_3).not.toEqual(
-      EXPECTED_STREAK_BONUS_POINTS_3
-    ); // result would be fractional
-    expect(streakBonus3?.toAbsolute(BASE_POINTS_3)).toEqual(
-      EXPECTED_STREAK_BONUS_POINTS_3
-    ); // was rounded DOWN correctly
+    expect(streakBonus3!.multiplier * BASE_POINTS_3).toBeCloseTo(fractionalStreakBonus, 3);
+    expect(streakBonus3!.multiplier * BASE_POINTS_3).not.toEqual(EXPECTED_STREAK_BONUS_POINTS_3); // result would be fractional
+    expect(streakBonus3?.toAbsolute(BASE_POINTS_3)).toEqual(EXPECTED_STREAK_BONUS_POINTS_3); // was rounded DOWN correctly
     // Total points math is also correct
     expect(entry3?.totalScore).toEqual(
-      Math.round(BASE_POINTS_3) +
-        EXPECTED_TIME_BONUS_POINTS_3 +
-        EXPECTED_STREAK_BONUS_POINTS_3
+      Math.round(BASE_POINTS_3) + EXPECTED_TIME_BONUS_POINTS_3 + EXPECTED_STREAK_BONUS_POINTS_3
     );
   });
 
@@ -624,59 +565,45 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
 
     it(`should assign MAX_TIME_MULTIPLIER for guesses at/before the first success - ${bonusType}`, () => {
       const REALISTIC_SUCCESS = 3000;
-      expect(
-        game.calculateTimeMultiplier(REALISTIC_SUCCESS, REALISTIC_SUCCESS)
-      ).toBe(MAX_TIME_MULTIPLIER);
-      expect(game.calculateTimeMultiplier(0, REALISTIC_SUCCESS)).toBe(
+      expect(game.calculateTimeMultiplier(REALISTIC_SUCCESS, REALISTIC_SUCCESS)).toBe(
         MAX_TIME_MULTIPLIER
       );
-      expect(game.calculateTimeMultiplier(-100, REALISTIC_SUCCESS)).toBe(
-        MAX_TIME_MULTIPLIER
-      );
+      expect(game.calculateTimeMultiplier(0, REALISTIC_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(-100, REALISTIC_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
 
       const IMMEDIATE_SUCCESS = 0;
-      expect(
-        game.calculateTimeMultiplier(IMMEDIATE_SUCCESS, IMMEDIATE_SUCCESS)
-      ).toBe(MAX_TIME_MULTIPLIER);
-      expect(game.calculateTimeMultiplier(0, IMMEDIATE_SUCCESS)).toBe(
+      expect(game.calculateTimeMultiplier(IMMEDIATE_SUCCESS, IMMEDIATE_SUCCESS)).toBe(
         MAX_TIME_MULTIPLIER
       );
-      expect(game.calculateTimeMultiplier(-100, IMMEDIATE_SUCCESS)).toBe(
-        MAX_TIME_MULTIPLIER
-      );
+      expect(game.calculateTimeMultiplier(0, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(-100, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
 
       const LATE_SUCCESS = TRACK_DURATION;
-      expect(game.calculateTimeMultiplier(LATE_SUCCESS, LATE_SUCCESS)).toBe(
-        MAX_TIME_MULTIPLIER
-      );
-      expect(game.calculateTimeMultiplier(0, LATE_SUCCESS)).toBe(
-        MAX_TIME_MULTIPLIER
-      );
-      expect(game.calculateTimeMultiplier(-100, LATE_SUCCESS)).toBe(
-        MAX_TIME_MULTIPLIER
-      );
+      expect(game.calculateTimeMultiplier(LATE_SUCCESS, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(0, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(-100, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
     });
 
     it(`should assign MIN_TIME_MULTIPLIER for guesses at/after the track ended - ${bonusType}`, () => {
       const REALISTIC_SUCCESS = 3000;
-      expect(
-        game.calculateTimeMultiplier(TRACK_DURATION, REALISTIC_SUCCESS)
-      ).toBe(MIN_TIME_MULTIPLIER);
-      expect(
-        game.calculateTimeMultiplier(TRACK_DURATION + 100, REALISTIC_SUCCESS)
-      ).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(TRACK_DURATION, REALISTIC_SUCCESS)).toBe(
+        MIN_TIME_MULTIPLIER
+      );
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, REALISTIC_SUCCESS)).toBe(
+        MIN_TIME_MULTIPLIER
+      );
 
       const IMMEDIATE_SUCCESS = 0;
-      expect(
-        game.calculateTimeMultiplier(TRACK_DURATION, IMMEDIATE_SUCCESS)
-      ).toBe(MIN_TIME_MULTIPLIER);
-      expect(
-        game.calculateTimeMultiplier(TRACK_DURATION + 100, IMMEDIATE_SUCCESS)
-      ).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(TRACK_DURATION, IMMEDIATE_SUCCESS)).toBe(
+        MIN_TIME_MULTIPLIER
+      );
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, IMMEDIATE_SUCCESS)).toBe(
+        MIN_TIME_MULTIPLIER
+      );
 
-      expect(
-        game.calculateTimeMultiplier(TRACK_DURATION + 100, TRACK_DURATION)
-      ).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, TRACK_DURATION)).toBe(
+        MIN_TIME_MULTIPLIER
+      );
     });
   }
 });
@@ -697,36 +624,14 @@ describe('GameInstance - timeMultiplier:LINEAR', () => {
 
   it('should decay time multipliers linearly between the first successful guess and the end of the track', () => {
     const PRECISION = 8;
-    expect(
-      game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)
-    ).toBeCloseTo(1.0, PRECISION);
-    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(
-      0.9,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(
-      0.8,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(
-      0.7,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(
-      0.6,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(
-      0.4,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(
-      0.2,
-      PRECISION
-    );
-    expect(
-      game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)
-    ).toBeCloseTo(0.0, PRECISION);
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(0.9, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(0.8, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(0.7, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(0.6, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(0.4, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.2, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 
@@ -749,36 +654,14 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
     // Function values are calculated as follows:
     // x: scaled evaluation point (in [0,1)), k: EXPONENTIAL_DECAY_INTENSITY constant
     // f(x) = (1/e^(k * x) - 1/e^k) / (1 - 1/e^k)
-    expect(
-      game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)
-    ).toBeCloseTo(1.0, PRECISION);
-    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(
-      0.75901993,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(
-      0.57134447,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(
-      0.42518267,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(
-      0.31135175,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(
-      0.15365819,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(
-      0.05801221,
-      PRECISION
-    );
-    expect(
-      game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)
-    ).toBeCloseTo(0.0, PRECISION);
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(0.75901993, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(0.57134447, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(0.42518267, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(0.31135175, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(0.15365819, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.05801221, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 
@@ -798,48 +681,17 @@ describe('GameInstance - timeMultiplier:LOGISTIC', () => {
 
   it('should decay time multipliers logistically/sigmoidally between the first successful guess and the end of the track', () => {
     const PRECISION = 6;
-    expect(
-      game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)
-    ).toBeCloseTo(1.0, PRECISION);
-    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(
-      0.99275028,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(
-      0.96907309,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(
-      0.904252,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(
-      0.7527627,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(7000, FIRST_SUCCESS)).toBeCloseTo(
-      0.5,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(
-      0.24723729,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(9000, FIRST_SUCCESS)).toBeCloseTo(
-      0.09574799,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(
-      0.0309269,
-      PRECISION
-    );
-    expect(game.calculateTimeMultiplier(11_000, FIRST_SUCCESS)).toBeCloseTo(
-      0.00724971,
-      PRECISION
-    );
-    expect(
-      game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)
-    ).toBeCloseTo(0.0, PRECISION);
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBeCloseTo(1.0, PRECISION);
+    expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBeCloseTo(0.99275028, PRECISION);
+    expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBeCloseTo(0.96907309, PRECISION);
+    expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBeCloseTo(0.904252, PRECISION);
+    expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(0.7527627, PRECISION);
+    expect(game.calculateTimeMultiplier(7000, FIRST_SUCCESS)).toBeCloseTo(0.5, PRECISION);
+    expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(0.24723729, PRECISION);
+    expect(game.calculateTimeMultiplier(9000, FIRST_SUCCESS)).toBeCloseTo(0.09574799, PRECISION);
+    expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.0309269, PRECISION);
+    expect(game.calculateTimeMultiplier(11_000, FIRST_SUCCESS)).toBeCloseTo(0.00724971, PRECISION);
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 
@@ -860,18 +712,14 @@ describe('GameInstance - timeMultiplier:CONSTANT', () => {
   it('should always assign the same constant time multiplier independent of answer time', () => {
     const CONSTANT = game.calculateTimeMultiplier(0, 0);
 
-    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBe(
-      CONSTANT
-    );
+    expect(game.calculateTimeMultiplier(FIRST_SUCCESS, FIRST_SUCCESS)).toBe(CONSTANT);
     expect(game.calculateTimeMultiplier(3000, FIRST_SUCCESS)).toBe(CONSTANT);
     expect(game.calculateTimeMultiplier(4000, FIRST_SUCCESS)).toBe(CONSTANT);
     expect(game.calculateTimeMultiplier(5000, FIRST_SUCCESS)).toBe(CONSTANT);
     expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBe(CONSTANT);
     expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBe(CONSTANT);
     expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBe(CONSTANT);
-    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBe(
-      CONSTANT
-    );
+    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBe(CONSTANT);
   });
 });
 
@@ -1212,9 +1060,7 @@ describe('GameInstance - getAnswersHint', () => {
       const controlHint = game.getMultipleChoiceHint(allTracks);
 
       expect(game.getMultipleChoiceHint(allTracks)).toStrictEqual(controlHint); // re-running must not change hint
-      expect(gameSameId.getMultipleChoiceHint(allTracks)).toStrictEqual(
-        controlHint
-      );
+      expect(gameSameId.getMultipleChoiceHint(allTracks)).toStrictEqual(controlHint);
     }
   });
 });
@@ -1223,11 +1069,7 @@ describe('GameInstance - getGlimpseHint', () => {
   let game: GameInstance;
 
   const rootDir: string = process.cwd();
-  const gameCoverDir: string = path.join(
-    rootDir,
-    STATIC_FILES_DIR,
-    'game_covers'
-  );
+  const gameCoverDir: string = path.join(rootDir, STATIC_FILES_DIR, 'game_covers');
 
   const mockCallback = vi.fn();
   const testCover = 'test.png';
@@ -1268,12 +1110,7 @@ describe('GameInstance - getGlimpseHint', () => {
       streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER,
     });
 
-    const instanceTempDir = path.join(
-      rootDir,
-      STATIC_FILES_DIR,
-      TEMP_FILES_DIR,
-      game.instanceId
-    );
+    const instanceTempDir = path.join(rootDir, STATIC_FILES_DIR, TEMP_FILES_DIR, game.instanceId);
     // Instance temp dir is automatically created when needed
     expect(fs.existsSync(instanceTempDir)).toBeFalsy();
     await game.playTrack(track, mockCallback);
@@ -1287,9 +1124,7 @@ describe('GameInstance - getGlimpseHint', () => {
     const originalImg = fs.readFileSync(
       path.join(rootDir, STATIC_FILES_DIR, 'game_covers', track.cover)
     );
-    const modifiedImg = fs.readFileSync(
-      path.join(instanceTempDir, modifiedImgName)
-    );
+    const modifiedImg = fs.readFileSync(path.join(instanceTempDir, modifiedImgName));
     expect(originalImg).not.toEqual(modifiedImg);
   });
 
@@ -1305,23 +1140,14 @@ describe('GameInstance - getGlimpseHint', () => {
       streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER,
     });
 
-    const instanceTempDir = path.join(
-      rootDir,
-      STATIC_FILES_DIR,
-      TEMP_FILES_DIR,
-      game.instanceId
-    );
+    const instanceTempDir = path.join(rootDir, STATIC_FILES_DIR, TEMP_FILES_DIR, game.instanceId);
     await game.playTrack(track, mockCallback);
 
     expect(fs.existsSync(instanceTempDir)).toBeTruthy();
-    expect(fs.readdirSync(instanceTempDir)).toContain(
-      `glimpse_${game.currentRound}.jpg`
-    );
+    expect(fs.readdirSync(instanceTempDir)).toContain(`glimpse_${game.currentRound}.jpg`);
 
     // Instance temp dir was removed after the round timer ran out
-    vi.advanceTimersByTime(
-      game.settings.trackDuration + COUNTDOWN_DURATION + 100
-    );
+    vi.advanceTimersByTime(game.settings.trackDuration + COUNTDOWN_DURATION + 100);
     expect(fs.existsSync(instanceTempDir)).toBeFalsy();
   });
 
@@ -1338,18 +1164,11 @@ describe('GameInstance - getGlimpseHint', () => {
     game.registeredUsers.add(PLAYER_1);
     game.registeredUsers.add(PLAYER_2);
 
-    const instanceTempDir = path.join(
-      rootDir,
-      STATIC_FILES_DIR,
-      TEMP_FILES_DIR,
-      game.instanceId
-    );
+    const instanceTempDir = path.join(rootDir, STATIC_FILES_DIR, TEMP_FILES_DIR, game.instanceId);
     await game.playTrack(track, mockCallback);
 
     expect(fs.existsSync(instanceTempDir)).toBeTruthy();
-    expect(fs.readdirSync(instanceTempDir)).toContain(
-      `glimpse_${game.currentRound}.jpg`
-    );
+    expect(fs.readdirSync(instanceTempDir)).toContain(`glimpse_${game.currentRound}.jpg`);
 
     game.submitGuess(PLAYER_1, GAME_A);
     expect(fs.existsSync(instanceTempDir)).toBeTruthy(); // still there
@@ -1369,12 +1188,7 @@ describe('GameInstance - getGlimpseHint', () => {
       streakBonusMultiplier: DEFAULT_STREAK_BONUS_MULTIPLIER,
     });
 
-    const instanceTempDir = path.join(
-      rootDir,
-      STATIC_FILES_DIR,
-      TEMP_FILES_DIR,
-      game.instanceId
-    );
+    const instanceTempDir = path.join(rootDir, STATIC_FILES_DIR, TEMP_FILES_DIR, game.instanceId);
     expect(fs.existsSync(instanceTempDir)).toBeFalsy();
 
     await game.playTrack(track, mockCallback);

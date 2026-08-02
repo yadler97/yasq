@@ -1760,10 +1760,7 @@ input[value='1']:checked + .btn-radio.correct {
   left: clamp(
     calc(-1 * var(--trigger-x, 0px) + var(--screen-margin)),
     calc(-0.5 * var(--tooltip-width, 200px) + 50%),
-    calc(
-      100vw + -1 * var(--trigger-x, 0px) - var(--tooltip-width, 200px) -
-        var(--screen-margin)
-    )
+    calc(100vw + -1 * var(--trigger-x, 0px) - var(--tooltip-width, 200px) - var(--screen-margin))
   );
   transform: none;
 }
@@ -2491,8 +2488,7 @@ input[value='1']:checked + .btn-radio.correct {
     left: 0;
     text-align: center;
     box-sizing: border-box;
-    padding: var(--padding-large) 0
-      env(safe-area-inset-bottom, var(--padding-large));
+    padding: var(--padding-large) 0 env(safe-area-inset-bottom, var(--padding-large));
     opacity: 0.6;
   }
 }

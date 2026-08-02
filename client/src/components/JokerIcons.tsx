@@ -17,8 +17,7 @@ const ObfuscationIcon = ({ size = 24, className = '' }) => (
   </svg>
 );
 ObfuscationIcon.jokerType = Joker.OBFUSCATION;
-ObfuscationIcon.description =
-  'Reveals the game title with most letters hidden by underscores';
+ObfuscationIcon.description = 'Reveals the game title with most letters hidden by underscores';
 
 const TriviaIcon = ({ size = 24, className = '' }) => (
   <svg

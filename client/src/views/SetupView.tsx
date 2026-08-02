@@ -26,17 +26,13 @@ import { WithTooltip } from '../components/Tooltip';
 
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
   [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + ' (linear)',
-  [TimeBonus.EXPONENTIAL]:
-    PLAYER_TIME_BONUS_LABELS[TimeBonus.EXPONENTIAL] + ' (exponential)',
-  [TimeBonus.LOGISTIC]:
-    PLAYER_TIME_BONUS_LABELS[TimeBonus.LOGISTIC] + ' (logistic)',
+  [TimeBonus.EXPONENTIAL]: PLAYER_TIME_BONUS_LABELS[TimeBonus.EXPONENTIAL] + ' (exponential)',
+  [TimeBonus.LOGISTIC]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LOGISTIC] + ' (logistic)',
   NONE: '❌ No time bonus',
 };
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
-  const roundCount = useSignal(
-    gameState.value.gameSettings.rounds || DEFAULT_ROUNDS
-  );
+  const roundCount = useSignal(gameState.value.gameSettings.rounds || DEFAULT_ROUNDS);
   const trackDuration = useSignal(
     gameState.value.gameSettings.trackDuration
       ? gameState.value.gameSettings.trackDuration / 1000
@@ -45,12 +41,10 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
   const isSubmitting = useSignal(false);
   const isAdvancedOpen = useSignal(false);
   const firstBonusMultiplier = useSignal<FirstBonusMultiplier>(
-    gameState.value.gameSettings.firstBonusMultiplier ||
-      FirstBonusMultiplier.OFF
+    gameState.value.gameSettings.firstBonusMultiplier || FirstBonusMultiplier.OFF
   );
   const streakBonusMultiplier = useSignal<StreakBonusMultiplier>(
-    gameState.value.gameSettings.streakBonusMultiplier ||
-      StreakBonusMultiplier.OFF
+    gameState.value.gameSettings.streakBonusMultiplier || StreakBonusMultiplier.OFF
   );
 
   const activeJokers = useSignal<Set<Joker>>(
@@ -87,8 +81,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
   };
 
   const selectTimeBonus = (e: TargetedEvent<HTMLSelectElement, Event>) => {
-    selectedBonus.value = (e.target as HTMLSelectElement)
-      .value as TOptionalTimeBonus;
+    selectedBonus.value = (e.target as HTMLSelectElement).value as TOptionalTimeBonus;
   };
 
   const handleConfirmSettings = async () => {
@@ -99,19 +92,12 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       trackDuration: trackDuration.value,
       enabledJokers: [...activeJokers.value],
       firstBonusMultiplier: firstBonusMultiplier.value,
-      timeBonus:
-        selectedBonus.value === OptionalTimeBonus.NONE
-          ? null
-          : selectedBonus.value,
+      timeBonus: selectedBonus.value === OptionalTimeBonus.NONE ? null : selectedBonus.value,
       streakBonusMultiplier: streakBonusMultiplier.value,
     };
 
     try {
-      await backend.setupGame(
-        auth.value.access_token,
-        discordSdk.instanceId,
-        currentSettings
-      );
+      await backend.setupGame(auth.value.access_token, discordSdk.instanceId, currentSettings);
     } catch (e) {
       console.error('Setup failed:', e);
       isSubmitting.value = false;
@@ -150,9 +136,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
               min="10"
               max="120"
               value={trackDuration.value}
-              onInput={e =>
-                (trackDuration.value = e.currentTarget.valueAsNumber)
-              }
+              onInput={e => (trackDuration.value = e.currentTarget.valueAsNumber)}
             />
           </label>
 
@@ -195,19 +179,14 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
               onClick={() => (isAdvancedOpen.value = !isAdvancedOpen.value)}
             >
               <span>Advanced Settings</span>
-              <span
-                className={`arrow-indicator ${isAdvancedOpen.value ? 'open' : ''}`}
-              />
+              <span className={`arrow-indicator ${isAdvancedOpen.value ? 'open' : ''}`} />
             </button>
 
             {isAdvancedOpen.value && (
               <div className="advanced-content-panel">
                 <div className="setting-item">
                   <span>Time Bonus</span>
-                  <select
-                    value={selectedBonus.value}
-                    onChange={selectTimeBonus}
-                  >
+                  <select value={selectedBonus.value} onChange={selectTimeBonus}>
                     {Object.values(OptionalTimeBonus).map(value => (
                       <option key={value} value={value}>
                         {HOST_TIME_BONUS_LABELS[value]}
@@ -215,9 +194,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                     ))}
                   </select>
                   {isLoading.value ? (
-                    <p className="info-message time-bonus-loading">
-                      Loading sample data...
-                    </p>
+                    <p className="info-message time-bonus-loading">Loading sample data...</p>
                   ) : (
                     <TimeBonusPlot
                       currentPlayer={null}
@@ -286,11 +263,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
             )}
           </div>
 
-          <button
-            id="btn-start"
-            disabled={isSubmitting.value}
-            onClick={handleConfirmSettings}
-          >
+          <button id="btn-start" disabled={isSubmitting.value} onClick={handleConfirmSettings}>
             {isSubmitting.value ? 'Saving...' : 'Confirm'}
           </button>
 

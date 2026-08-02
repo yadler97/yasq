@@ -2,10 +2,7 @@ import { Participant } from '@yasq/shared';
 
 const userCache = new Map<string, Participant>();
 
-export function findUser(
-  participants: Participant[],
-  userId: string
-): Participant {
+export function findUser(participants: Participant[], userId: string): Participant {
   const realUser = participants.find(p => p.id === userId);
 
   // Return user if present in game

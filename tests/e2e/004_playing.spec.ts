@@ -124,9 +124,7 @@ test.describe('Player UI', () => {
     await api.deleteSession();
   });
 
-  test('should show wait message after submitting a guess', async ({
-    page,
-  }) => {
+  test('should show wait message after submitting a guess', async ({ page }) => {
     const playing = new PlayingPage(page);
     const sidebar = new Sidebar(page);
 
@@ -144,17 +142,11 @@ test.describe('Player UI', () => {
     await expect(playing.waitMessage).toHaveText(/wait/i);
 
     // Check for the GUESSED badge
-    await expect(
-      sidebar.getBadge(players[1].username, 'guessed')
-    ).toBeVisible();
-    await expect(sidebar.getBadge(players[1].username, 'guessed')).toHaveText(
-      'GUESSED'
-    );
+    await expect(sidebar.getBadge(players[1].username, 'guessed')).toBeVisible();
+    await expect(sidebar.getBadge(players[1].username, 'guessed')).toHaveText('GUESSED');
   });
 
-  test('should switch to next state once all players have submitted a guess', async ({
-    page,
-  }) => {
+  test('should switch to next state once all players have submitted a guess', async ({ page }) => {
     const playing = new PlayingPage(page);
 
     // Other players submit guesses
@@ -171,9 +163,7 @@ test.describe('Player UI', () => {
     await expect(playing.gameArena).toBeHidden();
   });
 
-  test('should display obfuscated hint when using obfuscation joker', async ({
-    page,
-  }) => {
+  test('should display obfuscated hint when using obfuscation joker', async ({ page }) => {
     const playing = new PlayingPage(page);
 
     // Activate joker
@@ -204,9 +194,7 @@ test.describe('Player UI', () => {
     await expect(playing.getTagBadge('release')).toContainText('2026');
   });
 
-  test('should display 4 multiple choice buttons when using mc joker', async ({
-    page,
-  }) => {
+  test('should display 4 multiple choice buttons when using mc joker', async ({ page }) => {
     const playing = new PlayingPage(page);
 
     // Activate joker
@@ -230,9 +218,7 @@ test.describe('Player UI', () => {
     await expect(playing.waitMessage).toHaveText(/wait/i);
   });
 
-  test('should display player answer hint when using spy joker', async ({
-    page,
-  }) => {
+  test('should display player answer hint when using spy joker', async ({ page }) => {
     const playing = new PlayingPage(page);
 
     await playing.jokerSpyBtn.click();
@@ -247,15 +233,9 @@ test.describe('Player UI', () => {
     }
 
     // Verify order of MockPlayers in list
-    await expect(
-      playing.spyActionButtons.filter({ hasText: players[3].username })
-    ).toBeVisible();
+    await expect(playing.spyActionButtons.filter({ hasText: players[3].username })).toBeVisible();
     const buttonTexts = await playing.spyActionButtons.allTextContents();
-    const expectedOrder = [
-      players[2].username,
-      players[4].username,
-      players[3].username,
-    ];
+    const expectedOrder = [players[2].username, players[4].username, players[3].username];
     expect(buttonTexts).toEqual(expectedOrder);
 
     // Select target

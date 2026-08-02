@@ -34,9 +34,7 @@ export class ResultsPage {
     };
   }
 
-  getPersonalResultStatus(
-    status: 'correct' | 'partial' | 'incorrect'
-  ): Locator {
+  getPersonalResultStatus(status: 'correct' | 'partial' | 'incorrect'): Locator {
     return this.ownResults.locator(`.user-guess-result.${status}`);
   }
 

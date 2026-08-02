@@ -13,9 +13,7 @@ export const useTimeBonusSamples = (
   timeBonusSamples: Signal<Map<TimeBonus, TimeBonusPlotPayload>>;
   isLoading: Signal<boolean>;
 } => {
-  const samplesCache = useSignal<Map<TimeBonus, TimeBonusPlotPayload>>(
-    new Map()
-  );
+  const samplesCache = useSignal<Map<TimeBonus, TimeBonusPlotPayload>>(new Map());
   const isLoading = useSignal(false);
 
   useEffect(() => {
@@ -26,15 +24,10 @@ export const useTimeBonusSamples = (
     Promise.all(
       Object.keys(TimeBonus).map(async bonusType => {
         try {
-          const payload = await backend.getSampleTimeBonusSummary(
-            bonusType as TimeBonus
-          );
+          const payload = await backend.getSampleTimeBonusSummary(bonusType as TimeBonus);
           return [bonusType, payload] as const;
         } catch (err) {
-          console.error(
-            `Failed to prefetch sample for bonus type ${bonusType}:`,
-            err
-          );
+          console.error(`Failed to prefetch sample for bonus type ${bonusType}:`, err);
           return null;
         }
       })

@@ -19,9 +19,7 @@ export const SAMPLE_PARTICIPANTS: Participant[] = [
   { id: '6000000001000000001', username: 'fiona_quiz', nickname: 'Fiona' },
 ];
 
-export function generateSampleTimeBonusSummary(
-  bonusType: TimeBonus
-): TimeBonusSummary {
+export function generateSampleTimeBonusSummary(bonusType: TimeBonus): TimeBonusSummary {
   const totalTime = 30_000;
   const firstSuccessTime = 3800; // earliest (partially) correct answer
 
@@ -52,10 +50,7 @@ export function generateSampleTimeBonusSummary(
   const playerGuessTimes: PlayerTimeBonusPoint[] = rawGuesses.map(g => ({
     playerId: g.playerId,
     time: g.time,
-    multiplier:
-      g.scoreValue > 0
-        ? game.calculateTimeMultiplier(g.time, firstSuccessTime)
-        : null,
+    multiplier: g.scoreValue > 0 ? game.calculateTimeMultiplier(g.time, firstSuccessTime) : null,
     fullyCorrect: g.scoreValue === 1.0,
   }));
 

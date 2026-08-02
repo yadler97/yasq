@@ -15,9 +15,7 @@ export const HostTransferDropdown = () => {
   } | null>(null);
   const isTransferring = useSignal(false);
 
-  const players = participants.value.filter(
-    p => p.id !== gameState.value.hostId
-  );
+  const players = participants.value.filter(p => p.id !== gameState.value.hostId);
 
   useEffect(() => {
     if (isOpen.value) {
@@ -101,9 +99,7 @@ export const HostTransferDropdown = () => {
                     };
                     isOpen.value = false;
                     // Send focus back to the main dropdown button after selecting
-                    (
-                      document.querySelector('.dropdown-header') as HTMLElement
-                    )?.focus();
+                    (document.querySelector('.dropdown-header') as HTMLElement)?.focus();
                   };
 
                   return (
@@ -129,24 +125,14 @@ export const HostTransferDropdown = () => {
                         } else if (e.key === 'ArrowUp') {
                           e.preventDefault();
                           if (target.previousElementSibling) {
-                            (
-                              target.previousElementSibling as HTMLElement
-                            )?.focus();
+                            (target.previousElementSibling as HTMLElement)?.focus();
                           } else {
-                            (
-                              document.querySelector(
-                                '.dropdown-header'
-                              ) as HTMLElement
-                            )?.focus();
+                            (document.querySelector('.dropdown-header') as HTMLElement)?.focus();
                           }
                         } else if (e.key === 'Escape') {
                           e.preventDefault();
                           isOpen.value = false;
-                          (
-                            document.querySelector(
-                              '.dropdown-header'
-                            ) as HTMLElement
-                          )?.focus();
+                          (document.querySelector('.dropdown-header') as HTMLElement)?.focus();
                         }
                       }}
                     >

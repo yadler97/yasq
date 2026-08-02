@@ -28,15 +28,13 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   const playlists = useSignal<Playlist[]>([]);
 
   const fetchTracksAndPlaylists = () => {
-    backend
-      .getTrackList(auth.value.access_token, discordSdk.instanceId)
-      .then(data => {
-        tracks.value = data.tracks.map((t: Track, i: number) => ({
-          ...t,
-          originalIndex: i,
-        }));
-        playlists.value = data.playlists;
-      });
+    backend.getTrackList(auth.value.access_token, discordSdk.instanceId).then(data => {
+      tracks.value = data.tracks.map((t: Track, i: number) => ({
+        ...t,
+        originalIndex: i,
+      }));
+      playlists.value = data.playlists;
+    });
   };
 
   useEffect(() => {
@@ -82,16 +80,10 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
     const randomTrack = getRandomEligibleTrack(filteredTracks.value);
     if (!randomTrack) return;
 
-    await backend.playTrack(
-      auth.value.access_token,
-      randomTrack.audio,
-      discordSdk.instanceId
-    );
+    await backend.playTrack(auth.value.access_token, randomTrack.audio, discordSdk.instanceId);
   };
 
-  const availableTagsByType = computed(() =>
-    getAvailableTagsByType(tracks.value)
-  );
+  const availableTagsByType = computed(() => getAvailableTagsByType(tracks.value));
 
   const reachableTags = computed(() =>
     getReachableTags(
@@ -153,15 +145,10 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
             className={`track-search ${searchTerm.value ? 'active' : ''}`}
             placeholder="Search game or track name..."
             value={searchTerm.value}
-            onInput={e =>
-              (searchTerm.value = (e.currentTarget as HTMLInputElement).value)
-            }
+            onInput={e => (searchTerm.value = (e.currentTarget as HTMLInputElement).value)}
           />
           {searchTerm.value && (
-            <button
-              onClick={() => (searchTerm.value = '')}
-              title="Clear search"
-            >
+            <button onClick={() => (searchTerm.value = '')} title="Clear search">
               ✕
             </button>
           )}
@@ -181,9 +168,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
             id="hide-played"
             className="hide-played-checkbox"
             checked={hidePlayed.value}
-            onChange={e =>
-              (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)
-            }
+            onChange={e => (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)}
             onKeyDown={e => {
               if (e.key === ' ' || e.key === 'Enter') {
                 e.preventDefault();
@@ -200,17 +185,13 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
           <p className="no-results">No tracks found matching your search.</p>
         ) : (
           filteredTracks.value.map(track => (
-            <div
-              key={track.audio}
-              className={`track-card ${track.played ? 'played' : ''}`}
-            >
+            <div key={track.audio} className={`track-card ${track.played ? 'played' : ''}`}>
               <div className="cover-wrapper">
                 <NonDraggableImg
                   src={`/game_covers/${track.cover || 'default.svg'}`}
                   alt={`Cover of ${track.game}`}
                   onError={e => {
-                    (e.currentTarget as HTMLImageElement).src =
-                      '/game_covers/default.svg';
+                    (e.currentTarget as HTMLImageElement).src = '/game_covers/default.svg';
                   }}
                 />
                 {track.played && <span className="played-overlay">PLAYED</span>}
@@ -218,17 +199,11 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
 
               <div className="track-info">
                 <span className="game-name">
-                  <HighlightText
-                    text={track.game}
-                    highlight={searchTerm.value}
-                  />
+                  <HighlightText text={track.game} highlight={searchTerm.value} />
                 </span>
                 <span className="track-title">
                   <i>
-                    <HighlightText
-                      text={track.title}
-                      highlight={searchTerm.value}
-                    />
+                    <HighlightText text={track.title} highlight={searchTerm.value} />
                   </i>
                 </span>
               </div>
@@ -258,13 +233,7 @@ export const SelectionView = ({ isHost }: { isHost: boolean }) => {
   );
 };
 
-const HighlightText = ({
-  text,
-  highlight,
-}: {
-  text: string;
-  highlight: string;
-}) => {
+const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
   if (!highlight.trim()) return <span>{text}</span>;
 
   // Split text by the highlight term, keeping the delimiter for case sensitivity

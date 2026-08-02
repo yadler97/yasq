@@ -6,10 +6,7 @@ interface RoundBubblesGroupProps {
   userId: string;
 }
 
-export const RoundBubblesGroup = ({
-  rounds,
-  userId,
-}: RoundBubblesGroupProps) => {
+export const RoundBubblesGroup = ({ rounds, userId }: RoundBubblesGroupProps) => {
   return (
     <div className="round-bubbles">
       {rounds.map(r => (
@@ -25,12 +22,8 @@ interface RoundBubbleProps {
 }
 
 export const RoundBubble = ({ roundResult, userId }: RoundBubbleProps) => {
-  const tooltipId = roundResult.round
-    ? `round-${userId}-${roundResult.round}`
-    : `user-${userId}`;
-  const optionalRoundPrefix = roundResult.round
-    ? `Round ${roundResult.round}: `
-    : '';
+  const tooltipId = roundResult.round ? `round-${userId}-${roundResult.round}` : `user-${userId}`;
+  const optionalRoundPrefix = roundResult.round ? `Round ${roundResult.round}: ` : '';
   const tooltipContent = `${optionalRoundPrefix}${roundResult.guess || 'No guess'}`;
 
   return (

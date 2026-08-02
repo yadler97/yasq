@@ -19,10 +19,7 @@ interface BonusTableProps {
   awardedBonuses: PointsBonus[];
 }
 
-export const PointsCalculationTable = ({
-  baseMultiplier,
-  awardedBonuses,
-}: BonusTableProps) => {
+export const PointsCalculationTable = ({ baseMultiplier, awardedBonuses }: BonusTableProps) => {
   const awardedBasePoints = BASE_POINTS * baseMultiplier;
 
   // Show simple message instead of a table if no bonuses were awarded
@@ -38,17 +35,11 @@ export const PointsCalculationTable = ({
     new PointsCalculationEntry('Base points', awardedBasePoints),
     ...awardedBonuses.map(
       bonus =>
-        new PointsCalculationEntry(
-          BONUS_LABELS[bonus.type],
-          bonus.toAbsolute(awardedBasePoints)
-        )
+        new PointsCalculationEntry(BONUS_LABELS[bonus.type], bonus.toAbsolute(awardedBasePoints))
     ),
   ];
 
-  const totalPoints = calculationEntries.reduce(
-    (sum, item) => sum + item.points,
-    0
-  );
+  const totalPoints = calculationEntries.reduce((sum, item) => sum + item.points, 0);
 
   return (
     <table className="points-table">
@@ -56,10 +47,7 @@ export const PointsCalculationTable = ({
         {calculationEntries.map((entry, idx) => {
           const isFirst = idx === 0;
           return (
-            <tr
-              key={entry.title}
-              className={isFirst ? 'base-row' : 'bonus-row'}
-            >
+            <tr key={entry.title} className={isFirst ? 'base-row' : 'bonus-row'}>
               <td className="label-col">{entry.title}</td>
               <td className="points-col">
                 {isFirst ? '' : '+ '}

@@ -83,9 +83,7 @@ test.describe('Host UI', () => {
     expect(await trackSelection.trackItems.count()).toBe(4);
 
     // Open tag filter dropdown
-    await trackSelection.tagFilterDropdown
-      .filter({ hasText: 'Filter by Tags' })
-      .click();
+    await trackSelection.tagFilterDropdown.filter({ hasText: 'Filter by Tags' }).click();
 
     // Select Platform C
     await trackSelection.selectTag('Platform C');

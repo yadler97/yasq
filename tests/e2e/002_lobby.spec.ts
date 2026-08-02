@@ -37,9 +37,7 @@ test.describe('Host UI', () => {
     await api.deleteSession();
   });
 
-  test('should toggle start button based on participant ready-state updates', async ({
-    page,
-  }) => {
+  test('should toggle start button based on participant ready-state updates', async ({ page }) => {
     const lobbyPage = new LobbyPage(page);
 
     // Check for the Start Game button
@@ -65,9 +63,7 @@ test.describe('Host UI', () => {
     await expect(lobbyPage.startBtn).toBeDisabled();
   });
 
-  test('should display correct badges for host and ready status', async ({
-    page,
-  }) => {
+  test('should display correct badges for host and ready status', async ({ page }) => {
     const sidebar = new Sidebar(page);
 
     const host = players[0];
@@ -80,9 +76,7 @@ test.describe('Host UI', () => {
     // Set ready and check for the READY badge
     await api.setReady(player, true);
     await expect(sidebar.getBadge(player.username, 'ready')).toBeVisible();
-    await expect(sidebar.getBadge(player.username, 'ready')).toHaveText(
-      'READY'
-    );
+    await expect(sidebar.getBadge(player.username, 'ready')).toHaveText('READY');
 
     // Unset ready and check badge gone
     await api.setReady(player, false);

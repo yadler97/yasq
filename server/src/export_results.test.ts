@@ -26,11 +26,7 @@ function getFileHash(filePath: string): string {
 describe.skip('generateResultsImage', () => {
   const instanceId = '1';
   const baseDir = path.join(__dirname, '..');
-  const testOutputPath = path.join(
-    setupTempDir(baseDir),
-    instanceId,
-    'results.png'
-  );
+  const testOutputPath = path.join(setupTempDir(baseDir), instanceId, 'results.png');
   console.log(testOutputPath);
   const directoryPath = path.dirname(testOutputPath);
   if (!fs.existsSync(directoryPath)) {
@@ -54,22 +50,14 @@ describe.skip('generateResultsImage', () => {
   });
 
   it('should generate the results image', async () => {
-    const jsonPath = path.join(
-      __dirname,
-      '../../mock_data/mockLeaderboard.json'
-    );
+    const jsonPath = path.join(__dirname, '../../mock_data/mockLeaderboard.json');
 
     // Read mock file
     const rawJsonData = fs.readFileSync(jsonPath, 'utf8');
     const leaderboardData = Leaderboard.fromJSON(JSON.parse(rawJsonData));
 
     // Generate image
-    await generateResultsImage(
-      instanceId,
-      directoryPath,
-      leaderboardData,
-      mockUserData
-    );
+    await generateResultsImage(instanceId, directoryPath, leaderboardData, mockUserData);
 
     // Verify file asset existence on disk
     expect(fs.existsSync(testOutputPath)).toBe(true);
@@ -79,8 +67,6 @@ describe.skip('generateResultsImage', () => {
     expect(stats.size).toBeGreaterThan(1000); // Confirms it isn't an empty or blank file asset
 
     const hash = getFileHash(testOutputPath);
-    expect(hash).toBe(
-      'fb239b4c9777cf80fd8fb9282fb0b80c1421ea2f85a4870be944e6006da889e3'
-    );
+    expect(hash).toBe('fb239b4c9777cf80fd8fb9282fb0b80c1421ea2f85a4870be944e6006da889e3');
   });
 });

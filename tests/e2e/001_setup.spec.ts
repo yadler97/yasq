@@ -36,9 +36,7 @@ test.describe('Host UI', () => {
     await api.deleteSession();
   });
 
-  test('should allow host to select another player and transfer host role', async ({
-    page,
-  }) => {
+  test('should allow host to select another player and transfer host role', async ({ page }) => {
     const setup = new SetupPage(page);
     const targetPlayer = players[2];
 
@@ -120,9 +118,7 @@ test.describe('Host UI', () => {
 
     // Continue to host transfer dropdown
     await page.keyboard.press('Tab');
-    const dropdownButton = setup.page.locator(
-      '#host-dropdown .dropdown-header'
-    );
+    const dropdownButton = setup.page.locator('#host-dropdown .dropdown-header');
     await expect(dropdownButton).toBeFocused();
 
     // Open dropdown

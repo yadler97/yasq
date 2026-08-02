@@ -1,33 +1,11 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  beforeEach,
-  vi,
-  afterEach,
-} from 'vitest';
-import {
-  setBaseUrl,
-  setupGame,
-  submitGuess,
-  useJoker,
-} from '../../client/src/utils/backend';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi, afterEach } from 'vitest';
+import { setBaseUrl, setupGame, submitGuess, useJoker } from '../../client/src/utils/backend';
 import { setupServer } from '../../server';
-import {
-  FirstBonusMultiplier,
-  Joker,
-  StreakBonusMultiplier,
-  TimeBonus,
-} from '@yasq/shared';
+import { FirstBonusMultiplier, Joker, StreakBonusMultiplier, TimeBonus } from '@yasq/shared';
 import type { Server } from 'http';
 import { AddressInfo } from 'net';
 import { TestApi } from '../utils/api.js';
-import {
-  exchangeCodeForToken,
-  getDiscordUser,
-} from '../../server/src/utils/discord';
+import { exchangeCodeForToken, getDiscordUser } from '../../server/src/utils/discord';
 
 let httpServer: Server;
 let baseUrl: string;
@@ -116,9 +94,7 @@ describe('setupGame', () => {
     const body = await setupRes.json();
 
     expect(setupRes.status).toBe(400);
-    expect(body.error).toContain(
-      'Rounds and track duration must be greater than 0.'
-    );
+    expect(body.error).toContain('Rounds and track duration must be greater than 0.');
   });
 
   it('should return 400 Bad Request when track duration exceeds the maximum allowed value', async () => {
@@ -215,11 +191,7 @@ describe('useJoker', () => {
     await api.patchEnabledJokers([Joker.OBFUSCATION]);
     const token = 'token_1';
 
-    const response = await useJoker(
-      token,
-      currentInstanceId,
-      Joker.OBFUSCATION
-    );
+    const response = await useJoker(token, currentInstanceId, Joker.OBFUSCATION);
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -246,11 +218,7 @@ describe('useJoker', () => {
     await api.patchEnabledJokers([Joker.MULTIPLE_CHOICE]);
     const token = 'token_1';
 
-    const response = await useJoker(
-      token,
-      currentInstanceId,
-      Joker.MULTIPLE_CHOICE
-    );
+    const response = await useJoker(token, currentInstanceId, Joker.MULTIPLE_CHOICE);
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -290,9 +258,7 @@ describe('useJoker', () => {
     const body = await response.json();
 
     expect(response.status).toBe(202);
-    expect(body.error).toContain(
-      "Target hasn't submitted yet.\nJoker not consumed."
-    );
+    expect(body.error).toContain("Target hasn't submitted yet.\nJoker not consumed.");
   });
 
   it('should return 200 OK when SPY joker is used with valid target', async () => {
@@ -312,11 +278,7 @@ describe('useJoker', () => {
   it('should return 403 Forbidden when joker is not enabled', async () => {
     const token = 'token_1';
 
-    const response = await useJoker(
-      token,
-      currentInstanceId,
-      Joker.OBFUSCATION
-    );
+    const response = await useJoker(token, currentInstanceId, Joker.OBFUSCATION);
     const body = await response.json();
 
     expect(response.status).toBe(403);
@@ -328,11 +290,7 @@ describe('useJoker', () => {
     const token = 'token_1';
 
     await useJoker(token, currentInstanceId, Joker.OBFUSCATION);
-    const response = await useJoker(
-      token,
-      currentInstanceId,
-      Joker.OBFUSCATION
-    );
+    const response = await useJoker(token, currentInstanceId, Joker.OBFUSCATION);
     const body = await response.json();
 
     expect(response.status).toBe(403);

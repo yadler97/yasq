@@ -52,9 +52,7 @@ export const participants = signal<Participant[]>([]);
 export const volume = signal(DEFAULT_VOLUME_SLIDER_VAL);
 
 export const audioPlayer = new Audio();
-const audioContext = new (
-  window.AudioContext || (window as any).webkitAudioContext
-)();
+const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 const source = audioContext.createMediaElementSource(audioPlayer);
 export const gainNode = audioContext.createGain();
 source.connect(gainNode);
@@ -71,18 +69,14 @@ const App = () => {
     return <div className="centered">Starting Game...</div>;
   }
 
-  const isHost =
-    String(getUserId(auth.value)) === String(gameState.value.hostId);
+  const isHost = String(getUserId(auth.value)) === String(gameState.value.hostId);
 
   return (
     <>
       <div className="container">
         <div className="game-column">
           <GameHeader />
-          <div
-            className="game-area"
-            key={`view-${isHost}-${gameState.value.state}`}
-          >
+          <div className="game-area" key={`view-${isHost}-${gameState.value.state}`}>
             {renderView(isHost)}
           </div>
         </div>
@@ -147,9 +141,7 @@ render(<App />, document.getElementById('app')!);
     gameState.value = updatedState;
   });
 
-  participants.value = (
-    await discordSdk.commands.getInstanceConnectedParticipants()
-  ).participants;
+  participants.value = (await discordSdk.commands.getInstanceConnectedParticipants()).participants;
   discordSdk.subscribe(
     'ACTIVITY_INSTANCE_PARTICIPANTS_UPDATE',
     (e: any) => (participants.value = e.participants)

@@ -34,9 +34,7 @@ export class RoundCompletedPage {
 
   getJokerIndicator(username: string, tooltip?: string): Locator {
     if (tooltip) {
-      return this.getGuessItem(username).locator(
-        `.joker-indicator[data-tooltip="${tooltip}"]`
-      );
+      return this.getGuessItem(username).locator(`.joker-indicator[data-tooltip="${tooltip}"]`);
     }
     return this.getGuessItem(username).locator('.joker-indicator');
   }

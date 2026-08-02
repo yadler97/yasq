@@ -83,10 +83,7 @@ export const TagFilterDropdown = ({
 
       {isOpen.value && (
         <>
-          <div
-            className="dropdown-overlay"
-            onClick={() => (isOpen.value = false)}
-          />
+          <div className="dropdown-overlay" onClick={() => (isOpen.value = false)} />
           <div
             className="dropdown-menu"
             onWheel={e => {
@@ -97,8 +94,7 @@ export const TagFilterDropdown = ({
 
               const atTop = container.scrollTop === 0;
               const atBottom =
-                container.scrollHeight - container.scrollTop ===
-                container.clientHeight;
+                container.scrollHeight - container.scrollTop === container.clientHeight;
 
               // If the wheel movement goes up at the top, or down at the bottom, stop it
               if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
@@ -133,10 +129,7 @@ export const TagFilterDropdown = ({
                               )
                             ) as HTMLElement[];
                             const currentIndex = enabledItems.indexOf(target);
-                            if (
-                              currentIndex > -1 &&
-                              currentIndex < enabledItems.length - 1
-                            ) {
+                            if (currentIndex > -1 && currentIndex < enabledItems.length - 1) {
                               enabledItems[currentIndex + 1].focus();
                             }
                           } else if (e.key === 'ArrowUp') {
@@ -166,9 +159,7 @@ export const TagFilterDropdown = ({
                             checked={isSelected || false}
                             onChange={() => toggleTag(type, val)}
                           />
-                          <span style={{ opacity: isDisabled ? 0.5 : 1 }}>
-                            {val}
-                          </span>
+                          <span style={{ opacity: isDisabled ? 0.5 : 1 }}>{val}</span>
                         </div>
                         <span className="tag-count">{count}</span>
                       </label>

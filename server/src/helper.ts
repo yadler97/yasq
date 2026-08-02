@@ -1,11 +1,7 @@
 import type { Server } from 'socket.io';
 import fs from 'fs';
 import path from 'path';
-import {
-  ChannelType,
-  type APIChannel,
-  type APITextChannel,
-} from 'discord-api-types/v10';
+import { ChannelType, type APIChannel, type APITextChannel } from 'discord-api-types/v10';
 
 import type { GameInstance } from './models.js';
 import {
@@ -86,15 +82,9 @@ export function getGameStatusPayload(game: GameInstance) {
   };
 }
 
-export function broadcastGameStatus(
-  server: Server,
-  instanceId: string,
-  game: GameInstance
-) {
+export function broadcastGameStatus(server: Server, instanceId: string, game: GameInstance) {
   const emitUpdate = () => {
-    server
-      .to(instanceId)
-      .emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
+    server.to(instanceId).emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
   };
 
   if (process.env.UI_TEST_MODE === 'true') {

@@ -78,10 +78,7 @@ export class GameInstance {
     this.currentRound = 1;
   }
 
-  public submitGuess(
-    userId: string,
-    guessText: string
-  ): { current: number; total: number } {
+  public submitGuess(userId: string, guessText: string): { current: number; total: number } {
     if (!this.guesses[this.currentRound]) {
       this.guesses[this.currentRound] = {};
     }
@@ -90,16 +87,11 @@ export class GameInstance {
       ? Date.now() - this.trackInfo.startTime
       : this.settings.trackDuration;
 
-    this.guesses[this.currentRound]![userId] = new UserGuess(
-      guessText,
-      timeTaken
-    );
+    this.guesses[this.currentRound]![userId] = new UserGuess(guessText, timeTaken);
     const totalPlayers = Array.from(this.registeredUsers).filter(
       userId => !this.isHost(userId)
     ).length;
-    const guessersCount = Object.keys(
-      this.guesses[this.currentRound] ?? {}
-    ).length;
+    const guessersCount = Object.keys(this.guesses[this.currentRound] ?? {}).length;
 
     if (guessersCount >= totalPlayers) {
       this.state = GameState.ROUND_COMPLETED;
@@ -151,13 +143,10 @@ export class GameInstance {
       (sum, streak) => sum + streak,
       0
     );
-    const streakBreakerMultiplier =
-      totalLostStreaks * this.settings.streakBonusMultiplier;
+    const streakBreakerMultiplier = totalLostStreaks * this.settings.streakBonusMultiplier;
 
     const roundSummary = new RoundSummary(this.currentRound);
-    roundSummary.timeBonusSummary = this.calculateTimeBonusSummary(
-      firstPartiallyCorrectTime
-    );
+    roundSummary.timeBonusSummary = this.calculateTimeBonusSummary(firstPartiallyCorrectTime);
 
     this.leaderboard.addSummary(roundSummary);
 
@@ -177,39 +166,28 @@ export class GameInstance {
       if (scoreMultiplier > 0) {
         if (roundSummary.timeBonusSummary !== null) {
           const timeBonusMultiplier =
-            roundSummary.timeBonusSummary.playerGuessTimes.find(
-              bonus => bonus.playerId === userId
-            )?.multiplier ?? 0.0;
+            roundSummary.timeBonusSummary.playerGuessTimes.find(bonus => bonus.playerId === userId)
+              ?.multiplier ?? 0.0;
 
           if (timeBonusMultiplier > 0) {
-            awardedBonuses.push(
-              new PointsBonus(BonusType.TIME_BONUS, timeBonusMultiplier)
-            );
+            awardedBonuses.push(new PointsBonus(BonusType.TIME_BONUS, timeBonusMultiplier));
           }
         }
 
         if (isFirst && this.settings.firstBonusMultiplier > 0) {
           awardedBonuses.push(
-            new PointsBonus(
-              BonusType.FIRST_BONUS,
-              this.settings.firstBonusMultiplier
-            )
+            new PointsBonus(BonusType.FIRST_BONUS, this.settings.firstBonusMultiplier)
           );
         }
 
         const currentStreak = this.streaks[userId] || 0;
         if (currentStreak > 1 && this.settings.streakBonusMultiplier > 0) {
-          const streakMultiplier =
-            (currentStreak - 1) * this.settings.streakBonusMultiplier;
-          awardedBonuses.push(
-            new PointsBonus(BonusType.STREAK_BONUS, streakMultiplier)
-          );
+          const streakMultiplier = (currentStreak - 1) * this.settings.streakBonusMultiplier;
+          awardedBonuses.push(new PointsBonus(BonusType.STREAK_BONUS, streakMultiplier));
         }
 
         if (scoreMultiplier === 1 && streakBreakerMultiplier > 0) {
-          awardedBonuses.push(
-            new PointsBonus(BonusType.STREAK_BREAKER, streakBreakerMultiplier)
-          );
+          awardedBonuses.push(new PointsBonus(BonusType.STREAK_BREAKER, streakBreakerMultiplier));
         }
 
         // Apply collected bonuses
@@ -271,9 +249,7 @@ export class GameInstance {
     return lostStreaks;
   }
 
-  public calculateTimeBonusSummary(
-    firstPartiallyCorrectTime: number
-  ): TimeBonusSummary | null {
+  public calculateTimeBonusSummary(firstPartiallyCorrectTime: number): TimeBonusSummary | null {
     if (this.settings.timeBonus == null) return null;
 
     const roundGuesses = this.guesses[this.currentRound] || {};
@@ -283,21 +259,15 @@ export class GameInstance {
     const curvePoints: TimeBonusPoint[] = [];
     for (let i = 0; i <= samples; i++) {
       const time = (i / samples) * this.settings.trackDuration;
-      const multiplier = this.calculateTimeMultiplier(
-        time,
-        firstPartiallyCorrectTime
-      );
+      const multiplier = this.calculateTimeMultiplier(time, firstPartiallyCorrectTime);
       curvePoints.push({ time: time, multiplier: multiplier });
     }
 
-    const playerTimePoints: PlayerTimeBonusPoint[] = [
-      ...this.registeredUsers.values(),
-    ]
+    const playerTimePoints: PlayerTimeBonusPoint[] = [...this.registeredUsers.values()]
       .filter(userId => !this.isHost(userId))
       .map(userId => {
         const scoreValue = roundGuesses[userId]?.scoreValue || 0.0;
-        const timeTaken =
-          roundGuesses[userId]?.timeTaken || this.settings.trackDuration;
+        const timeTaken = roundGuesses[userId]?.timeTaken || this.settings.trackDuration;
         const timeBonusMultiplier =
           scoreValue > 0
             ? this.calculateTimeMultiplier(timeTaken, firstPartiallyCorrectTime)
@@ -318,10 +288,7 @@ export class GameInstance {
     };
   }
 
-  public calculateTimeMultiplier(
-    evaluationTime: number,
-    firstSuccessTime: number
-  ): number {
+  public calculateTimeMultiplier(evaluationTime: number, firstSuccessTime: number): number {
     if (this.settings.timeBonus === null) return 0.0; // apply no time bonus
 
     const totalTime = this.settings.trackDuration;
@@ -337,20 +304,12 @@ export class GameInstance {
 
     const timeMultiplierFunction: TimeMultiplierFunction =
       TIME_MULTIPLIERS[this.settings.timeBonus];
-    const bonusFraction = timeMultiplierFunction(
-      evaluationTime,
-      firstSuccessTime,
-      totalTime
-    );
+    const bonusFraction = timeMultiplierFunction(evaluationTime, firstSuccessTime, totalTime);
 
     const multiplier =
-      MIN_TIME_MULTIPLIER +
-      (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * bonusFraction;
+      MIN_TIME_MULTIPLIER + (MAX_TIME_MULTIPLIER - MIN_TIME_MULTIPLIER) * bonusFraction;
 
-    return Math.min(
-      MAX_TIME_MULTIPLIER,
-      Math.max(MIN_TIME_MULTIPLIER, multiplier)
-    );
+    return Math.min(MAX_TIME_MULTIPLIER, Math.max(MIN_TIME_MULTIPLIER, multiplier));
   }
 
   public advanceRound(): string {
@@ -369,10 +328,7 @@ export class GameInstance {
     return this.state;
   }
 
-  public async playTrack(
-    track: Track,
-    roundFinishedCallback: () => void
-  ): Promise<void> {
+  public async playTrack(track: Track, roundFinishedCallback: () => void): Promise<void> {
     const startTime = Date.now() + COUNTDOWN_DURATION;
     const endTime = startTime + this.settings.trackDuration;
 
@@ -403,11 +359,7 @@ export class GameInstance {
         this.currentGame === gameAtStart
       ) {
         this.state = GameState.ROUND_COMPLETED;
-        logger.debug(
-          this.instanceId,
-          `Timer for round ${roundAtStart} expired`,
-          LogCategory.GAME
-        );
+        logger.debug(this.instanceId, `Timer for round ${roundAtStart} expired`, LogCategory.GAME);
 
         roundFinishedCallback();
         this.removeTempFiles();
@@ -460,9 +412,7 @@ export class GameInstance {
   }
 
   private hashWithGameState(str: string): number {
-    return hash(
-      `${this.instanceId}-${this.currentGame}-${this.currentRound}-${str}`
-    );
+    return hash(`${this.instanceId}-${this.currentGame}-${this.currentRound}-${str}`);
   }
 
   public getTagHint(): Tag[] {
@@ -483,9 +433,7 @@ export class GameInstance {
 
     // Randomly pick 3 wrong answers
     // We sort by a random value and take the first 3
-    const wrongAnswers = otherTitles
-      .sort(() => 0.5 - generator.random())
-      .slice(0, 3);
+    const wrongAnswers = otherTitles.sort(() => 0.5 - generator.random()).slice(0, 3);
 
     // Combine with the correct answer and shuffle the final 4
     const finalChoices = [correctAnswer, ...wrongAnswers];
@@ -532,10 +480,7 @@ export class GameInstance {
     const outputDir = this.temporaryDirectory(true);
 
     try {
-      const outputPath = path.join(
-        outputDir,
-        `glimpse_${this.currentRound}.jpg`
-      );
+      const outputPath = path.join(outputDir, `glimpse_${this.currentRound}.jpg`);
 
       await sharp(path.join(staticFilesDir, sourcePathRelative))
         .resize(500)
@@ -763,9 +708,7 @@ export class Leaderboard {
   }
 
   public getRoundResults(round: number, userId?: string) {
-    const entries = userId
-      ? this.entries.filter(e => e.userId === userId)
-      : this.entries;
+    const entries = userId ? this.entries.filter(e => e.userId === userId) : this.entries;
 
     return entries
       .map(entry => {
@@ -784,15 +727,11 @@ export class Leaderboard {
   }
 
   public getRoundSummary(round: number) {
-    return (
-      this.roundSummaries.findLast(summary => summary.round === round) ?? null
-    );
+    return this.roundSummaries.findLast(summary => summary.round === round) ?? null;
   }
 
   static fromJSON(data: any): Leaderboard {
-    const entries = (data?.entries || []).map((e: any) =>
-      LeaderboardEntry.fromJSON(e)
-    );
+    const entries = (data?.entries || []).map((e: any) => LeaderboardEntry.fromJSON(e));
     return new Leaderboard(entries);
   }
 }

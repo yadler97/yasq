@@ -31,8 +31,7 @@ export const ReadyButton = ({ promptText }: ReadyButtonProps) => {
 
   const userId = getUserId(auth.value);
   const isReady = gameState.value.readyUsers.includes(userId);
-  const isFinalRound =
-    gameState.value.currentRound >= gameState.value.gameSettings.rounds;
+  const isFinalRound = gameState.value.currentRound >= gameState.value.gameSettings.rounds;
 
   useKeyboardShortcut({ key: 'R', altKey: !isMac, metaKey: isMac }, () => {
     void handleReady();

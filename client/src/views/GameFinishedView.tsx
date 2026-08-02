@@ -14,9 +14,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [hasPosted, setHasPosted] = useState(false);
-  const [channels, setChannels] = useState<
-    { id: string; name: string; category: string }[]
-  >([]);
+  const [channels, setChannels] = useState<{ id: string; name: string; category: string }[]>([]);
   const [selectedChannel, setSelectedChannel] = useState('');
 
   useEffect(() => {
@@ -56,17 +54,11 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
     if (!isHost) return;
 
     backend
-      .getChannels(
-        auth.value.access_token,
-        discordSdk.instanceId,
-        discordSdk.guildId!
-      )
+      .getChannels(auth.value.access_token, discordSdk.instanceId, discordSdk.guildId!)
       .then(data => setChannels(data));
   }, [isHost]);
 
-  const playersExcludingHost = participants.value.filter(
-    p => p.id !== gameState.value.hostId
-  );
+  const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
   const readyCount = gameState.value.readyUsers.length;
   const allPlayersReady =
     playersExcludingHost.length > 0 &&
@@ -107,10 +99,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                 {isWinner && <div className="shimmer-layer" />}
                 <div className="player-main-info">
                   <div className="rank">#{index + 1}</div>
-                  <DiscordAvatar
-                    src={getAvatarUrl(user)}
-                    userName={getDisplayName(user)}
-                  />
+                  <DiscordAvatar src={getAvatarUrl(user)} userName={getDisplayName(user)} />
                   <div className="name">
                     {isWinner ? '👑 ' : ''}
                     {getDisplayName(user)}
@@ -120,10 +109,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
 
                 <div className="history-grid">
                   <div className="history-label">Round Breakdown:</div>
-                  <RoundBubblesGroup
-                    rounds={player.roundHistory}
-                    userId={player.userId}
-                  />
+                  <RoundBubblesGroup rounds={player.roundHistory} userId={player.userId} />
                 </div>
               </div>
             </div>
@@ -153,8 +139,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                   <option value="">Select a channel...</option>
                   {channels.map(channel => (
                     <option key={channel.id} value={channel.id}>
-                      {channel.category ? `${channel.category} > ` : ''}#
-                      {channel.name}
+                      {channel.category ? `${channel.category} > ` : ''}#{channel.name}
                     </option>
                   ))}
                 </>
@@ -173,11 +158,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
             </button>
           </div>
 
-          <button
-            id="btn-restart"
-            disabled={!allPlayersReady}
-            onClick={handleRestart}
-          >
+          <button id="btn-restart" disabled={!allPlayersReady} onClick={handleRestart}>
             {allPlayersReady
               ? 'Play Again'
               : `Waiting... (${readyCount}/${playersExcludingHost.length})`}

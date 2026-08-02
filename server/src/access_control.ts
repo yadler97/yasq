@@ -40,9 +40,7 @@ export function loadPermissions() {
       console.error(`Error parsing JSON from ${permissionsPath}:`, err);
     }
   } else {
-    console.log(
-      `Permissions file not found at ${permissionsPath}. Starting with no restrictions.`
-    );
+    console.log(`Permissions file not found at ${permissionsPath}. Starting with no restrictions.`);
   }
 }
 

@@ -73,16 +73,13 @@ export async function postResultsToChannel(
     })
   );
 
-  const response = await fetch(
-    `${DISCORD_API}/v10/channels/${channelId}/messages`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-      },
-      body: formData,
-    }
-  );
+  const response = await fetch(`${DISCORD_API}/v10/channels/${channelId}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+    },
+    body: formData,
+  });
 
   if (!response.ok) {
     throw new Error(await response.text());
@@ -99,12 +96,9 @@ export async function getChannelsForGuild(guildId: string) {
     ];
   }
 
-  const response = await fetch(
-    `${DISCORD_API}/v10/guilds/${guildId}/channels`,
-    {
-      headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
-    }
-  );
+  const response = await fetch(`${DISCORD_API}/v10/guilds/${guildId}/channels`, {
+    headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+  });
 
   if (!response.ok) {
     throw new Error(await response.text());

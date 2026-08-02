@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  validateToken,
-  invalidateToken,
-  filterDiscordTextChannels,
-} from './helper.js';
+import { validateToken, invalidateToken, filterDiscordTextChannels } from './helper.js';
 import { ChannelType } from 'discord-api-types/v10';
 
 describe('validateToken', () => {
@@ -95,9 +91,7 @@ describe('filterDiscordTextChannels', () => {
 
     // Verify filtering
     expect(result.length).toBe(4);
-    expect(
-      result.every(c => c.id !== '1' && c.id !== '4' && c.id !== '7')
-    ).toBe(true);
+    expect(result.every(c => c.id !== '1' && c.id !== '4' && c.id !== '7')).toBe(true);
 
     // Verify sorting order
     expect(result[0]!.name).toBe('text channel 4');

@@ -6,22 +6,14 @@ export class TestApi {
   private baseUrl: string;
   private instanceId: string;
 
-  constructor(
-    baseUrl: string,
-    instanceId: string,
-    isIntegration: boolean = false
-  ) {
+  constructor(baseUrl: string, instanceId: string, isIntegration: boolean = false) {
     this.baseUrl = baseUrl;
     this.instanceId = instanceId;
 
     if (isIntegration) setBaseUrl(baseUrl);
   }
 
-  private async http(
-    method: string,
-    path: string,
-    options: { data?: any; headers?: any } = {}
-  ) {
+  private async http(method: string, path: string, options: { data?: any; headers?: any } = {}) {
     return fetch(`${this.baseUrl}${path}`, {
       method,
       headers: { 'Content-Type': 'application/json', ...options.headers },

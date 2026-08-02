@@ -9,14 +9,6 @@ import { TimeBonus } from '@yasq/shared';
 import { ReadyButton } from '../components/ReadyButton';
 import { TooltipDiv } from '../components/Tooltip';
 
-import * as backend from '../utils/backend';
-import { auth, discordSdk, gameState, participants } from '../main';
-import { capitalize, formatBonusMultiplier } from '../utils/helper';
-import { ALL_JOKER_ICONS } from '../components/JokerIcons';
-import { OptionalTimeBonus, TOptionalTimeBonus } from '../utils/types';
-import { TimeBonus } from '@yasq/shared';
-import { ReadyButton } from '../components/ReadyButton';
-
 export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
   [TimeBonus.LINEAR]: '⏳ Steady Pace',
   [TimeBonus.EXPONENTIAL]: '🔥 Quick Fire',
@@ -25,19 +17,14 @@ export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
 };
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
-  const playersExcludingHost = participants.value.filter(
-    p => p.id !== gameState.value.hostId
-  );
+  const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
   const readyUsers = playersExcludingHost.filter(p =>
     gameState.value.readyUsers.includes(p.id)
   ).length;
   const allPlayersReady =
-    playersExcludingHost.length > 0 &&
-    readyUsers === playersExcludingHost.length;
+    playersExcludingHost.length > 0 && readyUsers === playersExcludingHost.length;
 
-  const [activeTooltipType, setActiveTooltipType] = useState<string | null>(
-    null
-  );
+  const [activeTooltipType, setActiveTooltipType] = useState<string | null>(null);
 
   useEffect(() => {
     if (!activeTooltipType) return;
@@ -79,9 +66,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
             <div className="joker-column">
               {gameState.value.gameSettings.enabledJokers.length ? (
                 gameState.value.gameSettings.enabledJokers.map(jokerType => {
-                  const JokerIcon = ALL_JOKER_ICONS.find(
-                    Icon => Icon.jokerType === jokerType
-                  );
+                  const JokerIcon = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
 
                   return (
                     <div key={jokerType} className="joker-row-item">
@@ -93,9 +78,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
                           <JokerIcon />
                         </TooltipDiv>
                       )}
-                      <span className="joker-text-name">
-                        {capitalize(jokerType)}
-                      </span>
+                      <span className="joker-text-name">{capitalize(jokerType)}</span>
                     </div>
                   );
                 })
@@ -115,18 +98,10 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
           </dd>
 
           <dt>🥇 First Bonus</dt>
-          <dd>
-            {formatBonusMultiplier(
-              gameState.value.gameSettings.firstBonusMultiplier
-            )}
-          </dd>
+          <dd>{formatBonusMultiplier(gameState.value.gameSettings.firstBonusMultiplier)}</dd>
 
           <dt>🔥 Streak Bonus</dt>
-          <dd>
-            {formatBonusMultiplier(
-              gameState.value.gameSettings.streakBonusMultiplier
-            )}
-          </dd>
+          <dd>{formatBonusMultiplier(gameState.value.gameSettings.streakBonusMultiplier)}</dd>
         </dl>
 
         {isHost && (
@@ -138,11 +113,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
 
       <div className="lobby-footer">
         {isHost ? (
-          <button
-            id="btn-start"
-            disabled={!allPlayersReady}
-            onClick={handleStart}
-          >
+          <button id="btn-start" disabled={!allPlayersReady} onClick={handleStart}>
             {allPlayersReady
               ? 'Start Game'
               : `Waiting... (${readyUsers}/${playersExcludingHost.length})`}

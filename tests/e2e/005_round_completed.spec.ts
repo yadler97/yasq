@@ -71,20 +71,12 @@ test.describe('Host UI', () => {
     await expect(roundCompleted.resultsTrackName).toHaveText(/Game A/i);
 
     // Verify guesses correctly displayed
-    await expect(
-      roundCompleted.getGuessItem(players[1].username)
-    ).toContainText('Game A');
-    await expect(
-      roundCompleted.getGuessItem(players[2].username)
-    ).toContainText('Game A2');
+    await expect(roundCompleted.getGuessItem(players[1].username)).toContainText('Game A');
+    await expect(roundCompleted.getGuessItem(players[2].username)).toContainText('Game A2');
 
     // Verify "Wrong" selected by default
-    await expect(
-      roundCompleted.getCorrectionRadio(players[1].id, 'wrong')
-    ).toBeChecked();
-    await expect(
-      roundCompleted.getCorrectionRadio(players[2].id, 'wrong')
-    ).toBeChecked();
+    await expect(roundCompleted.getCorrectionRadio(players[1].id, 'wrong')).toBeChecked();
+    await expect(roundCompleted.getCorrectionRadio(players[2].id, 'wrong')).toBeChecked();
 
     // Verify text that Player 4 has not submitted a guess is displayed correctly
     await expect(roundCompleted.timedOutSection).toContainText(
@@ -93,15 +85,11 @@ test.describe('Host UI', () => {
 
     // Select "Correct" for Player 2
     await roundCompleted.setGuessResult(players[1].id, 'correct');
-    await expect(
-      roundCompleted.getCorrectionRadio(players[1].id, 'wrong')
-    ).not.toBeChecked();
+    await expect(roundCompleted.getCorrectionRadio(players[1].id, 'wrong')).not.toBeChecked();
 
     // Select "Partially Correct" for Player 3
     await roundCompleted.setGuessResult(players[2].id, 'partial');
-    await expect(
-      roundCompleted.getCorrectionRadio(players[2].id, 'wrong')
-    ).not.toBeChecked();
+    await expect(roundCompleted.getCorrectionRadio(players[2].id, 'wrong')).not.toBeChecked();
 
     // Verify submit button behavior
     await expect(roundCompleted.submitReviewedBtn).toBeEnabled();
@@ -114,35 +102,22 @@ test.describe('Host UI', () => {
     const triviaDescription = 'Reveals metadata about the game';
 
     // Verify player 1 has joker icon with correct tooltip
-    const joker = roundCompleted.getJokerIndicator(
-      players[1].username,
-      triviaDescription
-    );
+    const joker = roundCompleted.getJokerIndicator(players[1].username, triviaDescription);
     await expect(joker).toBeVisible();
     await expect(joker.locator('svg')).toBeVisible();
 
     // Verify player 2 has NO joker icon
-    await expect(
-      roundCompleted.getJokerIndicator(players[2].username)
-    ).toHaveCount(0);
+    await expect(roundCompleted.getJokerIndicator(players[2].username)).toHaveCount(0);
   });
 
-  test('should update streak badges correctly when submitting corrections', async ({
-    page,
-  }) => {
+  test('should update streak badges correctly when submitting corrections', async ({ page }) => {
     const roundCompleted = new RoundCompletedPage(page);
     const sidebar = new Sidebar(page);
 
     // Verify initial streak badges
-    await expect(sidebar.getBadge(players[1].username, 'streak')).toContainText(
-      '🔥 3'
-    );
-    await expect(sidebar.getBadge(players[2].username, 'streak')).toContainText(
-      '🔥 5'
-    );
-    await expect(sidebar.getBadge(players[3].username, 'streak')).toContainText(
-      '🔥 1'
-    );
+    await expect(sidebar.getBadge(players[1].username, 'streak')).toContainText('🔥 3');
+    await expect(sidebar.getBadge(players[2].username, 'streak')).toContainText('🔥 5');
+    await expect(sidebar.getBadge(players[3].username, 'streak')).toContainText('🔥 1');
 
     // Correct results
     await roundCompleted.setGuessResult(players[1].id, 'correct');
@@ -150,14 +125,8 @@ test.describe('Host UI', () => {
     await roundCompleted.submitReviewedBtn.click();
 
     // Verify updated streak badges
-    await expect(sidebar.getBadge(players[1].username, 'streak')).toContainText(
-      '🔥 4'
-    ); // increase streak by 1
-    await expect(sidebar.getBadge(players[2].username, 'streak')).toContainText(
-      '🔥 5'
-    ); // keep streak at 5
-    await expect(
-      sidebar.getBadge(players[3].username, 'streak')
-    ).not.toBeVisible(); // lose whole streak
+    await expect(sidebar.getBadge(players[1].username, 'streak')).toContainText('🔥 4'); // increase streak by 1
+    await expect(sidebar.getBadge(players[2].username, 'streak')).toContainText('🔥 5'); // keep streak at 5
+    await expect(sidebar.getBadge(players[3].username, 'streak')).not.toBeVisible(); // lose whole streak
   });
 });

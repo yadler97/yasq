@@ -45,9 +45,7 @@ function loadTracks(tracksPath: string): Track[] {
 
 function loadPlaylists(playlistsPath: string): Playlist[] {
   if (!fs.existsSync(playlistsPath)) {
-    console.log(
-      `Playlists file not found at ${playlistsPath}. Starting with no playlists.`
-    );
+    console.log(`Playlists file not found at ${playlistsPath}. Starting with no playlists.`);
     return [];
   }
 
@@ -60,11 +58,7 @@ function loadPlaylists(playlistsPath: string): Playlist[] {
   }
 }
 
-function setupFileWatcher(
-  filePath: string,
-  onFileChange: () => void,
-  fileName: string
-) {
+function setupFileWatcher(filePath: string, onFileChange: () => void, fileName: string) {
   if (!fs.existsSync(filePath)) {
     return;
   }
@@ -157,15 +151,9 @@ export function setupServer() {
       const game = instances[instanceId];
 
       game.registeredUsers.add(userId);
-      logger.debug(
-        instanceId,
-        `Player ${userId} joined the game`,
-        LogCategory.GENERAL
-      );
+      logger.debug(instanceId, `Player ${userId} joined the game`, LogCategory.GENERAL);
 
-      server
-        .to(instanceId)
-        .emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
+      server.to(instanceId).emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
     });
 
     socket.on('disconnect', () => {
@@ -176,11 +164,7 @@ export function setupServer() {
       if (!game) return;
 
       game.registeredUsers.delete(userId);
-      logger.debug(
-        instanceId,
-        `Player ${userId} left the game`,
-        LogCategory.GENERAL
-      );
+      logger.debug(instanceId, `Player ${userId} left the game`, LogCategory.GENERAL);
 
       invalidateToken(socket.handshake.auth.token);
 
@@ -188,32 +172,20 @@ export function setupServer() {
         const isGameActive = game.pickNewHost();
 
         if (!isGameActive) {
-          logger.debug(
-            instanceId,
-            `Terminating empty instance`,
-            LogCategory.GENERAL
-          );
+          logger.debug(instanceId, `Terminating empty instance`, LogCategory.GENERAL);
           game.dispose();
           delete instances[instanceId];
         }
       }
 
-      server
-        .to(instanceId)
-        .emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
+      server.to(instanceId).emit(WS_GAME_STATUS_UPDATE_EVENT, getGameStatusPayload(game));
     });
   });
 
   // Allow express to parse JSON bodies
   app.use(express.json());
-  app.use(
-    '/music',
-    express.static(path.join(__dirname, STATIC_FILES_DIR, 'music'))
-  );
-  app.use(
-    '/game_covers',
-    express.static(path.join(__dirname, STATIC_FILES_DIR, 'game_covers'))
-  );
+  app.use('/music', express.static(path.join(__dirname, STATIC_FILES_DIR, 'music')));
+  app.use('/game_covers', express.static(path.join(__dirname, STATIC_FILES_DIR, 'game_covers')));
 
   // Folder for serving temporary static files
   const tempDir = setupTempDir(__dirname);

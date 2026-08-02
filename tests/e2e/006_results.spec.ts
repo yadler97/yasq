@@ -51,9 +51,7 @@ test.describe('Host UI', () => {
     await api.deleteSession();
   });
 
-  test('should display round results of all players properly', async ({
-    page,
-  }) => {
+  test('should display round results of all players properly', async ({ page }) => {
     const results = new ResultsPage(page);
 
     // Player 1 - Correct + First
@@ -134,16 +132,12 @@ test.describe('Player UI', () => {
     await api.patchLeaderboard([
       {
         userId: players[1].id,
-        roundHistory: [
-          { round: 1, scoreValue: 1, points: 100, guess: 'Game A' },
-        ],
+        roundHistory: [{ round: 1, scoreValue: 1, points: 100, guess: 'Game A' }],
       },
     ]);
 
     // Verify the Round Summary display
-    await expect(results.resultsContainer.locator('h2')).toContainText(
-      'Results'
-    );
+    await expect(results.resultsContainer.locator('h2')).toContainText('Results');
 
     // Check for the correct answer text from trackInfo
     await expect(results.resultsContainer).toContainText('Game A');
@@ -154,45 +148,31 @@ test.describe('Player UI', () => {
 
     // Verify first tag (Platform)
     await expect(results.tagBadges.first()).toHaveText('Platform A');
-    await expect(results.tagBadges.first()).toHaveAttribute(
-      'data-tooltip',
-      'Platform'
-    );
+    await expect(results.tagBadges.first()).toHaveAttribute('data-tooltip', 'Platform');
 
     // Verify second tag (Release)
     await expect(results.tagBadges.nth(1)).toHaveText('2026');
-    await expect(results.tagBadges.nth(1)).toHaveAttribute(
-      'data-tooltip',
-      'Release'
-    );
+    await expect(results.tagBadges.nth(1)).toHaveAttribute('data-tooltip', 'Release');
 
     // Verify own result
-    await expect(results.getPersonalResultStatus('correct')).toContainText(
-      'Correct! 🎉'
-    );
+    await expect(results.getPersonalResultStatus('correct')).toContainText('Correct! 🎉');
     await expect(results.ownGuess).toContainText('Game A');
     await expect(results.ownScoreBubble).toContainText('100 pt.');
   });
 
-  test('should display partial correct status and points earned', async ({
-    page,
-  }) => {
+  test('should display partial correct status and points earned', async ({ page }) => {
     const results = new ResultsPage(page);
 
     // User submitted partially correct guess
     await api.patchLeaderboard([
       {
         userId: players[1].id,
-        roundHistory: [
-          { round: 1, scoreValue: 0.5, points: 50, guess: 'Game A2' },
-        ],
+        roundHistory: [{ round: 1, scoreValue: 0.5, points: 50, guess: 'Game A2' }],
       },
     ]);
 
     // Verify own result
-    await expect(results.getPersonalResultStatus('partial')).toContainText(
-      'So close! 🧗'
-    );
+    await expect(results.getPersonalResultStatus('partial')).toContainText('So close! 🧗');
     await expect(results.ownGuess).toContainText('Game A2');
     await expect(results.ownScoreBubble).toContainText('50 pt.');
   });
@@ -209,9 +189,7 @@ test.describe('Player UI', () => {
     ]);
 
     // Verify own result
-    await expect(results.getPersonalResultStatus('incorrect')).toContainText(
-      'Incorrect. 😢'
-    );
+    await expect(results.getPersonalResultStatus('incorrect')).toContainText('Incorrect. 😢');
     await expect(results.ownGuess).toContainText('Game B');
     await expect(results.ownScoreBubble).toContainText('0 pt.');
   });
@@ -224,9 +202,7 @@ test.describe('Player UI', () => {
     await api.patchLeaderboard([
       {
         userId: players[1].id,
-        roundHistory: [
-          { round: 1, scoreValue: 1, points: 100, guess: 'Game A' },
-        ],
+        roundHistory: [{ round: 1, scoreValue: 1, points: 100, guess: 'Game A' }],
       },
     ]);
 
@@ -249,16 +225,12 @@ test.describe('Player UI', () => {
       // Player 1: Correct (scoreValue 1)
       {
         userId: players[1].id,
-        roundHistory: [
-          { round: 1, scoreValue: 1, points: 100, guess: 'Game A' },
-        ],
+        roundHistory: [{ round: 1, scoreValue: 1, points: 100, guess: 'Game A' }],
       },
       // Player 2: Partial (scoreValue 0.5)
       {
         userId: players[2].id,
-        roundHistory: [
-          { round: 1, scoreValue: 0.5, points: 50, guess: 'Game A2' },
-        ],
+        roundHistory: [{ round: 1, scoreValue: 0.5, points: 50, guess: 'Game A2' }],
       },
       // Player 3: Wrong (scoreValue 0)
       {
@@ -268,9 +240,7 @@ test.describe('Player UI', () => {
       // Player 4: Correct (scoreValue 1)
       {
         userId: players[4].id,
-        roundHistory: [
-          { round: 1, scoreValue: 1, points: 100, guess: 'Game A' },
-        ],
+        roundHistory: [{ round: 1, scoreValue: 1, points: 100, guess: 'Game A' }],
       },
     ]);
 

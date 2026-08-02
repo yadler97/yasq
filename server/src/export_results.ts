@@ -134,10 +134,7 @@ export async function generateResultsImage(
 
     // Store image in local temp dir
     fs.writeFileSync(outputPath, imageBuffer);
-    logger.debug(
-      instanceId,
-      `Successfully stored image file to: ${outputPath}`
-    );
+    logger.debug(instanceId, `Successfully stored image file to: ${outputPath}`);
   } finally {
     await browser.close();
   }

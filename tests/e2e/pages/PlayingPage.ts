@@ -41,9 +41,7 @@ export class PlayingPage {
     this.jokerSpyBtn = page.locator('#btn-joker-spy');
     this.hintText = page.locator('#obfuscation-hint-text');
     this.choiceButtons = page.locator('.choice-button');
-    this.spyOverlay = page.locator(
-      '.hint-container:has-text("Pick a player to spy on")'
-    );
+    this.spyOverlay = page.locator('.hint-container:has-text("Pick a player to spy on")');
     this.spyEmptyMsg = this.spyOverlay.locator('.no-results');
     this.spyActionButtons = this.spyOverlay.locator('.spy-select-button');
     this.stolenResultBtn = page.locator('.choice-button');

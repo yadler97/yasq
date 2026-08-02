@@ -12,18 +12,13 @@ export const SimpleDropdown = ({
 }) => {
   const isOpen = useSignal(false);
   const isFiltering = value !== options[0];
-  const longestOption = options.reduce(
-    (a, b) => (a.length > b.length ? a : b),
-    ''
-  );
+  const longestOption = options.reduce((a, b) => (a.length > b.length ? a : b), '');
 
   useEffect(() => {
     if (!isOpen.value) return;
 
     // Move focus to the first item immediately after rendering
-    const firstItem = document.querySelector(
-      '.dropdown-menu .dropdown-item'
-    ) as HTMLElement;
+    const firstItem = document.querySelector('.dropdown-menu .dropdown-item') as HTMLElement;
     firstItem?.focus();
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,10 +39,7 @@ export const SimpleDropdown = ({
   };
 
   return (
-    <div
-      className="filter-dropdown"
-      style={{ '--longest-text': `"${longestOption}"` }}
-    >
+    <div className="filter-dropdown" style={{ '--longest-text': `"${longestOption}"` }}>
       <button
         className={`dropdown-trigger ${isFiltering ? 'active' : ''}`}
         onClick={() => (isOpen.value = !isOpen.value)}
@@ -64,10 +56,7 @@ export const SimpleDropdown = ({
 
       {isOpen.value && (
         <>
-          <div
-            className="dropdown-overlay"
-            onClick={() => (isOpen.value = false)}
-          />
+          <div className="dropdown-overlay" onClick={() => (isOpen.value = false)} />
           <div
             className="dropdown-menu"
             onWheel={e => {
@@ -78,8 +67,7 @@ export const SimpleDropdown = ({
 
               const atTop = container.scrollTop === 0;
               const atBottom =
-                container.scrollHeight - container.scrollTop ===
-                container.clientHeight;
+                container.scrollHeight - container.scrollTop === container.clientHeight;
 
               // If the wheel movement goes up at the top, or down at the bottom, stop it
               if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
@@ -112,9 +100,7 @@ export const SimpleDropdown = ({
                       } else if (e.key === 'ArrowUp') {
                         e.preventDefault();
                         if (target.previousElementSibling) {
-                          (
-                            target.previousElementSibling as HTMLElement
-                          )?.focus();
+                          (target.previousElementSibling as HTMLElement)?.focus();
                         } else {
                           // Return focus back up to the button if at the top item
                           closeMenuAndFocusTrigger(target);

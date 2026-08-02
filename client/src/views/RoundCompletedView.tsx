@@ -16,15 +16,13 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
 
   useEffect(() => {
     if (isHost) {
-      backend
-        .getGuesses(auth.value.access_token, discordSdk.instanceId)
-        .then(data => {
-          reviewData.value = data;
-          // Pre-populate corrections with 0 (Wrong) for everyone who guessed
-          const initial: Record<string, number> = {};
-          Object.keys(data.guesses).forEach(uid => (initial[uid] = 0));
-          corrections.value = initial;
-        });
+      backend.getGuesses(auth.value.access_token, discordSdk.instanceId).then(data => {
+        reviewData.value = data;
+        // Pre-populate corrections with 0 (Wrong) for everyone who guessed
+        const initial: Record<string, number> = {};
+        Object.keys(data.guesses).forEach(uid => (initial[uid] = 0));
+        corrections.value = initial;
+      });
     }
   }, [isHost]);
 
@@ -72,19 +70,12 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
               <div className="user-info">
                 <DiscordAvatar src={avatarUrl} userName={displayName} />
                 <span className="username">{displayName}</span>
-                <span className="correction-guess guess-text">
-                  "{guess.text}"
-                </span>
+                <span className="correction-guess guess-text">"{guess.text}"</span>
                 {guess.joker &&
                   (() => {
-                    const JokerIcon = ALL_JOKER_ICONS.find(
-                      icon => icon.jokerType === guess.joker
-                    );
+                    const JokerIcon = ALL_JOKER_ICONS.find(icon => icon.jokerType === guess.joker);
                     return JokerIcon ? (
-                      <TooltipDiv
-                        text={JokerIcon?.description}
-                        className="joker-indicator"
-                      >
+                      <TooltipDiv text={JokerIcon?.description} className="joker-indicator">
                         <JokerIcon />
                       </TooltipDiv>
                     ) : null;
@@ -116,10 +107,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                     corrections.value = { ...corrections.value, [userId]: 0.5 };
                   }}
                 />
-                <label
-                  htmlFor={`partial-${userId}`}
-                  className="btn-radio partial"
-                >
+                <label htmlFor={`partial-${userId}`} className="btn-radio partial">
                   Partial
                 </label>
 
@@ -133,10 +121,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                     corrections.value = { ...corrections.value, [userId]: 1 };
                   }}
                 />
-                <label
-                  htmlFor={`correct-${userId}`}
-                  className="btn-radio correct"
-                >
+                <label htmlFor={`correct-${userId}`} className="btn-radio correct">
                   Correct
                 </label>
               </div>

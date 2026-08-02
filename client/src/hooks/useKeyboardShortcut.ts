@@ -8,10 +8,7 @@ type KeyCombo = {
   metaKey?: boolean;
 };
 
-export const useKeyboardShortcut = (
-  shortcut: KeyCombo,
-  callback: (e: KeyboardEvent) => void
-) => {
+export const useKeyboardShortcut = (shortcut: KeyCombo, callback: (e: KeyboardEvent) => void) => {
   const callbackRef = useRef(callback);
   callbackRef.current = callback;
 
@@ -31,9 +28,7 @@ export const useKeyboardShortcut = (
 
       const target = event.target as HTMLElement;
       const isTyping =
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable;
+        target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 
       // Allow typing if any modifier is held down
       if (isTyping && !event.ctrlKey && !event.altKey && !event.metaKey) {

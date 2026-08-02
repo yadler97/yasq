@@ -39,11 +39,7 @@ export async function updateReadyStatus(
   });
 }
 
-export async function assignNewHost(
-  access_token: string,
-  instanceId: string,
-  newHostId: string
-) {
+export async function assignNewHost(access_token: string, instanceId: string, newHostId: string) {
   return fetch(`${baseUrl}/api/assign-host`, {
     method: 'POST',
     headers: {
@@ -54,11 +50,7 @@ export async function assignNewHost(
   });
 }
 
-export async function setupGame(
-  access_token: string,
-  instanceId: string,
-  settings: GameSettings
-) {
+export async function setupGame(access_token: string, instanceId: string, settings: GameSettings) {
   return fetch(`${baseUrl}/api/setup-game`, {
     method: 'POST',
     headers: {
@@ -69,9 +61,7 @@ export async function setupGame(
       instanceId,
       settings: {
         ...settings,
-        enabledJokers: settings.enabledJokers
-          ? [...settings.enabledJokers]
-          : [],
+        enabledJokers: settings.enabledJokers ? [...settings.enabledJokers] : [],
       },
     }),
   });
@@ -89,22 +79,15 @@ export async function startGame(access_token: string, instanceId: string) {
 }
 
 export async function getTrackList(access_token: string, instanceId: string) {
-  const response = await fetch(
-    `${baseUrl}/api/track-list?instanceId=${instanceId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    }
-  );
+  const response = await fetch(`${baseUrl}/api/track-list?instanceId=${instanceId}`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
   return response.json();
 }
 
-export async function submitGuess(
-  access_token: string,
-  instanceId: string,
-  guess: string
-) {
+export async function submitGuess(access_token: string, instanceId: string, guess: string) {
   return fetch(`${baseUrl}/api/submit-guess`, {
     method: 'POST',
     headers: {
@@ -120,14 +103,11 @@ export async function submitGuess(
 }
 
 export async function getGuesses(access_token: string, instanceId: string) {
-  const response = await fetch(
-    `${baseUrl}/api/get-guesses?instanceId=${instanceId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    }
-  );
+  const response = await fetch(`${baseUrl}/api/get-guesses?instanceId=${instanceId}`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
   return response.json();
 }
 
@@ -187,9 +167,7 @@ export async function getSampleTimeBonusSummary(
     return sampleBonusCache.get(bonusType)!;
   }
 
-  const response = await fetch(
-    `/api/get-sample-time-bonus-summary?type=${bonusType}`
-  );
+  const response = await fetch(`/api/get-sample-time-bonus-summary?type=${bonusType}`);
 
   if (!response.ok) {
     const errorData = await response.json();
@@ -216,9 +194,7 @@ export async function startNextRound(access_token: string, instanceId: string) {
 }
 
 export async function getFinalResults(instanceId: string) {
-  const response = await fetch(
-    `${baseUrl}/api/get-final-results?instanceId=${instanceId}`
-  );
+  const response = await fetch(`${baseUrl}/api/get-final-results?instanceId=${instanceId}`);
   return response.json();
 }
 
@@ -233,18 +209,12 @@ export async function restartGame(access_token: string, instanceId: string) {
   });
 }
 
-export async function getAvailableJokers(
-  access_token: string,
-  instanceId: string
-) {
-  const response = await fetch(
-    `${baseUrl}/api/get-available-jokers?instanceId=${instanceId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    }
-  );
+export async function getAvailableJokers(access_token: string, instanceId: string) {
+  const response = await fetch(`${baseUrl}/api/get-available-jokers?instanceId=${instanceId}`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
   return response.json();
 }
 
@@ -264,11 +234,7 @@ export async function useJoker(
   });
 }
 
-export async function playTrack(
-  access_token: string,
-  fileName: string,
-  instanceId: string
-) {
+export async function playTrack(access_token: string, fileName: string, instanceId: string) {
   return fetch(`${baseUrl}/api/play-local`, {
     method: 'POST',
     headers: {
@@ -279,18 +245,12 @@ export async function playTrack(
   });
 }
 
-export async function getCurrentTrack(
-  access_token: string,
-  instanceId: string
-) {
-  const response = await fetch(
-    `${baseUrl}/api/current-track?instanceId=${instanceId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
-    }
-  );
+export async function getCurrentTrack(access_token: string, instanceId: string) {
+  const response = await fetch(`${baseUrl}/api/current-track?instanceId=${instanceId}`, {
+    headers: {
+      Authorization: `Bearer ${access_token}`,
+    },
+  });
   return response.json();
 }
 
@@ -302,18 +262,13 @@ export async function logToServer(message: string, username: string) {
   });
 }
 
-export async function downloadResultsImage(
-  instanceId: string,
-  discordSdk: any
-) {
+export async function downloadResultsImage(instanceId: string, discordSdk: any) {
   const base = typeof window !== 'undefined' ? window.location.origin : baseUrl;
   const targetUrl = `${base}/api/download-results?instanceId=${instanceId}`;
 
   discordSdk.commands
     .openExternalLink({ url: targetUrl })
-    .catch((err: any) =>
-      console.warn('Discord SDK prompt breakout error:', err)
-    );
+    .catch((err: any) => console.warn('Discord SDK prompt breakout error:', err));
 }
 
 export async function postResultsToDiscordChannel(
@@ -331,11 +286,7 @@ export async function postResultsToDiscordChannel(
   });
 }
 
-export async function getChannels(
-  access_token: string,
-  instanceId: string,
-  guildId: string
-) {
+export async function getChannels(access_token: string, instanceId: string, guildId: string) {
   const response = await fetch(
     `${baseUrl}/api/get-channels?instanceId=${instanceId}&guildId=${guildId}`,
     {

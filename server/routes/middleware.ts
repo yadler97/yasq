@@ -15,20 +15,13 @@ declare global {
   }
 }
 
-export const createGameMiddlewares = (
-  instances: Record<string, GameInstance>
-) => {
+export const createGameMiddlewares = (instances: Record<string, GameInstance>) => {
   /**
    * Authenticate a user via the Discord OAuth2 API based on the request's authorization header.
    */
-  const authenticateUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  const authenticateUser = async (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization;
-    if (!authHeader)
-      return res.status(401).send({ error: 'No token provided' });
+    if (!authHeader) return res.status(401).send({ error: 'No token provided' });
 
     const token = authHeader.split(' ')[1] || '';
     const userId = await validateToken(token);
@@ -69,9 +62,7 @@ export const createGameMiddlewares = (
         `Unauthorized host attempt by user ${userId}`,
         LogCategory.SECURITY
       );
-      return res
-        .status(403)
-        .json({ error: 'Only host can perform this action' });
+      return res.status(403).json({ error: 'Only host can perform this action' });
     }
 
     next();

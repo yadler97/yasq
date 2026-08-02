@@ -14,12 +14,7 @@ interface WithTooltipProps extends HTMLAttributes<HTMLDivElement> {
   disabled?: boolean;
 }
 
-export const WithTooltip = ({
-  text,
-  children,
-  id,
-  disabled = false,
-}: WithTooltipProps) => {
+export const WithTooltip = ({ text, children, id, disabled = false }: WithTooltipProps) => {
   // Fall back gracefully if disabled or if children is not a valid VNode
   if (disabled || !text || !isValidElement(children)) {
     return children;
@@ -35,8 +30,7 @@ export const WithTooltip = ({
   // Clean-up timer if component unmounts
   useEffect(() => {
     return () => {
-      if (deferredToggleTimer.current)
-        window.clearTimeout(deferredToggleTimer.current);
+      if (deferredToggleTimer.current) window.clearTimeout(deferredToggleTimer.current);
     };
   }, []);
 

@@ -18,12 +18,8 @@ export function getBaseFilteredTracks(
     // Filter playlist
     let matchesPlaylist = true;
     if (selectedPlaylistName !== 'All playlists') {
-      const activePlaylist = playlists.find(
-        p => p.name === selectedPlaylistName
-      );
-      matchesPlaylist = activePlaylist
-        ? activePlaylist.tracks.includes(track.audio)
-        : false;
+      const activePlaylist = playlists.find(p => p.name === selectedPlaylistName);
+      matchesPlaylist = activePlaylist ? activePlaylist.tracks.includes(track.audio) : false;
     }
 
     // Filter search
@@ -48,9 +44,7 @@ export function getFilteredAndSortedTracks(
   sortOrder: SortOption,
   selectedTags: Record<string, string[]>
 ): Track[] {
-  const activeCategories = Object.entries(selectedTags).filter(
-    ([_, vals]) => vals.length > 0
-  );
+  const activeCategories = Object.entries(selectedTags).filter(([_, vals]) => vals.length > 0);
 
   let results = [...baseTracks];
 
@@ -66,14 +60,9 @@ export function getFilteredAndSortedTracks(
   return results.sort((a, b) => {
     if (sortOrder === 'Default Order') {
       // Maintain playlist order if playlist is selected
-      const activePlaylist = playlists.find(
-        p => p.name === selectedPlaylistName
-      );
+      const activePlaylist = playlists.find(p => p.name === selectedPlaylistName);
       if (activePlaylist) {
-        return (
-          activePlaylist.tracks.indexOf(a.audio) -
-          activePlaylist.tracks.indexOf(b.audio)
-        );
+        return activePlaylist.tracks.indexOf(a.audio) - activePlaylist.tracks.indexOf(b.audio);
       }
       // Otherwise use standard order
       return (a.originalIndex ?? 0) - (b.originalIndex ?? 0);
@@ -106,15 +95,12 @@ export function getRandomEligibleTrack(filteredTracks: Track[]): Track | null {
 /**
  * Extracts available tag groups by type from the track list.
  */
-export function getAvailableTagsByType(
-  tracks: Track[] | null
-): Record<string, string[]> {
+export function getAvailableTagsByType(tracks: Track[] | null): Record<string, string[]> {
   const groups: Record<string, string[]> = {};
   tracks?.forEach(track => {
     track.tags?.forEach(tag => {
       if (!groups[tag.type]) groups[tag.type] = [];
-      if (!groups[tag.type].includes(tag.value))
-        groups[tag.type].push(tag.value);
+      if (!groups[tag.type].includes(tag.value)) groups[tag.type].push(tag.value);
     });
   });
   return groups;
