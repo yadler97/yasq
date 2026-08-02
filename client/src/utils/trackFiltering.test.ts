@@ -18,9 +18,9 @@ const mockTracks: Track[] = (mockTracksData as Omit<Track, "played" | "originalI
 
 const mockPlaylists: Playlist[] = [
   {
-    name: "Favorites",
-    tracks: [mockTracksData[1].audio],
-  },
+    name: "Playlist 1",
+    tracks: [mockTracksData[2].audio, mockTracksData[1].audio],
+  }
 ];
 
 describe("getBaseFilteredTracks", () => {
@@ -42,9 +42,10 @@ describe("getBaseFilteredTracks", () => {
   });
 
   it("should filter by playlist", () => {
-    const result = getBaseFilteredTracks(mockTracks, mockPlaylists, "Favorites", "", false);
-    expect(result).toHaveLength(1);
+    const result = getBaseFilteredTracks(mockTracks, mockPlaylists, "Playlist 1", "", false);
+    expect(result).toHaveLength(2);
     expect(result[0].audio).toBe(mockTracks[1].audio);
+    expect(result[1].audio).toBe(mockTracks[2].audio);
   });
 });
 
@@ -55,6 +56,14 @@ describe("getFilteredAndSortedTracks", () => {
     expect(result[1].game).toBe("Game B");
     expect(result[2].game).toBe("Game C");
     expect(result[3].game).toBe("Game D");
+  });
+
+  it("should keep default sorting of playlist", () => {
+    const filteredTracks = getBaseFilteredTracks(mockTracks, mockPlaylists, "Playlist 1", "", false);
+    const result = getFilteredAndSortedTracks(filteredTracks, mockPlaylists, "Playlist 1", "Default Order", {});
+    expect(result).toHaveLength(2);
+    expect(result[0].game).toBe("Game C");
+    expect(result[1].game).toBe("Game B");
   });
 
   it("should sort tracks alphabetically by game name (A-Z)", () => {
