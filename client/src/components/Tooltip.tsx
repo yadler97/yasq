@@ -66,12 +66,14 @@ export const WithTooltip = ({ text, children, id, disabled = false }: WithToolti
     id: childProps.id ?? tooltipId,
     className: `has-tooltip ${isTooltipOpen ? 'show-tooltip' : ''} ${childProps.className || ''}`.trim(),
     // Attach a bunch of event handlers that open/close the added tooltip as expected
-    onMouseEnter: (e: MouseEvent) => {
-      childProps.onMouseEnter?.(e);
+    onPointerEnter: (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return; // ignore hover events that were merely simulated after a touch event
+      childProps.onPointerEnter?.(e);
       handleOpen(e.currentTarget as HTMLElement);
     },
-    onMouseLeave: (e: MouseEvent) => {
-      childProps.onMouseLeave?.(e);
+    onPointerLeave: (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
+      childProps.onPointerLeave?.(e);
       handleClose();
     },
     onTouchStart: (e: TouchEvent) => {
