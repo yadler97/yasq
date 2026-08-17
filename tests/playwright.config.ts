@@ -8,7 +8,7 @@ const componentsProjectUseParams = {
 
 export default defineConfig({
   testDir: './',
-  testMatch: ['**/*.spec.ts', '**/*.spec.mobile.ts'],
+  testMatch: ['**/*.spec.ts', '**/*.mobile.spec.ts'],
   outputDir: './test-results',
   fullyParallel: true,
   reporter: [['html', { outputFolder: './playwright-report' }]],
@@ -33,7 +33,7 @@ export default defineConfig({
     {
       name: 'components',
       testDir: './components',
-      testMatch: '**/*.spec.ts',
+      testMatch: '**/*.desktop.spec.ts',
       use: {
         ...devices['Desktop Chrome'],
         ...componentsProjectUseParams,
@@ -42,7 +42,7 @@ export default defineConfig({
     {
       name: 'components',
       testDir: './components',
-      testMatch: '**/*.spec.mobile.ts',
+      testMatch: '**/*.mobile.spec.ts',
       use: {
         ...devices['Pixel 7'],
         ...componentsProjectUseParams,
