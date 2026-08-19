@@ -17,8 +17,8 @@ export const GameHeader = () => {
   };
 
   return (
-    <div className="game-header-stats">
+    <header className="game-header-stats">
       <p className="round-indicator">{renderHeaderContent()}</p>
-    </div>
+    </header>
   );
 };

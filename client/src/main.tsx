@@ -73,16 +73,18 @@ const App = () => {
       <div className="container">
         <div className="game-column">
           <GameHeader />
-          <div
+          <main
             className="game-area"
             key={`view-${isHost}-${gameState.value.state}`}
           >
             {renderView(isHost)}
-          </div>
+          </main>
         </div>
         <Sidebar />
       </div>
-      <p className="version">Ver. {import.meta.env.VERSION}</p>
+      <footer>
+        <p className="version">Ver. {import.meta.env.VERSION}</p>
+      </footer>
     </>
   );
 };
