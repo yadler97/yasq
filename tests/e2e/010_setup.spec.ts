@@ -1,4 +1,4 @@
-import { test, expect } from './test-setup.js';
+import { test, expect } from './test_setup.js';
 import {
   DEFAULT_ENABLED_JOKERS,
   DEFAULT_FIRST_BONUS_MULTIPLIER,
@@ -6,13 +6,14 @@ import {
   DEFAULT_STREAK_BONUS_MULTIPLIER,
   DEFAULT_TIME_BONUS,
   DEFAULT_TRACK_DURATION,
+  GameState,
   Joker,
 } from '@yasq/shared';
 import AxeBuilder from '@axe-core/playwright';
 
 test.use({
   sessionConfig: {
-    state: 'SETUP',
+    state: GameState.SETUP,
     playerCount: 3,
   },
 });

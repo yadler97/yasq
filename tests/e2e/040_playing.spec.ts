@@ -1,4 +1,5 @@
-import { expect, test } from './test-setup.js';
+import { GameState } from '@yasq/shared';
+import { expect, test } from './test_setup.js';
 import AxeBuilder from '@axe-core/playwright';
 
 const PLAYING_SESSION_DATA = {
@@ -23,7 +24,7 @@ const PLAYING_SESSION_DATA = {
 test.describe('Host UI', () => {
   test.use({
     sessionConfig: {
-      state: 'PLAYING',
+      state: GameState.PLAYING,
       playerCount: 3,
       userIndex: 0,
       sessionData: PLAYING_SESSION_DATA,
@@ -66,7 +67,7 @@ test.describe('Host UI', () => {
 test.describe('Player UI', () => {
   test.use({
     sessionConfig: {
-      state: 'PLAYING',
+      state: GameState.PLAYING,
       playerCount: 5,
       userIndex: 1,
       sessionData: PLAYING_SESSION_DATA,

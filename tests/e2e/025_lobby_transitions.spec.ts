@@ -1,6 +1,13 @@
-import { expect, test } from './test-setup.js';
+import { expect, test } from './test_setup.js';
 import { EXPECTED_TIME_BONUS_LABELS, toBonusPercent } from '../utils/helper.js';
-import { FirstBonusMultiplier, Joker, sortByEnumOrder, StreakBonusMultiplier, TimeBonus } from '@yasq/shared';
+import {
+  FirstBonusMultiplier,
+  GameState,
+  Joker,
+  sortByEnumOrder,
+  StreakBonusMultiplier,
+  TimeBonus,
+} from '@yasq/shared';
 
 const CUSTOM_SETTINGS = {
   rounds: 14,
@@ -13,7 +20,7 @@ const CUSTOM_SETTINGS = {
 
 test.use({
   sessionConfig: {
-    state: 'LOBBY',
+    state: GameState.LOBBY,
     playerCount: 3,
     userIndex: 0,
     sessionData: { settings: CUSTOM_SETTINGS },

@@ -1,9 +1,10 @@
-import { expect, test } from './test-setup.js';
+import { GameState } from '@yasq/shared';
+import { expect, test } from './test_setup.js';
 import AxeBuilder from '@axe-core/playwright';
 
 test.use({
   sessionConfig: {
-    state: 'TRACK_SELECTION',
+    state: GameState.TRACK_SELECTION,
     playerCount: 3,
     userIndex: 0,
     sessionData: {

@@ -1,13 +1,14 @@
-import { expect, test } from './test-setup.js';
+import { expect, test } from './test_setup.js';
 import { generatePlayers } from '../utils/helper.js';
 import mockLeaderboard from '../../mock_data/mockLeaderboard.json';
 import AxeBuilder from '@axe-core/playwright';
+import { GameState } from '@yasq/shared';
 
 const initialPlayers = generatePlayers(4);
 
 test.use({
   sessionConfig: {
-    state: 'GAME_FINISHED',
+    state: GameState.GAME_FINISHED,
     playerCount: 4,
     userIndex: 1,
     sessionData: {

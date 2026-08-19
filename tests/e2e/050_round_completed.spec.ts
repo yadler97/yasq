@@ -1,12 +1,13 @@
-import { expect, test } from './test-setup.js';
+import { expect, test } from './test_setup.js';
 import { generatePlayers } from '../utils/helper.js';
 import AxeBuilder from '@axe-core/playwright';
+import { GameState } from '@yasq/shared';
 
 const initialPlayers = generatePlayers(4);
 
 test.use({
   sessionConfig: {
-    state: 'ROUND_COMPLETED',
+    state: GameState.ROUND_COMPLETED,
     playerCount: 4,
     userIndex: 0,
     sessionData: {

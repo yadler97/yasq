@@ -1,4 +1,4 @@
-import { expect, test } from './test-setup.js';
+import { expect, test } from './test_setup.js';
 import { EXPECTED_TIME_BONUS_LABELS, toBonusPercent } from '../utils/helper.js';
 import {
   DEFAULT_ENABLED_JOKERS,
@@ -8,6 +8,7 @@ import {
   DEFAULT_TIME_BONUS,
   DEFAULT_TRACK_DURATION,
   FirstBonusMultiplier,
+  GameState,
   Joker,
   StreakBonusMultiplier,
   TimeBonus,
@@ -15,7 +16,7 @@ import {
 
 test.use({
   sessionConfig: {
-    state: 'SETUP',
+    state: GameState.SETUP,
     playerCount: 3,
   },
 });

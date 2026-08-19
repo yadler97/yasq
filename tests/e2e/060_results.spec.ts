@@ -1,6 +1,7 @@
-import { expect, test } from './test-setup.js';
+import { expect, test } from './test_setup.js';
 import mockLeaderboard from '../../mock_data/mockLeaderboard.json';
 import AxeBuilder from '@axe-core/playwright';
+import { GameState } from '@yasq/shared';
 
 const COMMON_TRACK_INFO = {
   track: {
@@ -16,7 +17,7 @@ const COMMON_TRACK_INFO = {
 test.describe('Host UI', () => {
   test.use({
     sessionConfig: {
-      state: 'RESULTS',
+      state: GameState.RESULTS,
       playerCount: 5,
       userIndex: 0,
       sessionData: {
@@ -74,7 +75,7 @@ test.describe('Host UI', () => {
 test.describe('Player UI', () => {
   test.use({
     sessionConfig: {
-      state: 'RESULTS',
+      state: GameState.RESULTS,
       playerCount: 5,
       userIndex: 1,
       sessionData: {

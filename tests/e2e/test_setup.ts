@@ -2,17 +2,18 @@ import { test as base, expect } from '@playwright/test';
 import { generatePlayers, Player } from '../utils/helper';
 import { TestApi } from '../utils/api';
 import { SetupPage } from './pages/SetupPage';
-import { RoundCompletedPage } from './pages/RoundCompletedPage';
 import { LobbyPage } from './pages/LobbyPage';
-import { Sidebar } from './pages/components/Sidebar';
 import { TrackSelectionPage } from './pages/TrackSelectionPage';
 import { PlayingPage } from './pages/PlayingPage';
+import { RoundCompletedPage } from './pages/RoundCompletedPage';
 import { ResultsPage } from './pages/ResultsPage';
 import { GameFinishedPage } from './pages/GameFinishedPage';
+import { Sidebar } from './pages/components/Sidebar';
+import { GameState } from '@yasq/shared';
 
 type GameOptions = {
   sessionConfig: {
-    state: string;
+    state: GameState;
     playerCount?: number;
     userIndex?: number; // 0 for host, 1+ for regular players
     sessionData?: Record<string, any>;
@@ -32,7 +33,7 @@ type GameFixtures = {
 };
 
 export const test = base.extend<GameOptions & GameFixtures>({
-  sessionConfig: [{ state: 'SETUP', playerCount: 3, userIndex: 0 }, { option: true }],
+  sessionConfig: [{ state: GameState.SETUP, playerCount: 3, userIndex: 0 }, { option: true }],
   session: [
     async ({ page, sessionConfig }, use, testInfo) => {
       const instanceId = `test-instance-${testInfo.testId}`;
@@ -63,9 +64,7 @@ export const test = base.extend<GameOptions & GameFixtures>({
     { auto: true },
   ],
   setupPage: async ({ page }, use) => use(new SetupPage(page)),
-  lobbyPage: async ({ page }, use) => {
-    await use(new LobbyPage(page));
-  },
+  lobbyPage: async ({ page }, use) => use(new LobbyPage(page)),
   trackSelectionPage: async ({ page }, use) => use(new TrackSelectionPage(page)),
   playingPage: async ({ page }, use) => use(new PlayingPage(page)),
   roundCompletedPage: async ({ page }, use) => use(new RoundCompletedPage(page)),

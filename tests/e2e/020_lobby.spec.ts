@@ -1,12 +1,13 @@
-import { expect, test } from './test-setup.js';
+import { GameState } from '@yasq/shared';
+import { expect, test } from './test_setup.js';
 import AxeBuilder from '@axe-core/playwright';
 
 test.describe('Host UI', () => {
   test.use({
     sessionConfig: {
-      state: 'LOBBY',
+      state: GameState.LOBBY,
       playerCount: 3,
-      userIndex: 0, // Logged in as Host
+      userIndex: 0,
     },
   });
 
@@ -74,9 +75,9 @@ test.describe('Host UI', () => {
 test.describe('Player UI', () => {
   test.use({
     sessionConfig: {
-      state: 'LOBBY',
+      state: GameState.LOBBY,
       playerCount: 3,
-      userIndex: 1, // Logged in as regular Player
+      userIndex: 1,
     },
   });
 
