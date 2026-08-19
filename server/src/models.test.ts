@@ -138,7 +138,7 @@ describe('GameInstance - submitGuess', () => {
     expect(guess?.text).toBe(GAME_A);
   });
 
-  it('should transition to ROUND_COMPLETED when the last player guesses', () => {
+  it('should transition to HOST_REVIEW when the last player guesses', () => {
     expect(game.guessedPlayers.size).toBe(0);
 
     // First player guesses
@@ -528,7 +528,7 @@ describe('GameInstance - submitResults', () => {
     );
   });
 
-  it('should transition to RESULTS state and reset guessedPlayers', () => {
+  it('should transition to ROUND_RESULTS state and reset guessedPlayers', () => {
     game.guessedPlayers.add(PLAYER_1);
 
     game.submitResults({});

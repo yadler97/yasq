@@ -333,7 +333,7 @@ export class GameInstance {
 
     const totalWaitTime = COUNTDOWN_DURATION + this.settings.trackDuration;
 
-    // Set a timer to automatically transition to ROUND_COMPLETED after trackDuration
+    // Set a timer to automatically transition to HOST_REVIEW after trackDuration
     setTimeout(() => {
       if (this.state === GameState.PLAYING && this.currentRound === roundAtStart && this.currentGame === gameAtStart) {
         this.state = GameState.HOST_REVIEW;
