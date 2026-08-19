@@ -7,7 +7,7 @@ const initialPlayers = generatePlayers(4);
 
 test.use({
   sessionConfig: {
-    state: GameState.ROUND_COMPLETED,
+    state: GameState.HOST_REVIEW,
     playerCount: 4,
     userIndex: 0,
     sessionData: {

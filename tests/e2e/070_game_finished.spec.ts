@@ -8,7 +8,7 @@ const initialPlayers = generatePlayers(4);
 
 test.use({
   sessionConfig: {
-    state: GameState.GAME_FINISHED,
+    state: GameState.FINAL_RESULTS,
     playerCount: 4,
     userIndex: 1,
     sessionData: {

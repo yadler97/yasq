@@ -17,7 +17,7 @@ const COMMON_TRACK_INFO = {
 test.describe('Host UI', () => {
   test.use({
     sessionConfig: {
-      state: GameState.RESULTS,
+      state: GameState.ROUND_RESULTS,
       playerCount: 5,
       userIndex: 0,
       sessionData: {
@@ -75,7 +75,7 @@ test.describe('Host UI', () => {
 test.describe('Player UI', () => {
   test.use({
     sessionConfig: {
-      state: GameState.RESULTS,
+      state: GameState.ROUND_RESULTS,
       playerCount: 5,
       userIndex: 1,
       sessionData: {
