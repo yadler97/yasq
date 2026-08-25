@@ -1680,8 +1680,13 @@ input[value='1']:checked + .btn-radio.correct {
   border: 1px solid var(--green);
   color: var(--green);
 }
+.round-bubble.partial {
+  border: 1px dashed color-mix(in srgb, var(--green) 80%, transparent);
+  color: color-mix(in srgb, var(--green) 80%, transparent);
+  background: color-mix(in srgb, var(--bg-button-group) 60%, transparent);
+}
 .round-bubble.incorrect {
-  border: 1px solid color-mix(in srgb, var(--red) 60%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--red) 60%, transparent);
   color: color-mix(in srgb, var(--red) 60%, transparent);
   background: color-mix(in srgb, var(--bg-button-group) 60%, transparent);
 }
