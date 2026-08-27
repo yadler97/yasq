@@ -20,6 +20,7 @@ import {
   type Track,
 } from '@yasq/shared';
 import { LogCategory, logger } from './src/utils/logger.js';
+import { loadPermissions } from './src/access_control.js';
 
 dotenv.config({ path: '../.env' });
 
@@ -86,6 +87,10 @@ export function setupServer() {
   const playlistsPath = isMockMode
     ? path.join(__dirname, '..', 'mock_data', 'mockPlaylists.json')
     : path.join(__dirname, STATIC_FILES_DIR, 'playlists.json');
+
+  const permissionsPath = isMockMode
+    ? path.join(__dirname, '..', 'mock_data', 'mockPermissions.json')
+    : path.join(__dirname, STATIC_FILES_DIR, 'permissions.json');
 
   // Cache the data in memory
   let cachedTracks = loadTracks(tracksPath);
@@ -208,6 +213,8 @@ export function setupServer() {
     console.log('[MODE] Server is running in mock mode');
     app.use('/api/test', setupMockRoutes(server, instances));
   }
+
+  loadPermissions(permissionsPath);
 
   return httpServer;
 }
