@@ -93,6 +93,7 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
     }
     if (updates.settings) {
       game.settings = {
+        ...game.settings,
         ...updates.settings,
         enabledJokers: new Set(updates.settings.enabledJokers ?? []),
       };

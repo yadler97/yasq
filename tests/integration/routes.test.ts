@@ -229,6 +229,9 @@ describe('useJoker', () => {
       ],
       GameState.PLAYING,
       {
+        settings: {
+          trackDuration: 60_000,
+        },
         trackInfo: {
           url: 'some url',
           track: {
@@ -284,8 +287,7 @@ describe('useJoker', () => {
     expect(body.hint).toContain('Game A');
   });
 
-  // TODO: skip for now as we have to call playTrack first to generate the glimpse image
-  it.skip('should return 200 OK when GLIMPSE joker is used', async () => {
+  it('should return 200 OK when GLIMPSE joker is used', async () => {
     await api.patchEnabledJokers([Joker.GLIMPSE]);
 
     await playTrack(hostToken, 'track001.mp3', currentInstanceId);
