@@ -1697,12 +1697,16 @@ input[value='1']:checked + .btn-radio.correct {
 }
 
 @media (hover: hover) and (min-width: 768px) {
-  .round-bubble.correct:hover {
+  .round-bubble.correct:hover,
+  .round-bubble.partial:hover {
     transform: scale(1.05);
     z-index: 10;
   }
 }
 @media (hover: hover) {
+  .round-bubble.partial:hover {
+    background: rgba(67, 181, 129, 0.05);
+  }
   .round-bubble.correct:hover {
     background: rgba(67, 181, 129, 0.2);
   }
@@ -1711,6 +1715,9 @@ input[value='1']:checked + .btn-radio.correct {
   }
 }
 @media (hover: none) {
+  .round-bubble.partial.show-tooltip {
+    background: rgba(67, 181, 129, 0.05);
+  }
   .round-bubble.correct.show-tooltip {
     background: rgba(67, 181, 129, 0.2);
   }
