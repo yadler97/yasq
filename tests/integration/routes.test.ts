@@ -173,6 +173,14 @@ describe('playTrack', () => {
     expect(setupRes.status).toBe(403);
     expect(body.error).toContain('You do not have permission to play this track.');
   });
+
+  it('should return 403 Forbidden when non-host player tries to play track', async () => {
+    const setupRes = await playTrack(player1Token, 'track002.mp3', currentInstanceId);
+    const body = await setupRes.json();
+
+    expect(setupRes.status).toBe(403);
+    expect(body.error).toContain('Only host can perform this action');
+  });
 });
 
 describe('submitGuess', () => {
