@@ -213,7 +213,7 @@ export async function useJoker(access_token: string, instanceId: string, jokerTy
 }
 
 export async function playTrack(access_token: string, fileName: string, instanceId: string) {
-  return fetch(`${baseUrl}/api/play-local`, {
+  return fetch(`${baseUrl}/api/play-track`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

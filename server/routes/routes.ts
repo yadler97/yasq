@@ -340,7 +340,7 @@ export const setupRoutes = (
     res.send({ status: newState });
   });
 
-  router.post('/play-local', authenticateUser, fetchGame, isHost, async (req, res) => {
+  router.post('/play-track', authenticateUser, fetchGame, isHost, async (req, res) => {
     const { fileName, instanceId } = req.body;
     const userId = req.userId!;
     const game = req.game!;
