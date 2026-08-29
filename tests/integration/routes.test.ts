@@ -115,7 +115,7 @@ describe('setupGame', () => {
   });
 
   it('should return 200 OK when valid settings are provided', async () => {
-    const setupRes = await setupGame(hostToken, currentInstanceId, {
+    const response = await setupGame(hostToken, currentInstanceId, {
       rounds: 5,
       trackDuration: 60,
       enabledJokers: [],
@@ -123,14 +123,14 @@ describe('setupGame', () => {
       timeBonus: TimeBonus.LINEAR,
       streakBonusMultiplier: StreakBonusMultiplier.OFF,
     });
-    const body = await setupRes.json();
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(200);
+    expect(response.status).toBe(200);
     expect(body.status).toContain('LOBBY');
   });
 
   it('should return 400 Bad Request when rounds are set to 0', async () => {
-    const setupRes = await setupGame(hostToken, currentInstanceId, {
+    const response = await setupGame(hostToken, currentInstanceId, {
       rounds: 0,
       trackDuration: 60,
       enabledJokers: [],
@@ -138,14 +138,14 @@ describe('setupGame', () => {
       timeBonus: TimeBonus.LINEAR,
       streakBonusMultiplier: StreakBonusMultiplier.OFF,
     });
-    const body = await setupRes.json();
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(400);
+    expect(response.status).toBe(400);
     expect(body.error).toContain('Rounds and track duration must be greater than 0.');
   });
 
   it('should return 400 Bad Request when track duration exceeds the maximum allowed value', async () => {
-    const setupRes = await setupGame(hostToken, currentInstanceId, {
+    const response = await setupGame(hostToken, currentInstanceId, {
       rounds: 5,
       trackDuration: 999999999,
       enabledJokers: [],
@@ -153,14 +153,14 @@ describe('setupGame', () => {
       timeBonus: TimeBonus.LINEAR,
       streakBonusMultiplier: StreakBonusMultiplier.OFF,
     });
-    const body = await setupRes.json();
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(400);
+    expect(response.status).toBe(400);
     expect(body.error).toContain('Track duration must not exceed');
   });
 
   it('should return 403 Forbidden when non-host player tries to setup game', async () => {
-    const setupRes = await setupGame(player1Token, currentInstanceId, {
+    const response = await setupGame(player1Token, currentInstanceId, {
       rounds: 5,
       trackDuration: 60,
       enabledJokers: [],
@@ -168,9 +168,9 @@ describe('setupGame', () => {
       timeBonus: TimeBonus.LINEAR,
       streakBonusMultiplier: StreakBonusMultiplier.OFF,
     });
-    const body = await setupRes.json();
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(403);
+    expect(response.status).toBe(403);
     expect(body.error).toContain('Only host can perform this action');
   });
 });
@@ -191,34 +191,34 @@ describe('playTrack', () => {
   });
 
   it('should return 200 OK when valid audio file is requested', async () => {
-    const setupRes = await playTrack(hostToken, 'track001.mp3', currentInstanceId);
-    const body = await setupRes.json();
+    const response = await playTrack(hostToken, 'track001.mp3', currentInstanceId);
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(200);
+    expect(response.status).toBe(200);
     expect(body.status).toContain('PLAYING');
   });
 
   it('should return 400 Bad Request when invalid audio file is requested', async () => {
-    const setupRes = await playTrack(hostToken, 'bla.mp3', currentInstanceId);
-    const body = await setupRes.json();
+    const response = await playTrack(hostToken, 'bla.mp3', currentInstanceId);
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(400);
+    expect(response.status).toBe(400);
     expect(body.error).toContain('Track not found.');
   });
 
   it('should return 403 Forbidden when non-allowed audio file is requested', async () => {
-    const setupRes = await playTrack(hostToken, 'track002.mp3', currentInstanceId);
-    const body = await setupRes.json();
+    const response = await playTrack(hostToken, 'track002.mp3', currentInstanceId);
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(403);
+    expect(response.status).toBe(403);
     expect(body.error).toContain('You do not have permission to play this track.');
   });
 
   it('should return 403 Forbidden when non-host player tries to play track', async () => {
-    const setupRes = await playTrack(player1Token, 'track002.mp3', currentInstanceId);
-    const body = await setupRes.json();
+    const response = await playTrack(player1Token, 'track002.mp3', currentInstanceId);
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(403);
+    expect(response.status).toBe(403);
     expect(body.error).toContain('Only host can perform this action');
   });
 });
@@ -239,30 +239,30 @@ describe('submitGuess', () => {
   });
 
   it('should return 200 OK when guess is submitted by registered player', async () => {
-    const setupRes = await submitGuess(player1Token, currentInstanceId, 'guess');
-    const body = await setupRes.json();
+    const response = await submitGuess(player1Token, currentInstanceId, 'guess');
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(200);
+    expect(response.status).toBe(200);
     expect(body.status).toContain('submitted');
   });
 
   it('should return 403 Forbidden when guess is submitted by non-registered player', async () => {
-    const setupRes = await submitGuess(nonRegisteredPlayerToken, currentInstanceId, 'guess');
-    const body = await setupRes.json();
+    const response = await submitGuess(nonRegisteredPlayerToken, currentInstanceId, 'guess');
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(403);
+    expect(response.status).toBe(403);
     expect(body.error).toContain('User not registered in this instance.');
   });
 
   it('should return 400 Bad Request when submitted guess is too long', async () => {
-    const setupRes = await submitGuess(
+    const response = await submitGuess(
       player1Token,
       currentInstanceId,
       'thisisaverylongguessthatislongerthantheallowedcharacterlimitof100charactersandisthereforerejectedbytheserver'
     );
-    const body = await setupRes.json();
+    const body = await response.json();
 
-    expect(setupRes.status).toBe(400);
+    expect(response.status).toBe(400);
     expect(body.error).toContain('Guess must be between 1 and 100 characters.');
   });
 });
