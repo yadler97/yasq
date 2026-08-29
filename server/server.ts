@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import { GameInstance } from './src/models.js';
+import { GameInstance, Leaderboard } from './src/models.js';
 
 import { setupRoutes } from './routes/routes.js';
 import { setupMockRoutes } from './routes/mockRoutes.js';
@@ -83,6 +83,10 @@ function setupFileWatcher(filePath: string, onFileChange: () => void, fileName: 
 
 export function setupServer() {
   const instances: Record<string, GameInstance> = {};
+
+  if (isMockMode()) {
+    loadMockState(instances);
+  }
 
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const tracksPath = getFilePath('tracks.json');
@@ -218,4 +222,52 @@ export function setupServer() {
   loadPermissions(permissionsPath);
 
   return httpServer;
+}
+
+function loadMockState(instances: Record<string, GameInstance>) {
+  const stateFile = process.env.MOCK_STATE;
+  if (!stateFile) return;
+
+  try {
+    const absolutePath = path.resolve(process.cwd(), stateFile);
+    if (!fs.existsSync(absolutePath)) {
+      console.error(`Mock state file not found at ${absolutePath}`);
+      return;
+    }
+
+    const rawData = fs.readFileSync(absolutePath, 'utf-8');
+    const stateData = JSON.parse(rawData);
+
+    const instanceId = stateData.instanceId || 'test-instance';
+    const hostId = stateData.hostId || stateData.registeredUsers?.[0]?.id || 'user-1';
+
+    const game = new GameInstance(instanceId, hostId);
+
+    // Assign standard properties
+    Object.assign(game, stateData);
+
+    // Properly rehydrate complex fields and Sets
+    if (stateData.registeredUsers) {
+      const registeredUserIds = stateData.registeredUsers.map((u: any) => (typeof u === 'string' ? u : u.id));
+      game.registeredUsers = new Set(registeredUserIds);
+    }
+
+    if (stateData.readyUserIds) {
+      game.readyUsers = new Set(stateData.readyUserIds);
+    }
+
+    if (stateData.settings?.enabledJokers) {
+      game.settings.enabledJokers = new Set(stateData.settings.enabledJokers);
+    }
+
+    if (stateData.leaderboard) {
+      game.leaderboard = Leaderboard.fromJSON(stateData.leaderboard);
+    }
+
+    instances[instanceId] = game;
+
+    console.log(`[MOCK] Pre-loaded game state for instance: ${instanceId} from ${stateFile}`);
+  } catch (err) {
+    console.error(`Error loading mock game state:`, err);
+  }
 }
