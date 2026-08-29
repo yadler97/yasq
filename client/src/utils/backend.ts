@@ -115,7 +115,7 @@ export async function submitRoundResults(
 }
 
 export async function getRoundResults(instanceId: string, userId: string) {
-  const response = await fetch(`${baseUrl}/api/get-results?instanceId=${instanceId}&userId=${userId}`);
+  const response = await fetch(`${baseUrl}/api/get-round-results?instanceId=${instanceId}&userId=${userId}`);
 
   if (!response.ok) {
     const errorData = await response.json();
@@ -260,8 +260,8 @@ export async function postResultsToDiscordChannel(access_token: string, instance
   });
 }
 
-export async function getChannels(access_token: string, instanceId: string, guildId: string) {
-  const response = await fetch(`${baseUrl}/api/get-channels?instanceId=${instanceId}&guildId=${guildId}`, {
+export async function getDiscordChannels(access_token: string, instanceId: string, guildId: string) {
+  const response = await fetch(`${baseUrl}/api/get-discord-channels?instanceId=${instanceId}&guildId=${guildId}`, {
     headers: {
       Authorization: `Bearer ${access_token}`,
     },

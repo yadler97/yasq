@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi, afterEach } from 'vitest';
-import { playTrack, setBaseUrl, setupGame, submitGuess, useJoker } from '../../client/src/utils/backend';
+import { assignNewHost, playTrack, setBaseUrl, setupGame, submitGuess, useJoker } from '../../client/src/utils/backend';
 import { setupServer } from '../../server';
 import { FirstBonusMultiplier, GameState, Joker, StreakBonusMultiplier, TimeBonus } from '@yasq/shared';
 import type { Server } from 'http';
@@ -57,6 +57,46 @@ afterAll(async () => {
 beforeEach(async context => {
   currentInstanceId = `test-instance-${context.task.id}`;
   api = new TestApi(baseUrl, currentInstanceId, true);
+});
+
+describe('assignNewHost', () => {
+  beforeEach(async () => {
+    await api.setupSession(
+      [
+        { id: '1', username: 'Player1' },
+        { id: '2', username: 'Player2' },
+      ],
+      GameState.SETUP
+    );
+  });
+
+  afterEach(async () => {
+    await api.deleteSession();
+  });
+
+  it('should return 200 OK when host is assigned by current host', async () => {
+    const response = await assignNewHost(hostToken, currentInstanceId, '2');
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.status).toBe('success');
+  });
+
+  it('should return 403 Forbidden when non-host player tries to assign host', async () => {
+    const response = await assignNewHost(player1Token, currentInstanceId, '2');
+    const body = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(body.error).toContain('Only host can perform this action');
+  });
+
+  it('should return 400 Bad Request when assigning host to non-registered player', async () => {
+    const response = await assignNewHost(hostToken, currentInstanceId, '3');
+    const body = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(body.error).toContain('New host must be a registered user');
+  });
 });
 
 describe('setupGame', () => {
