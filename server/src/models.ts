@@ -621,8 +621,9 @@ export class Leaderboard {
   private readonly entries: LeaderboardEntry[] = [];
   private readonly roundSummaries: RoundSummary[] = [];
 
-  constructor(entries: LeaderboardEntry[] = []) {
+  constructor(entries: LeaderboardEntry[] = [], roundSummaries: RoundSummary[] = []) {
     this.entries = entries;
+    this.roundSummaries = roundSummaries;
   }
 
   public hasEntry(userId: string): boolean {
@@ -696,6 +697,6 @@ export class Leaderboard {
 
   static fromJSON(data: any): Leaderboard {
     const entries = (data?.entries || []).map((e: any) => LeaderboardEntry.fromJSON(e));
-    return new Leaderboard(entries);
+    return new Leaderboard(entries, data?.roundSummaries || []);
   }
 }

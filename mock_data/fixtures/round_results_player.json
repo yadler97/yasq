@@ -1,0 +1,114 @@
+{
+  "instanceId": "123456789",
+  "hostId": "1",
+  "state": "ROUND_RESULTS",
+  "settings": {
+    "rounds": 5,
+    "trackDuration": 60000,
+    "enabledJokers": ["OBFUSCATION", "TRIVIA", "MULTIPLE_CHOICE", "SPY"],
+    "firstBonusMultiplier": 0.2,
+    "timeBonus": "LINEAR",
+    "streakBonusMultiplier": 0.1
+  },
+  "currentRound": 1,
+  "trackInfo": {
+    "url": "some url",
+    "track": {
+      "game": "Game A",
+      "title": "Track A",
+      "tags": [
+        { "type": "platform", "value": "Platform A" },
+        { "type": "release", "value": "2026" }
+      ]
+    }
+  },
+  "registeredUsers": [
+    { "id": "0", "username": "MockPlayer1" },
+    { "id": "1", "username": "MockPlayer2" },
+    { "id": "2", "username": "MockPlayer3" },
+    { "id": "3", "username": "MockPlayer4" }
+  ],
+  "leaderboard": {
+    "entries": [
+      {
+        "userId": "0",
+        "totalScore": 220,
+        "roundHistory": [
+          {
+            "round": 1,
+            "guess": "Game A",
+            "points": 220,
+            "scoreValue": 1.0,
+            "isFirst": true,
+            "time": "1.5",
+            "awardedBonuses": [
+              { "type": "TIME_BONUS", "multiplier": 1.0 },
+              { "type": "FIRST_BONUS", "multiplier": 0.2 }
+            ]
+          }
+        ]
+      },
+      {
+        "userId": "2",
+        "totalScore": 156,
+        "roundHistory": [
+          {
+            "round": 1,
+            "guess": "Game A",
+            "points": 156,
+            "scoreValue": 1.0,
+            "isFirst": false,
+            "time": "27.0",
+            "awardedBonuses": [
+              { "type": "TIME_BONUS", "multiplier": 0.56 }
+            ]
+          }
+        ]
+      },
+      {
+        "userId": "3",
+        "totalScore": 0,
+        "roundHistory": [
+          {
+            "round": 1,
+            "guess": "No guess submitted",
+            "points": 0,
+            "scoreValue": 0,
+            "isFirst": false,
+            "time": "60.0",
+            "awardedBonuses": []
+          }
+        ]
+      }
+    ],
+    "roundSummaries": [
+      {
+        "round": 1,
+        "timeBonusSummary": {
+          "totalTime": 60000,
+          "curvePoints":[{"time":0,"multiplier":1},{"time":300,"multiplier":1},{"time":600,"multiplier":1},{"time":900,"multiplier":1},{"time":1200,"multiplier":1},{"time":1500,"multiplier":1},{"time":1800,"multiplier":0.9948717948717949},{"time":2100,"multiplier":0.9897435897435898},{"time":2400,"multiplier":0.9846153846153847},{"time":2700,"multiplier":0.9794871794871794},{"time":3000,"multiplier":0.9743589743589743},{"time":3300,"multiplier":0.9692307692307692},{"time":3600,"multiplier":0.9641025641025641},{"time":3900,"multiplier":0.958974358974359},{"time":4200,"multiplier":0.9538461538461538},{"time":4500,"multiplier":0.9487179487179487},{"time":4800,"multiplier":0.9435897435897436},{"time":5100,"multiplier":0.9384615384615385},{"time":5400,"multiplier":0.9333333333333333},{"time":5700,"multiplier":0.9282051282051282},{"time":6000,"multiplier":0.9230769230769231},{"time":6300,"multiplier":0.9179487179487179},{"time":6600,"multiplier":0.9128205128205128},{"time":6900,"multiplier":0.9076923076923077},{"time":7200,"multiplier":0.9025641025641026},{"time":7500,"multiplier":0.8974358974358975},{"time":7800,"multiplier":0.8923076923076922},{"time":8100.000000000001,"multiplier":0.8871794871794871},{"time":8400,"multiplier":0.882051282051282},{"time":8700,"multiplier":0.8769230769230769},{"time":9000,"multiplier":0.8717948717948718},{"time":9300,"multiplier":0.8666666666666667},{"time":9600,"multiplier":0.8615384615384616},{"time":9900,"multiplier":0.8564102564102565},{"time":10200,"multiplier":0.8512820512820513},{"time":10500,"multiplier":0.8461538461538461},{"time":10800,"multiplier":0.841025641025641},{"time":11100,"multiplier":0.8358974358974359},{"time":11400,"multiplier":0.8307692307692307},{"time":11700,"multiplier":0.8256410256410256},{"time":12000,"multiplier":0.8205128205128205},{"time":12300,"multiplier":0.8153846153846154},{"time":12600,"multiplier":0.8102564102564103},{"time":12900,"multiplier":0.8051282051282052},{"time":13200,"multiplier":0.8},{"time":13500,"multiplier":0.7948717948717949},{"time":13800,"multiplier":0.7897435897435897},{"time":14100,"multiplier":0.7846153846153846},{"time":14400,"multiplier":0.7794871794871795},{"time":14700,"multiplier":0.7743589743589744},{"time":15000,"multiplier":0.7692307692307692},{"time":15300,"multiplier":0.764102564102564},{"time":15600,"multiplier":0.7589743589743589},{"time":15900,"multiplier":0.7538461538461538},{"time":16200.000000000002,"multiplier":0.7487179487179487},{"time":16500,"multiplier":0.7435897435897436},{"time":16800,"multiplier":0.7384615384615385},{"time":17100,"multiplier":0.7333333333333334},{"time":17400,"multiplier":0.7282051282051283},{"time":17700,"multiplier":0.7230769230769231},{"time":18000,"multiplier":0.717948717948718},{"time":18300,"multiplier":0.7128205128205128},{"time":18600,"multiplier":0.7076923076923076},{"time":18900,"multiplier":0.7025641025641025},{"time":19200,"multiplier":0.6974358974358974},{"time":19500,"multiplier":0.6923076923076923},{"time":19800,"multiplier":0.6871794871794872},{"time":20100,"multiplier":0.6820512820512821},{"time":20400,"multiplier":0.676923076923077},{"time":20700,"multiplier":0.6717948717948719},{"time":21000,"multiplier":0.6666666666666667},{"time":21300,"multiplier":0.6615384615384615},{"time":21600,"multiplier":0.6564102564102564},{"time":21900,"multiplier":0.6512820512820513},{"time":22200,"multiplier":0.6461538461538461},{"time":22500,"multiplier":0.641025641025641},{"time":22800,"multiplier":0.6358974358974359},{"time":23100,"multiplier":0.6307692307692307},{"time":23400,"multiplier":0.6256410256410256},{"time":23700,"multiplier":0.6205128205128205},{"time":24000,"multiplier":0.6153846153846154},{"time":24300,"multiplier":0.6102564102564103},{"time":24600,"multiplier":0.6051282051282052},{"time":24900,"multiplier":0.6},{"time":25200,"multiplier":0.5948717948717949},{"time":25500,"multiplier":0.5897435897435898},{"time":25800,"multiplier":0.5846153846153845},{"time":26100,"multiplier":0.5794871794871794},{"time":26400,"multiplier":0.5743589743589743},{"time":26700,"multiplier":0.5692307692307692},{"time":27000,"multiplier":0.5641025641025641},{"time":27300,"multiplier":0.558974358974359},{"time":27600,"multiplier":0.5538461538461539},{"time":27900,"multiplier":0.5487179487179488},{"time":28200,"multiplier":0.5435897435897437},{"time":28500,"multiplier":0.5384615384615384},{"time":28800,"multiplier":0.5333333333333333},{"time":29100,"multiplier":0.5282051282051282},{"time":29400,"multiplier":0.523076923076923},{"time":29700,"multiplier":0.5179487179487179},{"time":30000,"multiplier":0.5128205128205128},{"time":30300,"multiplier":0.5076923076923077},{"time":30600,"multiplier":0.5025641025641026},{"time":30900,"multiplier":0.49743589743589745},{"time":31200,"multiplier":0.49230769230769234},{"time":31500,"multiplier":0.4871794871794872},{"time":31800,"multiplier":0.482051282051282},{"time":32100.000000000004,"multiplier":0.4769230769230769},{"time":32400.000000000004,"multiplier":0.4717948717948718},{"time":32700.000000000004,"multiplier":0.46666666666666656},{"time":33000,"multiplier":0.46153846153846156},{"time":33300,"multiplier":0.45641025641025645},{"time":33600,"multiplier":0.45128205128205123},{"time":33900,"multiplier":0.4461538461538461},{"time":34200,"multiplier":0.441025641025641},{"time":34500,"multiplier":0.4358974358974359},{"time":34800,"multiplier":0.4307692307692308},{"time":35100,"multiplier":0.4256410256410257},{"time":35400,"multiplier":0.42051282051282046},{"time":35700,"multiplier":0.41538461538461535},{"time":36000,"multiplier":0.41025641025641024},{"time":36300,"multiplier":0.40512820512820513},{"time":36600,"multiplier":0.4},{"time":36900,"multiplier":0.3948717948717949},{"time":37200,"multiplier":0.3897435897435897},{"time":37500,"multiplier":0.3846153846153846},{"time":37800,"multiplier":0.37948717948717947},{"time":38100,"multiplier":0.37435897435897436},{"time":38400,"multiplier":0.36923076923076925},{"time":38700,"multiplier":0.36410256410256414},{"time":39000,"multiplier":0.3589743589743589},{"time":39300,"multiplier":0.3538461538461538},{"time":39600,"multiplier":0.3487179487179487},{"time":39900,"multiplier":0.3435897435897436},{"time":40200,"multiplier":0.3384615384615385},{"time":40500,"multiplier":0.33333333333333337},{"time":40800,"multiplier":0.32820512820512826},{"time":41100,"multiplier":0.32307692307692304},{"time":41400,"multiplier":0.31794871794871793},{"time":41700,"multiplier":0.3128205128205128},{"time":42000,"multiplier":0.3076923076923077},{"time":42300,"multiplier":0.3025641025641026},{"time":42600,"multiplier":0.2974358974358975},{"time":42900,"multiplier":0.29230769230769227},{"time":43200,"multiplier":0.28717948717948716},{"time":43500,"multiplier":0.28205128205128205},{"time":43800,"multiplier":0.27692307692307694},{"time":44100,"multiplier":0.27179487179487183},{"time":44400,"multiplier":0.2666666666666667},{"time":44700,"multiplier":0.2615384615384615},{"time":45000,"multiplier":0.2564102564102564},{"time":45300,"multiplier":0.2512820512820513},{"time":45600,"multiplier":0.24615384615384617},{"time":45900,"multiplier":0.24102564102564106},{"time":46200,"multiplier":0.23589743589743595},{"time":46500,"multiplier":0.23076923076923073},{"time":46800,"multiplier":0.22564102564102562},{"time":47100,"multiplier":0.2205128205128205},{"time":47400,"multiplier":0.2153846153846154},{"time":47700,"multiplier":0.2102564102564103},{"time":48000,"multiplier":0.20512820512820518},{"time":48300,"multiplier":0.19999999999999996},{"time":48600,"multiplier":0.19487179487179485},{"time":48900,"multiplier":0.18974358974358974},{"time":49200,"multiplier":0.18461538461538463},{"time":49500,"multiplier":0.17948717948717952},{"time":49800,"multiplier":0.1743589743589744},{"time":50100,"multiplier":0.16923076923076918},{"time":50400,"multiplier":0.16410256410256407},{"time":50700,"multiplier":0.15897435897435896},{"time":51000,"multiplier":0.15384615384615385},{"time":51300,"multiplier":0.14871794871794874},{"time":51600,"multiplier":0.14358974358974363},{"time":51900,"multiplier":0.1384615384615384},{"time":52200,"multiplier":0.1333333333333333},{"time":52500,"multiplier":0.1282051282051282},{"time":52800,"multiplier":0.12307692307692308},{"time":53100,"multiplier":0.11794871794871797},{"time":53400,"multiplier":0.11282051282051286},{"time":53700,"multiplier":0.10769230769230764},{"time":54000,"multiplier":0.10256410256410253},{"time":54300,"multiplier":0.09743589743589742},{"time":54600,"multiplier":0.09230769230769231},{"time":54900,"multiplier":0.0871794871794872},{"time":55200,"multiplier":0.08205128205128209},{"time":55500,"multiplier":0.07692307692307687},{"time":55800,"multiplier":0.07179487179487176},{"time":56100,"multiplier":0.06666666666666665},{"time":56400,"multiplier":0.06153846153846154},{"time":56700,"multiplier":0.05641025641025643},{"time":57000,"multiplier":0.05128205128205132},{"time":57300,"multiplier":0.0461538461538461},{"time":57600,"multiplier":0.04102564102564099},{"time":57900,"multiplier":0.03589743589743588},{"time":58200,"multiplier":0.03076923076923077},{"time":58500,"multiplier":0.02564102564102566},{"time":58800,"multiplier":0.02051282051282055},{"time":59100,"multiplier":0.01538461538461533},{"time":59400,"multiplier":0.01025641025641022},{"time":59700,"multiplier":0.00512820512820511},{"time":60000,"multiplier":0}],
+          "playerGuessTimes": [
+            {
+              "playerId": "0",
+              "time": 1500,
+              "multiplier": 1,
+              "fullyCorrect": true
+            },
+            {
+              "playerId": "2",
+              "time": 27000,
+              "multiplier": 0.56,
+              "fullyCorrect": true
+            },
+            {
+              "playerId": "3",
+              "time": 60000,
+              "multiplier": null,
+              "fullyCorrect": false
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
