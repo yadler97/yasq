@@ -6,10 +6,10 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import { GameInstance, Leaderboard } from './src/models.js';
+import { GameInstance } from './src/models.js';
 
 import { setupRoutes } from './routes/routes.js';
-import { setupMockRoutes } from './routes/mockRoutes.js';
+import { setMockState, setupMockRoutes } from './routes/mockRoutes.js';
 import {
   getFilePath,
   getGameStatusPayload,
@@ -238,35 +238,11 @@ function loadMockState(instances: Record<string, GameInstance>) {
     const rawData = fs.readFileSync(absolutePath, 'utf-8');
     const stateData = JSON.parse(rawData);
 
-    const instanceId = stateData.instanceId || 'test-instance';
-    const hostId = stateData.hostId || stateData.registeredUsers?.[0]?.id || 'user-1';
+    const game = setMockState(stateData);
 
-    const game = new GameInstance(instanceId, hostId);
+    instances[game.instanceId] = game;
 
-    // Assign standard properties
-    Object.assign(game, stateData);
-
-    // Properly rehydrate complex fields and Sets
-    if (stateData.registeredUsers) {
-      const registeredUserIds = stateData.registeredUsers.map((u: any) => (typeof u === 'string' ? u : u.id));
-      game.registeredUsers = new Set(registeredUserIds);
-    }
-
-    if (stateData.readyUserIds) {
-      game.readyUsers = new Set(stateData.readyUserIds);
-    }
-
-    if (stateData.settings?.enabledJokers) {
-      game.settings.enabledJokers = new Set(stateData.settings.enabledJokers);
-    }
-
-    if (stateData.leaderboard) {
-      game.leaderboard = Leaderboard.fromJSON(stateData.leaderboard);
-    }
-
-    instances[instanceId] = game;
-
-    console.log(`[MOCK] Pre-loaded game state for instance: ${instanceId} from ${stateFile}`);
+    console.log(`[MOCK] Pre-loaded game state for instance: ${game.instanceId} from ${stateFile}`);
   } catch (err) {
     console.error(`Error loading mock game state:`, err);
   }
