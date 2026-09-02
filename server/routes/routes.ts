@@ -8,14 +8,16 @@ import { GameInstance } from '../src/models.js';
 import type { InstanceGuildQuery, InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import {
   COUNTDOWN_DURATION,
-  INT32_MAX_VALUE,
-  MAX_GUESS_LENGTH,
   GameState,
+  INT32_MAX_VALUE,
   Joker,
-  TimeBonus,
+  MAX_GUESS_LENGTH,
   type Participant,
-  type TimeBonusSummary,
   type Playlist,
+  STATIC_FILES_DIR,
+  TEMP_FILES_DIR,
+  TimeBonus,
+  type TimeBonusSummary,
   type Track,
 } from '@yasq/shared';
 import { broadcastGameStatus, filterDiscordTextChannels, userDataCache } from '../src/helper.js';
@@ -106,14 +108,14 @@ export const setupRoutes = (
   router.post('/setup-game', authenticateUser, fetchGame, isHost, async (req, res) => {
     const { instanceId, settings } = req.body;
     const game = req.game!;
-    const maxAllowedDuration: number = Math.floor(INT32_MAX_VALUE / 1000) - COUNTDOWN_DURATION;
+    const maxAllowedGuessTime: number = Math.floor(INT32_MAX_VALUE / 1000) - COUNTDOWN_DURATION;
 
-    if (settings.rounds <= 0 || settings.trackDuration <= 0) {
-      return res.status(400).send({ error: 'Rounds and track duration must be greater than 0.' });
+    if (settings.rounds <= 0 || settings.maxGuessTime <= 0) {
+      return res.status(400).send({ error: 'Rounds and guess time must be greater than 0.' });
     }
-    if (settings.trackDuration > maxAllowedDuration) {
+    if (settings.maxGuessTime > maxAllowedGuessTime) {
       return res.status(400).send({
-        error: `Track duration must not exceed ${maxAllowedDuration}.`,
+        error: `Guess time must not exceed ${maxAllowedGuessTime}.`,
       });
     }
 
@@ -495,7 +497,7 @@ export const setupRoutes = (
   router.get('/download-results', (req, res) => {
     const { instanceId } = req.query as InstanceQuery;
 
-    const filePath = path.join(__dirname, `../data/temp/${instanceId}/results.png`);
+    const filePath = path.join(__dirname, '..', STATIC_FILES_DIR, TEMP_FILES_DIR, `${instanceId}/results.png`);
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Results image has not been generated yet.' });
     }
@@ -514,7 +516,7 @@ export const setupRoutes = (
     const { instanceId, channelId } = req.body;
     const game = req.game!;
 
-    const filePath = path.join(__dirname, `../data/temp/${instanceId}/results.png`);
+    const filePath = path.join(__dirname, '..', STATIC_FILES_DIR, TEMP_FILES_DIR, `${instanceId}/results.png`);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Results image has not been generated yet.' });

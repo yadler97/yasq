@@ -11,6 +11,7 @@ import {
   Joker,
   MAX_TIME_MULTIPLIER,
   MIN_TIME_MULTIPLIER,
+  SAMPLE_DATA_DIR,
   STATIC_FILES_DIR,
   StreakBonusMultiplier,
   type Tag,
@@ -52,7 +53,7 @@ describe('GameInstance - startGame', () => {
     // Start game with 5 rounds and 15 seconds
     game.setupGame({
       rounds: 5,
-      trackDuration: 15,
+      maxGuessTime: 15,
       enabledJokers: new Set([Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE]),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: TimeBonus.LINEAR,
@@ -66,7 +67,7 @@ describe('GameInstance - startGame', () => {
 
     // Assert settings (15s should become 15000ms)
     expect(game.settings.rounds).toBe(5);
-    expect(game.settings.trackDuration).toBe(15_000);
+    expect(game.settings.maxGuessTime).toBe(15_000);
     expect(game.settings.enabledJokers.has(Joker.OBFUSCATION)).toBe(true);
     expect(game.settings.enabledJokers.has(Joker.MULTIPLE_CHOICE)).toBe(true);
     expect(game.settings.enabledJokers.size).toBe(2);
@@ -75,7 +76,7 @@ describe('GameInstance - startGame', () => {
   it('should add players to leaderboard but exclude the host', () => {
     game.setupGame({
       rounds: 5,
-      trackDuration: 15,
+      maxGuessTime: 15,
       enabledJokers: new Set(),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: TimeBonus.LINEAR,
@@ -184,7 +185,7 @@ describe('GameInstance - submitResults', () => {
     game.registeredUsers.add(PLAYER_3);
     game.setupGame({
       rounds: 10,
-      trackDuration: 20, // 20s duration = 20000ms
+      maxGuessTime: 20, // 20s duration = 20000ms
       enabledJokers: new Set(),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: TimeBonus.LINEAR,
@@ -393,7 +394,7 @@ describe('GameInstance - submitResults', () => {
   it('should not award deactivated bonuses', () => {
     game.setupGame({
       rounds: 10,
-      trackDuration: 20,
+      maxGuessTime: 20,
       enabledJokers: new Set(),
       timeBonus: null, // no time bonus
       firstBonusMultiplier: 0.0, // no first bonus
@@ -431,7 +432,7 @@ describe('GameInstance - submitResults', () => {
   it('should round bonus points to whole numbers but award a pity point for vanishingly small bonuses', () => {
     game.setupGame({
       rounds: 10,
-      trackDuration: 20,
+      maxGuessTime: 20,
       enabledJokers: new Set(),
       timeBonus: TimeBonus.EXPONENTIAL,
       firstBonusMultiplier: 0.0, // no first bonus
@@ -539,7 +540,7 @@ describe('GameInstance - submitResults', () => {
 });
 
 describe('GameInstance - timeMultiplierEdgeCases', () => {
-  const TRACK_DURATION: number = 10_000; // milliseconds
+  const MAX_GUESS_TIME: number = 10_000; // milliseconds
   const game = new GameInstance(INSTANCE_ID, HOST);
 
   for (const timeBonusSetting in TimeBonus) {
@@ -547,7 +548,7 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
 
     game.setupGame({
       rounds: 1,
-      trackDuration: TRACK_DURATION / 1000,
+      maxGuessTime: MAX_GUESS_TIME / 1000,
       enabledJokers: new Set(),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: bonusType,
@@ -565,7 +566,7 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
       expect(game.calculateTimeMultiplier(0, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
       expect(game.calculateTimeMultiplier(-100, IMMEDIATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
 
-      const LATE_SUCCESS = TRACK_DURATION;
+      const LATE_SUCCESS = MAX_GUESS_TIME;
       expect(game.calculateTimeMultiplier(LATE_SUCCESS, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
       expect(game.calculateTimeMultiplier(0, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
       expect(game.calculateTimeMultiplier(-100, LATE_SUCCESS)).toBe(MAX_TIME_MULTIPLIER);
@@ -573,14 +574,14 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
 
     it(`should assign MIN_TIME_MULTIPLIER for guesses at/after the track ended - ${bonusType}`, () => {
       const REALISTIC_SUCCESS = 3000;
-      expect(game.calculateTimeMultiplier(TRACK_DURATION, REALISTIC_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
-      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, REALISTIC_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(MAX_GUESS_TIME, REALISTIC_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(MAX_GUESS_TIME + 100, REALISTIC_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
 
       const IMMEDIATE_SUCCESS = 0;
-      expect(game.calculateTimeMultiplier(TRACK_DURATION, IMMEDIATE_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
-      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, IMMEDIATE_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(MAX_GUESS_TIME, IMMEDIATE_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(MAX_GUESS_TIME + 100, IMMEDIATE_SUCCESS)).toBe(MIN_TIME_MULTIPLIER);
 
-      expect(game.calculateTimeMultiplier(TRACK_DURATION + 100, TRACK_DURATION)).toBe(MIN_TIME_MULTIPLIER);
+      expect(game.calculateTimeMultiplier(MAX_GUESS_TIME + 100, MAX_GUESS_TIME)).toBe(MIN_TIME_MULTIPLIER);
     });
   }
 });
@@ -588,11 +589,11 @@ describe('GameInstance - timeMultiplierEdgeCases', () => {
 describe('GameInstance - timeMultiplier:LINEAR', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
-  const TRACK_DURATION: number = 12_000;
+  const MAX_GUESS_TIME: number = 12_000;
 
   game.setupGame({
     rounds: 1,
-    trackDuration: TRACK_DURATION / 1000,
+    maxGuessTime: MAX_GUESS_TIME / 1000,
     enabledJokers: new Set(),
     firstBonusMultiplier: FirstBonusMultiplier.OFF,
     timeBonus: TimeBonus.LINEAR,
@@ -608,18 +609,18 @@ describe('GameInstance - timeMultiplier:LINEAR', () => {
     expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(0.6, PRECISION);
     expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(0.4, PRECISION);
     expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.2, PRECISION);
-    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
+    expect(game.calculateTimeMultiplier(MAX_GUESS_TIME, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 
 describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
-  const TRACK_DURATION: number = 12_000;
+  const MAX_GUESS_TIME: number = 12_000;
 
   game.setupGame({
     rounds: 1,
-    trackDuration: TRACK_DURATION / 1000,
+    maxGuessTime: MAX_GUESS_TIME / 1000,
     enabledJokers: new Set(),
     firstBonusMultiplier: FirstBonusMultiplier.OFF,
     timeBonus: TimeBonus.EXPONENTIAL,
@@ -638,18 +639,18 @@ describe('GameInstance - timeMultiplier:EXPONENTIAL', () => {
     expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBeCloseTo(0.31135175, PRECISION);
     expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBeCloseTo(0.15365819, PRECISION);
     expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.05801221, PRECISION);
-    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
+    expect(game.calculateTimeMultiplier(MAX_GUESS_TIME, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 
 describe('GameInstance - timeMultiplier:LOGISTIC', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
-  const TRACK_DURATION: number = 12_000;
+  const MAX_GUESS_TIME: number = 12_000;
 
   game.setupGame({
     rounds: 1,
-    trackDuration: TRACK_DURATION / 1000,
+    maxGuessTime: MAX_GUESS_TIME / 1000,
     enabledJokers: new Set(),
     firstBonusMultiplier: FirstBonusMultiplier.OFF,
     timeBonus: TimeBonus.LOGISTIC,
@@ -668,18 +669,18 @@ describe('GameInstance - timeMultiplier:LOGISTIC', () => {
     expect(game.calculateTimeMultiplier(9000, FIRST_SUCCESS)).toBeCloseTo(0.09574799, PRECISION);
     expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBeCloseTo(0.0309269, PRECISION);
     expect(game.calculateTimeMultiplier(11_000, FIRST_SUCCESS)).toBeCloseTo(0.00724971, PRECISION);
-    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
+    expect(game.calculateTimeMultiplier(MAX_GUESS_TIME, FIRST_SUCCESS)).toBeCloseTo(0.0, PRECISION);
   });
 });
 
 describe('GameInstance - timeMultiplier:CONSTANT', () => {
   const game = new GameInstance(INSTANCE_ID, HOST);
   const FIRST_SUCCESS: number = 2000;
-  const TRACK_DURATION: number = 12_000;
+  const MAX_GUESS_TIME: number = 12_000;
 
   game.setupGame({
     rounds: 1,
-    trackDuration: TRACK_DURATION / 1000,
+    maxGuessTime: MAX_GUESS_TIME / 1000,
     enabledJokers: new Set(),
     firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
     timeBonus: null, // no time bonus
@@ -696,7 +697,7 @@ describe('GameInstance - timeMultiplier:CONSTANT', () => {
     expect(game.calculateTimeMultiplier(6000, FIRST_SUCCESS)).toBe(CONSTANT);
     expect(game.calculateTimeMultiplier(8000, FIRST_SUCCESS)).toBe(CONSTANT);
     expect(game.calculateTimeMultiplier(10_000, FIRST_SUCCESS)).toBe(CONSTANT);
-    expect(game.calculateTimeMultiplier(TRACK_DURATION, FIRST_SUCCESS)).toBe(CONSTANT);
+    expect(game.calculateTimeMultiplier(MAX_GUESS_TIME, FIRST_SUCCESS)).toBe(CONSTANT);
   });
 });
 
@@ -707,7 +708,7 @@ describe('GameInstance - advanceRound', () => {
     game = new GameInstance(INSTANCE_ID, HOST);
     game.setupGame({
       rounds: 3,
-      trackDuration: 20,
+      maxGuessTime: 20,
       enabledJokers: new Set(),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: TimeBonus.LINEAR,
@@ -756,7 +757,7 @@ describe('GameInstance - playTrack', () => {
     vi.useFakeTimers();
     mockCallback.mockClear();
     game = new GameInstance(INSTANCE_ID, HOST);
-    game.settings.trackDuration = 10_000; // 10 seconds
+    game.settings.maxGuessTime = 10_000; // 10 seconds
   });
 
   afterEach(() => {
@@ -775,7 +776,7 @@ describe('GameInstance - playTrack', () => {
     await game.playTrack(track, mockCallback);
 
     const expectedStart = Date.now() + 4000; // now + countdown
-    const expectedEnd = expectedStart + 10_000; // start + duration
+    const expectedEnd = expectedStart + 10_000; // start + maxGuessTime
 
     expect(game.state).toBe(GameState.PLAYING);
     expect(game.trackInfo?.startTime).toBe(expectedStart);
@@ -796,7 +797,7 @@ describe('GameInstance - playTrack', () => {
     // Verify we are still playing initially
     expect(game.state).toBe(GameState.PLAYING);
 
-    // Fast-forward time by 13.9 seconds (countdown + duration - 100ms)
+    // Fast-forward time by 13.9 seconds (countdown + maxGuessTime - 100ms)
     vi.advanceTimersByTime(13_900);
     expect(game.state).toBe(GameState.PLAYING);
 
@@ -820,7 +821,7 @@ describe('GameInstance - playTrack', () => {
     // Manually bump the round (simulating all players submitted guess before countdown ends)
     game.currentRound = 2;
 
-    // Fast-forward through the total duration
+    // Fast-forward through the maximum guess time
     vi.advanceTimersByTime(15_000);
 
     // The state should NOT be HOST_REVIEW because the roundAtStart check fails
@@ -1046,7 +1047,8 @@ describe('GameInstance - getGlimpseHint', () => {
   let game: GameInstance;
 
   const rootDir: string = process.cwd();
-  const gameCoverDir: string = path.join(rootDir, STATIC_FILES_DIR, 'game_covers');
+  const gameCoverDir: string = path.join(rootDir, STATIC_FILES_DIR, SAMPLE_DATA_DIR, 'game_covers');
+  let testImagePath: string;
 
   const mockCallback = vi.fn();
   const testCover = 'test.png';
@@ -1068,19 +1070,20 @@ describe('GameInstance - getGlimpseHint', () => {
       'base64'
     );
 
-    const testImagePath = path.join(gameCoverDir, testCover);
+    testImagePath = path.join(gameCoverDir, testCover);
     fs.writeFileSync(testImagePath, testImageBuffer);
   });
 
   afterEach(() => {
     // Clean up temporary test image
     fs.rmSync('./temp', { recursive: true, force: true });
+    fs.rmSync(testImagePath, { force: true });
   });
 
   it('should generate a modified JPEG version of the cover image at the beginning of the round', async () => {
     game.setupGame({
       rounds: 3,
-      trackDuration: 20,
+      maxGuessTime: 20,
       enabledJokers: new Set([Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE, Joker.GLIMPSE]),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: TimeBonus.LINEAR,
@@ -1098,7 +1101,9 @@ describe('GameInstance - getGlimpseHint', () => {
     expect(fs.readdirSync(instanceTempDir)).toContain(modifiedImgName);
 
     // Temp image is different from original image
-    const originalImg = fs.readFileSync(path.join(rootDir, STATIC_FILES_DIR, 'game_covers', track.cover));
+    const originalImg = fs.readFileSync(
+      path.join(rootDir, STATIC_FILES_DIR, SAMPLE_DATA_DIR, 'game_covers', track.cover)
+    );
     const modifiedImg = fs.readFileSync(path.join(instanceTempDir, modifiedImgName));
     expect(originalImg).not.toEqual(modifiedImg);
   });
@@ -1108,7 +1113,7 @@ describe('GameInstance - getGlimpseHint', () => {
 
     game.setupGame({
       rounds: 3,
-      trackDuration: 10,
+      maxGuessTime: 10,
       enabledJokers: new Set([Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE, Joker.GLIMPSE]),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: TimeBonus.LINEAR,
@@ -1122,14 +1127,14 @@ describe('GameInstance - getGlimpseHint', () => {
     expect(fs.readdirSync(instanceTempDir)).toContain(`glimpse_${game.currentRound}.jpg`);
 
     // Instance temp dir was removed after the round timer ran out
-    vi.advanceTimersByTime(game.settings.trackDuration + COUNTDOWN_DURATION + 100);
+    vi.advanceTimersByTime(game.settings.maxGuessTime + COUNTDOWN_DURATION + 100);
     expect(fs.existsSync(instanceTempDir)).toBeFalsy();
   });
 
   it('should clean up its own temp directory after the last player has guessed', async () => {
     game.setupGame({
       rounds: 3,
-      trackDuration: 10,
+      maxGuessTime: 10,
       enabledJokers: new Set([Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE, Joker.GLIMPSE]),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: TimeBonus.LINEAR,
@@ -1156,7 +1161,7 @@ describe('GameInstance - getGlimpseHint', () => {
   it('should NOT generate a temporary image file if GLIMPSE is not among the enabled jokers', async () => {
     game.setupGame({
       rounds: 3,
-      trackDuration: 20,
+      maxGuessTime: 20,
       enabledJokers: new Set([Joker.OBFUSCATION, Joker.MULTIPLE_CHOICE]),
       firstBonusMultiplier: DEFAULT_FIRST_BONUS_MULTIPLIER,
       timeBonus: TimeBonus.LINEAR,
