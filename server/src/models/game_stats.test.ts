@@ -1,11 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
+
 import { GameStats } from './game_stats.js';
 import type { UserRoundResult } from './leaderboard.js';
-import type { TrackInfo } from '@yasq/shared';
+import type { Track } from '@yasq/shared';
 
 describe('GameStats', () => {
   let stats: GameStats;
-  const mockTrackInfo = {} as TrackInfo;
+  const mockTrack = {} as Track;
 
   beforeEach(() => {
     stats = new GameStats();
@@ -36,15 +37,15 @@ describe('GameStats', () => {
       const roundB = [{ points: 120 }] as UserRoundResult[];
       const roundC = [{ points: 80 }] as UserRoundResult[];
 
-      stats.updateBestScoringRound(roundA, mockTrackInfo);
+      stats.updateBestScoringRound(roundA, mockTrack);
       expect(stats.bestScoringRound?.roundResults).toEqual(roundA);
 
       // Higher score replaces it
-      stats.updateBestScoringRound(roundB, mockTrackInfo);
+      stats.updateBestScoringRound(roundB, mockTrack);
       expect(stats.bestScoringRound?.roundResults).toEqual(roundB);
 
       // Lower score does not replace the best
-      stats.updateBestScoringRound(roundC, mockTrackInfo);
+      stats.updateBestScoringRound(roundC, mockTrack);
       expect(stats.bestScoringRound?.roundResults).toEqual(roundB);
     });
   });
@@ -57,15 +58,15 @@ describe('GameStats', () => {
       const roundB = [{ points: 10 }] as UserRoundResult[];
       const roundC = [{ points: 30 }] as UserRoundResult[];
 
-      stats.updateLeastScoringRound(roundA, mockTrackInfo);
+      stats.updateLeastScoringRound(roundA, mockTrack);
       expect(stats.leastScoringRound?.roundResults).toEqual(roundA);
 
       // Lower score replaces it
-      stats.updateLeastScoringRound(roundB, mockTrackInfo);
+      stats.updateLeastScoringRound(roundB, mockTrack);
       expect(stats.leastScoringRound?.roundResults).toEqual(roundB);
 
       // Higher score does not replace the lowest
-      stats.updateLeastScoringRound(roundC, mockTrackInfo);
+      stats.updateLeastScoringRound(roundC, mockTrack);
       expect(stats.leastScoringRound?.roundResults).toEqual(roundB);
     });
   });

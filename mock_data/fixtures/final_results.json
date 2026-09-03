@@ -14,6 +14,50 @@
     { "id": "2", "username": "MockPlayer3" },
     { "id": "3", "username": "MockPlayer4" }
   ],
+  "gameStats": {
+    "startTime": 1690000000000,
+    "endTime": 1690000300000,
+    "highestStreak": { "userId": "1", "streak": 3 },
+    "bestScoringRound": {
+      "roundResults": [
+        {
+          "userId": "1",
+          "round": 3,
+          "guess": "Game C",
+          "points": 135,
+          "scoreValue": 1.0,
+          "isFirst": false,
+          "time": "6.0"
+        },
+        {
+          "userId": "2",
+          "round": 3,
+          "guess": "Game C",
+          "points": 236,
+          "scoreValue": 1.0,
+          "isFirst": true,
+          "time": "0.5"
+        },
+        {
+          "userId": "3",
+          "round": 3,
+          "guess": "No guess submitted",
+          "points": 0,
+          "scoreValue": 0,
+          "isFirst": false,
+          "time": "30.0"
+        }
+      ],
+      "track": {
+        "game": "Game C",
+        "title": "Track C",
+        "tags": [
+          { "type": "platform", "value": "Platform C" },
+          { "type": "release", "value": "2025" }
+        ]
+      }
+    }
+  },
   "leaderboard": {
     "entries": [
       {

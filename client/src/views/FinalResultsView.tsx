@@ -73,6 +73,14 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
     await backend.restartGame(auth.value.access_token, discordSdk.instanceId);
   };
 
+  // Helper values extracted from gameStats
+  const stats = gameStats.value;
+  const durationMinutes = stats.startTime && stats.endTime ? Math.floor((stats.endTime - stats.startTime) / 60000) : 0;
+  const highestStreakUser = stats.highestStreak ? findUser(participants.value, stats.highestStreak.userId) : null;
+  const highestPoints = stats.bestScoringRound
+    ? stats.bestScoringRound.roundResults.reduce((sum: number, r: any) => sum + (r.points || 0), 0)
+    : 0;
+
   return (
     <div className="final-leaderboard centered">
       <h1 className="results-title">🏆 Final Results</h1>
@@ -124,6 +132,29 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
             </div>
           );
         })}
+      </div>
+
+      <div className="game-stats">
+        <h3>📊 Game Highlights</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-around', gap: '15px', textAlign: 'center' }}>
+          <div>
+            <span style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8 }}>Duration</span>
+            <strong>{durationMinutes} mins</strong>
+          </div>
+          <div>
+            <span style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8 }}>Highest Streak</span>
+            <strong>
+              {stats.highestStreak ? `${getDisplayName(highestStreakUser)} (${stats.highestStreak.streak})` : 'None'}
+            </strong>
+          </div>
+          <div>
+            <span style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8 }}>Best Round</span>
+            <strong>
+              {stats.bestScoringRound ? `Round ${stats.bestScoringRound.trackInfo?.roundNumber || 'N/A'}` : 'N/A'}
+            </strong>
+            <span style={{ display: 'block' }}>{highestPoints} pts</span>
+          </div>
+        </div>
       </div>
 
       {isHost ? (

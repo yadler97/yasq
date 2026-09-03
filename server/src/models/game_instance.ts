@@ -206,8 +206,8 @@ export class GameInstance {
 
     this.state = GameState.ROUND_RESULTS;
     this.guessedPlayers = new Set();
-    this.gameStats.updateBestScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo!);
-    this.gameStats.updateLeastScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo!);
+    this.gameStats.updateBestScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo!.track);
+    this.gameStats.updateLeastScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo!.track);
   }
 
   public updateStreak(userId: string, scoreMultiplier: number) {

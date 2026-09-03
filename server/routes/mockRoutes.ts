@@ -1,9 +1,10 @@
 import express from 'express';
-import { GameInstance } from '../src/models/game_instance.js';
 import type { Server } from 'socket.io';
+
+import { GameInstance } from '../src/models/game_instance.js';
+import { Leaderboard } from '../src/models/leaderboard.js';
 import { broadcastGameStatus } from '../src/helper.js';
 import { logger } from '../src/utils/logger.js';
-import { Leaderboard } from '../src/models/leaderboard.js';
 
 export const setupMockRoutes = (server: Server, instances: Record<string, GameInstance>) => {
   const router = express.Router();
