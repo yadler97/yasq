@@ -1,0 +1,28 @@
+{
+  "instanceId": "123456789",
+  "hostId": "0",
+  "state": "PLAYING",
+  "settings": {
+    "rounds": 5,
+    "trackDuration": 60000,
+    "enabledJokers": ["OBFUSCATION", "TRIVIA", "MULTIPLE_CHOICE", "SPY"]
+  },
+  "currentRound": 1,
+  "trackInfo": {
+    "url": "some url",
+    "track": {
+      "game": "Game A",
+      "title": "Track A",
+      "tags": [
+        { "type": "platform", "value": "Platform A" },
+        { "type": "release", "value": "2026" }
+      ]
+    }
+  },
+  "registeredUsers": [
+    { "id": "0", "username": "MockPlayer1" },
+    { "id": "1", "username": "MockPlayer2" },
+    { "id": "2", "username": "MockPlayer3" },
+    { "id": "3", "username": "MockPlayer4" }
+  ]
+}

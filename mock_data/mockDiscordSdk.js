@@ -1,3 +1,10 @@
+const urlParams = new window.URLSearchParams(window.location.search);
+const urlUserId = urlParams.get('userId');
+const urlUserName = urlParams.get('userName');
+
+const activeUserId = window.__MOCK_USER_ID__ || urlUserId || '0';
+const activeUserName = window.__MOCK_USER_NAME__ || urlUserName || `MockPlayer${activeUserId}`;
+
 export const mockDiscordSdk = {
   instanceId: window.__MOCK_INSTANCE_ID__ || '123456789',
   guildId: '',
@@ -14,10 +21,10 @@ export const mockDiscordSdk = {
 
     // Mock Authenticate
     authenticate: async () => ({
-      access_token: `token_${window.__MOCK_USER_ID__ || '0'}`,
+      access_token: `token_${activeUserId}`,
       user: {
-        id: window.__MOCK_USER_ID__ || '0',
-        username: window.__MOCK_USER_NAME__ || 'MockPlayer1',
+        id: activeUserId,
+        username: activeUserName,
         avatar: null,
       },
       scopes: ['identify', 'guilds'],
