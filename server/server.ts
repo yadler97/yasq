@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 
-import { GameInstance } from './src/models.js';
+import { GameInstance } from './src/models/game_instance.js';
 
 import { setupRoutes } from './routes/routes.js';
 import { setupMockRoutes } from './routes/mockRoutes.js';

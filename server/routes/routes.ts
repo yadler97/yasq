@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-import { GameInstance } from '../src/models.js';
+import { GameInstance } from '../src/models/game_instance.js';
 import type { InstanceGuildQuery, InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import {
   COUNTDOWN_DURATION,

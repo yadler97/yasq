@@ -1,5 +1,5 @@
 import express from 'express';
-import { GameInstance, Leaderboard } from '../src/models.js';
+import { GameInstance, Leaderboard } from '../src/models/game_instance.js';
 import { GameSettings, GameState } from '@yasq/shared';
 import type { Server } from 'socket.io';
 import { broadcastGameStatus } from '../src/helper.js';

@@ -7,7 +7,7 @@ import crypto from 'crypto';
 import { generateResultsImage } from './export_results.js';
 import type { Participant } from '@yasq/shared';
 import { setupTempDir } from './helper.js';
-import { Leaderboard } from './models.js';
+import { Leaderboard } from './models/leaderboard.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

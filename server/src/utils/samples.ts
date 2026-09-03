@@ -5,7 +5,7 @@ import {
   type TimeBonusPoint,
   type TimeBonusSummary,
 } from '@yasq/shared';
-import { GameInstance } from '../models.js';
+import { GameInstance } from '../models/game_instance.js';
 
 const HOST_ID = 'host_123';
 const INSTANCE_ID = 'mock_instance';
