@@ -29,6 +29,7 @@ import fsAsync from 'fs/promises';
 import { LogCategory, logger } from '../utils/logger.js';
 import { fileURLToPath } from 'url';
 import { Leaderboard, LeaderboardEntry, RoundResult, RoundSummary } from './leaderboard.js';
+import { GameStats } from './game_stats.js';
 
 export class GameInstance {
   public instanceId: string;
@@ -48,6 +49,7 @@ export class GameInstance {
   public usedJokers: Record<string, Partial<Record<Joker, number>>> = {};
   public streaks: Record<string, number> = {};
   public currentRoundLostStreaks: Record<string, number> = {};
+  public gameStats: GameStats = new GameStats();
 
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId;
@@ -78,6 +80,7 @@ export class GameInstance {
     });
     this.state = GameState.TRACK_SELECTION;
     this.currentRound = 1;
+    this.gameStats.startTime = Date.now();
   }
 
   public submitGuess(userId: string, guessText: string): { current: number; total: number } {
@@ -203,6 +206,8 @@ export class GameInstance {
 
     this.state = GameState.ROUND_RESULTS;
     this.guessedPlayers = new Set();
+    this.gameStats.updateBestScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo!);
+    this.gameStats.updateLeastScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo!);
   }
 
   public updateStreak(userId: string, scoreMultiplier: number) {
@@ -215,6 +220,8 @@ export class GameInstance {
     } else if (scoreMultiplier === 0) {
       this.streaks[userId] = 0;
     }
+
+    this.gameStats.updateHighestStreak(userId, this.streaks[userId]);
   }
 
   public calculateLostStreaks(): Record<string, number> {
@@ -304,6 +311,7 @@ export class GameInstance {
       this.state = GameState.FINAL_RESULTS;
       this.leaderboard.sort();
       this.lastWinnerId = this.leaderboard.getWinnerId();
+      this.gameStats.endTime = Date.now();
     } else {
       this.state = GameState.TRACK_SELECTION;
       this.currentRound += 1;

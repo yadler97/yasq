@@ -406,6 +406,7 @@ export const setupRoutes = (
 
     res.send({
       leaderboard: game.leaderboard.getAll() || [],
+      gameStats: game.gameStats || {},
       canExport: isPlaywrightExecutableInstalled(),
     });
   });

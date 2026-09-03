@@ -4,13 +4,17 @@ export class RoundResult {
   constructor(
     public round: number,
     public guess: string | undefined,
-    public points: number,
+    public points: number | null,
     public scoreValue: number,
     public isFirst: boolean,
-    public time: string,
+    public time: string | null,
     public awardedBonuses: PointsBonus[] = []
   ) {}
 }
+
+export type UserRoundResult = {
+  userId: string;
+} & RoundResult;
 
 export class LeaderboardEntry {
   public userId: string;
@@ -26,7 +30,7 @@ export class LeaderboardEntry {
     if (alreadyExists) return;
 
     this.roundHistory.push(result);
-    this.totalScore += result.points;
+    this.totalScore += result.points || 0;
   }
 
   static fromJSON(data: any): LeaderboardEntry {
@@ -103,7 +107,7 @@ export class Leaderboard {
     });
   }
 
-  public getRoundResults(round: number, userId?: string) {
+  public getRoundResults(round: number, userId?: string): UserRoundResult[] {
     const entries = userId ? this.entries.filter(e => e.userId === userId) : this.entries;
 
     return entries
@@ -111,7 +115,8 @@ export class Leaderboard {
         const r = entry.roundHistory.findLast(rh => rh.round === round);
         return {
           userId: entry.userId,
-          guess: r?.guess ?? null,
+          round: round,
+          guess: r?.guess ?? undefined,
           points: r?.points ?? null,
           scoreValue: r?.scoreValue ?? 0.0,
           isFirst: r?.isFirst ?? false,

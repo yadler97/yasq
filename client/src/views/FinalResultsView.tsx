@@ -11,6 +11,7 @@ import { ReadyButton } from '../components/ReadyButton';
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
+  const gameStats = useSignal<any>({});
   const [canExport, setCanExport] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
@@ -21,6 +22,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   useEffect(() => {
     backend.getFinalResults(discordSdk.instanceId).then(data => {
       leaderboard.value = data.leaderboard;
+      gameStats.value = data.gameStats;
       setCanExport(data.canExport);
     });
   }, []);

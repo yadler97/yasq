@@ -1,30 +1,14 @@
 import type { TrackInfo } from '@yasq/shared';
-import type { RoundResult } from './leaderboard.js';
+import type { UserRoundResult } from './leaderboard.js';
 
 export class GameStats {
-  startTime: number | null = null;
-  endTime: number | null = null;
-  highestStreak: { userId: string; streak: number } | null = null;
-  bestScoringRound: { roundResults: RoundResult[]; trackInfo: TrackInfo } | null = null;
-  leastScoringRound: { roundResults: RoundResult[]; trackInfo: TrackInfo } | null = null;
+  public startTime: number | null = null;
+  public endTime: number | null = null;
+  public highestStreak: { userId: string; streak: number } | null = null;
+  public bestScoringRound: { roundResults: UserRoundResult[]; trackInfo: TrackInfo } | null = null;
+  public leastScoringRound: { roundResults: UserRoundResult[]; trackInfo: TrackInfo } | null = null;
 
   constructor() {}
-
-  public setStartTime(startTime: number) {
-    this.startTime = startTime;
-  }
-
-  public setEndTime(endTime: number) {
-    this.endTime = endTime;
-  }
-
-  public getGameDuration() {
-    if (this.startTime === null || this.endTime === null) {
-      return 0;
-    }
-
-    return this.endTime - this.startTime;
-  }
 
   public updateHighestStreak(userId: string, streak: number) {
     if (!this.highestStreak || streak > this.highestStreak.streak) {
@@ -32,35 +16,23 @@ export class GameStats {
     }
   }
 
-  public getHighestStreak() {
-    return this.highestStreak;
-  }
-
-  public updateBestScoringRound(roundResults: RoundResult[], trackInfo: TrackInfo) {
-    const totalScore = roundResults.reduce((sum, result) => sum + result.points, 0);
+  public updateBestScoringRound(roundResults: UserRoundResult[], trackInfo: TrackInfo) {
+    const totalScore = roundResults.reduce((sum, result) => sum + (result.points || 0), 0);
     if (
       !this.bestScoringRound ||
-      totalScore > this.bestScoringRound.roundResults.reduce((sum, result) => sum + result.points, 0)
+      totalScore > this.bestScoringRound.roundResults.reduce((sum, result) => sum + (result.points || 0), 0)
     ) {
       this.bestScoringRound = { roundResults, trackInfo };
     }
   }
 
-  public getBestScoringRound() {
-    return this.bestScoringRound;
-  }
-
-  public updateLeastScoringRound(roundResults: RoundResult[], trackInfo: TrackInfo) {
-    const totalScore = roundResults.reduce((sum, result) => sum + result.points, 0);
+  public updateLeastScoringRound(roundResults: UserRoundResult[], trackInfo: TrackInfo) {
+    const totalScore = roundResults.reduce((sum, result) => sum + (result.points || 0), 0);
     if (
       !this.leastScoringRound ||
-      totalScore < this.leastScoringRound.roundResults.reduce((sum, result) => sum + result.points, 0)
+      totalScore < this.leastScoringRound.roundResults.reduce((sum, result) => sum + (result.points || 0), 0)
     ) {
       this.leastScoringRound = { roundResults, trackInfo };
     }
-  }
-
-  public getLeastScoringRound() {
-    return this.leastScoringRound;
   }
 }
