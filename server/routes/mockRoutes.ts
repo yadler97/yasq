@@ -1,9 +1,9 @@
 import express from 'express';
-import { GameInstance, Leaderboard } from '../src/models/game_instance.js';
-import { GameSettings, GameState } from '@yasq/shared';
+import { GameInstance } from '../src/models/game_instance.js';
 import type { Server } from 'socket.io';
 import { broadcastGameStatus } from '../src/helper.js';
 import { logger } from '../src/utils/logger.js';
+import { Leaderboard } from '../src/models/leaderboard.js';
 
 export const setupMockRoutes = (server: Server, instances: Record<string, GameInstance>) => {
   const router = express.Router();
@@ -16,49 +16,13 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
   };
 
   router.post('/setup-session', (req, res) => {
-    const {
-      instanceId,
-      registeredUsers = [],
-      hostId = registeredUsers[0]?.id, // Default host is the first player in the list
-      state = GameState.SETUP,
-      currentRound = 1,
-      readyUserIds = [],
-      settings = GameSettings.withJokerSet(),
-      trackInfo = null,
-      guesses = {},
-      leaderboard = new Leaderboard(),
-      currentGame = 1,
-      trackHistory = [],
-      lastWinnerId,
-      usedJokers = {},
-      streaks = {},
-      currentRoundLostStreaks = {},
-    } = req.body;
+    const { instanceId } = req.body;
 
     if (!instanceId) {
       return res.status(400).send({ error: 'instanceId is required' });
     }
 
-    // Set the mock state
-    const game = new GameInstance(instanceId, hostId);
-    const registeredUserIds = registeredUsers.map((u: { id: string }) => u.id);
-    game.registeredUsers = new Set(registeredUserIds);
-    game.state = state;
-    game.currentRound = currentRound;
-    game.readyUsers = new Set(readyUserIds);
-    game.settings = {
-      ...settings,
-      enabledJokers: new Set(settings.enabledJokers || []),
-    };
-    game.trackInfo = trackInfo;
-    game.guesses = guesses;
-    game.leaderboard = Leaderboard.fromJSON(leaderboard);
-    game.currentGame = currentGame;
-    game.trackHistory = trackHistory;
-    game.lastWinnerId = lastWinnerId;
-    game.usedJokers = usedJokers;
-    game.streaks = streaks;
-    game.currentRoundLostStreaks = currentRoundLostStreaks;
+    const game = setMockState(req.body);
 
     instances[instanceId] = game;
 
@@ -144,3 +108,36 @@ export const setupMockRoutes = (server: Server, instances: Record<string, GameIn
 
   return router;
 };
+
+export function setMockState(stateData: any): GameInstance {
+  const instanceId = stateData.instanceId || 'test-instance';
+  const hostId = stateData.hostId || stateData.registeredUsers?.[0]?.id;
+
+  const game = new GameInstance(instanceId, hostId);
+
+  // Assign standard properties
+  Object.assign(game, stateData);
+
+  // Assign complex fields and Sets
+  if (stateData.registeredUsers) {
+    const registeredUserIds = stateData.registeredUsers.map((u: any) => (typeof u === 'string' ? u : u.id));
+    game.registeredUsers = new Set(registeredUserIds);
+  }
+
+  if (stateData.readyUserIds) {
+    game.readyUsers = new Set(stateData.readyUserIds);
+  }
+
+  if (stateData.settings?.enabledJokers) {
+    game.settings = {
+      ...game.settings,
+      enabledJokers: new Set(stateData.settings.enabledJokers),
+    };
+  }
+
+  if (stateData.leaderboard) {
+    game.leaderboard = Leaderboard.fromJSON(stateData.leaderboard);
+  }
+
+  return game;
+}
