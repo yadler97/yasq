@@ -3,7 +3,7 @@ import { useEffect, useState } from 'preact/hooks';
 
 import * as backend from '../utils/backend';
 import { auth, discordSdk, gameState, participants } from '../main';
-import { findUser } from '../utils/helper';
+import { findUser, getGameDuration } from '../utils/helper';
 import { getAvatarUrl, getDisplayName } from '@yasq/shared';
 import { RoundBubblesGroup } from '../components/RoundBubble';
 import { DiscordAvatar } from '../components/DiscordAvatar';
@@ -75,7 +75,6 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
 
   // Helper values extracted from gameStats
   const stats = gameStats.value;
-  const durationMinutes = stats.startTime && stats.endTime ? Math.floor((stats.endTime - stats.startTime) / 60000) : 0;
   const highestStreakUser = stats.highestStreak ? findUser(participants.value, stats.highestStreak.userId) : null;
   const highestPoints = stats.bestScoringRound
     ? stats.bestScoringRound.roundResults.reduce((sum: number, r: any) => sum + (r.points || 0), 0)
@@ -139,7 +138,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
         <div style={{ display: 'flex', justifyContent: 'space-around', gap: '15px', textAlign: 'center' }}>
           <div>
             <span style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8 }}>Duration</span>
-            <strong>{durationMinutes} mins</strong>
+            <strong>{getGameDuration(stats.startTime, stats.endTime)}</strong>
           </div>
           <div>
             <span style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8 }}>Highest Streak</span>
@@ -150,7 +149,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
           <div>
             <span style={{ display: 'block', fontSize: '0.8rem', opacity: 0.8 }}>Best Round</span>
             <strong>
-              {stats.bestScoringRound ? `Round ${stats.bestScoringRound.trackInfo?.roundNumber || 'N/A'}` : 'N/A'}
+              {stats.bestScoringRound ? `Round ${stats.bestScoringRound.roundResults[0].round || 'N/A'}` : 'N/A'}
             </strong>
             <span style={{ display: 'block' }}>{highestPoints} pts</span>
           </div>
