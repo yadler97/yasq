@@ -1540,6 +1540,12 @@ input[value='1']:checked + .btn-radio.correct {
   opacity: 0.7;
 }
 
+.rolling-number {
+  display: inline-block;
+  min-width: 3ch;
+  font-variant-numeric: tabular-nums;
+}
+
 .final-leaderboard {
   margin: 0 auto;
   padding: var(--space-large);
