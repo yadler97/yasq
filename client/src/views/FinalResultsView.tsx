@@ -9,6 +9,7 @@ import { RoundBubblesGroup } from '../components/RoundBubble';
 import { DiscordAvatar } from '../components/DiscordAvatar';
 import { ReadyButton } from '../components/ReadyButton';
 import { GameStatsSummary } from '../components/GameStatsSummary';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
@@ -78,6 +79,10 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const lastItemDelay = totalPlayers > 0 ? (totalPlayers - 1) * 1.5 : 0;
   const animationBuffer = 1.2; // Time for the last card's wrapper/fade animation to finish
   const statsAndControlsAnimationDelay = totalPlayers > 0 ? lastItemDelay + animationBuffer : 0;
+
+  if (leaderboard.value.length === 0) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="final-leaderboard centered">

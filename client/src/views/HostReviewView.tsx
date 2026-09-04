@@ -9,6 +9,7 @@ import { ReviewData } from '../utils/types';
 import { getAvatarUrl, getDisplayName } from '@yasq/shared';
 import { DiscordAvatar } from '../components/DiscordAvatar';
 import { TooltipDiv } from '../components/Tooltip';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const reviewData = useSignal<ReviewData | null>(null);
@@ -38,11 +39,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   }
 
   if (!reviewData.value) {
-    return (
-      <div className="centered">
-        <div className="loading-spinner"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   const handleSubmit = async (e: MouseEvent) => {

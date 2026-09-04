@@ -1751,7 +1751,6 @@ input[value='1']:checked + .btn-radio.correct {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 500px;
   opacity: 0;
   animation: fadeInStats 0.6s ease-out forwards;
 }
@@ -1764,6 +1763,8 @@ input[value='1']:checked + .btn-radio.correct {
 
 .game-stats {
   width: 100%;
+  max-width: 500px;
+  margin: auto;
   border-radius: var(--border-radius-medium);
   padding-bottom: var(--space-small);
   margin-bottom: var(--space-large);
@@ -2259,6 +2260,7 @@ input[value='1']:checked + .btn-radio.correct {
   margin-bottom: var(--space-large);
   display: flex;
   gap: var(--space-large);
+  justify-content: center;
 }
 
 .badge {
