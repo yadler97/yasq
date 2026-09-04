@@ -20,10 +20,12 @@ const CUSTOM_SETTINGS = {
 
 test.use({
   sessionConfig: {
-    state: GameState.LOBBY,
     playerCount: 3,
     userIndex: 0,
-    sessionData: { settings: CUSTOM_SETTINGS },
+    sessionData: {
+      state: GameState.LOBBY,
+      settings: CUSTOM_SETTINGS,
+    },
   },
 });
 

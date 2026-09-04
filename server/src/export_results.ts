@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import { getAvatarUrl, getDisplayName, type Participant } from '@yasq/shared';
-import type { Leaderboard, LeaderboardEntry, RoundResult } from './models.js';
+import type { Leaderboard, LeaderboardEntry, RoundResult } from './models/leaderboard.js';
 import { logger } from './utils/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);

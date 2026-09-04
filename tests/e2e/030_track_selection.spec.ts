@@ -1,15 +1,12 @@
-import { GameState } from '@yasq/shared';
 import { expect, test } from './test_setup.js';
 import AxeBuilder from '@axe-core/playwright';
+import sessionData from '../../mock_data/fixtures/track_selection.json';
 
 test.use({
   sessionConfig: {
-    state: GameState.TRACK_SELECTION,
     playerCount: 3,
     userIndex: 0,
-    sessionData: {
-      trackHistory: ['track003.mp3'],
-    },
+    sessionData: sessionData,
   },
 });
 

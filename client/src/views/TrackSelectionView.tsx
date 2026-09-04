@@ -16,6 +16,7 @@ import {
   SortOption,
 } from '../utils/trackFiltering';
 import { Playlist } from '@yasq/shared';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 const selectedPlaylistName = signal<string>('All playlists');
 const selectedTags = signal<Record<string, string[]>>({});
@@ -99,11 +100,7 @@ export const TrackSelectionView = ({ isHost }: { isHost: boolean }) => {
   }
 
   if (tracks.value === null) {
-    return (
-      <div className="centered">
-        <div className="loading-spinner"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (

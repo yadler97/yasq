@@ -8,9 +8,12 @@ import { getAvatarUrl, getDisplayName } from '@yasq/shared';
 import { RoundBubblesGroup } from '../components/RoundBubble';
 import { DiscordAvatar } from '../components/DiscordAvatar';
 import { ReadyButton } from '../components/ReadyButton';
+import { GameStatsSummary } from '../components/GameStatsSummary';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
+  const gameStats = useSignal<any>({});
   const [canExport, setCanExport] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
@@ -21,6 +24,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   useEffect(() => {
     backend.getFinalResults(discordSdk.instanceId).then(data => {
       leaderboard.value = data.leaderboard;
+      gameStats.value = data.gameStats;
       setCanExport(data.canExport);
     });
   }, []);
@@ -71,6 +75,15 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
     await backend.restartGame(auth.value.access_token, discordSdk.instanceId);
   };
 
+  const totalPlayers = leaderboard.value.length;
+  const lastItemDelay = totalPlayers > 0 ? (totalPlayers - 1) * 1.5 : 0;
+  const animationBuffer = 1.2; // Time for the last card's wrapper/fade animation to finish
+  const statsAndControlsAnimationDelay = totalPlayers > 0 ? lastItemDelay + animationBuffer : 0;
+
+  if (leaderboard.value.length === 0) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="final-leaderboard centered">
       <h1 className="results-title">🏆 Final Results</h1>
@@ -79,8 +92,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
         {leaderboard.value.map((player, index) => {
           const user = findUser(participants.value, player.userId);
 
-          const total = leaderboard.value.length;
-          const staggerIndex = total - 1 - index;
+          const staggerIndex = totalPlayers - 1 - index;
           const delay = staggerIndex * 1.5;
           const isWinner = index === 0;
 
@@ -124,66 +136,76 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
         })}
       </div>
 
-      {isHost ? (
-        <div>
-          {canExport && (
-            <div className="export-section">
-              <button
-                onClick={handleDownload}
-                disabled={isDownloading}
-              >
-                {isDownloading ? 'Downloading...' : '📥 Download Results Image'}
-              </button>
+      <div
+        className="stats-and-controls"
+        style={{ animationDelay: `${statsAndControlsAnimationDelay}s` }}
+      >
+        <GameStatsSummary
+          stats={gameStats.value}
+          participants={participants.value}
+        />
 
-              <select
-                value={selectedChannel}
-                disabled={channels.length === 0 || isPosting || hasPosted}
-                onChange={e => {
-                  const target = e.target as HTMLSelectElement;
-                  setSelectedChannel(target.value);
-                }}
-              >
-                {channels.length === 0 ? (
-                  <option value="">No channels available</option>
-                ) : (
-                  <>
-                    <option value="">Select a channel...</option>
-                    {channels.map(channel => (
-                      <option
-                        key={channel.id}
-                        value={channel.id}
-                      >
-                        {channel.category ? `${channel.category} > ` : ''}#{channel.name}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
+        {isHost ? (
+          <div>
+            {canExport && (
+              <div className="export-section">
+                <button
+                  onClick={handleDownload}
+                  disabled={isDownloading}
+                >
+                  {isDownloading ? 'Downloading...' : '📥 Download Results Image'}
+                </button>
 
-              <button
-                onClick={handlePostToChannel}
-                disabled={isPosting || hasPosted || !selectedChannel}
-              >
-                {hasPosted
-                  ? '✅ Posted to Channel'
-                  : isPosting
-                    ? 'Posting to Discord...'
-                    : '💬 Post Directly to Channel'}
-              </button>
-            </div>
-          )}
+                <select
+                  value={selectedChannel}
+                  disabled={channels.length === 0 || isPosting || hasPosted}
+                  onChange={e => {
+                    const target = e.target as HTMLSelectElement;
+                    setSelectedChannel(target.value);
+                  }}
+                >
+                  {channels.length === 0 ? (
+                    <option value="">No channels available</option>
+                  ) : (
+                    <>
+                      <option value="">Select a channel...</option>
+                      {channels.map(channel => (
+                        <option
+                          key={channel.id}
+                          value={channel.id}
+                        >
+                          {channel.category ? `${channel.category} > ` : ''}#{channel.name}
+                        </option>
+                      ))}
+                    </>
+                  )}
+                </select>
 
-          <button
-            id="btn-restart"
-            disabled={!allPlayersReady}
-            onClick={handleRestart}
-          >
-            {allPlayersReady ? 'Play Again' : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
-          </button>
-        </div>
-      ) : (
-        <ReadyButton promptText={'Ready for New Game'} />
-      )}
+                <button
+                  onClick={handlePostToChannel}
+                  disabled={isPosting || hasPosted || !selectedChannel}
+                >
+                  {hasPosted
+                    ? '✅ Posted to Channel'
+                    : isPosting
+                      ? 'Posting to Discord...'
+                      : '💬 Post Directly to Channel'}
+                </button>
+              </div>
+            )}
+
+            <button
+              id="btn-restart"
+              disabled={!allPlayersReady}
+              onClick={handleRestart}
+            >
+              {allPlayersReady ? 'Play Again' : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
+            </button>
+          </div>
+        ) : (
+          <ReadyButton promptText={'Ready for New Game'} />
+        )}
+      </div>
     </div>
   );
 };

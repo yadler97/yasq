@@ -10,6 +10,7 @@ import { NonDraggableImg } from '../components/NonDraggableImg';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import { DiscordAvatar } from '../components/DiscordAvatar';
 import { TooltipDiv, WithTooltip } from '../components/Tooltip';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 type JokerHint =
   | { type: Joker.OBFUSCATION; data: string }
@@ -302,9 +303,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
               <h2>Waiting for players to submit their guesses...</h2>
             </div>
           ) : (
-            <div className="centered">
-              <div className="loading-spinner"></div>
-            </div>
+            <LoadingSpinner />
           )}
         </div>
       ) : (

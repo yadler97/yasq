@@ -1,20 +1,12 @@
 import { expect, test } from './test_setup.js';
-import { generatePlayers } from '../utils/helper.js';
-import mockLeaderboard from '../../mock_data/mockLeaderboard.json';
 import AxeBuilder from '@axe-core/playwright';
-import { GameState } from '@yasq/shared';
-
-const initialPlayers = generatePlayers(4);
+import sessionData from '../../mock_data/fixtures/final_results.json';
 
 test.use({
   sessionConfig: {
-    state: GameState.FINAL_RESULTS,
     playerCount: 4,
     userIndex: 1,
-    sessionData: {
-      leaderboard: mockLeaderboard,
-      lastWinnerId: initialPlayers[1].id,
-    },
+    sessionData: sessionData,
   },
 });
 

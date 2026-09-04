@@ -21,13 +21,15 @@ import {
   type TrackInfo,
 } from '@yasq/shared';
 import MersenneTwister from 'mersenne-twister';
-import { getFilePath, hash } from './helper.js';
+import { getFilePath, hash } from '../helper.js';
 import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 import fsAsync from 'fs/promises';
-import { LogCategory, logger } from './utils/logger.js';
+import { LogCategory, logger } from '../utils/logger.js';
 import { fileURLToPath } from 'url';
+import { Leaderboard, LeaderboardEntry, RoundResult, RoundSummary } from './leaderboard.js';
+import { GameStats } from './game_stats.js';
 
 export class GameInstance {
   public instanceId: string;
@@ -47,6 +49,7 @@ export class GameInstance {
   public usedJokers: Record<string, Partial<Record<Joker, number>>> = {};
   public streaks: Record<string, number> = {};
   public currentRoundLostStreaks: Record<string, number> = {};
+  public gameStats: GameStats = new GameStats();
 
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId;
@@ -77,6 +80,7 @@ export class GameInstance {
     });
     this.state = GameState.TRACK_SELECTION;
     this.currentRound = 1;
+    this.gameStats.startTime = Date.now();
   }
 
   public submitGuess(userId: string, guessText: string): { current: number; total: number } {
@@ -202,6 +206,11 @@ export class GameInstance {
 
     this.state = GameState.ROUND_RESULTS;
     this.guessedPlayers = new Set();
+
+    if (this.trackInfo !== null) {
+      this.gameStats.updateBestScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo.track);
+      this.gameStats.updateLeastScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo.track);
+    }
   }
 
   public updateStreak(userId: string, scoreMultiplier: number) {
@@ -214,6 +223,8 @@ export class GameInstance {
     } else if (scoreMultiplier === 0) {
       this.streaks[userId] = 0;
     }
+
+    this.gameStats.updateHighestStreak(userId, this.streaks[userId]);
   }
 
   public calculateLostStreaks(): Record<string, number> {
@@ -303,6 +314,7 @@ export class GameInstance {
       this.state = GameState.FINAL_RESULTS;
       this.leaderboard.sort();
       this.lastWinnerId = this.leaderboard.getWinnerId();
+      this.gameStats.endTime = Date.now();
     } else {
       this.state = GameState.TRACK_SELECTION;
       this.currentRound += 1;
@@ -437,7 +449,7 @@ export class GameInstance {
 
   public temporaryDirectory(createIfAbsent: boolean = false): string {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const instanceTempDir = path.join(__dirname, '..', STATIC_FILES_DIR, TEMP_FILES_DIR, this.instanceId);
+    const instanceTempDir = path.join(__dirname, '..', '..', STATIC_FILES_DIR, TEMP_FILES_DIR, this.instanceId);
 
     if (createIfAbsent && !fs.existsSync(instanceTempDir)) {
       fs.mkdirSync(instanceTempDir, {
@@ -566,137 +578,4 @@ export class UserGuess {
     public timeTaken: number,
     public scoreValue: number = 0
   ) {}
-}
-
-export class RoundResult {
-  constructor(
-    public round: number,
-    public guess: string | undefined,
-    public points: number,
-    public scoreValue: number,
-    public isFirst: boolean,
-    public time: string,
-    public awardedBonuses: PointsBonus[] = []
-  ) {}
-}
-
-export class LeaderboardEntry {
-  public userId: string;
-  public totalScore: number = 0;
-  public roundHistory: RoundResult[] = [];
-
-  constructor(userId: string) {
-    this.userId = userId;
-  }
-
-  addRound(result: RoundResult) {
-    const alreadyExists = this.roundHistory.some(r => r.round === result.round);
-    if (alreadyExists) return;
-
-    this.roundHistory.push(result);
-    this.totalScore += result.points;
-  }
-
-  static fromJSON(data: any): LeaderboardEntry {
-    const entry = new LeaderboardEntry(data.userId);
-    entry.totalScore = data.totalScore || 0;
-    entry.roundHistory = (data.roundHistory || []).map(
-      (r: any) => new RoundResult(r.round, r.guess, r.points, r.scoreValue, r.isFirst, r.time, r.awardedBonuses)
-    );
-    return entry;
-  }
-}
-
-export class RoundSummary {
-  public round: number;
-  public timeBonusSummary: TimeBonusSummary | null;
-
-  constructor(round: number) {
-    this.round = round;
-    this.timeBonusSummary = null;
-  }
-}
-
-export class Leaderboard {
-  private readonly entries: LeaderboardEntry[] = [];
-  private readonly roundSummaries: RoundSummary[] = [];
-
-  constructor(entries: LeaderboardEntry[] = [], roundSummaries: RoundSummary[] = []) {
-    this.entries = entries;
-    this.roundSummaries = roundSummaries;
-  }
-
-  public hasEntry(userId: string): boolean {
-    return this.entries.some(e => e.userId === userId);
-  }
-
-  public getEntry(userId: string): LeaderboardEntry | undefined {
-    return this.entries.find(e => e.userId === userId);
-  }
-
-  public getOrCreate(userId: string): LeaderboardEntry {
-    if (!this.hasEntry(userId)) {
-      this.addEntry(new LeaderboardEntry(userId));
-    }
-    return this.getEntry(userId)!;
-  }
-
-  // Add an entry and maintain the sorted order
-  public addEntry(entry: LeaderboardEntry): void {
-    this.entries.push(entry);
-  }
-
-  public addSummary(summary: RoundSummary): void {
-    this.roundSummaries.push(summary);
-  }
-
-  public sort(): void {
-    this.entries.sort((a, b) => b.totalScore - a.totalScore);
-  }
-
-  public getAll(): LeaderboardEntry[] {
-    return this.entries;
-  }
-
-  public getWinnerId(): string | null {
-    return this.entries[0]?.userId || null;
-  }
-
-  public getRoundOverview(round: number): { userId: string; points: number }[] {
-    return this.entries.map(entry => {
-      const roundResult = entry.roundHistory.find(r => r.round === round);
-      return {
-        userId: entry.userId,
-        points: roundResult?.points || 0,
-      };
-    });
-  }
-
-  public getRoundResults(round: number, userId?: string) {
-    const entries = userId ? this.entries.filter(e => e.userId === userId) : this.entries;
-
-    return entries
-      .map(entry => {
-        const r = entry.roundHistory.findLast(rh => rh.round === round);
-        return {
-          userId: entry.userId,
-          guess: r?.guess ?? null,
-          points: r?.points ?? null,
-          scoreValue: r?.scoreValue ?? 0.0,
-          isFirst: r?.isFirst ?? false,
-          time: r?.time ?? null,
-          awardedBonuses: r?.awardedBonuses ?? [],
-        };
-      })
-      .sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
-  }
-
-  public getRoundSummary(round: number) {
-    return this.roundSummaries.findLast(summary => summary.round === round) ?? null;
-  }
-
-  static fromJSON(data: any): Leaderboard {
-    const entries = (data?.entries || []).map((e: any) => LeaderboardEntry.fromJSON(e));
-    return new Leaderboard(entries, data?.roundSummaries || []);
-  }
 }

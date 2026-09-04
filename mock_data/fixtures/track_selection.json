@@ -2,9 +2,10 @@
   "instanceId": "123456789",
   "hostId": "0",
   "state": "TRACK_SELECTION",
+  "trackHistory": ["track003.mp3"],
   "settings": {
     "rounds": 5,
-    "trackDuration": 60000,
+    "maxGuessTime": 60000,
     "enabledJokers": ["OBFUSCATION", "TRIVIA", "MULTIPLE_CHOICE", "SPY"]
   },
   "currentRound": 1,

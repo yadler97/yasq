@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { validateToken } from '../src/helper.js';
-import type { GameInstance } from '../src/models.js';
+import type { GameInstance } from '../src/models/game_instance.js';
 import { LogCategory, logger } from '../src/utils/logger.js';
 
 declare global {

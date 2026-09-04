@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { GameInstance, LeaderboardEntry, UserGuess } from './models.js';
+import path from 'path';
+import fs from 'fs';
+
+import { GameInstance, UserGuess } from './game_instance.js';
+import { LeaderboardEntry } from './leaderboard.js';
+import { setupTempDir } from '../helper.js';
 import {
   BASE_POINTS,
   BonusType,
@@ -20,9 +25,6 @@ import {
   type Track,
   type TrackInfo,
 } from '@yasq/shared';
-import path from 'path';
-import { setupTempDir } from './helper.js';
-import fs from 'fs';
 
 const HOST = 'host_123';
 const INSTANCE_ID = 'mock_instance';

@@ -1,6 +1,8 @@
 import express from 'express';
-import { GameInstance, Leaderboard } from '../src/models.js';
 import type { Server } from 'socket.io';
+
+import { GameInstance } from '../src/models/game_instance.js';
+import { Leaderboard } from '../src/models/leaderboard.js';
 import { broadcastGameStatus } from '../src/helper.js';
 import { logger } from '../src/utils/logger.js';
 

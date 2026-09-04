@@ -5,9 +5,11 @@ import AxeBuilder from '@axe-core/playwright';
 test.describe('Host UI', () => {
   test.use({
     sessionConfig: {
-      state: GameState.LOBBY,
       playerCount: 3,
       userIndex: 0,
+      sessionData: {
+        state: GameState.LOBBY,
+      },
     },
   });
 
@@ -75,9 +77,11 @@ test.describe('Host UI', () => {
 test.describe('Player UI', () => {
   test.use({
     sessionConfig: {
-      state: GameState.LOBBY,
       playerCount: 3,
       userIndex: 1,
+      sessionData: {
+        state: GameState.LOBBY,
+      },
     },
   });
 
