@@ -24,11 +24,11 @@ export class TestApi {
   async setupSession(players: Player[], state: GameState, extraData = {}) {
     return this.http('POST', '/api/test/setup-session', {
       data: {
+        ...extraData,
         instanceId: this.instanceId,
         registeredUsers: players,
         hostId: players[0].id,
         state,
-        ...extraData,
       },
     });
   }

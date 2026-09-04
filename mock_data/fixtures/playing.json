@@ -4,7 +4,7 @@
   "state": "PLAYING",
   "settings": {
     "rounds": 5,
-    "trackDuration": 60000,
+    "maxGuessTime": 60000,
     "enabledJokers": ["OBFUSCATION", "TRIVIA", "MULTIPLE_CHOICE", "SPY"]
   },
   "currentRound": 1,

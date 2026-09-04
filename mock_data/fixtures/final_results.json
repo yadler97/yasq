@@ -4,7 +4,7 @@
   "state": "FINAL_RESULTS",
   "settings": {
     "rounds": 5,
-    "trackDuration": 60000,
+    "maxGuessTime": 60000,
     "enabledJokers": ["OBFUSCATION", "TRIVIA", "MULTIPLE_CHOICE", "SPY"]
   },
   "currentRound": 1,
@@ -14,6 +14,7 @@
     { "id": "2", "username": "MockPlayer3" },
     { "id": "3", "username": "MockPlayer4" }
   ],
+  "lastWinnerId": "1",
   "gameStats": {
     "startTime": 1690000000000,
     "endTime": 1690000300000,

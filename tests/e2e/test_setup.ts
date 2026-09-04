@@ -9,11 +9,9 @@ import { RoundCompletedPage } from './pages/RoundCompletedPage';
 import { ResultsPage } from './pages/ResultsPage';
 import { GameFinishedPage } from './pages/GameFinishedPage';
 import { Sidebar } from './pages/components/Sidebar';
-import { GameState } from '@yasq/shared';
 
 type GameOptions = {
   sessionConfig: {
-    state: GameState;
     playerCount?: number;
     userIndex?: number; // 0 for host, 1+ for regular players
     sessionData?: Record<string, any>;
@@ -33,7 +31,7 @@ type GameFixtures = {
 };
 
 export const test = base.extend<GameOptions & GameFixtures>({
-  sessionConfig: [{ state: GameState.SETUP, playerCount: 3, userIndex: 0 }, { option: true }],
+  sessionConfig: [{ playerCount: 3, userIndex: 0 }, { option: true }],
   session: [
     async ({ page, sessionConfig }, use, testInfo) => {
       const instanceId = `test-instance-${testInfo.testId}`;
@@ -52,7 +50,8 @@ export const test = base.extend<GameOptions & GameFixtures>({
       );
 
       const api = new TestApi('http://localhost:3001', instanceId);
-      await api.setupSession(players, sessionConfig.state, sessionConfig.sessionData);
+      const sessionData = sessionConfig.sessionData ?? {};
+      await api.setupSession(players, sessionData.state, sessionData);
       await page.goto('/?mock=true');
 
       // Provide players & api to tests

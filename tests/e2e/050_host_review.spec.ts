@@ -1,41 +1,12 @@
 import { expect, test } from './test_setup.js';
-import { generatePlayers } from '../utils/helper.js';
 import AxeBuilder from '@axe-core/playwright';
-import { GameState } from '@yasq/shared';
-
-const initialPlayers = generatePlayers(4);
+import sessionData from '../../mock_data/fixtures/host_review.json';
 
 test.use({
   sessionConfig: {
-    state: GameState.HOST_REVIEW,
     playerCount: 4,
     userIndex: 0,
-    sessionData: {
-      currentRound: 1,
-      trackInfo: {
-        url: 'some url',
-        track: {
-          game: 'Game A',
-          title: 'Track A',
-        },
-      },
-      guesses: {
-        1: {
-          [initialPlayers[1].id]: { text: 'Game A' },
-          [initialPlayers[2].id]: { text: 'Game A2' },
-        },
-      },
-      usedJokers: {
-        [initialPlayers[1].id]: {
-          TRIVIA: 1,
-        },
-      },
-      streaks: {
-        [initialPlayers[1].id]: 3,
-        [initialPlayers[2].id]: 5,
-        [initialPlayers[3].id]: 1,
-      },
-    },
+    sessionData: sessionData,
   },
 });
 

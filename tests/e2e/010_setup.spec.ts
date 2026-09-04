@@ -13,8 +13,10 @@ import AxeBuilder from '@axe-core/playwright';
 
 test.use({
   sessionConfig: {
-    state: GameState.SETUP,
     playerCount: 3,
+    sessionData: {
+      state: GameState.SETUP,
+    },
   },
 });
 

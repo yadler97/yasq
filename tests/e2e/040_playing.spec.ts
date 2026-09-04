@@ -1,33 +1,13 @@
-import { GameState } from '@yasq/shared';
 import { expect, test } from './test_setup.js';
 import AxeBuilder from '@axe-core/playwright';
-
-const PLAYING_SESSION_DATA = {
-  settings: {
-    rounds: 5,
-    maxGuessTime: 30_000,
-    enabledJokers: ['OBFUSCATION', 'TRIVIA', 'MULTIPLE_CHOICE', 'SPY'],
-  },
-  trackInfo: {
-    url: 'some url',
-    track: {
-      game: 'Game A',
-      title: 'Track A',
-      tags: [
-        { type: 'platform', value: 'Platform A' },
-        { type: 'release', value: '2026' },
-      ],
-    },
-  },
-};
+import sessionData from '../../mock_data/fixtures/playing.json';
 
 test.describe('Host UI', () => {
   test.use({
     sessionConfig: {
-      state: GameState.PLAYING,
       playerCount: 3,
       userIndex: 0,
-      sessionData: PLAYING_SESSION_DATA,
+      sessionData: sessionData,
     },
   });
 
@@ -67,10 +47,9 @@ test.describe('Host UI', () => {
 test.describe('Player UI', () => {
   test.use({
     sessionConfig: {
-      state: GameState.PLAYING,
       playerCount: 5,
       userIndex: 1,
-      sessionData: PLAYING_SESSION_DATA,
+      sessionData: sessionData,
     },
   });
 

@@ -1,30 +1,13 @@
 import { expect, test } from './test_setup.js';
-import mockLeaderboard from '../../mock_data/mockLeaderboard.json';
 import AxeBuilder from '@axe-core/playwright';
-import { GameState } from '@yasq/shared';
-
-const COMMON_TRACK_INFO = {
-  track: {
-    game: 'Game A',
-    title: 'Track A',
-    tags: [
-      { type: 'platform', value: 'Platform A' },
-      { type: 'release', value: '2026' },
-    ],
-  },
-};
+import sessionData from '../../mock_data/fixtures/round_results.json';
 
 test.describe('Host UI', () => {
   test.use({
     sessionConfig: {
-      state: GameState.ROUND_RESULTS,
       playerCount: 5,
       userIndex: 0,
-      sessionData: {
-        leaderboard: mockLeaderboard,
-        currentRound: 1,
-        trackInfo: COMMON_TRACK_INFO,
-      },
+      sessionData: sessionData,
     },
   });
 
@@ -34,7 +17,7 @@ test.describe('Host UI', () => {
     // Player 1 - Correct + First
     const p1 = resultsPage.getPlayerResult(0);
     await expect(p1.name).toHaveText(players[1].username);
-    await expect(p1.bubble).toHaveText('234');
+    await expect(p1.bubble).toHaveText('220');
     await expect(p1.bubble).toHaveClass(/correct/);
     await expect(p1.bubble).toHaveClass(/first/);
     await expect(p1.time).toHaveText('1.5s');
@@ -42,7 +25,7 @@ test.describe('Host UI', () => {
     // Player 2 - Correct (But not first)
     const p2 = resultsPage.getPlayerResult(1);
     await expect(p2.name).toHaveText(players[2].username);
-    await expect(p2.bubble).toHaveText('110');
+    await expect(p2.bubble).toHaveText('156');
     await expect(p2.bubble).toHaveClass(/correct/);
     await expect(p2.bubble).not.toHaveClass(/first/);
     await expect(p2.time).toHaveText('27.0s');
@@ -53,7 +36,7 @@ test.describe('Host UI', () => {
     await expect(p3.bubble).toHaveText('0');
     await expect(p3.bubble).toHaveClass(/incorrect/);
     await expect(p3.bubble).not.toHaveClass(/first/);
-    await expect(p3.time).toHaveText('30.0s');
+    await expect(p3.time).toHaveText('60.0s');
   });
 
   test('should not have any automatically detectable accessibility issues', async ({ resultsPage, page }, testInfo) => {
@@ -75,13 +58,9 @@ test.describe('Host UI', () => {
 test.describe('Player UI', () => {
   test.use({
     sessionConfig: {
-      state: GameState.ROUND_RESULTS,
       playerCount: 5,
       userIndex: 1,
-      sessionData: {
-        currentRound: 1,
-        trackInfo: COMMON_TRACK_INFO,
-      },
+      sessionData: sessionData,
     },
   });
 
