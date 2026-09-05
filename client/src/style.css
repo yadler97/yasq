@@ -1782,12 +1782,18 @@ input[value='1']:checked + .btn-radio.correct {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: var(--space-tiny);
 }
 
 .game-stat-label {
   display: block;
   font-size: 0.8rem;
   opacity: 0.8;
+}
+
+.game-stat-content {
+  display: flex;
+  gap: var(--space-small);
 }
 
 .game-stat-value {

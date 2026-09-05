@@ -1,5 +1,6 @@
-import { getDisplayName, Participant } from '@yasq/shared';
+import { getAvatarUrl, getDisplayName, Participant } from '@yasq/shared';
 import { findUser, getGameDuration } from '../utils/helper';
+import { DiscordAvatar } from './DiscordAvatar';
 
 export const GameStatsSummary = ({ stats, participants }: { stats: any; participants: Participant[] }) => {
   const highestPoints = stats.bestScoringRound
@@ -22,10 +23,9 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
     },
     {
       label: 'Highest Streak',
-      value:
-        stats.highestStreak && highestStreakUser
-          ? `${getDisplayName(highestStreakUser)} (${stats.highestStreak.streak})`
-          : 'None',
+      user: highestStreakUser,
+      value: highestStreakUser ? `${getDisplayName(highestStreakUser)}` : 'None',
+      subValue: stats.highestStreak ? `🔥 ${stats.highestStreak.streak}` : '',
     },
     {
       label: 'Best Round',
@@ -39,8 +39,8 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
     },
     {
       label: 'Fastest Correct Guess',
-      value:
-        stats.fastestCorrectGuess && fastestCorrectGuessUser ? `${getDisplayName(fastestCorrectGuessUser)}` : 'None',
+      user: fastestCorrectGuessUser,
+      value: fastestCorrectGuessUser ? `${getDisplayName(fastestCorrectGuessUser)}` : 'None',
       subValue: stats.fastestCorrectGuess
         ? `${stats.fastestCorrectGuess.roundResults.time || 'N/A'}s (Round ${stats.fastestCorrectGuess.roundResults.round || 'N/A'})`
         : '',
@@ -51,16 +51,31 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
     <div className="game-stats">
       <h2>📊 Game Highlights</h2>
       <div className="game-stats-grid">
-        {statItems.map((item, index) => (
-          <div
-            key={index}
-            className="game-stat-item"
-          >
-            <span className="game-stat-label">{item.label}</span>
-            <strong className="game-stat-value">{item.value}</strong>
-            {item.subValue && <span className="game-stat-subvalue">{item.subValue}</span>}
-          </div>
-        ))}
+        {statItems.map((item, index) => {
+          const userName = item.user ? getDisplayName(item.user) : '';
+          const avatarUrl = item.user ? getAvatarUrl(item.user) : '';
+
+          return (
+            <div
+              key={index}
+              className="game-stat-item"
+            >
+              <span className="game-stat-label">{item.label}</span>
+              <div className="game-stat-content">
+                {item.user && (
+                  <DiscordAvatar
+                    src={avatarUrl}
+                    userName={userName}
+                    tiny={true}
+                    hasTooltip={false}
+                  />
+                )}
+                <strong className="game-stat-value">{item.value}</strong>
+              </div>
+              {item.subValue && <span className="game-stat-subvalue">{item.subValue}</span>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
