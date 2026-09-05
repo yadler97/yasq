@@ -92,4 +92,39 @@ describe('GameStats', () => {
       expect(stats.leastScoringRound?.roundResults).toEqual(roundB);
     });
   });
+
+  describe('Fastest Correct Guess', () => {
+    it('should track the fully correct guess with the lowest time', () => {
+      expect(stats.fastestCorrectGuess).toBeNull();
+
+      const roundA = [
+        { userId: 'user-1', scoreValue: 0.5, time: '1.0' }, // Ignored because scoreValue is not 1
+        { userId: 'user-2', scoreValue: 1, time: '3.5' },
+        { userId: 'user-3', scoreValue: 1, time: '2.1' },
+      ] as UserRoundResult[];
+
+      const roundB = [
+        { userId: 'user-1', scoreValue: 1, time: '1.5' },
+        { userId: 'user-2', scoreValue: 0, time: '0.5' }, // Ignored because scoreValue is not 1
+        { userId: 'user-3', scoreValue: 1, time: '5.3' },
+      ] as UserRoundResult[];
+
+      const roundC = [
+        { userId: 'user-1', scoreValue: 1, time: '4.0' },
+        { userId: 'user-2', scoreValue: 1, time: '7.7' },
+        { userId: 'user-3', scoreValue: 1, time: '6.4' },
+      ] as UserRoundResult[];
+
+      stats.updateFastestCorrectGuess(roundA, mockTrack);
+      expect(stats.fastestCorrectGuess?.roundResults).toEqual(roundA[2]);
+
+      // Faster fully correct guess replaces it
+      stats.updateFastestCorrectGuess(roundB, mockTrack);
+      expect(stats.fastestCorrectGuess?.roundResults).toEqual(roundB[0]);
+
+      // Slower guess does not replace the fastest
+      stats.updateFastestCorrectGuess(roundC, mockTrack);
+      expect(stats.fastestCorrectGuess?.roundResults).toEqual(roundB[0]);
+    });
+  });
 });

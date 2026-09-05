@@ -6,7 +6,14 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
     ? stats.bestScoringRound.roundResults.reduce((sum: number, r: any) => sum + (r.points || 0), 0)
     : 0;
 
+  const leastPoints = stats.leastScoringRound
+    ? stats.leastScoringRound.roundResults.reduce((sum: number, r: any) => sum + (r.points || 0), 0)
+    : 0;
+
   const highestStreakUser = stats.highestStreak ? findUser(participants, stats.highestStreak.userId) : null;
+  const fastestCorrectGuessUser = stats.fastestCorrectGuess
+    ? findUser(participants, stats.fastestCorrectGuess.roundResults.userId)
+    : null;
 
   const statItems = [
     {
@@ -24,6 +31,19 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
       label: 'Best Round',
       value: stats.bestScoringRound ? `Round ${stats.bestScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${highestPoints} pts`,
+    },
+    {
+      label: 'Least Round',
+      value: stats.leastScoringRound ? `Round ${stats.leastScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
+      subValue: `${leastPoints} pts`,
+    },
+    {
+      label: 'Fastest Correct Guess',
+      value:
+        stats.fastestCorrectGuess && fastestCorrectGuessUser ? `${getDisplayName(fastestCorrectGuessUser)}` : 'None',
+      subValue: stats.fastestCorrectGuess
+        ? `${stats.fastestCorrectGuess.roundResults.time || 'N/A'}s (Round ${stats.fastestCorrectGuess.roundResults.round || 'N/A'})`
+        : '',
     },
   ];
 

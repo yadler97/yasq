@@ -57,6 +57,64 @@
           { "type": "release", "value": "2025" }
         ]
       }
+    },
+    "leastScoringRound": {
+      "roundResults": [
+        {
+          "userId": "1",
+          "round": 2,
+          "guess": "Game B",
+          "points": 216,
+          "scoreValue": 1.0,
+          "isFirst": true,
+          "time": "6.0"
+        },
+        {
+          "userId": "2",
+          "round": 2,
+          "guess": "Game B2",
+          "points": 75,
+          "scoreValue": 0.5,
+          "isFirst": false,
+          "time": "15.0"
+        },
+        {
+          "userId": "3",
+          "round": 2,
+          "guess": "No guess submitted",
+          "points": 0,
+          "scoreValue": 0,
+          "isFirst": false,
+          "time": "30.0"
+        }
+      ],
+      "track": {
+        "game": "Game B",
+        "title": "Track B",
+        "tags": [
+          { "type": "platform", "value": "Platform B" },
+          { "type": "release", "value": "2024" }
+        ]
+      }
+    },
+    "fastestCorrectGuess": {
+      "roundResults": {
+        "userId": "2",
+        "round": 3,
+        "guess": "Game C",
+        "points": 236,
+        "scoreValue": 1.0,
+        "isFirst": true,
+        "time": "0.5"
+      },
+      "track": {
+        "game": "Game C",
+        "title": "Track C",
+        "tags": [
+          { "type": "platform", "value": "Platform C" },
+          { "type": "release", "value": "2025" }
+        ]
+      }
     }
   },
   "leaderboard": {
