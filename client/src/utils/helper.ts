@@ -51,3 +51,11 @@ export const getGameDuration = (startTime: number | null, endTime: number | null
 
   return `${minutes}m ${seconds}s`;
 };
+
+export const isTouchDevice = (): boolean => {
+  const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  // Legacy fallback
+  const hasTouchEvents = 'ontouchstart' in window;
+
+  return isCoarsePointer || hasTouchEvents;
+};
