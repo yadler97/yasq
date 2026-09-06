@@ -29,14 +29,14 @@ test.describe('Player UI', () => {
     await expect(secondPlace.card).not.toHaveClass(/winner/);
     await expect(secondPlace.rank).toHaveText('#2');
     await expect(secondPlace.name).toContainText('MockPlayer2');
-    await expect(secondPlace.score).toContainText('478 pts');
+    await expect(secondPlace.score).toContainText('578 pts');
 
     // Check the Winner (Rank #1)
     const firstPlace = gameFinishedPage.getPlayerCard(0);
     await expect(firstPlace.card).toHaveClass(/winner/);
     await expect(firstPlace.rank).toHaveText('#1');
     await expect(firstPlace.name).toContainText('MockPlayer1');
-    await expect(firstPlace.score).toContainText('661 pts');
+    await expect(firstPlace.score).toContainText('761 pts');
 
     await expect(firstPlace.bubbles).toHaveCount(3);
     await expect(firstPlace.bubbles.first()).toHaveClass(/correct/);

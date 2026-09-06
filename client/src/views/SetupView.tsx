@@ -1,5 +1,4 @@
 import { useSignal } from '@preact/signals';
-import { Fragment } from 'preact/jsx-runtime';
 import { TargetedEvent } from 'preact';
 
 import * as backend from '../utils/backend';
@@ -24,6 +23,7 @@ import { formatBonusMultiplier } from '../utils/helper';
 import { TimeBonusPlot } from '../components/TimeBonusPlot';
 import { useTimeBonusSamples } from '../hooks/useTimeBonusSamples';
 import { WithTooltip } from '../components/Tooltip';
+import { RadioGroup } from '../components/RadioGroup';
 
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
   [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + ' (linear)',
@@ -216,64 +216,38 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
 
                 <div className="setting-item">
                   <span>First Correct Answer Bonus</span>
-                  <div
-                    id="first-bonus-group"
-                    className="button-group"
-                  >
-                    {Object.values(FirstBonusMultiplier)
+                  <RadioGroup
+                    groupId="first-bonus-group"
+                    name="first-bonus"
+                    value={firstBonusMultiplier.value}
+                    onChange={val => {
+                      firstBonusMultiplier.value = val;
+                    }}
+                    options={Object.values(FirstBonusMultiplier)
                       .filter((val): val is number => typeof val === 'number')
-                      .map(value => (
-                        <Fragment key={value}>
-                          <input
-                            type="radio"
-                            id={`first-bonus-${value}`}
-                            name="first-bonus"
-                            value={value}
-                            checked={firstBonusMultiplier.value === value}
-                            onChange={_ => {
-                              firstBonusMultiplier.value = value;
-                            }}
-                          />
-                          <label
-                            htmlFor={`first-bonus-${value}`}
-                            className={`btn-radio ${firstBonusMultiplier.value === value ? 'active' : ''}`}
-                          >
-                            {formatBonusMultiplier(value)}
-                          </label>
-                        </Fragment>
-                      ))}
-                  </div>
+                      .map(val => ({
+                        label: formatBonusMultiplier(val),
+                        value: val,
+                      }))}
+                  />
                 </div>
 
                 <div className="setting-item">
                   <span>Streak Bonus</span>
-                  <div
-                    id="streak-bonus-group"
-                    className="button-group"
-                  >
-                    {Object.values(StreakBonusMultiplier)
+                  <RadioGroup
+                    groupId="streak-bonus-group"
+                    name="streak-bonus"
+                    value={streakBonusMultiplier.value}
+                    onChange={val => {
+                      streakBonusMultiplier.value = val;
+                    }}
+                    options={Object.values(StreakBonusMultiplier)
                       .filter((val): val is number => typeof val === 'number')
-                      .map(value => (
-                        <Fragment key={value}>
-                          <input
-                            type="radio"
-                            id={`streak-bonus-${value}`}
-                            name="streak-bonus"
-                            value={value}
-                            checked={streakBonusMultiplier.value === value}
-                            onChange={_ => {
-                              streakBonusMultiplier.value = value;
-                            }}
-                          />
-                          <label
-                            htmlFor={`streak-bonus-${value}`}
-                            className={`btn-radio ${streakBonusMultiplier.value === value ? 'active' : ''}`}
-                          >
-                            {formatBonusMultiplier(value)}
-                          </label>
-                        </Fragment>
-                      ))}
-                  </div>
+                      .map(val => ({
+                        label: formatBonusMultiplier(val),
+                        value: val,
+                      }))}
+                  />
                 </div>
               </div>
             )}
