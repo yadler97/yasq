@@ -18,7 +18,7 @@
   "gameStats": {
     "startTime": 1690000000000,
     "endTime": 1690000300000,
-    "highestStreak": { "userId": "1", "streak": 3 },
+    "highestStreak": { "userIds": ["1"], "streak": 3 },
     "bestScoringRound": {
       "timeBonusSum": 191,
       "roundResults": [

@@ -6,7 +6,10 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
   const highestTimeBonus = stats.bestScoringRound?.timeBonusSum ?? 0;
   const leastTimeBonus = stats.leastScoringRound?.timeBonusSum ?? 0;
 
-  const highestStreakUser = stats.highestStreak ? findUser(participants, stats.highestStreak.userId) : null;
+  const highestStreakUsers = stats.highestStreak?.userIds
+    ? stats.highestStreak.userIds.map((id: string) => findUser(participants, id)).filter(Boolean)
+    : [];
+
   const fastestCorrectGuessUser = stats.fastestCorrectGuess
     ? findUser(participants, stats.fastestCorrectGuess.roundResults.userId)
     : null;
@@ -14,28 +17,31 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
   const statItems = [
     {
       label: 'Duration',
+      users: [],
       value: getGameDuration(stats.startTime, stats.endTime),
     },
     {
-      label: 'Highest Streak',
-      user: highestStreakUser,
-      value: highestStreakUser ? `${getDisplayName(highestStreakUser)}` : 'None',
-      subValue: stats.highestStreak ? `🔥 ${stats.highestStreak.streak}` : '',
-    },
-    {
       label: 'Best Round',
+      users: [],
       value: stats.bestScoringRound ? `Round ${stats.bestScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${highestTimeBonus} pts`,
     },
     {
       label: 'Least Round',
+      users: [],
       value: stats.leastScoringRound ? `Round ${stats.leastScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${leastTimeBonus} pts`,
     },
     {
+      label: 'Highest Streak',
+      users: highestStreakUsers,
+      value: highestStreakUsers.map((u: Participant) => getDisplayName(u)),
+      subValue: stats.highestStreak ? `🔥 ${stats.highestStreak.streak}` : '',
+    },
+    {
       label: 'Fastest Correct Guess',
-      user: fastestCorrectGuessUser,
-      value: fastestCorrectGuessUser ? `${getDisplayName(fastestCorrectGuessUser)}` : 'None',
+      users: fastestCorrectGuessUser ? [fastestCorrectGuessUser] : [],
+      value: fastestCorrectGuessUser ? [getDisplayName(fastestCorrectGuessUser)] : ['None'],
       subValue: stats.fastestCorrectGuess
         ? `${stats.fastestCorrectGuess.roundResults.time || 'N/A'}s (Round ${stats.fastestCorrectGuess.roundResults.round || 'N/A'})`
         : '',
@@ -47,8 +53,8 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
       <h2>📊 Game Highlights</h2>
       <div className="game-stats-grid">
         {statItems.map((item, index) => {
-          const userName = item.user ? getDisplayName(item.user) : '';
-          const avatarUrl = item.user ? getAvatarUrl(item.user) : '';
+          const users = item.users || [];
+          const values = Array.isArray(item.value) ? item.value : [item.value];
 
           return (
             <div
@@ -56,17 +62,31 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
               className="game-stat-item"
             >
               <span className="game-stat-label">{item.label}</span>
-              <div className="game-stat-content">
-                {item.user && (
-                  <DiscordAvatar
-                    src={avatarUrl}
-                    userName={userName}
-                    tiny={true}
-                    hasTooltip={false}
-                  />
-                )}
-                <strong className="game-stat-value">{item.value}</strong>
-              </div>
+              {users.length > 0 ? (
+                users.map((user: Participant, uIndex: number) => {
+                  const userName = getDisplayName(user);
+                  const avatarUrl = getAvatarUrl(user);
+                  const displayValue = values[uIndex] || userName;
+                  return (
+                    <div
+                      key={uIndex}
+                      className="game-stat-content"
+                    >
+                      <DiscordAvatar
+                        src={avatarUrl}
+                        userName={userName}
+                        tiny={true}
+                        hasTooltip={false}
+                      />
+                      <strong className="game-stat-value">{displayValue}</strong>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="game-stat-content">
+                  <strong className="game-stat-value">{item.value}</strong>
+                </div>
+              )}
               {item.subValue && <span className="game-stat-subvalue">{item.subValue}</span>}
             </div>
           );

@@ -4,7 +4,7 @@ import { BASE_POINTS, BonusType, type Track } from '@yasq/shared';
 export class GameStats {
   public startTime: number | null = null;
   public endTime: number | null = null;
-  public highestStreak: { userId: string; streak: number } | null = null;
+  public highestStreak: { userIds: string[]; streak: number } | null = null;
   public bestScoringRound: { roundResults: UserRoundResult[]; track: Track; timeBonusSum: number } | null = null;
   public leastScoringRound: { roundResults: UserRoundResult[]; track: Track; timeBonusSum: number } | null = null;
   public fastestCorrectGuess: { roundResults: UserRoundResult; track: Track } | null = null;
@@ -12,8 +12,16 @@ export class GameStats {
   constructor() {}
 
   public updateHighestStreak(userId: string, streak: number) {
-    if (!this.highestStreak || streak > this.highestStreak.streak) {
-      this.highestStreak = { userId, streak };
+    if (!this.highestStreak) {
+      this.highestStreak = { userIds: [userId], streak };
+    } else if (streak > this.highestStreak.streak) {
+      // New high score beats the old one
+      this.highestStreak = { userIds: [userId], streak };
+    } else if (streak === this.highestStreak.streak) {
+      // Tie found: add user to the list if they aren't already there
+      if (!this.highestStreak.userIds.includes(userId)) {
+        this.highestStreak.userIds.push(userId);
+      }
     }
   }
 

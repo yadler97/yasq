@@ -13,19 +13,23 @@ describe('GameStats', () => {
   });
 
   describe('Highest Streak', () => {
-    it('should update and retain the highest streak', () => {
+    it('should update, retain, and handle ties for the highest streak', () => {
       expect(stats.highestStreak).toBeNull();
 
       stats.updateHighestStreak('user-1', 3);
-      expect(stats.highestStreak).toEqual({ userId: 'user-1', streak: 3 });
+      expect(stats.highestStreak).toEqual({ userIds: ['user-1'], streak: 3 });
 
       // Lower streak should be ignored
       stats.updateHighestStreak('user-2', 2);
-      expect(stats.highestStreak).toEqual({ userId: 'user-1', streak: 3 });
+      expect(stats.highestStreak).toEqual({ userIds: ['user-1'], streak: 3 });
 
-      // Higher streak should replace the old one
-      stats.updateHighestStreak('user-2', 5);
-      expect(stats.highestStreak).toEqual({ userId: 'user-2', streak: 5 });
+      // Equal streak should add to the userIds array (tie)
+      stats.updateHighestStreak('user-2', 3);
+      expect(stats.highestStreak).toEqual({ userIds: ['user-1', 'user-2'], streak: 3 });
+
+      // Higher streak should replace the old ones entirely
+      stats.updateHighestStreak('user-3', 5);
+      expect(stats.highestStreak).toEqual({ userIds: ['user-3'], streak: 5 });
     });
   });
 
