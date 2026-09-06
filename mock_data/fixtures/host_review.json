@@ -30,8 +30,8 @@
   ],
   "guesses": {
     "1": {
-      "1": { "text": "Game A" },
-      "2": { "text": "Game A2" }
+      "1": { "text": "Game A", "timeTaken": 1500 },
+      "2": { "text": "Game A2", "timeTaken": 27000 }
     }
   },
   "usedJokers": {

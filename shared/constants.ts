@@ -60,6 +60,14 @@ export enum AchievementBonusType {
   HIGHEST_STREAK = 'HIGHEST_STREAK',
 }
 
+export type AchievementBonusMode = 'manual' | 'random' | 'off';
+
+export interface AchievementBonuses {
+  mode: AchievementBonusMode;
+  enabledTypes: AchievementBonusType[];
+  randomCount: number;
+}
+
 export const MAX_VOLUME: number = 0.25;
 export const DEFAULT_VOLUME_SLIDER_VAL: number = 0.5;
 export const POLLING_INTERVAL: number = 500;

@@ -5,6 +5,8 @@ import * as backend from '../utils/backend';
 import { auth, discordSdk, gameState } from '../main';
 import { ALL_JOKER_ICONS } from '../components/Icons';
 import {
+  AchievementBonusType,
+  AchievementBonuses,
   DEFAULT_ENABLED_JOKERS,
   DEFAULT_MAX_GUESS_TIME,
   DEFAULT_ROUNDS,
@@ -24,6 +26,7 @@ import { TimeBonusPlot } from '../components/TimeBonusPlot';
 import { useTimeBonusSamples } from '../hooks/useTimeBonusSamples';
 import { WithTooltip } from '../components/Tooltip';
 import { RadioGroup } from '../components/RadioGroup';
+import { AchievementBonusSettingsPanel } from '../components/AchievementBonusSettings';
 
 const HOST_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
   [TimeBonus.LINEAR]: PLAYER_TIME_BONUS_LABELS[TimeBonus.LINEAR] + ' (linear)',
@@ -47,6 +50,12 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
   const streakBonusMultiplier = useSignal<StreakBonusMultiplier>(
     gameState.value.gameSettings.streakBonusMultiplier || StreakBonusMultiplier.OFF
   );
+
+  const achievementBonuses = useSignal<AchievementBonuses>({
+    mode: 'manual',
+    enabledTypes: Object.values(AchievementBonusType),
+    randomCount: 1,
+  });
 
   const activeJokers = useSignal<Set<Joker>>(
     new Set(gameState.value.gameSettings.enabledJokers ?? DEFAULT_ENABLED_JOKERS)
@@ -87,6 +96,11 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       firstBonusMultiplier: firstBonusMultiplier.value,
       timeBonus: selectedBonus.value === OptionalTimeBonus.NONE ? null : selectedBonus.value,
       streakBonusMultiplier: streakBonusMultiplier.value,
+      achievementBonuses: {
+        mode: achievementBonuses.value.mode,
+        enabledTypes: achievementBonuses.value.mode === 'manual' ? achievementBonuses.value.enabledTypes : [],
+        randomCount: achievementBonuses.value.mode === 'random' ? achievementBonuses.value.randomCount : 0,
+      },
     };
 
     try {
@@ -248,6 +262,11 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                         value: val,
                       }))}
                   />
+                </div>
+
+                <div className="setting-item">
+                  <span>Achievement Bonus</span>
+                  <AchievementBonusSettingsPanel settingsSignal={achievementBonuses} />
                 </div>
               </div>
             )}

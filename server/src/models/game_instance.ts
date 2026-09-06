@@ -51,6 +51,7 @@ export class GameInstance {
   public streaks: Record<string, number> = {};
   public currentRoundLostStreaks: Record<string, number> = {};
   public gameStats: GameStats = new GameStats();
+  public activeAchievementBonuses: AchievementBonusType[] = [];
 
   constructor(instanceId: string, hostId: string) {
     this.instanceId = instanceId;
@@ -82,6 +83,22 @@ export class GameInstance {
     this.state = GameState.TRACK_SELECTION;
     this.currentRound = 1;
     this.gameStats.startTime = Date.now();
+    this.resolveActiveAchievementBonuses();
+  }
+
+  private resolveActiveAchievementBonuses(): void {
+    const allTypes = Object.values(AchievementBonusType);
+    const achSettings = this.settings.achievementBonuses;
+
+    if (achSettings?.mode === 'manual') {
+      this.activeAchievementBonuses = achSettings.enabledTypes ?? [];
+    } else if (achSettings?.mode === 'random') {
+      const shuffled = [...allTypes].sort(() => Math.random() - 0.5);
+      this.activeAchievementBonuses = shuffled.slice(0, achSettings.randomCount);
+    } else {
+      // 'off' (or unconfigured/default)
+      this.activeAchievementBonuses = [];
+    }
   }
 
   public submitGuess(userId: string, guessText: string): { current: number; total: number } {
@@ -313,6 +330,7 @@ export class GameInstance {
 
     if (this.currentRound >= this.settings.rounds) {
       this.state = GameState.FINAL_RESULTS;
+      this.applyAchievementBonuses();
       this.leaderboard.sort();
       this.lastWinnerId = this.leaderboard.getWinnerId();
       this.gameStats.endTime = Date.now();
@@ -370,6 +388,7 @@ export class GameInstance {
     this.currentGame += 1;
     this.usedJokers = {};
     this.streaks = {};
+    this.activeAchievementBonuses = [];
   }
 
   public canUseJoker(userId: string, jokerType: Joker): boolean {
@@ -511,17 +530,21 @@ export class GameInstance {
 
   private applyAchievementBonuses(): void {
     // 1. Fastest Correct Guess Achievement Bonus
-    const fastestUserId = this.gameStats.fastestCorrectGuess?.roundResults?.userId;
-    if (fastestUserId) {
-      const entry = this.leaderboard.getOrCreate(fastestUserId);
-      entry.addAchievementBonus(AchievementBonusType.FASTEST_CORRECT_GUESS);
+    if (this.activeAchievementBonuses.includes(AchievementBonusType.FASTEST_CORRECT_GUESS)) {
+      const fastestUserId = this.gameStats.fastestCorrectGuess?.roundResults?.userId;
+      if (fastestUserId) {
+        const entry = this.leaderboard.getOrCreate(fastestUserId);
+        entry.addAchievementBonus(AchievementBonusType.FASTEST_CORRECT_GUESS);
+      }
     }
 
     // 2. Highest Streak Achievement Bonus
-    if (this.gameStats.highestStreak?.userIds) {
-      for (const userId of this.gameStats.highestStreak.userIds) {
-        const entry = this.leaderboard.getOrCreate(userId);
-        entry.addAchievementBonus(AchievementBonusType.HIGHEST_STREAK);
+    if (this.activeAchievementBonuses.includes(AchievementBonusType.HIGHEST_STREAK)) {
+      if (this.gameStats.highestStreak?.userIds) {
+        for (const userId of this.gameStats.highestStreak.userIds) {
+          const entry = this.leaderboard.getOrCreate(userId);
+          entry.addAchievementBonus(AchievementBonusType.HIGHEST_STREAK);
+        }
       }
     }
   }

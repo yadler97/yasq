@@ -1,4 +1,6 @@
 import {
+  AchievementBonusType,
+  AchievementBonuses,
   BonusType,
   DEFAULT_ENABLED_JOKERS,
   DEFAULT_FIRST_BONUS_MULTIPLIER,
@@ -53,6 +55,7 @@ export interface GameSettingsOptions<T extends Iterable<Joker>> {
   firstBonusMultiplier?: FirstBonusMultiplier;
   timeBonus?: TimeBonus | null;
   streakBonusMultiplier?: StreakBonusMultiplier;
+  achievementBonuses?: AchievementBonuses;
 }
 
 export class GameSettings<T extends Iterable<Joker>> {
@@ -62,6 +65,7 @@ export class GameSettings<T extends Iterable<Joker>> {
   public firstBonusMultiplier: FirstBonusMultiplier;
   public timeBonus: TimeBonus | null;
   public streakBonusMultiplier: StreakBonusMultiplier;
+  public achievementBonuses: AchievementBonuses;
 
   private constructor(options: GameSettingsOptions<T> = {}) {
     this.rounds = options.rounds ?? DEFAULT_ROUNDS;
@@ -70,6 +74,11 @@ export class GameSettings<T extends Iterable<Joker>> {
     this.firstBonusMultiplier = options.firstBonusMultiplier ?? DEFAULT_FIRST_BONUS_MULTIPLIER;
     this.timeBonus = options.timeBonus ?? DEFAULT_TIME_BONUS;
     this.streakBonusMultiplier = options.streakBonusMultiplier ?? DEFAULT_STREAK_BONUS_MULTIPLIER;
+    this.achievementBonuses = options.achievementBonuses ?? {
+      mode: 'manual',
+      enabledTypes: Object.values(AchievementBonusType),
+      randomCount: 1,
+    };
   }
 
   static withJokerArray(options: GameSettingsOptions<Joker[]> = {}): GameSettings<Joker[]> {

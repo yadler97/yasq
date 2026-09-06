@@ -99,9 +99,9 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                   corrections.value = { ...corrections.value, [userId]: val };
                 }}
                 options={[
-                  { label: 'Wrong', value: 0, className: 'wrong' },
-                  { label: 'Partial', value: 0.5, className: 'partial' },
-                  { label: 'Correct', value: 1, className: 'correct' },
+                  { label: 'Wrong', value: 0, className: 'wrong', id: `wrong-${userId}` },
+                  { label: 'Partial', value: 0.5, className: 'partial', id: `partial-${userId}` },
+                  { label: 'Correct', value: 1, className: 'correct', id: `correct-${userId}` },
                 ]}
               />
             </div>

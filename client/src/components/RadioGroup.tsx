@@ -4,6 +4,7 @@ export interface RadioOption<T> {
   label: string;
   value: T;
   className?: string;
+  id?: string;
 }
 
 interface RadioGroupProps<T> {
@@ -21,21 +22,21 @@ export function RadioGroup<T extends string | number>({ name, options, value, on
       className="button-group"
     >
       {options.map(opt => {
-        const id = `${name}-${opt.value}`;
+        const inputId = opt.id || `${name}-${opt.value}`;
         const isChecked = value === opt.value;
 
         return (
           <Fragment key={String(opt.value)}>
             <input
               type="radio"
-              id={id}
+              id={inputId}
               name={name}
               value={String(opt.value)}
               checked={isChecked}
               onChange={() => onChange(opt.value)}
             />
             <label
-              htmlFor={id}
+              htmlFor={inputId}
               className={`btn-radio ${opt.className || ''} ${isChecked ? 'active' : ''}`}
             >
               {opt.label}
