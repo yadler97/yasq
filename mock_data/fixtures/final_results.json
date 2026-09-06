@@ -93,9 +93,7 @@
           "scoreValue": 1.0,
           "isFirst": false,
           "time": "27.0",
-          "awardedBonuses": [
-            { "type": "TIME_BONUS", "multiplier": 0.564 }
-          ]
+          "awardedBonuses": [{ "type": "TIME_BONUS", "multiplier": 0.564 }]
         },
         {
           "userId": "3",
@@ -198,9 +196,7 @@
             "scoreValue": 1.0,
             "isFirst": false,
             "time": "27.0",
-            "awardedBonuses": [
-              { "type": "TIME_BONUS", "multiplier": 0.564 }
-            ]
+            "awardedBonuses": [{ "type": "TIME_BONUS", "multiplier": 0.564 }]
           },
           {
             "round": 2,
@@ -209,9 +205,7 @@
             "scoreValue": 0.5,
             "isFirst": false,
             "time": "15.0",
-            "awardedBonuses": [
-              { "type": "TIME_BONUS", "multiplier": 0.833 }
-            ]
+            "awardedBonuses": [{ "type": "TIME_BONUS", "multiplier": 0.833 }]
           },
           {
             "round": 3,
