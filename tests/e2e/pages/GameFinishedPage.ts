@@ -5,6 +5,8 @@ export class GameFinishedPage extends BasePage {
   readonly playerCards: Locator;
   readonly readyBtn: Locator;
   readonly restartBtn: Locator;
+  readonly gameStats: Locator;
+  readonly statItems: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -12,6 +14,8 @@ export class GameFinishedPage extends BasePage {
     this.playerCards = page.locator('.player-card');
     this.readyBtn = page.locator('#btn-ready');
     this.restartBtn = page.locator('#btn-restart');
+    this.gameStats = page.locator('.game-stats');
+    this.statItems = this.gameStats.locator('.game-stat-item');
   }
 
   getPlayerCard(index: number) {
@@ -24,6 +28,17 @@ export class GameFinishedPage extends BasePage {
       bubbles: card.locator('.round-bubble'),
       // Helper to filter bubbles by status class
       getBubbles: (status: 'correct' | 'incorrect') => card.locator(`.round-bubble.${status}`),
+    };
+  }
+
+  getStatItem(index: number) {
+    const item = this.statItems.nth(index);
+    return {
+      item,
+      label: item.locator('.game-stat-label'),
+      value: item.locator('.game-stat-value'),
+      subValue: item.locator('.game-stat-subvalue'),
+      avatar: item.locator('img'),
     };
   }
 }

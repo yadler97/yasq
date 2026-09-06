@@ -3,13 +3,8 @@ import { findUser, getGameDuration } from '../utils/helper';
 import { DiscordAvatar } from './DiscordAvatar';
 
 export const GameStatsSummary = ({ stats, participants }: { stats: any; participants: Participant[] }) => {
-  const highestPoints = stats.bestScoringRound
-    ? stats.bestScoringRound.roundResults.reduce((sum: number, r: any) => sum + (r.points || 0), 0)
-    : 0;
-
-  const leastPoints = stats.leastScoringRound
-    ? stats.leastScoringRound.roundResults.reduce((sum: number, r: any) => sum + (r.points || 0), 0)
-    : 0;
+  const highestTimeBonus = stats.bestScoringRound?.timeBonusSum ?? 0;
+  const leastTimeBonus = stats.leastScoringRound?.timeBonusSum ?? 0;
 
   const highestStreakUser = stats.highestStreak ? findUser(participants, stats.highestStreak.userId) : null;
   const fastestCorrectGuessUser = stats.fastestCorrectGuess
@@ -30,12 +25,12 @@ export const GameStatsSummary = ({ stats, participants }: { stats: any; particip
     {
       label: 'Best Round',
       value: stats.bestScoringRound ? `Round ${stats.bestScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
-      subValue: `${highestPoints} pts`,
+      subValue: `${highestTimeBonus} pts`,
     },
     {
       label: 'Least Round',
       value: stats.leastScoringRound ? `Round ${stats.leastScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
-      subValue: `${leastPoints} pts`,
+      subValue: `${leastTimeBonus} pts`,
     },
     {
       label: 'Fastest Correct Guess',

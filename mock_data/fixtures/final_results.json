@@ -20,24 +20,34 @@
     "endTime": 1690000300000,
     "highestStreak": { "userId": "1", "streak": 3 },
     "bestScoringRound": {
+      "timeBonusSum": 191,
       "roundResults": [
         {
           "userId": "1",
           "round": 3,
           "guess": "Game C",
-          "points": 135,
+          "points": 211,
           "scoreValue": 1.0,
           "isFirst": false,
-          "time": "6.0"
+          "time": "6.0",
+          "awardedBonuses": [
+            { "type": "TIME_BONUS", "multiplier": 0.908 },
+            { "type": "STREAK_BONUS", "multiplier": 0.2 }
+          ]
         },
         {
           "userId": "2",
           "round": 3,
           "guess": "Game C",
-          "points": 236,
+          "points": 230,
           "scoreValue": 1.0,
           "isFirst": true,
-          "time": "0.5"
+          "time": "0.5",
+          "awardedBonuses": [
+            { "type": "TIME_BONUS", "multiplier": 1.0 },
+            { "type": "FIRST_BONUS", "multiplier": 0.2 },
+            { "type": "STREAK_BONUS", "multiplier": 0.1 }
+          ]
         },
         {
           "userId": "3",
@@ -46,7 +56,8 @@
           "points": 0,
           "scoreValue": 0,
           "isFirst": false,
-          "time": "30.0"
+          "time": "60.0",
+          "awardedBonuses": []
         }
       ],
       "track": {
@@ -59,41 +70,50 @@
       }
     },
     "leastScoringRound": {
+      "timeBonusSum": 156,
       "roundResults": [
         {
           "userId": "1",
-          "round": 2,
-          "guess": "Game B",
-          "points": 216,
+          "round": 1,
+          "guess": "Game A",
+          "points": 220,
           "scoreValue": 1.0,
           "isFirst": true,
-          "time": "6.0"
+          "time": "1.5",
+          "awardedBonuses": [
+            { "type": "TIME_BONUS", "multiplier": 1.0 },
+            { "type": "FIRST_BONUS", "multiplier": 0.2 }
+          ]
         },
         {
           "userId": "2",
-          "round": 2,
-          "guess": "Game B2",
-          "points": 75,
-          "scoreValue": 0.5,
+          "round": 1,
+          "guess": "Game A",
+          "points": 156,
+          "scoreValue": 1.0,
           "isFirst": false,
-          "time": "15.0"
+          "time": "27.0",
+          "awardedBonuses": [
+            { "type": "TIME_BONUS", "multiplier": 0.564 }
+          ]
         },
         {
           "userId": "3",
-          "round": 2,
+          "round": 1,
           "guess": "No guess submitted",
           "points": 0,
           "scoreValue": 0,
           "isFirst": false,
-          "time": "30.0"
+          "time": "60.0",
+          "awardedBonuses": []
         }
       ],
       "track": {
-        "game": "Game B",
-        "title": "Track B",
+        "game": "Game A",
+        "title": "Track A",
         "tags": [
-          { "type": "platform", "value": "Platform B" },
-          { "type": "release", "value": "2024" }
+          { "type": "platform", "value": "Platform A" },
+          { "type": "release", "value": "2023" }
         ]
       }
     },
@@ -102,10 +122,15 @@
         "userId": "2",
         "round": 3,
         "guess": "Game C",
-        "points": 236,
+        "points": 230,
         "scoreValue": 1.0,
         "isFirst": true,
-        "time": "0.5"
+        "time": "0.5",
+        "awardedBonuses": [
+          { "type": "TIME_BONUS", "multiplier": 1.0 },
+          { "type": "FIRST_BONUS", "multiplier": 0.2 },
+          { "type": "STREAK_BONUS", "multiplier": 0.1 }
+        ]
       },
       "track": {
         "game": "Game C",
@@ -121,61 +146,85 @@
     "entries": [
       {
         "userId": "1",
-        "totalScore": 585,
+        "totalScore": 661,
         "roundHistory": [
           {
             "round": 1,
             "guess": "Game A",
-            "points": 234,
+            "points": 220,
             "scoreValue": 1.0,
             "isFirst": true,
-            "time": "1.5"
+            "time": "1.5",
+            "awardedBonuses": [
+              { "type": "TIME_BONUS", "multiplier": 1.0 },
+              { "type": "FIRST_BONUS", "multiplier": 0.2 }
+            ]
           },
           {
             "round": 2,
             "guess": "Game B",
-            "points": 216,
+            "points": 230,
             "scoreValue": 1.0,
             "isFirst": true,
-            "time": "6.0"
+            "time": "6.0",
+            "awardedBonuses": [
+              { "type": "TIME_BONUS", "multiplier": 1.0 },
+              { "type": "FIRST_BONUS", "multiplier": 0.2 },
+              { "type": "STREAK_BONUS", "multiplier": 0.1 }
+            ]
           },
           {
             "round": 3,
             "guess": "Game C",
-            "points": 135,
+            "points": 211,
             "scoreValue": 1.0,
             "isFirst": false,
-            "time": "6.0"
+            "time": "6.0",
+            "awardedBonuses": [
+              { "type": "TIME_BONUS", "multiplier": 0.908 },
+              { "type": "STREAK_BONUS", "multiplier": 0.2 }
+            ]
           }
         ]
       },
       {
         "userId": "2",
-        "totalScore": 421,
+        "totalScore": 478,
         "roundHistory": [
           {
             "round": 1,
             "guess": "Game A",
-            "points": 110,
+            "points": 156,
             "scoreValue": 1.0,
             "isFirst": false,
-            "time": "27.0"
+            "time": "27.0",
+            "awardedBonuses": [
+              { "type": "TIME_BONUS", "multiplier": 0.564 }
+            ]
           },
           {
             "round": 2,
             "guess": "Game B2",
-            "points": 75,
+            "points": 92,
             "scoreValue": 0.5,
             "isFirst": false,
-            "time": "15.0"
+            "time": "15.0",
+            "awardedBonuses": [
+              { "type": "TIME_BONUS", "multiplier": 0.833 }
+            ]
           },
           {
             "round": 3,
             "guess": "Game C",
-            "points": 236,
+            "points": 230,
             "scoreValue": 1.0,
             "isFirst": true,
-            "time": "0.5"
+            "time": "0.5",
+            "awardedBonuses": [
+              { "type": "TIME_BONUS", "multiplier": 1.0 },
+              { "type": "FIRST_BONUS", "multiplier": 0.2 },
+              { "type": "STREAK_BONUS", "multiplier": 0.1 }
+            ]
           }
         ]
       },
@@ -189,7 +238,8 @@
             "points": 0,
             "scoreValue": 0,
             "isFirst": false,
-            "time": "30.0"
+            "time": "60.0",
+            "awardedBonuses": []
           },
           {
             "round": 2,
@@ -197,7 +247,8 @@
             "points": 0,
             "scoreValue": 0,
             "isFirst": false,
-            "time": "30.0"
+            "time": "60.0",
+            "awardedBonuses": []
           },
           {
             "round": 3,
@@ -205,7 +256,8 @@
             "points": 0,
             "scoreValue": 0,
             "isFirst": false,
-            "time": "30.0"
+            "time": "60.0",
+            "awardedBonuses": []
           }
         ]
       }
