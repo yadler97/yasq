@@ -276,6 +276,12 @@ img {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
+.achievement-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-small);
+}
+
 input[type='text'],
 input[type='number'],
 select {

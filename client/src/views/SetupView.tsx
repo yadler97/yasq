@@ -51,11 +51,13 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     gameState.value.gameSettings.streakBonusMultiplier || StreakBonusMultiplier.OFF
   );
 
-  const achievementBonuses = useSignal<AchievementBonuses>({
-    mode: 'manual',
-    enabledTypes: Object.values(AchievementBonusType),
-    randomCount: 1,
-  });
+  const achievementBonuses = useSignal<AchievementBonuses>(
+    gameState.value.gameSettings.achievementBonuses || {
+      mode: 'manual',
+      enabledTypes: Object.values(AchievementBonusType),
+      randomCount: 1,
+    }
+  );
 
   const activeJokers = useSignal<Set<Joker>>(
     new Set(gameState.value.gameSettings.enabledJokers ?? DEFAULT_ENABLED_JOKERS)
