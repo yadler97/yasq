@@ -145,6 +145,7 @@
       {
         "userId": "1",
         "totalScore": 661,
+        "achievementBonuses": ["HIGHEST_STREAK"],
         "roundHistory": [
           {
             "round": 1,
@@ -188,6 +189,7 @@
       {
         "userId": "2",
         "totalScore": 478,
+        "achievementBonuses": ["FASTEST_CORRECT_GUESS"],
         "roundHistory": [
           {
             "round": 1,

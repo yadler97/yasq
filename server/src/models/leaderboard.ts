@@ -1,4 +1,9 @@
-import type { PointsBonus, TimeBonusSummary } from '@yasq/shared';
+import {
+  ACHIEVEMENT_BONUS_POINTS,
+  type AchievementBonusType,
+  type PointsBonus,
+  type TimeBonusSummary,
+} from '@yasq/shared';
 
 export class RoundResult {
   constructor(
@@ -20,6 +25,7 @@ export class LeaderboardEntry {
   public userId: string;
   public totalScore: number = 0;
   public roundHistory: RoundResult[] = [];
+  public achievementBonuses: Set<AchievementBonusType> = new Set();
 
   constructor(userId: string) {
     this.userId = userId;
@@ -30,15 +36,34 @@ export class LeaderboardEntry {
     if (alreadyExists) return;
 
     this.roundHistory.push(result);
-    this.totalScore += result.points || 0;
+    this.recalculateTotal();
+  }
+
+  addAchievementBonus(type: AchievementBonusType) {
+    this.achievementBonuses.add(type);
+    this.recalculateTotal();
+  }
+
+  private recalculateTotal() {
+    const roundPoints = this.roundHistory.reduce((sum, r) => sum + (r.points || 0), 0);
+    const achievementPoints = this.achievementBonuses.size * ACHIEVEMENT_BONUS_POINTS;
+    this.totalScore = roundPoints + achievementPoints;
+  }
+
+  toJSON() {
+    return {
+      ...this,
+      achievementBonuses: Array.from(this.achievementBonuses),
+    };
   }
 
   static fromJSON(data: any): LeaderboardEntry {
     const entry = new LeaderboardEntry(data.userId);
-    entry.totalScore = data.totalScore || 0;
     entry.roundHistory = (data.roundHistory || []).map(
       (r: any) => new RoundResult(r.round, r.guess, r.points, r.scoreValue, r.isFirst, r.time, r.awardedBonuses)
     );
+    entry.achievementBonuses = new Set(data.achievementBonuses || []);
+    entry.recalculateTotal();
     return entry;
   }
 }

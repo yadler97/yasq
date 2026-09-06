@@ -1669,6 +1669,14 @@ input[value='1']:checked + .btn-radio.correct {
   color: #43b581;
 }
 
+.player-achievements {
+  display: flex;
+  gap: var(--space-tiny);
+  align-items: center;
+  margin-left: auto;
+  margin-right: var(--space-small);
+}
+
 .history-grid {
   margin-top: var(--space-small);
   padding-top: var(--space-small);

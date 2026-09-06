@@ -58,24 +58,24 @@ test.describe('Player UI', () => {
     await expect(durationItem.label).toHaveText('Duration');
     await expect(durationItem.value).toHaveText('5m 0s');
 
-    // 2. Highest Streak
-    const streakItem = gameFinishedPage.getStatItem(1);
-    await expect(streakItem.label).toHaveText('Highest Streak');
-    await expect(streakItem.value).toContainText('MockPlayer1');
-    await expect(streakItem.subValue).toContainText('3');
-    await expect(streakItem.avatar).toBeVisible();
-
-    // 3. Best Round
-    const bestRoundItem = gameFinishedPage.getStatItem(2);
+    // 2. Best Round
+    const bestRoundItem = gameFinishedPage.getStatItem(1);
     await expect(bestRoundItem.label).toHaveText('Best Round');
     await expect(bestRoundItem.value).toHaveText('Round 3');
     await expect(bestRoundItem.subValue).not.toBeEmpty();
 
-    // 4. Least Round
-    const leastRoundItem = gameFinishedPage.getStatItem(3);
+    // 3. Least Round
+    const leastRoundItem = gameFinishedPage.getStatItem(2);
     await expect(leastRoundItem.label).toHaveText('Least Round');
     await expect(leastRoundItem.value).toHaveText('Round 1');
     await expect(leastRoundItem.subValue).not.toBeEmpty();
+
+    // 4. Highest Streak
+    const streakItem = gameFinishedPage.getStatItem(3);
+    await expect(streakItem.label).toHaveText('Highest Streak');
+    await expect(streakItem.value).toContainText('MockPlayer1');
+    await expect(streakItem.subValue).toContainText('3');
+    await expect(streakItem.avatar).toBeVisible();
 
     // 5. Fastest Correct Guess
     const fastestItem = gameFinishedPage.getStatItem(4);

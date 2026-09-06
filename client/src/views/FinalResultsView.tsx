@@ -4,12 +4,13 @@ import { useEffect, useState } from 'preact/hooks';
 import * as backend from '../utils/backend';
 import { auth, discordSdk, gameState, participants } from '../main';
 import { findUser } from '../utils/helper';
-import { getAvatarUrl, getDisplayName } from '@yasq/shared';
+import { ACHIEVEMENT_BONUS_POINTS, getAvatarUrl, getDisplayName } from '@yasq/shared';
 import { RoundBubblesGroup } from '../components/RoundBubble';
 import { DiscordAvatar } from '../components/DiscordAvatar';
 import { ReadyButton } from '../components/ReadyButton';
 import { GameStatsSummary } from '../components/GameStatsSummary';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { TooltipDiv } from '../components/Tooltip';
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const leaderboard = useSignal<any[]>([]);
@@ -96,6 +97,8 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
           const delay = staggerIndex * 1.5;
           const isWinner = index === 0;
 
+          const achievements: string[] = player.achievementBonuses || [];
+
           return (
             <div
               key={player.userId}
@@ -120,6 +123,38 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                     {isWinner ? '👑 ' : ''}
                     {getDisplayName(user)}
                   </div>
+
+                  {achievements.length > 0 && (
+                    <div className="player-achievements">
+                      {achievements.map((achievement, aIndex) => {
+                        const points = ACHIEVEMENT_BONUS_POINTS;
+
+                        const { label, icon } = (() => {
+                          switch (achievement) {
+                            case 'HIGHEST_STREAK':
+                              return { label: 'Highest Streak', icon: '🔥' };
+                            case 'FASTEST_CORRECT_GUESS':
+                              return { label: 'Fastest Guess', icon: '⌚' };
+                            default:
+                              return { label: achievement, icon: '🏆' };
+                          }
+                        })();
+
+                        const tooltipId = `${player.userId}-${aIndex}`;
+
+                        return (
+                          <TooltipDiv
+                            id={tooltipId}
+                            text={`${label} (+${points} pts)`}
+                            className={`badge winner`}
+                          >
+                            {icon} +{points}
+                          </TooltipDiv>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   <div className="total-score">{player.totalScore} pts</div>
                 </div>
 

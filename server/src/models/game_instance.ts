@@ -1,4 +1,5 @@
 import {
+  AchievementBonusType,
   BASE_POINTS,
   BonusType,
   COUNTDOWN_DURATION,
@@ -506,6 +507,23 @@ export class GameInstance {
 
     this.hostId = remainingPlayers[0] ?? null;
     return true;
+  }
+
+  private applyAchievementBonuses(): void {
+    // 1. Fastest Correct Guess Achievement Bonus
+    const fastestUserId = this.gameStats.fastestCorrectGuess?.roundResults?.userId;
+    if (fastestUserId) {
+      const entry = this.leaderboard.getOrCreate(fastestUserId);
+      entry.addAchievementBonus(AchievementBonusType.FASTEST_CORRECT_GUESS);
+    }
+
+    // 2. Highest Streak Achievement Bonus
+    if (this.gameStats.highestStreak?.userIds) {
+      for (const userId of this.gameStats.highestStreak.userIds) {
+        const entry = this.leaderboard.getOrCreate(userId);
+        entry.addAchievementBonus(AchievementBonusType.HIGHEST_STREAK);
+      }
+    }
   }
 
   public dispose(): void {
