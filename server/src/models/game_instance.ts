@@ -226,8 +226,10 @@ export class GameInstance {
     this.guessedPlayers = new Set();
 
     if (this.trackInfo !== null) {
-      this.gameStats.updateBestScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo.track);
-      this.gameStats.updateLeastScoringRound(this.leaderboard.getRoundResults(this.currentRound), this.trackInfo.track);
+      const roundResults = this.leaderboard.getRoundResults(this.currentRound);
+      this.gameStats.updateBestScoringRound(roundResults, this.trackInfo.track);
+      this.gameStats.updateLeastScoringRound(roundResults, this.trackInfo.track);
+      this.gameStats.updateFastestCorrectGuess(roundResults, this.trackInfo.track);
     }
   }
 
@@ -388,6 +390,7 @@ export class GameInstance {
     this.currentGame += 1;
     this.usedJokers = {};
     this.streaks = {};
+    this.gameStats = new GameStats();
     this.activeAchievementBonuses = [];
   }
 
