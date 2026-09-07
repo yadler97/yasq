@@ -1699,8 +1699,7 @@ input[value='1']:checked + .btn-radio.correct {
 
 .player-main-info {
   display: grid;
-  grid-template-areas:
-    "rank avatar name score";
+  grid-template-areas: 'rank avatar name score';
   grid-template-columns: 30px auto 1fr auto;
   align-items: center;
   gap: var(--space-small);
@@ -1710,8 +1709,8 @@ input[value='1']:checked + .btn-radio.correct {
 
 .player-main-info:has(.player-achievements) {
   grid-template-areas:
-    "rank avatar name score"
-    "rank avatar achievements score";
+    'rank avatar name score'
+    'rank avatar achievements score';
   gap: var(--space-tiny) var(--space-small);
 }
 
