@@ -17,6 +17,7 @@ import {
   invalidateToken,
   isMockMode,
   setupTempDir,
+  userDataCache,
   validateToken,
 } from './src/helper.js';
 import {
@@ -304,6 +305,11 @@ function loadMockState(instances: Record<string, GameInstance>) {
     const stateData = JSON.parse(rawData);
 
     const game = setMockState(stateData);
+
+    userDataCache.clear();
+    for (const user of stateData.userData) {
+      userDataCache.set(user.id, user);
+    }
 
     instances[game.instanceId] = game;
 

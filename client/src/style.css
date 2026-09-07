@@ -440,7 +440,8 @@ select:disabled option {
 }
 
 .card-container h2,
-.hint-container h2 {
+.hint-container h2,
+.game-stats h2 {
   margin-top: 0;
   margin-bottom: 4px;
   text-align: center;
@@ -1739,6 +1740,7 @@ input[value='1']:checked + .btn-radio.correct {
   flex-wrap: wrap;
   gap: var(--space-tiny);
   align-items: center;
+  z-index: 2;
 }
 
 .total-score {
@@ -1848,6 +1850,7 @@ input[value='1']:checked + .btn-radio.correct {
   border-radius: var(--border-radius-medium);
   margin-bottom: var(--space-large);
   background: var(--bg-dark);
+  padding-top: var(--space-small);
 }
 
 .game-stats-grid {
@@ -1855,7 +1858,7 @@ input[value='1']:checked + .btn-radio.correct {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: var(--space-small);
   text-align: center;
-  padding: var(--space-tiny);
+  padding: var(--space-small);
 }
 
 .game-stat-item {

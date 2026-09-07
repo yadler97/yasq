@@ -325,7 +325,13 @@ export const setupRoutes = (
 
     if (newState === GameState.FINAL_RESULTS) {
       logger.info(instanceId, `Game ended!`, LogCategory.GAME);
-      void generateResultsImage(game.instanceId, game.temporaryDirectory(true), game.leaderboard, userDataCache);
+      void generateResultsImage(
+        game.instanceId,
+        game.temporaryDirectory(true),
+        game.leaderboard,
+        userDataCache,
+        game.gameStats
+      );
       logger.debug(
         instanceId,
         `Final leaderboard: ${JSON.stringify(game.leaderboard.getAll(), null, 2)}`,
@@ -495,12 +501,21 @@ export const setupRoutes = (
     });
   });
 
-  router.get('/download-results', (req, res) => {
+  router.get('/download-results', fetchGame, async (req, res) => {
     const { instanceId } = req.query as InstanceQuery;
 
     const filePath = path.join(__dirname, '..', STATIC_FILES_DIR, TEMP_FILES_DIR, `${instanceId}/results.png`);
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Results image has not been generated yet.' });
+      const game = req.game!;
+      console.log(`userDataCache:`, userDataCache);
+      await generateResultsImage(
+        game.instanceId,
+        game.temporaryDirectory(true),
+        game.leaderboard,
+        userDataCache,
+        game.gameStats
+      );
+      // return res.status(404).json({ error: 'Results image has not been generated yet.' });
     }
 
     res.download(filePath, `yasq-results.png`, err => {
