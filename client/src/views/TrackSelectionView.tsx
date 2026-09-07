@@ -160,7 +160,6 @@ export const TrackSelectionView = ({ isHost }: { isHost: boolean }) => {
           <input
             type="checkbox"
             id="hide-played"
-            className="hide-played-checkbox"
             checked={hidePlayed.value}
             onChange={e => (hidePlayed.value = (e.currentTarget as HTMLInputElement).checked)}
             onKeyDown={e => {
@@ -170,7 +169,7 @@ export const TrackSelectionView = ({ isHost }: { isHost: boolean }) => {
               }
             }}
           />
-          Hide played tracks
+          <span>Hide played tracks</span>
         </label>
       </div>
 

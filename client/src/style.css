@@ -282,6 +282,18 @@ img {
   gap: var(--space-small);
 }
 
+.achievement-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-tiny);
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-small);
+}
+
 input[type='text'],
 input[type='number'],
 select {
@@ -301,7 +313,7 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-.hide-played-checkbox {
+input[type='checkbox'] {
   appearance: none;
   -webkit-appearance: none;
 
@@ -318,14 +330,14 @@ button:focus-visible {
   place-content: center;
   vertical-align: middle;
 }
-.hide-played-checkbox:hover {
+input[type='checkbox']:hover {
   border-color: var(--blurple);
 }
-.hide-played-checkbox:checked {
+input[type='checkbox']:checked {
   background-color: var(--blurple);
   border-color: var(--blurple);
 }
-.hide-played-checkbox:checked::after {
+input[type='checkbox']:checked::after {
   content: '';
   width: 10px;
   height: 10px;

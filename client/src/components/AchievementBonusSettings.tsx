@@ -40,7 +40,7 @@ export function AchievementBonusSettingsPanel({ settingsSignal }: AchievementBon
             return (
               <label
                 key={type}
-                className={`checkbox-item ${isChecked ? 'active' : ''}`}
+                className="checkbox-item"
               >
                 <input
                   type="checkbox"
@@ -62,7 +62,12 @@ export function AchievementBonusSettingsPanel({ settingsSignal }: AchievementBon
             min={1}
             max={allTypes.length - 1}
             value={randomCount}
-            onInput={e => update({ randomCount: Number((e.target as HTMLInputElement).value) })}
+            onInput={e => {
+              const val = Number((e.target as HTMLInputElement).value);
+              const maxVal = allTypes.length - 1;
+              const clamped = Math.min(maxVal, Math.max(1, val));
+              update({ randomCount: isNaN(clamped) ? 1 : clamped });
+            }}
           />
         </div>
       )}
