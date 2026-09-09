@@ -13,6 +13,7 @@ export class LobbyPage extends BasePage {
   readonly timeBonusDisplay: Locator;
   readonly firstBonusDisplay: Locator;
   readonly streakBonusDisplay: Locator;
+  readonly achievementModeDisplay: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -28,6 +29,7 @@ export class LobbyPage extends BasePage {
     this.timeBonusDisplay = page.locator('#settings-time-bonus');
     this.firstBonusDisplay = page.locator('#settings-first-bonus');
     this.streakBonusDisplay = page.locator('#settings-streak-bonus');
+    this.achievementModeDisplay = page.locator('#settings-achievements');
   }
 
   get enabledJokerItems(): Locator {

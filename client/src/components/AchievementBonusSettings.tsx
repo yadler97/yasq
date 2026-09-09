@@ -23,6 +23,7 @@ export function AchievementBonusSettingsPanel({ settingsSignal }: AchievementBon
   return (
     <div className="achievement-settings">
       <RadioGroup
+        groupId="achievement-mode-group"
         name="achievement-mode"
         value={mode}
         onChange={val => update({ mode: val as AchievementBonusMode })}
