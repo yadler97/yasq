@@ -3,7 +3,7 @@ import { auth, discordSdk, gameState, participants } from '../main';
 import { capitalize, formatBonusMultiplier } from '../utils/helper';
 import { ALL_JOKER_ICONS, InfoIcon } from '../components/Icons';
 import { OptionalTimeBonus, TOptionalTimeBonus } from '../utils/types';
-import { Joker, TimeBonus } from '@yasq/shared';
+import { AchievementBonusType, Joker, TimeBonus } from '@yasq/shared';
 import { ReadyButton } from '../components/ReadyButton';
 import { TooltipDiv, WithTooltip } from '../components/Tooltip';
 import { useSignal } from '@preact/signals';
@@ -21,6 +21,8 @@ export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const jokers = gameState.value.gameSettings.enabledJokers;
+  const achievementBonuses = gameState.value.gameSettings.achievementBonuses;
+
   const { getTabProps, handleKeyDown } = useRovingTabIndex(jokers.length);
 
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
@@ -167,6 +169,26 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
           <dt>🔥 Streak Bonus</dt>
           <dd id="settings-streak-bonus">
             {formatBonusMultiplier(gameState.value.gameSettings.streakBonusMultiplier)}
+          </dd>
+
+          <dt className="top">🏆 Achievements</dt>
+          <dd id="settings-achievements">
+            <div className="achievement-column">
+              {achievementBonuses?.mode === 'off' || !achievementBonuses ? (
+                <span className="no-achievements">None</span>
+              ) : achievementBonuses.mode === 'random' ? (
+                <span className="achievement-text-name">Random ({achievementBonuses.randomCount})</span>
+              ) : (
+                achievementBonuses.enabledTypes.map((achievementType: AchievementBonusType) => (
+                  <span
+                    key={achievementType}
+                    className="achievement-text-name"
+                  >
+                    {capitalize(achievementType)}
+                  </span>
+                ))
+              )}
+            </div>
           </dd>
         </dl>
 
