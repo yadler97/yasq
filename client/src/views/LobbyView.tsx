@@ -10,6 +10,7 @@ import { useSignal } from '@preact/signals';
 import { TimeBonusPlot } from '../components/TimeBonusPlot';
 import { useTimeBonusSamples } from '../hooks/useTimeBonusSamples';
 import { Modal } from '../components/Modal';
+import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 
 export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
   [TimeBonus.LINEAR]: '⏳ Steady Pace',
@@ -19,6 +20,9 @@ export const PLAYER_TIME_BONUS_LABELS: Record<TOptionalTimeBonus, string> = {
 };
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
+  const jokers = gameState.value.gameSettings.enabledJokers;
+  const { getTabProps, handleKeyDown } = useRovingTabIndex(jokers.length);
+
   const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
   const readyUsers = playersExcludingHost.filter(p => gameState.value.readyUsers.includes(p.id)).length;
   const allPlayersAreReady = playersExcludingHost.length > 0 && readyUsers === playersExcludingHost.length;
@@ -73,8 +77,8 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
           <dt className="top">❓ Jokers</dt>
           <dd id="settings-jokers">
             <div className="joker-column">
-              {gameState.value.gameSettings.enabledJokers.length ? (
-                gameState.value.gameSettings.enabledJokers.map((jokerType: Joker) => {
+              {jokers.length ? (
+                jokers.map((jokerType: Joker, index: number) => {
                   const JokerIcon = ALL_JOKER_ICONS.find(Icon => Icon.jokerType === jokerType);
 
                   return (
@@ -85,9 +89,11 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
                     >
                       {JokerIcon && (
                         <TooltipDiv
+                          {...getTabProps(index)}
                           text={JokerIcon?.description || 'Description not available'}
                           className={`joker-indicator`}
                           role="img"
+                          onKeyDown={e => handleKeyDown(e, index, false)}
                         >
                           <JokerIcon />
                         </TooltipDiv>

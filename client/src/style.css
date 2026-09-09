@@ -409,9 +409,11 @@ select:disabled option {
   aspect-ratio: 1 / 1;
   height: 35px;
   cursor: help;
+  outline: none;
 }
 
-.joker-indicator:hover {
+.joker-indicator:hover,
+.joker-indicator:focus-visible {
   background-color: var(--bg-sidebar-card);
   border: 1pt solid var(--blurple);
   box-shadow: 0 0 12px rgba(88, 101, 242, 0.3);
@@ -1166,6 +1168,12 @@ input[type='radio']:checked + .btn-radio {
   border-radius: 16px;
   font-size: 0.85rem;
   border: 1px solid var(--tags-border);
+  outline: none;
+}
+
+.tag-badge:hover,
+.tag-badge:focus-visible {
+  filter: brightness(120%);
 }
 
 .tag-badge strong {
@@ -1716,6 +1724,7 @@ input[value='1']:checked + .btn-radio.correct {
   border-radius: var(--border-radius-small);
   background: var(--bg-button-group);
   cursor: default;
+  outline: none;
 }
 
 .round-bubble.correct {
@@ -1740,19 +1749,24 @@ input[value='1']:checked + .btn-radio.correct {
 
 @media (hover: hover) and (min-width: 768px) {
   .round-bubble.correct:hover,
-  .round-bubble.partial:hover {
+  .round-bubble.partial:hover,
+  .round-bubble.correct:focus-visible,
+  .round-bubble.partial:focus-visible {
     transform: scale(1.05);
     z-index: 10;
   }
 }
 @media (hover: hover) {
-  .round-bubble.partial:hover {
+  .round-bubble.partial:hover,
+  .round-bubble.partial:focus-visible {
     background: rgba(67, 181, 129, 0.05);
   }
-  .round-bubble.correct:hover {
+  .round-bubble.correct:hover,
+  .round-bubble.correct:focus-visible {
     background: rgba(67, 181, 129, 0.2);
   }
-  .round-bubble.correct.first:hover {
+  .round-bubble.correct.first:hover,
+  .round-bubble.correct.first:focus-visible {
     background: rgba(241, 196, 15, 0.2);
   }
 }
