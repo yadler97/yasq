@@ -13,9 +13,11 @@ interface WithTooltipProps {
   id?: string;
   /** Disable tooltip functionality entirely */
   disabled?: boolean;
+  /** Custom ref callback to forward to the underlying DOM node */
+  elementRef?: (el: HTMLElement | null) => void;
 }
 
-export const WithTooltip = ({ text, children, id, disabled = false }: WithTooltipProps) => {
+export const WithTooltip = ({ text, children, id, disabled = false, elementRef }: WithTooltipProps) => {
   // Fall back gracefully if disabled or if children is not a valid VNode
   if (disabled || !text || !isValidElement(children)) {
     return children;
@@ -62,6 +64,8 @@ export const WithTooltip = ({ text, children, id, disabled = false }: WithToolti
   const childHasOnClick = !!childProps.onClick;
 
   return cloneElement(children, {
+    ...childProps,
+    ref: elementRef ?? childProps.ref,
     'data-tooltip': text,
     'aria-label': text,
     id: childProps.id ?? tooltipId,
@@ -133,18 +137,30 @@ interface TooltipDivProps extends HTMLAttributes<HTMLDivElement> {
   /** Disable tooltip functionality entirely */
   disabled?: boolean;
   className?: string;
+  elementRef?: (el: HTMLElement | null) => void;
 }
 
-export const TooltipDiv = ({ text, children, id, disabled = false, className = '', ...restProps }: TooltipDivProps) => {
+export const TooltipDiv = ({
+  text,
+  children,
+  id,
+  disabled = false,
+  className = '',
+  tabIndex = 0,
+  elementRef,
+  ...restProps
+}: TooltipDivProps) => {
   return (
     <WithTooltip
       text={text}
       id={id}
       disabled={disabled}
+      elementRef={elementRef}
     >
       <div
         id={id}
         className={`${className}`}
+        tabIndex={tabIndex}
         {...restProps}
       >
         {children}

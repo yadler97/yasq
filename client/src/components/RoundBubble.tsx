@@ -1,5 +1,6 @@
 import { RoundResult } from '../utils/types';
 import { TooltipDiv } from './Tooltip';
+import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 
 interface RoundBubblesGroupProps {
   rounds: RoundResult[];
@@ -7,13 +8,17 @@ interface RoundBubblesGroupProps {
 }
 
 export const RoundBubblesGroup = ({ rounds, userId }: RoundBubblesGroupProps) => {
+  const { getTabProps, handleKeyDown } = useRovingTabIndex(rounds.length);
+
   return (
     <div className="round-bubbles">
-      {rounds.map(r => (
+      {rounds.map((r, index) => (
         <RoundBubble
-          key={r.round}
+          key={r.round ?? index}
           roundResult={r}
           userId={userId}
+          {...getTabProps(index)}
+          onKeyDown={e => handleKeyDown(e, index)}
         />
       ))}
     </div>
@@ -23,9 +28,13 @@ export const RoundBubblesGroup = ({ rounds, userId }: RoundBubblesGroupProps) =>
 interface RoundBubbleProps {
   roundResult: RoundResult;
   userId: string;
+  elementRef?: (el: HTMLElement | null) => void;
+  tabIndex?: number;
+  onFocus?: () => void;
+  onKeyDown?: (e: KeyboardEvent) => void;
 }
 
-export const RoundBubble = ({ roundResult, userId }: RoundBubbleProps) => {
+export const RoundBubble = ({ roundResult, userId, elementRef, tabIndex, onFocus, onKeyDown }: RoundBubbleProps) => {
   const tooltipId = roundResult.round ? `round-${userId}-${roundResult.round}` : `user-${userId}`;
   const optionalRoundPrefix = roundResult.round ? `Round ${roundResult.round}: ` : '';
   const tooltipContent = `${optionalRoundPrefix}${roundResult.guess || 'No guess'}`;
@@ -37,6 +46,10 @@ export const RoundBubble = ({ roundResult, userId }: RoundBubbleProps) => {
       id={tooltipId}
       text={tooltipContent}
       className={`round-bubble ${statusClass} ${roundResult.isFirst ? 'first' : ''}`}
+      elementRef={elementRef}
+      tabIndex={tabIndex}
+      onFocus={onFocus}
+      onKeyDown={onKeyDown}
     >
       {roundResult.points}
     </TooltipDiv>
