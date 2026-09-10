@@ -40,6 +40,18 @@ export const getActionKeyLabel = (isMac: boolean) => {
   return isMac ? '⌘' : 'Alt';
 };
 
+export const getGameDuration = (startTime: number | null, endTime: number | null): string => {
+  if (startTime === null || endTime === null) {
+    return 'N/A';
+  }
+
+  const durationMs = endTime - startTime;
+  const minutes = Math.floor(durationMs / 60000);
+  const seconds = Math.floor((durationMs % 60000) / 1000);
+
+  return `${minutes}m ${seconds}s`;
+};
+
 export const isTouchDevice = (): boolean => {
   const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
   // Legacy fallback

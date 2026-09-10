@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Participant } from '@yasq/shared';
-import { findUser, getUserId, capitalize, formatBonusMultiplier, getActionKeyLabel } from './helper';
+import { findUser, getUserId, capitalize, formatBonusMultiplier, getActionKeyLabel, getGameDuration } from './helper';
 
 const mockParticipants: Participant[] = [
   { id: '1', username: 'MockPlayer1' },
@@ -72,5 +72,18 @@ describe('getActionKeyLabel', () => {
 
   it('should return Alt for non-Mac', () => {
     expect(getActionKeyLabel(false)).toBe('Alt');
+  });
+});
+
+describe('getGameDuration', () => {
+  it('should return "N/A" if startTime or endTime is null', () => {
+    expect(getGameDuration(null, 1000)).toBe('N/A');
+    expect(getGameDuration(1000, null)).toBe('N/A');
+  });
+
+  it('should correctly calculate duration in minutes and seconds', () => {
+    const startTime = 0;
+    const endTime = 125000; // 2 minutes and 5 seconds
+    expect(getGameDuration(startTime, endTime)).toBe('2m 5s');
   });
 });

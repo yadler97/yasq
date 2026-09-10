@@ -77,6 +77,7 @@ const App = () => {
           <main
             className="game-area"
             key={`view-${isHost}-${gameState.value.state}`}
+            tabIndex={0}
           >
             {renderView(isHost)}
           </main>

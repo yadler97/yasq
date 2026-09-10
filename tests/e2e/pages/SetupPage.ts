@@ -1,38 +1,52 @@
 import { Locator, Page } from '@playwright/test';
-import { FirstBonusMultiplier, Joker, StreakBonusMultiplier, TimeBonus } from '@yasq/shared';
+import { AchievementBonusMode, FirstBonusMultiplier, Joker, StreakBonusMultiplier, TimeBonus } from '@yasq/shared';
 import { BasePage } from './BasePage';
 
 export class SetupPage extends BasePage {
   readonly hostSettings: Locator;
   readonly advancedSettings: Locator;
+
   readonly roundsInput: Locator;
   readonly maxGuessTimeInput: Locator;
-  readonly hostTransferDropdownBtn: Locator;
-  readonly hostTransferList: Locator;
-  readonly hostTransferConfirmBtn: Locator;
-  readonly waitingMsg: Locator;
   readonly firstJoker: Locator;
+
   readonly advancedSettingsToggle: Locator;
   readonly timeBonusSelect: Locator;
   readonly firstBonusGroup: Locator;
   readonly streakBonusGroup: Locator;
+  readonly achievementModeRadioGroup: Locator;
+  readonly achievementChecklist: Locator;
+  readonly achievementRandomInput: Locator;
+
+  readonly hostTransferDropdownBtn: Locator;
+  readonly hostTransferList: Locator;
+  readonly hostTransferConfirmBtn: Locator;
+
   readonly startBtn: Locator;
+  readonly waitingMsg: Locator;
 
   constructor(page: Page) {
     super(page);
 
     this.hostSettings = page.locator('#host-settings');
     this.advancedSettings = page.locator('#advanced-settings');
+
     this.roundsInput = page.locator('#rounds-input');
     this.maxGuessTimeInput = page.locator('#guess-time-input');
-    this.hostTransferDropdownBtn = page.locator('#host-transfer-dropdown .dropdown-header');
-    this.hostTransferList = page.locator('#dropdown-list');
-    this.hostTransferConfirmBtn = page.locator('#btn-confirm-transfer');
+    this.firstJoker = page.locator('.joker-config-btn').first();
+
     this.advancedSettingsToggle = page.locator('#advanced-settings-btn');
     this.timeBonusSelect = page.locator('#time-bonus-select');
     this.firstBonusGroup = page.locator('#first-bonus-group');
     this.streakBonusGroup = page.locator('#streak-bonus-group');
-    this.firstJoker = page.locator('.joker-config-btn').first();
+    this.achievementModeRadioGroup = page.locator('#achievement-mode-group');
+    this.achievementChecklist = page.locator('.achievement-checklist');
+    this.achievementRandomInput = page.locator('.achievement-settings input[type="number"]');
+
+    this.hostTransferDropdownBtn = page.locator('#host-transfer-dropdown .dropdown-header');
+    this.hostTransferList = page.locator('#dropdown-list');
+    this.hostTransferConfirmBtn = page.locator('#btn-confirm-transfer');
+
     this.startBtn = page.locator('#btn-start');
     this.waitingMsg = page.locator('#waiting-setup-msg');
   }
@@ -55,12 +69,12 @@ export class SetupPage extends BasePage {
     await this.timeBonusSelect.selectOption(bonus.toString());
   }
 
-  async getActiveFirstBonus(): Promise<string> {
+  getActiveFirstBonus(): Promise<string> {
     return this.page.locator('input[name="first-bonus"]:checked').first().inputValue();
   }
 
   getFirstBonusOptionAt(index: number): Locator {
-    return this.page.locator('#first-bonus-group').locator('label').nth(index);
+    return this.firstBonusGroup.locator('label').nth(index);
   }
 
   async setFirstBonus(bonus: FirstBonusMultiplier): Promise<void> {
@@ -72,11 +86,27 @@ export class SetupPage extends BasePage {
   }
 
   getStreakBonusOptionAt(index: number): Locator {
-    return this.page.locator('#streak-bonus-group').locator('label').nth(index);
+    return this.streakBonusGroup.locator('label').nth(index);
   }
 
   async setStreakBonus(bonus: StreakBonusMultiplier): Promise<void> {
     await this.streakBonusGroup.locator(`label[for="streak-bonus-${bonus}"]`).click();
+  }
+
+  getActiveAchievementMode(): Promise<string> {
+    return this.page.locator('input[name="achievement-mode"]:checked').inputValue();
+  }
+
+  async setAchievementMode(mode: AchievementBonusMode): Promise<void> {
+    await this.achievementModeRadioGroup.locator(`label[for="achievement-mode-${mode}"]`).click();
+  }
+
+  getFirstAchievementCheckbox(): Locator {
+    return this.achievementChecklist.locator('input[type="checkbox"]').first();
+  }
+
+  async toggleAchievementType(type: string): Promise<void> {
+    await this.achievementChecklist.locator(`label:has-text("${type}") input`).click();
   }
 
   async getAllJokerButtons(): Promise<Locator[]> {

@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { type APIChannel, type APITextChannel, ChannelType } from 'discord-api-types/v10';
 
-import type { GameInstance } from './models.js';
+import type { GameInstance } from './models/game_instance.js';
 import {
   type Participant,
   SAMPLE_DATA_DIR,

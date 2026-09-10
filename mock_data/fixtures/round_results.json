@@ -4,7 +4,7 @@
   "state": "ROUND_RESULTS",
   "settings": {
     "rounds": 5,
-    "trackDuration": 60000,
+    "maxGuessTime": 60000,
     "enabledJokers": ["OBFUSCATION", "TRIVIA", "MULTIPLE_CHOICE", "SPY"],
     "firstBonusMultiplier": 0.2,
     "timeBonus": "LINEAR",
@@ -22,12 +22,7 @@
       ]
     }
   },
-  "registeredUsers": [
-    { "id": "0", "username": "MockPlayer1" },
-    { "id": "1", "username": "MockPlayer2" },
-    { "id": "2", "username": "MockPlayer3" },
-    { "id": "3", "username": "MockPlayer4" }
-  ],
+  "registeredUsers": ["0", "1", "2", "3"],
   "leaderboard": {
     "entries": [
       {
@@ -310,5 +305,11 @@
         }
       }
     ]
-  }
+  },
+  "userData": [
+    { "id": "0", "username": "MockPlayer0" },
+    { "id": "1", "username": "MockPlayer1" },
+    { "id": "2", "username": "MockPlayer2" },
+    { "id": "3", "username": "MockPlayer3" }
+  ]
 }

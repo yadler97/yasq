@@ -13,8 +13,10 @@ import AxeBuilder from '@axe-core/playwright';
 
 test.use({
   sessionConfig: {
-    state: GameState.SETUP,
     playerCount: 3,
+    sessionData: {
+      state: GameState.SETUP,
+    },
   },
 });
 
@@ -60,6 +62,7 @@ test.describe('Host UI', () => {
 
     expect(await setupPage.getActiveFirstBonus()).toEqual(DEFAULT_FIRST_BONUS_MULTIPLIER.toString());
     expect(await setupPage.getActiveStreakBonus()).toEqual(DEFAULT_STREAK_BONUS_MULTIPLIER.toString());
+    expect(await setupPage.getActiveAchievementMode()).toEqual('manual');
   });
 
   test('should allow host to select another player and transfer host role', async ({ setupPage, session }) => {
@@ -137,6 +140,35 @@ test.describe('Host UI', () => {
     await page.keyboard.press('ArrowRight');
     const checkedAfter = await setupPage.getActiveFirstBonus();
     expect(checkedAfter).not.toBe(checkedBefore);
+
+    // Streak bonus radio buttons
+    await page.keyboard.press('Tab');
+    const streakCheckedBefore = await setupPage.getActiveStreakBonus();
+    await page.keyboard.press('ArrowRight');
+    const streakCheckedAfter = await setupPage.getActiveStreakBonus();
+    expect(streakCheckedAfter).not.toBe(streakCheckedBefore);
+
+    // Achievement mode radio buttons
+    await page.keyboard.press('Tab');
+    const achievementModeBefore = await setupPage.getActiveAchievementMode();
+    expect(achievementModeBefore).toEqual('manual');
+
+    // Check the first achievement type checkbox
+    await page.keyboard.press('Tab');
+    const firstTypeCheckbox = await setupPage.getFirstAchievementCheckbox();
+    const isCheckedBefore = await firstTypeCheckbox.isChecked();
+    await page.keyboard.press('Space');
+    const isCheckedAfter = await firstTypeCheckbox.isChecked();
+    expect(isCheckedAfter).not.toBe(isCheckedBefore);
+
+    // Switch mode to 'random' to reveal the random count input
+    await setupPage.setAchievementMode('random');
+
+    // Now that mode is 'random', tab to focus the random count input
+    await page.keyboard.press('Tab');
+    await expect(setupPage.achievementRandomInput).toBeFocused();
+    await page.keyboard.press('Control+A');
+    await page.keyboard.type('1');
 
     // Continue until Confirm button
     await setupPage.tabUntilFocused(setupPage.startBtn);

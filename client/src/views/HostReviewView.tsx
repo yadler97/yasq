@@ -9,6 +9,8 @@ import { ReviewData } from '../utils/types';
 import { getAvatarUrl, getDisplayName } from '@yasq/shared';
 import { DiscordAvatar } from '../components/DiscordAvatar';
 import { TooltipDiv } from '../components/Tooltip';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { RadioGroup } from '../components/RadioGroup';
 
 export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const reviewData = useSignal<ReviewData | null>(null);
@@ -38,11 +40,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   }
 
   if (!reviewData.value) {
-    return (
-      <div className="centered">
-        <div className="loading-spinner"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   const handleSubmit = async (e: MouseEvent) => {
@@ -94,58 +92,18 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                   })()}
               </div>
 
-              <div className="button-group">
-                <input
-                  type="radio"
-                  id={`wrong-${userId}`}
-                  name={`score-${userId}`}
-                  value="0"
-                  checked={corrections.value[userId] === 0}
-                  onChange={() => {
-                    corrections.value = { ...corrections.value, [userId]: 0 };
-                  }}
-                />
-                <label
-                  htmlFor={`wrong-${userId}`}
-                  className="btn-radio wrong"
-                >
-                  Wrong
-                </label>
-
-                <input
-                  type="radio"
-                  id={`partial-${userId}`}
-                  name={`score-${userId}`}
-                  value="0.5"
-                  checked={corrections.value[userId] === 0.5}
-                  onChange={() => {
-                    corrections.value = { ...corrections.value, [userId]: 0.5 };
-                  }}
-                />
-                <label
-                  htmlFor={`partial-${userId}`}
-                  className="btn-radio partial"
-                >
-                  Partial
-                </label>
-
-                <input
-                  type="radio"
-                  id={`correct-${userId}`}
-                  name={`score-${userId}`}
-                  value="1"
-                  checked={corrections.value[userId] === 1}
-                  onChange={() => {
-                    corrections.value = { ...corrections.value, [userId]: 1 };
-                  }}
-                />
-                <label
-                  htmlFor={`correct-${userId}`}
-                  className="btn-radio correct"
-                >
-                  Correct
-                </label>
-              </div>
+              <RadioGroup
+                name={`score-${userId}`}
+                value={corrections.value[userId]}
+                onChange={val => {
+                  corrections.value = { ...corrections.value, [userId]: val };
+                }}
+                options={[
+                  { label: 'Wrong', value: 0, className: 'wrong', id: `wrong-${userId}` },
+                  { label: 'Partial', value: 0.5, className: 'partial', id: `partial-${userId}` },
+                  { label: 'Correct', value: 1, className: 'correct', id: `correct-${userId}` },
+                ]}
+              />
             </div>
           );
         })}

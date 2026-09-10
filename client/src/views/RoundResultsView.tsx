@@ -13,6 +13,7 @@ import { DiscordAvatar } from '../components/DiscordAvatar';
 import { TimeBonusPlot } from '../components/TimeBonusPlot';
 import { ReadyButton } from '../components/ReadyButton';
 import { TooltipDiv } from '../components/Tooltip';
+import { LoadingSpinner } from '../components/LoadingSpinner';
 
 export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);
@@ -45,11 +46,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   };
 
   if (!roundData.value) {
-    return (
-      <div className="centered">
-        <div className="loading-spinner"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (isHost) {

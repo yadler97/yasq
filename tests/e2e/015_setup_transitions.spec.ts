@@ -12,12 +12,15 @@ import {
   Joker,
   StreakBonusMultiplier,
   TimeBonus,
+  AchievementBonusMode,
 } from '@yasq/shared';
 
 test.use({
   sessionConfig: {
-    state: GameState.SETUP,
     playerCount: 3,
+    sessionData: {
+      state: GameState.SETUP,
+    },
   },
 });
 
@@ -29,6 +32,7 @@ test.describe('Host UI', () => {
     const FIRST_BONUS = FirstBonusMultiplier.LARGE;
     const STREAK_BONUS = StreakBonusMultiplier.OFF;
     const ENABLED_JOKERS = new Set([Joker.TRIVIA, Joker.MULTIPLE_CHOICE, Joker.GLIMPSE]);
+    const ACHIEVEMENT_BONUS_MODE = 'random' as AchievementBonusMode;
 
     await expect(setupPage.hostSettings).toBeVisible();
 
@@ -58,6 +62,10 @@ test.describe('Host UI', () => {
     expect(await setupPage.getActiveStreakBonus()).not.toEqual(STREAK_BONUS.toString());
     await setupPage.setStreakBonus(STREAK_BONUS);
 
+    expect(await setupPage.getActiveAchievementMode()).not.toEqual(ACHIEVEMENT_BONUS_MODE);
+    await setupPage.setAchievementMode(ACHIEVEMENT_BONUS_MODE);
+    await setupPage.achievementRandomInput.fill('1');
+
     // Confirm settings and wait for transition to LobbyView
     await setupPage.startBtn.click();
     await expect(setupPage.hostSettings).toBeHidden();
@@ -79,6 +87,7 @@ test.describe('Host UI', () => {
     await expect(lobbyPage.timeBonusDisplay).toContainText(EXPECTED_TIME_BONUS_LABELS[TIME_BONUS]);
     await expect(lobbyPage.firstBonusDisplay).toHaveText(expectedFirstBonus);
     await expect(lobbyPage.streakBonusDisplay).toHaveText(expectedStreakBonus);
+    await expect(lobbyPage.achievementModeDisplay).toHaveText(/Random/i);
   });
 
   test('should display default settings when settings are immediately confirmed', async ({ setupPage, lobbyPage }) => {
@@ -108,6 +117,7 @@ test.describe('Host UI', () => {
     await expect(lobbyPage.timeBonusDisplay).toContainText(EXPECTED_TIME_BONUS_LABELS[DEFAULT_TIME_BONUS]);
     await expect(lobbyPage.firstBonusDisplay).toHaveText(expectedFirstBonus);
     await expect(lobbyPage.streakBonusDisplay).toHaveText(expectedStreakBonus);
+    await expect(lobbyPage.achievementModeDisplay).toHaveText(/Fastest Correct Guess|Highest Streak/i);
   });
 
   test('should correctly handle an empty set of enabled jokers', async ({ setupPage, lobbyPage }) => {

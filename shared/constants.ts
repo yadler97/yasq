@@ -55,6 +55,19 @@ export enum BonusType {
   STREAK_BREAKER = 'STREAK_BREAKER',
 }
 
+export enum AchievementBonusType {
+  FASTEST_CORRECT_GUESS = 'FASTEST_CORRECT_GUESS',
+  HIGHEST_STREAK = 'HIGHEST_STREAK',
+}
+
+export type AchievementBonusMode = 'manual' | 'random' | 'off';
+
+export interface AchievementBonuses {
+  mode: AchievementBonusMode;
+  enabledTypes: AchievementBonusType[];
+  randomCount: number;
+}
+
 export const MAX_VOLUME: number = 0.25;
 export const DEFAULT_VOLUME_SLIDER_VAL: number = 0.5;
 export const POLLING_INTERVAL: number = 500;
@@ -75,6 +88,7 @@ export const DEFAULT_ENABLED_JOKERS: Joker[] = [
 ];
 
 export const BASE_POINTS: number = 100;
+export const ACHIEVEMENT_BONUS_POINTS = 100;
 export const MAX_TIME_MULTIPLIER: number = 1.0;
 export const MIN_TIME_MULTIPLIER: number = 0.0;
 export const EXPONENTIAL_DECAY_INTENSITY: number = 2.5;

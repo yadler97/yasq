@@ -35,11 +35,19 @@ export const mockDiscordSdk = {
     // Mock Participants
     getInstanceConnectedParticipants: async () => ({
       participants: window.__MOCK_PARTICIPANTS__ || [
-        { id: '0', username: 'MockPlayer1' },
-        { id: '1', username: 'MockPlayer2' },
-        { id: '2', username: 'MockPlayer3' },
-        { id: '3', username: 'MockPlayer4' },
+        { id: '0', username: 'MockPlayer0' },
+        { id: '1', username: 'MockPlayer1' },
+        { id: '2', username: 'MockPlayer2' },
+        { id: '3', username: 'MockPlayer3' },
       ],
     }),
+
+    // Mock Opening External Links (e.g., downloading results image)
+    openExternalLink: async ({ url }) => {
+      if (typeof window !== 'undefined') {
+        window.open(url, '_blank');
+      }
+      return { success: true };
+    },
   },
 };

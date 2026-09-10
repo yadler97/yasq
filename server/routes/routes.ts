@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
-import { GameInstance } from '../src/models.js';
+import { GameInstance } from '../src/models/game_instance.js';
 import type { InstanceGuildQuery, InstanceQuery, InstanceUserQuery } from '../src/types.js';
 import {
   COUNTDOWN_DURATION,
@@ -325,7 +325,13 @@ export const setupRoutes = (
 
     if (newState === GameState.FINAL_RESULTS) {
       logger.info(instanceId, `Game ended!`, LogCategory.GAME);
-      void generateResultsImage(game.instanceId, game.temporaryDirectory(true), game.leaderboard, userDataCache);
+      void generateResultsImage(
+        game.instanceId,
+        game.temporaryDirectory(true),
+        game.leaderboard,
+        userDataCache,
+        game.gameStats
+      );
       logger.debug(
         instanceId,
         `Final leaderboard: ${JSON.stringify(game.leaderboard.getAll(), null, 2)}`,
@@ -406,6 +412,7 @@ export const setupRoutes = (
 
     res.send({
       leaderboard: game.leaderboard.getAll() || [],
+      gameStats: game.gameStats || {},
       canExport: isPlaywrightExecutableInstalled(),
     });
   });
@@ -494,12 +501,21 @@ export const setupRoutes = (
     });
   });
 
-  router.get('/download-results', (req, res) => {
+  router.get('/download-results', fetchGame, async (req, res) => {
     const { instanceId } = req.query as InstanceQuery;
 
     const filePath = path.join(__dirname, '..', STATIC_FILES_DIR, TEMP_FILES_DIR, `${instanceId}/results.png`);
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Results image has not been generated yet.' });
+      const game = req.game!;
+      console.log(`userDataCache:`, userDataCache);
+      await generateResultsImage(
+        game.instanceId,
+        game.temporaryDirectory(true),
+        game.leaderboard,
+        userDataCache,
+        game.gameStats
+      );
+      // return res.status(404).json({ error: 'Results image has not been generated yet.' });
     }
 
     res.download(filePath, `yasq-results.png`, err => {

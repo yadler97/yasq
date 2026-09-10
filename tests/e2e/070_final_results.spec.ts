@@ -1,20 +1,12 @@
 import { expect, test } from './test_setup.js';
-import { generatePlayers } from '../utils/helper.js';
-import mockLeaderboard from '../../mock_data/mockLeaderboard.json';
 import AxeBuilder from '@axe-core/playwright';
-import { GameState } from '@yasq/shared';
-
-const initialPlayers = generatePlayers(4);
+import sessionData from '../../mock_data/fixtures/final_results.json';
 
 test.use({
   sessionConfig: {
-    state: GameState.FINAL_RESULTS,
     playerCount: 4,
     userIndex: 1,
-    sessionData: {
-      leaderboard: mockLeaderboard,
-      lastWinnerId: initialPlayers[1].id,
-    },
+    sessionData: sessionData,
   },
 });
 
@@ -37,14 +29,14 @@ test.describe('Player UI', () => {
     await expect(secondPlace.card).not.toHaveClass(/winner/);
     await expect(secondPlace.rank).toHaveText('#2');
     await expect(secondPlace.name).toContainText('MockPlayer2');
-    await expect(secondPlace.score).toContainText('421 pts');
+    await expect(secondPlace.score).toContainText('578 pts');
 
     // Check the Winner (Rank #1)
     const firstPlace = gameFinishedPage.getPlayerCard(0);
     await expect(firstPlace.card).toHaveClass(/winner/);
     await expect(firstPlace.rank).toHaveText('#1');
     await expect(firstPlace.name).toContainText('MockPlayer1');
-    await expect(firstPlace.score).toContainText('585 pts');
+    await expect(firstPlace.score).toContainText('761 pts');
 
     await expect(firstPlace.bubbles).toHaveCount(3);
     await expect(firstPlace.bubbles.first()).toHaveClass(/correct/);
@@ -55,6 +47,42 @@ test.describe('Player UI', () => {
     // Verify UI visibility
     await expect(gameFinishedPage.readyBtn).toBeVisible();
     await expect(gameFinishedPage.restartBtn).toBeHidden();
+  });
+
+  test('should properly display game stats summary and values', async ({ gameFinishedPage }) => {
+    await expect(gameFinishedPage.gameStats).toBeVisible();
+    await expect(gameFinishedPage.statItems).toHaveCount(5);
+
+    // 1. Duration
+    const durationItem = gameFinishedPage.getStatItem(0);
+    await expect(durationItem.label).toHaveText('Duration');
+    await expect(durationItem.value).toHaveText('5m 0s');
+
+    // 2. Best Round
+    const bestRoundItem = gameFinishedPage.getStatItem(1);
+    await expect(bestRoundItem.label).toHaveText('Best Round');
+    await expect(bestRoundItem.value).toHaveText('Round 3');
+    await expect(bestRoundItem.subValue).not.toBeEmpty();
+
+    // 3. Least Round
+    const leastRoundItem = gameFinishedPage.getStatItem(2);
+    await expect(leastRoundItem.label).toHaveText('Least Round');
+    await expect(leastRoundItem.value).toHaveText('Round 1');
+    await expect(leastRoundItem.subValue).not.toBeEmpty();
+
+    // 4. Highest Streak
+    const streakItem = gameFinishedPage.getStatItem(3);
+    await expect(streakItem.label).toHaveText('Highest Streak');
+    await expect(streakItem.value).toContainText('MockPlayer1');
+    await expect(streakItem.subValue).toContainText('3');
+    await expect(streakItem.avatar).toBeVisible();
+
+    // 5. Fastest Correct Guess
+    const fastestItem = gameFinishedPage.getStatItem(4);
+    await expect(fastestItem.label).toHaveText('Fastest Correct Guess');
+    await expect(fastestItem.value).toContainText('MockPlayer2');
+    await expect(fastestItem.subValue).toHaveText('0.5s (Round 3)');
+    await expect(fastestItem.avatar).toBeVisible();
   });
 
   test('should display winner badge in sidebar', async ({ sidebar, session }) => {

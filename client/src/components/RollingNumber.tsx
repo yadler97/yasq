@@ -30,5 +30,5 @@ export const RollingNumber = ({ target, className }: RollingNumberProps) => {
     requestAnimationFrame(animate);
   }, [target]);
 
-  return <span className={className}>{displayValue}</span>;
+  return <span className={className || 'rolling-number'}>{displayValue}</span>;
 };
