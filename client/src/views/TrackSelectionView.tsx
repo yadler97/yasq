@@ -230,6 +230,9 @@ export const TrackSelectionView = ({ isHost }: { isHost: boolean }) => {
           ))
         )}
       </div>
+      <p className="track-count">
+        Filtered Tracks: {filteredTracks.value.length} (Total: {tracks.value.length} Tracks)
+      </p>
     </div>
   );
 };

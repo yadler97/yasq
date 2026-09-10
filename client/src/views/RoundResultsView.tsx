@@ -49,45 +49,81 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
     return <LoadingSpinner />;
   }
 
-  if (isHost) {
-    const results = roundData.value.result || [];
-
+  if (roundData.value.error) {
     return (
       <div
         id="results"
         className="centered"
       >
-        <div className="card-container">
-          <h2>Results</h2>
-          <hr className="divider" />
-          <div className="track-details">
-            <NonDraggableImg
-              src={roundData.value.gameCover || '/default.svg'}
-              alt={`Cover of ${roundData.value.correctAnswer}`}
-              onError={e => {
-                (e.currentTarget as HTMLImageElement).src = '/default.svg';
-              }}
-            />
-            <div>
-              <p>
-                <strong>{roundData.value.correctAnswer}</strong>
-              </p>
-              <p>
-                <i>{roundData.value.trackTitle}</i>
-              </p>
-              <div className="tags-container left">
-                {roundData.value.tags.map((tag: Tag) => (
-                  <TooltipDiv
-                    text={capitalize(tag.type)}
-                    className="tag-badge"
-                  >
-                    <span key={tag.type}>{tag.value}</span>
-                  </TooltipDiv>
-                ))}
-              </div>
+        <h2>Results Unavailable</h2>
+        <p className="error-text">
+          {roundData.value.error === 'SERVER_ERROR' ? 'A server error occurred.' : 'An unexpected error occurred.'}
+        </p>
+        <ReadyButton />
+      </div>
+    );
+  }
+
+  const results = roundData.value.result || [];
+  const userResult = results[0];
+  const score = userResult?.scoreValue || 0;
+  const needsScoreDetails = userResult && (hasTimeBonus || userResult.points > 0);
+
+  // Determine status class and message
+  const { statusClass, statusMessage } = (() => {
+    if (score === 1) return { statusClass: 'correct', statusMessage: 'Correct! 🎉' };
+    if (score > 0) return { statusClass: 'partial', statusMessage: 'So close! 🧗' };
+    return { statusClass: 'incorrect', statusMessage: 'Incorrect. 😢' };
+  })();
+
+  const correctPlayerIds = roundData.value?.correctPlayers || [];
+  const correctParticipants: Participant[] = correctPlayerIds
+    .map((id: string) => participantLookup.get(id))
+    .filter((p: any): p is Participant => !!p);
+
+  return (
+    <div
+      id="results"
+      className="centered"
+    >
+      <div className="card-container">
+        <h2>Results</h2>
+        <hr className="divider" />
+
+        <div className="track-details">
+          <NonDraggableImg
+            src={roundData.value.gameCover || '/default.svg'}
+            alt={`Cover of ${roundData.value.correctAnswer}`}
+            onError={e => {
+              (e.currentTarget as HTMLImageElement).src = '/default.svg';
+            }}
+          />
+          <div>
+            <p>
+              <strong>{roundData.value.correctAnswer}</strong>
+            </p>
+            <p>
+              <i>{roundData.value.trackTitle}</i>
+            </p>
+            <div
+              id="tags"
+              className="tags-container left"
+            >
+              {roundData.value.tags.map((tag: Tag) => (
+                <TooltipDiv
+                  text={capitalize(tag.type)}
+                  className="tag-badge"
+                >
+                  <span key={tag.type}>{tag.value}</span>
+                </TooltipDiv>
+              ))}
             </div>
           </div>
-          <hr className="divider" />
+        </div>
+
+        <hr className="divider" />
+
+        {isHost ? (
           <div>
             {results
               .filter((res: any) => res.points !== null)
@@ -125,231 +161,160 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
                 </strong>
               </p>
             )}
-          </div>
-          {hasTimeBonus && (
-            <div id="host-details">
-              <hr className="divider" />
-              <div className="host-details-panel">
-                <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
-                <div className="center-box">
-                  <TimeBonusPlot
-                    currentPlayer={currentPlayer}
-                    participants={participantLookup}
-                    data={roundData.value.summary?.timeBonusSummary ?? null}
-                  />
+            {hasTimeBonus && (
+              <div id="host-details">
+                <hr className="divider" />
+                <div className="host-details-panel">
+                  <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
+                  <div className="center-box">
+                    <TimeBonusPlot
+                      currentPlayer={currentPlayer}
+                      participants={participantLookup}
+                      data={roundData.value.summary?.timeBonusSummary ?? null}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-
-        <div id="lobby-host-ui-next-round">
-          <button
-            id="btn-next-round"
-            disabled={!allPlayersReady}
-            onClick={handleNextRound}
-          >
-            {allPlayersReady
-              ? isFinalRound
-                ? 'Show Final Results'
-                : 'Next Round'
-              : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (roundData.value.error) {
-    return (
-      <div
-        id="results"
-        className="centered"
-      >
-        <h2>Results Unavailable</h2>
-        <p className="error-text">
-          {roundData.value.error === 'SERVER_ERROR' ? 'A server error occurred.' : 'An unexpected error occurred.'}
-        </p>
-
-        <ReadyButton />
-      </div>
-    );
-  }
-
-  const userResult = roundData.value.result?.[0];
-  const score = userResult?.scoreValue || 0;
-  const needsScoreDetails = userResult && (hasTimeBonus || userResult.points > 0);
-
-  // Determine status class and message
-  const { statusClass, statusMessage } = (() => {
-    if (score === 1) return { statusClass: 'correct', statusMessage: 'Correct! 🎉' };
-    if (score > 0) return { statusClass: 'partial', statusMessage: 'So close! 🧗' };
-    return { statusClass: 'incorrect', statusMessage: 'Incorrect. 😢' };
-  })();
-
-  const correctPlayerIds = roundData.value?.correctPlayers || [];
-
-  const correctParticipants: Participant[] = correctPlayerIds
-    .map((id: string) => participantLookup.get(id))
-    .filter((p: any): p is Participant => !!p);
-
-  return (
-    <div
-      id="results"
-      className="centered"
-    >
-      <div className="card-container">
-        <h2>Results</h2>
-        <hr className="divider" />
-        <div className="track-details">
-          <NonDraggableImg
-            src={roundData.value.gameCover || '/default.svg'}
-            alt={`Cover of ${roundData.value.correctAnswer}`}
-            onError={e => {
-              (e.currentTarget as HTMLImageElement).src = '/default.svg';
-            }}
-          />
-          <div>
-            <p>
-              <strong>{roundData.value.correctAnswer}</strong>
-            </p>
-            <p>
-              <i>{roundData.value.trackTitle}</i>
-            </p>
-            <div
-              id="tags"
-              className="tags-container left"
-            >
-              {roundData.value.tags.map((tag: Tag) => (
-                <TooltipDiv
-                  text={capitalize(tag.type)}
-                  className="tag-badge"
-                >
-                  <span key={tag.type}>{tag.value}</span>
-                </TooltipDiv>
-              ))}
-            </div>
+            )}
           </div>
-        </div>
-        <hr className="divider" />
-        <div
-          id="own-results"
-          className="own-results"
-        >
-          {userResult ? (
-            <>
-              <p className={`user-guess-result ${statusClass}`}>{statusMessage}</p>
-              <div className="user-evaluation">
-                <div className="user-guess-wrapper">
-                  <span className="guess-label">Your guess:</span>
-                  <span
-                    id="guess"
-                    className="user-guess guess-text"
-                  >
-                    {userResult?.guess || 'No guess submitted'}
-                  </span>
-                </div>
-                <div
-                  id="score"
-                  className="points-bubble"
-                >
-                  <RollingNumber target={userResult?.points || 0} /> pt.
-                </div>
-              </div>
-            </>
-          ) : (
-            <p className="info-message leaderboard-absent-message">You were not in the leaderboard for this round.</p>
-          )}
+        ) : (
           <div
-            id="correct-players"
-            className="correct-players"
+            id="own-results"
+            className="own-results"
           >
-            <span className="correct-players-label">Correct players ({correctParticipants.length}):</span>
-            <div className="correct-players-list">
-              {correctParticipants.length === 0 ? (
-                <span className="correct-players-empty">Nobody got it fully correct!</span>
-              ) : (
-                correctParticipants.map((p: Participant) => (
-                  <DiscordAvatar
-                    src={getAvatarUrl(p)}
-                    userName={getDisplayName(p)}
-                    hasTooltip={true}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-          {roundData.value.lostStreaks && Object.keys(roundData.value.lostStreaks).length > 0 && (
-            <span>
-              Lost Streaks:{' '}
-              <strong>
-                {Object.entries(roundData.value.lostStreaks)
-                  .map(([userId, streak]) => `${getDisplayName(findUser(participants.value, userId))} (${streak})`)
-                  .join(', ')}
-              </strong>
-            </span>
-          )}
-          {hasTimeBonus && !userResult && (
-            <div id="host-details">
-              <hr className="divider" />
-              <div className="host-details-panel">
-                <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
-                <div className="center-box">
-                  <TimeBonusPlot
-                    currentPlayer={currentPlayer}
-                    participants={participantLookup}
-                    data={roundData.value.summary?.timeBonusSummary ?? null}
-                  />
+            {userResult ? (
+              <>
+                <p className={`user-guess-result ${statusClass}`}>{statusMessage}</p>
+                <div className="user-evaluation">
+                  <div className="user-guess-wrapper">
+                    <span className="guess-label">Your guess:</span>
+                    <span
+                      id="guess"
+                      className="user-guess guess-text"
+                    >
+                      {userResult?.guess || 'No guess submitted'}
+                    </span>
+                  </div>
+                  <div
+                    id="score"
+                    className="points-bubble"
+                  >
+                    <RollingNumber target={userResult?.points || 0} /> pt.
+                  </div>
                 </div>
+              </>
+            ) : (
+              <p className="info-message leaderboard-absent-message">You were not in the leaderboard for this round.</p>
+            )}
+
+            <div
+              id="correct-players"
+              className="correct-players"
+            >
+              <span className="correct-players-label">Correct players ({correctParticipants.length}):</span>
+              <div className="correct-players-list">
+                {correctParticipants.length === 0 ? (
+                  <span className="correct-players-empty">Nobody got it fully correct!</span>
+                ) : (
+                  correctParticipants.map((p: Participant) => (
+                    <DiscordAvatar
+                      src={getAvatarUrl(p)}
+                      userName={getDisplayName(p)}
+                      hasTooltip={true}
+                    />
+                  ))
+                )}
               </div>
             </div>
-          )}
-          {needsScoreDetails && (
-            <div id="score-details">
-              <button
-                type="button"
-                id="score-details-btn"
-                className="toggle-btn score-details-btn"
-                onClick={() => (isPointsDetailsOpen.value = !isPointsDetailsOpen.value)}
-              >
-                <span>{isPointsDetailsOpen.value ? 'Hide score details' : 'See score details'}</span>
-                <span className={`arrow-indicator ${isPointsDetailsOpen.value ? 'open' : ''}`} />
-              </button>
 
-              {isPointsDetailsOpen.value && (
-                <div className="score-details-panel">
-                  {userResult.points > 0 && (
-                    <>
-                      <h3 className="section-heading points-table-heading">Points calculation:</h3>
-                      <div className="center-box">
-                        <PointsCalculationTable
-                          baseMultiplier={userResult?.scoreValue}
-                          awardedBonuses={userResult?.awardedBonuses || []}
-                        />
-                      </div>
-                      <hr className="divider" />
-                    </>
-                  )}
-                  {hasTimeBonus && (
-                    <>
-                      <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
-                      <div className="center-box">
-                        <TimeBonusPlot
-                          currentPlayer={currentPlayer}
-                          participants={participantLookup}
-                          data={roundData.value.summary?.timeBonusSummary ?? null}
-                        />
-                      </div>
-                    </>
-                  )}
+            {roundData.value.lostStreaks && Object.keys(roundData.value.lostStreaks).length > 0 && (
+              <p>
+                Lost Streaks:{' '}
+                <strong>
+                  {Object.entries(roundData.value.lostStreaks)
+                    .map(([userId, streak]) => `${getDisplayName(findUser(participants.value, userId))} (${streak})`)
+                    .join(', ')}
+                </strong>
+              </p>
+            )}
+
+            {hasTimeBonus && !userResult && (
+              <div id="host-details">
+                <hr className="divider" />
+                <div className="host-details-panel">
+                  <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
+                  <div className="center-box">
+                    <TimeBonusPlot
+                      currentPlayer={currentPlayer}
+                      participants={participantLookup}
+                      data={roundData.value.summary?.timeBonusSummary ?? null}
+                    />
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+
+            {needsScoreDetails && (
+              <div id="score-details">
+                <button
+                  type="button"
+                  id="score-details-btn"
+                  className="toggle-btn score-details-btn"
+                  onClick={() => (isPointsDetailsOpen.value = !isPointsDetailsOpen.value)}
+                >
+                  <span>{isPointsDetailsOpen.value ? 'Hide score details' : 'See score details'}</span>
+                  <span className={`arrow-indicator ${isPointsDetailsOpen.value ? 'open' : ''}`} />
+                </button>
+
+                {isPointsDetailsOpen.value && (
+                  <div className="score-details-panel">
+                    {userResult.points > 0 && (
+                      <>
+                        <h3 className="section-heading points-table-heading">Points calculation:</h3>
+                        <div className="center-box">
+                          <PointsCalculationTable
+                            baseMultiplier={userResult?.scoreValue}
+                            awardedBonuses={userResult?.awardedBonuses || []}
+                          />
+                        </div>
+                        <hr className="divider" />
+                      </>
+                    )}
+                    {hasTimeBonus && (
+                      <>
+                        <h3 className="section-heading time-bonus-heading">Time bonus calculation:</h3>
+                        <div className="center-box">
+                          <TimeBonusPlot
+                            currentPlayer={currentPlayer}
+                            participants={participantLookup}
+                            data={roundData.value.summary?.timeBonusSummary ?? null}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      <ReadyButton />
+      {isHost ? (
+        <button
+          id="btn-next-round"
+          disabled={!allPlayersReady}
+          onClick={handleNextRound}
+        >
+          {allPlayersReady
+            ? isFinalRound
+              ? 'Show Final Results'
+              : 'Next Round'
+            : `Waiting... (${readyCount}/${playersExcludingHost.length})`}
+        </button>
+      ) : (
+        <ReadyButton />
+      )}
     </div>
   );
 };

@@ -65,7 +65,7 @@ export class GameSettings<T extends Iterable<Joker>> {
   public firstBonusMultiplier: FirstBonusMultiplier;
   public timeBonus: TimeBonus | null;
   public streakBonusMultiplier: StreakBonusMultiplier;
-  public achievementBonuses: AchievementBonuses;
+  public achievementBonuses?: AchievementBonuses;
 
   private constructor(options: GameSettingsOptions<T> = {}) {
     this.rounds = options.rounds ?? DEFAULT_ROUNDS;

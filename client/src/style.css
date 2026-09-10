@@ -1153,8 +1153,11 @@ input[type='radio']:checked + .btn-radio {
   cursor: not-allowed;
 }
 
-#game-guesser-form {
-  margin-bottom: var(--space-large);
+.track-count {
+  color: var(--text-muted);
+  margin-left: 100px;
+  margin-right: 100px;
+  text-align: left;
 }
 
 .hint-container {

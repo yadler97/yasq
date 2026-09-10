@@ -229,7 +229,7 @@ export function setupServer() {
 
       invalidateToken(socket.handshake.auth.token);
 
-      if (game.isHost(userId)) {
+      if (game.isHost(userId) && !isMockMode()) {
         const isGameActive = game.pickNewHost();
 
         if (!isGameActive) {
