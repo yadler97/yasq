@@ -76,7 +76,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                   userName={displayName}
                 />
                 <span className="username">{displayName}</span>
-                <span className="correction-guess guess-text">"{guess.text}"</span>
+                <span className="correction-guess guess-text">{guess.text}</span>
                 {guess.joker &&
                   (() => {
                     const JokerIcon = ALL_JOKER_ICONS.find(icon => icon.jokerType === guess.joker);

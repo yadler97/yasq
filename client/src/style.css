@@ -64,42 +64,44 @@
   --color-crosshair: #64748b;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color-scheme: light dark;
-    --bg-main: #f2f3f5;
-    --bg-sidebar-card: #ffffff;
-    --bg-input: #e3e5e8;
-    --bg-dropdown-menu: #f2f3f5;
-    --bg-button-group: #ebedef;
-    --bg-dark: #e3e5e8;
-    --text-main: #213547;
-    --text-muted: #5c5e66;
-    --border-muted: #c4c7cc;
-    --border-input-header: #c4c7cc;
-    --tags: #e6e6e6;
-    --divider: #cccccc;
-    --shimmer-color: rgba(0, 0, 0, 0.04);
-    --countdown-overlay: rgba(240, 240, 240, 0.9);
-    --tags-border: rgba(0, 0, 0, 0.1);
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
 
-    /* Time bonus plot colors */
-    --color-plot-background: #fdfdfd;
-    --color-plot-border: #e2e8f0;
-    --color-plot-axis: #cbd5e1;
-    --color-hover-line: #94a3b8;
-    --color-curve: var(--blurple); /* alt.: #0284c7*/
-    --color-curve-start: #1b279f;
-    /* Player guess markers */
-    --color-marker-current: #e11d48;
-    --color-marker-correct: #059669;
-    --color-marker-partial: #d97706;
-    --color-marker-incorrect: #94a3b8;
-    /* Plot hover effects */
-    --color-plot-tooltip-fill: #fdfdfd;
-    --color-plot-tooltip-border: var(--blurple);
-    --color-crosshair: #64748b;
-  }
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg-main: #f2f3f5;
+  --bg-sidebar-card: #ffffff;
+  --bg-input: #e3e5e8;
+  --bg-dropdown-menu: #f2f3f5;
+  --bg-button-group: #ebedef;
+  --bg-dark: #e3e5e8;
+  --text-main: #213547;
+  --text-muted: #5c5e66;
+  --border-muted: #c4c7cc;
+  --border-input-header: #c4c7cc;
+  --tags: #e6e6e6;
+  --divider: #cccccc;
+  --shimmer-color: rgba(0, 0, 0, 0.04);
+  --countdown-overlay: rgba(240, 240, 240, 0.9);
+  --tags-border: rgba(0, 0, 0, 0.1);
+
+  /* Time bonus plot colors */
+  --color-plot-background: #fdfdfd;
+  --color-plot-border: #e2e8f0;
+  --color-plot-axis: #cbd5e1;
+  --color-hover-line: #94a3b8;
+  --color-curve: var(--blurple); /* alt.: #0284c7*/
+  --color-curve-start: #1b279f;
+  /* Player guess markers */
+  --color-marker-current: #e11d48;
+  --color-marker-correct: #059669;
+  --color-marker-partial: #d97706;
+  --color-marker-incorrect: #94a3b8;
+  /* Plot hover effects */
+  --color-plot-tooltip-fill: #fdfdfd;
+  --color-plot-tooltip-border: var(--blurple);
+  --color-crosshair: #64748b;
 }
 
 a {
@@ -496,7 +498,6 @@ select:disabled option {
 
 .game-header-stats {
   margin-left: var(--space-large);
-  margin-right: var(--space-large);
   padding-top: env(safe-area-inset-top, 0px);
   height: 48px;
   display: flex;
@@ -504,6 +505,7 @@ select:disabled option {
   align-items: center;
   border-bottom: 1px solid var(--divider);
   flex-shrink: 0;
+  position: relative;
 }
 
 .round-indicator {
@@ -511,6 +513,25 @@ select:disabled option {
   font-size: 1.2rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  margin: 0;
+  transform: translateX(calc(-1 * var(--space-large)));
+}
+
+.local-settings-btn {
+  position: absolute;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.local-settings {
+  display: flex;
+  flex-flow: column;
+  gap: var(--space-large);
 }
 
 .game-area {
@@ -1313,6 +1334,10 @@ input[type='radio']:checked + .btn-radio {
   opacity: 0.3;
 }
 
+:root[data-keyboard-hints='false'] .shortcut-badge {
+  display: none !important;
+}
+
 kbd {
   background-color: var(--bg-input);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1945,6 +1970,7 @@ input[value='1']:checked + .btn-radio.correct {
   text-align: center;
   pointer-events: none;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  text-shadow: none;
 
   top: 100%;
   margin-top: var(--space-small);
@@ -2556,6 +2582,7 @@ input[value='1']:checked + .btn-radio.correct {
   position: relative;
   border-bottom: 1px solid var(--border-muted);
   padding: 0.5rem 0;
+  text-align: center;
 }
 
 .modal-title {
@@ -2751,6 +2778,14 @@ input[value='1']:checked + .btn-radio.correct {
     flex-grow: 1;
   }
 
+  .game-header-stats {
+    margin-right: var(--space-large);
+  }
+
+  .round-indicator {
+    transform: none;
+  }
+
   .game-area {
     padding: var(--space-small);
     overflow: visible;
@@ -2884,8 +2919,9 @@ input[value='1']:checked + .btn-radio.correct {
 }
 
 @media (pointer: coarse) {
-  /* Don't display joker shortcuts on mobile devices */
-  .shortcut-badge {
+  /* Don't display shortcut badges on mobile devices */
+  .shortcut-badge,
+  .shortcut-badge-settings {
     display: none;
   }
 }

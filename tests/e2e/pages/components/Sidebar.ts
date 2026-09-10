@@ -1,12 +1,11 @@
 import { Page, Locator } from '@playwright/test';
+import { BasePage } from '../BasePage';
 
 type BadgeType = 'host' | 'ready' | 'guessed' | 'winner' | 'streak';
 
-export class Sidebar {
-  readonly page: Page;
-
+export class Sidebar extends BasePage {
   constructor(page: Page) {
-    this.page = page;
+    super(page);
   }
 
   private getPlayerRow(username: string): Locator {

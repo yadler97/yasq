@@ -15,7 +15,13 @@ interface RadioGroupProps<T> {
   groupId?: string;
 }
 
-export function RadioGroup<T extends string | number>({ name, options, value, onChange, groupId }: RadioGroupProps<T>) {
+export function RadioGroup<T extends string | number | boolean>({
+  name,
+  options,
+  value,
+  onChange,
+  groupId,
+}: RadioGroupProps<T>) {
   return (
     <div
       id={groupId}

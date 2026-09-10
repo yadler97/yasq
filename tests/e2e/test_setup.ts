@@ -9,6 +9,8 @@ import { RoundCompletedPage } from './pages/RoundCompletedPage';
 import { ResultsPage } from './pages/ResultsPage';
 import { GameFinishedPage } from './pages/GameFinishedPage';
 import { Sidebar } from './pages/components/Sidebar';
+import { Header } from './pages/components/Header';
+import { LocalSettingsModal } from './pages/components/LocalSettingsModal';
 
 type GameOptions = {
   sessionConfig: {
@@ -28,6 +30,8 @@ type GameFixtures = {
   resultsPage: ResultsPage;
   gameFinishedPage: GameFinishedPage;
   sidebar: Sidebar;
+  header: Header;
+  localSettingsModal: LocalSettingsModal;
 };
 
 export const test = base.extend<GameOptions & GameFixtures>({
@@ -70,6 +74,8 @@ export const test = base.extend<GameOptions & GameFixtures>({
   resultsPage: async ({ page }, use) => use(new ResultsPage(page)),
   gameFinishedPage: async ({ page }, use) => use(new GameFinishedPage(page)),
   sidebar: async ({ page }, use) => use(new Sidebar(page)),
+  header: async ({ page }, use) => use(new Header(page)),
+  localSettingsModal: async ({ page }, use) => use(new LocalSettingsModal(page)),
 });
 
 export { expect };
