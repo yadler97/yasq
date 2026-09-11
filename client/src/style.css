@@ -517,9 +517,14 @@ select:disabled option {
   transform: translateX(calc(-1 * var(--space-large)));
 }
 
-.local-settings-btn {
+.header-buttons {
+  display: flex;
+  gap: var(--space-tiny);
   position: absolute;
   right: 0;
+}
+
+.header-btn {
   width: 36px;
   height: 36px;
   padding: 0;
@@ -532,6 +537,34 @@ select:disabled option {
   display: flex;
   flex-flow: column;
   gap: var(--space-large);
+}
+
+.instructions-tab-content {
+  display: flex;
+  flex-flow: column;
+  margin-top: var(--space-large);
+  width: 100%;
+  gap: var(--space-large);
+}
+
+.instruction-step {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-large);
+  align-items: start;
+}
+
+.instruction-step h3 {
+  margin-top: 0;
+}
+
+.instruction-step img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  height: auto;
+  object-fit: contain;
+  background-color: grey;
+  border-radius: var(--border-radius-medium);
 }
 
 .game-area {
@@ -2787,6 +2820,10 @@ input[value='1']:checked + .btn-radio.correct {
 
   .round-indicator {
     transform: none;
+  }
+
+  .instruction-step {
+    grid-template-columns: 1fr;
   }
 
   .game-area {
