@@ -5,6 +5,7 @@ import { CommonCSSProperties } from '../utils/types';
 import { isTouchDevice } from '../utils/helper';
 
 export interface BaseModalProps {
+  id?: string;
   isOpen: boolean;
   onClose?: () => void;
   title?: string;
@@ -21,6 +22,7 @@ export type ModalProps = BaseModalProps & CommonCSSProperties;
  * The modal appears in front of the page content whenever isOpen evaluates to true.
  */
 export const Modal = ({
+  id,
   isOpen,
   onClose,
   title,
@@ -94,6 +96,7 @@ export const Modal = ({
 
   return (
     <dialog
+      id={id}
       ref={dialogRef}
       className="modal-dialog"
       style={modalStyle}

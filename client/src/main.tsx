@@ -87,6 +87,7 @@ const App = () => {
           </main>
 
           <Modal
+            id="local-settings-modal"
             isOpen={isLocalSettingsOpen.value}
             onClose={() => (isLocalSettingsOpen.value = false)}
             title="Local Settings"
@@ -96,12 +97,13 @@ const App = () => {
           </Modal>
 
           <Modal
+            id="how-to-play-modal"
             isOpen={isHowToPlayOpen.value}
             onClose={() => (isHowToPlayOpen.value = false)}
             title="How to Play"
             width="1000px"
           >
-            <HowToPlay />
+            <HowToPlay isHost={isHost} />
           </Modal>
         </div>
         <Sidebar />

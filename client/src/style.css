@@ -193,6 +193,16 @@ img {
   letter-spacing: +2%;
 }
 
+.highlight.correct {
+  color: var(--green);
+}
+.highlight.partial {
+  color: var(--yellow);
+}
+.highlight.wrong {
+  color: var(--red);
+}
+
 @media (prefers-color-scheme: dark) {
   .highlight {
     color: color-mix(in srgb, var(--blurple), white 10%);
@@ -560,11 +570,28 @@ select:disabled option {
 
 .instruction-step img {
   width: 100%;
-  aspect-ratio: 16/9;
+  aspect-ratio: 16/9.27;
   height: auto;
   object-fit: contain;
   background-color: grey;
   border-radius: var(--border-radius-medium);
+}
+
+.instruction-step ul {
+  display: flex;
+  flex-flow: column;
+  gap: var(--space-large);
+}
+
+.instruction-step li div {
+  display: flex;
+  flex-direction: column;
+}
+
+.joker-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-small);
 }
 
 .game-area {

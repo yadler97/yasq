@@ -27,6 +27,7 @@ export const GameHeader = () => {
       <div className="header-buttons">
         <button
           type="button"
+          id="how-to-play-btn"
           className="header-btn"
           onClick={() => (isHowToPlayOpen.value = true)}
         >
@@ -34,6 +35,7 @@ export const GameHeader = () => {
         </button>
         <button
           type="button"
+          id="local-settings-btn"
           className="header-btn"
           onClick={() => (isLocalSettingsOpen.value = true)}
         >

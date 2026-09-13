@@ -83,6 +83,7 @@ export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
                     return JokerIcon ? (
                       <TooltipDiv
                         text={JokerIcon?.description}
+                        id={guess.joker.toLowerCase()}
                         className="joker-indicator"
                         role="img"
                       >
