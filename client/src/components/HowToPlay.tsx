@@ -49,13 +49,58 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
               alt="Time bonuses and streaks preview"
             />
             <div>
-              <h3>⚡ Time Bonuses & Streaks</h3>
+              <h3>⚡ Streaks & Bonuses</h3>
               <p>
-                Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum
-                dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent
-                luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet,
-                consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam
-                erat volutpat.{' '}
+                Your answer could either be marked by the host as <strong className="highlight correct">Correct</strong>
+                , <strong className="highlight partial">Partial</strong>, or{' '}
+                <strong className="highlight wrong">Wrong</strong>. Correct answers will give full points, partially
+                correct answers half points and wrong answers zero points.
+              </p>
+              <p>
+                During the game, you are able to build a <span className="highlight">Streak</span>, which is displayed
+                next to your name in the player list. Each correct answer will increase your streak by 1, while
+                partially correct answer will keep your current streak. If your answer is wrong, you will lose your
+                entire streak!
+              </p>
+              <p>A variety of bonuses can be awarded after each round:</p>
+              <ul>
+                <li>
+                  <div>
+                    <strong>Time Bonus</strong>
+                    <span>
+                      The first player with the correct answer receives the full time bonus, which then starts decaying
+                      for subsequent correct answers.
+                    </span>
+                  </div>
+                </li>
+                <li>
+                  <div>
+                    <strong>First Correct Answer Bonus</strong>
+                    <span>Awarded for the first player to give a fully correct answer.</span>
+                  </div>
+                </li>
+                <li>
+                  <div>
+                    <strong>Streak Bonus</strong>
+                    <span>
+                      Awarded for building streaks. Starting with a streak of 2 you will get a bonus, which increases
+                      for every higher you achieve.
+                    </span>
+                  </div>
+                </li>
+                <li>
+                  <div>
+                    <strong>Streak Breaker Bonus</strong>
+                    <span>
+                      If another player loses his or her streak, all other players with a correct answer will receive a
+                      bonus.
+                    </span>
+                  </div>
+                </li>
+              </ul>
+              <p>
+                A table with the exact points calculation and a plot with the time bonus distribution can be seen when
+                clicking <strong>See score details</strong>.
               </p>
             </div>
           </div>
@@ -96,7 +141,12 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
             />
             <div>
               <h3>🏆 Final Results</h3>
-              <p></p>
+              <p>After all rounds have been played, it's time for the final results!</p>
+              <p>
+                If achievement bonuses are activated, the best (or worst) players will receive some additional points,
+                e.g. for highest streak or fastest correct guess.
+              </p>
+              <p>The player with the most points wins. Good luck!</p>
             </div>
           </div>
         </div>
@@ -131,6 +181,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                 <li>
                   <div>
                     <strong>Active Jokers</strong>
+                    <span>Each Joker can be turned on or off.</span>
                   </div>
                 </li>
               </ul>
@@ -139,21 +190,35 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                 <li>
                   <div>
                     <strong>Time Bonus</strong>
+                    <span>
+                      Choose how the time bonus decays over time (Linear, Exponential, or Logistic), or turn it off
+                      completely.
+                    </span>
                   </div>
                 </li>
                 <li>
                   <div>
                     <strong>First Correct Answer Bonus</strong>
+                    <span>Awarded for the first fully correct player in each round.</span>
                   </div>
                 </li>
                 <li>
                   <div>
                     <strong>Streak Bonus</strong>
+                    <span>
+                      Awarded for building streaks. Starting with a streak of 2 players will get a bonus after each
+                      round, which increases for every higher you achieve.
+                    </span>
                   </div>
                 </li>
                 <li>
                   <div>
                     <strong>Achievement Bonus</strong>
+                    <span>
+                      Awarded at the end of the game for the player with the highest streak or the fastest correct
+                      answer. You can select specific bonuses to be awarded, choose a number of randomly selected
+                      bonuses or turn of achievement bonuses entirely.
+                    </span>
                   </div>
                 </li>
               </ul>

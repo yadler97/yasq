@@ -570,10 +570,8 @@ select:disabled option {
 
 .instruction-step img {
   width: 100%;
-  aspect-ratio: 16/9.27;
   height: auto;
   object-fit: contain;
-  background-color: grey;
   border-radius: var(--border-radius-medium);
 }
 
