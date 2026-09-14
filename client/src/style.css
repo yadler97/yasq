@@ -437,15 +437,15 @@ select:disabled option {
   background-color: var(--bg-input);
   aspect-ratio: 1 / 1;
   height: 35px;
-  cursor: help;
   outline: none;
 }
 
-.joker-indicator:hover,
-.joker-indicator:focus-visible {
+.joker-indicator:not(.joker-list-item *):hover,
+.joker-indicator:not(.joker-list-item *):focus-visible {
   background-color: var(--bg-sidebar-card);
   border: 1pt solid var(--blurple);
   box-shadow: 0 0 12px rgba(88, 101, 242, 0.3);
+  cursor: help;
 }
 
 .joker-text-name {

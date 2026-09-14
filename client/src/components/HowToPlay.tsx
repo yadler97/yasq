@@ -30,7 +30,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
             />
             <div>
               <h3>🎵 Guess the Game</h3>
-              <p>Listen to the audio track and guess the correct game as quick as possible!</p>
+              <p>Listen to the audio track and guess the correct game as quickly as possible!</p>
               <p>
                 You can either submit your guess by clicking the <strong>Submit Guess</strong> button or by pressing{' '}
                 <kbd>Enter</kbd>.
@@ -51,15 +51,15 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
             <div>
               <h3>⚡ Streaks & Bonuses</h3>
               <p>
-                Your answer could either be marked by the host as <strong className="highlight correct">Correct</strong>
-                , <strong className="highlight partial">Partial</strong>, or{' '}
-                <strong className="highlight wrong">Wrong</strong>. Correct answers will give full points, partially
-                correct answers half points and wrong answers zero points.
+                Your answer could either be marked as <strong className="highlight correct">Correct</strong>,
+                <strong className="highlight partial">Partial</strong>, or{' '}
+                <strong className="highlight wrong">Wrong</strong> by the host. Correct answers will give full points,
+                partially correct answers half points and wrong answers zero points.
               </p>
               <p>
                 During the game, you are able to build a <span className="highlight">Streak</span>, which is displayed
                 next to your name in the player list. Each correct answer will increase your streak by 1, while
-                partially correct answer will keep your current streak. If your answer is wrong, you will lose your
+                partially correct answers will keep your current streak. If your answer is wrong, you will lose your
                 entire streak!
               </p>
               <p>A variety of bonuses can be awarded after each round:</p>
@@ -68,8 +68,8 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                   <div>
                     <strong>Time Bonus</strong>
                     <span>
-                      The first player with the correct answer receives the full time bonus, which then starts decaying
-                      for subsequent correct answers.
+                      The first player with at least a partially correct answer receives the full time bonus, which then
+                      starts decaying for subsequent (partially) correct answers.
                     </span>
                   </div>
                 </li>
@@ -83,8 +83,8 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                   <div>
                     <strong>Streak Bonus</strong>
                     <span>
-                      Awarded for building streaks. Starting with a streak of 2 you will get a bonus, which increases
-                      for every higher you achieve.
+                      Awarded for building streaks. From a streak of 2 onwards, you will get a bonus which increases
+                      with every subsequent streak level you achieve.
                     </span>
                   </div>
                 </li>
@@ -92,8 +92,8 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                   <div>
                     <strong>Streak Breaker Bonus</strong>
                     <span>
-                      If another player loses his or her streak, all other players with a correct answer will receive a
-                      bonus.
+                      If another player loses their streak, all other players with a correct answer will receive a bonus
+                      proportional to the magnitude of the broken streak(s).
                     </span>
                   </div>
                 </li>
@@ -101,6 +101,11 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
               <p>
                 A table with the exact points calculation and a plot with the time bonus distribution can be seen when
                 clicking <strong>See score details</strong>.
+              </p>
+              <p>
+                Note: The host may adjust the balancing between all of the aforementioned bonuses to their liking, as
+                well as disable individual bonuses entirely. Therefore, watch out for the settings your host has chosen
+                before the game starts!
               </p>
             </div>
           </div>
@@ -125,7 +130,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                       </div>
                       <div>
                         <strong>{capitalize(Icon.jokerType)}: </strong>
-                        <span>{Icon.description}</span>
+                        <span>{Icon.description}.</span>
                       </div>
                     </li>
                   );
@@ -173,7 +178,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                   <div>
                     <strong>Max Guess Time</strong>
                     <span>
-                      The time players have to submit their answer. After the time expires, the round will end
+                      The time players have to submit their answer. Once the time expires, the round will end
                       automatically.
                     </span>
                   </div>
@@ -191,7 +196,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                   <div>
                     <strong>Time Bonus</strong>
                     <span>
-                      Choose how the time bonus decays over time (Linear, Exponential, or Logistic), or turn it off
+                      Choose how the time bonus decays over time (e.g. Linear, Exponential, etc.), or turn it off
                       completely.
                     </span>
                   </div>
@@ -206,8 +211,8 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                   <div>
                     <strong>Streak Bonus</strong>
                     <span>
-                      Awarded for building streaks. Starting with a streak of 2 players will get a bonus after each
-                      round, which increases for every higher you achieve.
+                      Awarded for building streaks. From a streak of 2 onwards, players will get a bonus which increases
+                      with every subsequent streak level they achieve.
                     </span>
                   </div>
                 </li>
@@ -215,7 +220,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                   <div>
                     <strong>Achievement Bonus</strong>
                     <span>
-                      Awarded at the end of the game for the player with the highest streak or the fastest correct
+                      Awarded at the end of the game to the player with e.g. the highest streak or the fastest correct
                       answer. You can select specific bonuses to be awarded, choose a number of randomly selected
                       bonuses or turn of achievement bonuses entirely.
                     </span>
@@ -223,7 +228,8 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                 </li>
               </ul>
               <p>
-                You can also transfer the host role to another player. You will then participate in the game as player.
+                You can also transfer the host role to another player. You will then participate in the game as a
+                player.
               </p>
             </div>
           </div>
@@ -240,7 +246,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                 You can filter tracks by tags and playlists (if present), order tracks alphabetically and search for
                 keywords in game or track title. You can also filter out previously played tracks.
               </p>
-              <p>If you can not decide, you can choose a random track from the current filtered track list.</p>
+              <p>If you cannot decide, you can choose a random track from the current filtered track list.</p>
               <p>Note: Every track can only be played once per game!</p>
             </div>
           </div>
@@ -260,6 +266,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
                 correct answers half points and wrong answers zero points. Players who did not submit a guess in time
                 will be listed at the bottom and will automatically receive zero points.
               </p>
+              <p>If you are finished with reviewing the answers, you can submit your corrections to the players.</p>
             </div>
           </div>
         </div>
