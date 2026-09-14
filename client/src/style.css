@@ -489,6 +489,10 @@ select:disabled option {
   font-size: 1rem;
 }
 
+.achievement-list {
+  padding-inline-start: var(--space-large);
+}
+
 .card-container h2,
 .hint-container h2,
 .game-stats h2 {

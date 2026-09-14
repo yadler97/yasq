@@ -51,7 +51,7 @@ export const HowToPlay = ({ isHost }: { isHost: boolean }) => {
             <div>
               <h3>⚡ Streaks & Bonuses</h3>
               <p>
-                Your answer could either be marked as <strong className="highlight correct">Correct</strong>,
+                Your answer could either be marked as <strong className="highlight correct">Correct</strong>,{' '}
                 <strong className="highlight partial">Partial</strong>, or{' '}
                 <strong className="highlight wrong">Wrong</strong> by the host. Correct answers will give full points,
                 partially correct answers half points and wrong answers zero points.
