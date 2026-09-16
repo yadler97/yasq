@@ -73,8 +73,6 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
       ? timeBonusSamples.value.get(selectedBonus.value as TimeBonus)
       : null;
 
-  const sampleParticipants = new Map((activeTimeBonusSample?.participants || []).map(p => [p.id, p]));
-
   const toggleJoker = (type: Joker) => {
     const updatedJokerSet = new Set(activeJokers.value);
     if (updatedJokerSet.has(type)) {
@@ -226,7 +224,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
                   ) : (
                     <TimeBonusPlot
                       currentPlayer={null}
-                      participants={sampleParticipants}
+                      participants={activeTimeBonusSample?.participants || []}
                       data={activeTimeBonusSample?.timeBonusSummary ?? null}
                     />
                   )}

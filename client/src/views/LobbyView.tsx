@@ -48,8 +48,6 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
       ? timeBonusSamples.value.get(gameState.value.gameSettings.timeBonus)
       : null;
 
-  const sampleParticipants = new Map((activeTimeBonusSample?.participants || []).map(p => [p.id, p]));
-
   const showTimeBonusDialog = useSignal<boolean>(false);
   const openTimeBonusDialog = () => {
     showTimeBonusDialog.value = true;
@@ -153,7 +151,7 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
               ) : (
                 <TimeBonusPlot
                   currentPlayer={null}
-                  participants={sampleParticipants}
+                  participants={activeTimeBonusSample?.participants || []}
                   data={activeTimeBonusSample?.timeBonusSummary ?? null}
                 />
               )}
