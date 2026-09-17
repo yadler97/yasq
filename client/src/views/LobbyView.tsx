@@ -17,6 +17,7 @@ import { TooltipDiv, WithTooltip } from '../components/Tooltip';
 
 import { useRovingTabIndex } from '../hooks/useRovingTabIndex';
 import { useTimeBonusSamples } from '../hooks/useTimeBonusSamples';
+import { InviteButton } from '../components/InviteButton';
 
 export const LobbyView = ({ isHost }: { isHost: boolean }) => {
   const auth = useAuth();
@@ -195,13 +196,16 @@ export const LobbyView = ({ isHost }: { isHost: boolean }) => {
 
       <div className="lobby-footer">
         {isHost ? (
-          <button
-            id="btn-start"
-            disabled={!allPlayersAreReady}
-            onClick={handleStart}
-          >
-            {allPlayersAreReady ? 'Start Game' : `Waiting... (${readyUsers}/${playersExcludingHost.length})`}
-          </button>
+          <>
+            <button
+              id="btn-start"
+              disabled={!allPlayersAreReady}
+              onClick={handleStart}
+            >
+              {allPlayersAreReady ? 'Start Game' : `Waiting... (${readyUsers}/${playersExcludingHost.length})`}
+            </button>
+            <InviteButton />
+          </>
         ) : (
           <ReadyButton promptText={'Ready Up'} />
         )}
