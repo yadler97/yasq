@@ -128,7 +128,7 @@ async function handleTopCommand(interaction: ChatInputCommandInteraction) {
 async function handleRankCommand(interaction: ChatInputCommandInteraction) {
   await interaction.deferReply();
 
-  const targetUser = interaction.options.getUser('user') || interaction.user;
+  const targetUser = interaction.options.getUser('player') || interaction.user;
 
   try {
     const stats = await getPlayerRank(targetUser.id);

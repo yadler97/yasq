@@ -192,33 +192,11 @@ This also allows players to launch the activity directly from the chat interface
 
 #### Database (Optional)
 
-A postgres database can be set up to persist leaderboard data. For this, you need a local instance of postgres. We recommend setting up a separate yasq user and database:
+A local database can be set up to persist leaderboard data. For this, you need to set a local environment variable in your `.env` file:
 
-Open your terminal as an administrator or use the `psql` command-line tool connected to your local PostgreSQL server, and run the following commands:
-
-1. Create a dedicated database user
-
-   ```sql
-   CREATE USER yasq WITH PASSWORD 'your_password';
-   ```
-
-2. Create the YASQ database
-
-   ```sql
-   CREATE DATABASE yasq_db OWNER yasq;
-   ```
-
-3. Grant privileges to the user
-
-   ```sql
-   GRANT ALL PRIVILEGES ON DATABASE yasq_db TO yasq;
-   ```
-
-4. Set your Environment Variable in `.env`
-
-   ```dotenv
-   DATABASE_URL=postgresql://yasq:your_secure_password@localhost:5432/yasq_db
-   ```
+```dotenv
+DATABASE_PATH=<name>.db
+```
 
 Once the database is set up, the activity will write the final results to the database after every game, allowing users to query historic data via the bot.
 
