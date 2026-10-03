@@ -415,7 +415,7 @@ async function handlePlaylistCommand(interaction: ChatInputCommandInteraction) {
 
         const trackPayload = buildTrackPayload(currentTrack, dataDir);
         const payload = {
-          content: `▶ Playing playlist **${playlist.name}** (${currentIndex}/${playlistTracks.length}):`,
+          content: `▶️️ Playing playlist **${playlist.name}** (${currentIndex}/${playlistTracks.length}):`,
           ...trackPayload,
         };
 
