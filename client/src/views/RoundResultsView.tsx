@@ -1,11 +1,12 @@
 import { useSignal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 
+import { capitalize, getAvatarUrl, getDisplayName, Participant, Tag } from '@yasq/shared';
+
 import * as backend from '../utils/backend';
 import { discordSdk, gameStatus, participants, useAuth } from '../main';
-import { capitalize, findUser, getUserId } from '../utils/helper';
+import { findUser, getUserId } from '../utils/helper';
 import { NonDraggableImg } from '../components/NonDraggableImg';
-import { getAvatarUrl, getDisplayName, Participant, Tag } from '@yasq/shared';
 import { RoundBubblesGroup } from '../components/RoundBubble';
 import { PointsCalculationTable } from '../components/PointsCalculationTable';
 import { RollingNumber } from '../components/RollingNumber';

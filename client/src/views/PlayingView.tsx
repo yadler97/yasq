@@ -1,10 +1,8 @@
 import { useSignal } from '@preact/signals';
 import { useEffect, useRef } from 'preact/hooks';
 
-import { audioPlayer, discordSdk, gameStatus, isMac, participants, useAuth } from '../main';
-import * as backend from '../utils/backend';
-import * as connections from '../utils/connections';
 import {
+  capitalize,
   getAvatarUrl,
   getDisplayName,
   Joker,
@@ -14,8 +12,12 @@ import {
   RoundTimings,
   Tag,
 } from '@yasq/shared';
+
+import { audioPlayer, discordSdk, gameStatus, isMac, participants, useAuth } from '../main';
+import * as backend from '../utils/backend';
+import * as connections from '../utils/connections';
 import { ALL_JOKER_ICONS } from '../components/Icons';
-import { capitalize, findUser, getActionKeyLabel, getUserId } from '../utils/helper';
+import { findUser, getActionKeyLabel, getUserId } from '../utils/helper';
 import { NonDraggableImg } from '../components/NonDraggableImg';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
 import { DiscordAvatar } from '../components/DiscordAvatar';
