@@ -1,11 +1,12 @@
 import { useSignal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 
+import { capitalize, getAvatarUrl, getDisplayName, Participant, Tag } from '@yasq/shared';
+
 import * as backend from '../utils/backend';
-import { discordSdk, gameState, participants, useAuth } from '../main';
+import { discordSdk, gameStatus, participants, useAuth } from '../main';
 import { findUser, getUserId } from '../utils/helper';
 import { NonDraggableImg } from '../components/NonDraggableImg';
-import { capitalize, getAvatarUrl, getDisplayName, Participant, Tag } from '@yasq/shared';
 import { RoundBubblesGroup } from '../components/RoundBubble';
 import { PointsCalculationTable } from '../components/PointsCalculationTable';
 import { RollingNumber } from '../components/RollingNumber';
@@ -20,8 +21,8 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   const roundData = useSignal<any>(null);
   const isPointsDetailsOpen = useSignal(false);
 
-  const isFinalRound = gameState.value.currentRound >= gameState.value.gameSettings.rounds;
-  const hasTimeBonus = !!gameState.value.gameSettings.timeBonus;
+  const isFinalRound = gameStatus.value.state.round >= gameStatus.value.settings.rounds;
+  const hasTimeBonus = !!gameStatus.value.settings.timeBonus;
 
   useEffect(() => {
     backend
@@ -35,11 +36,11 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   }, [isHost]);
 
   // Logic for the Host's "Next Round" button
-  const playersExcludingHost = participants.value.filter(p => p.id !== gameState.value.hostId);
+  const playersExcludingHost = participants.value.filter(p => p.id !== gameStatus.value.hostId);
   const currentPlayer = findUser(participants.value, getUserId(auth)!);
-  const readyCount = gameState.value.readyUsers.length;
+  const readyCount = gameStatus.value.readyPlayers.length;
   const allPlayersReady =
-    playersExcludingHost.length > 0 && playersExcludingHost.every(p => gameState.value.readyUsers.includes(p.id));
+    playersExcludingHost.length > 0 && playersExcludingHost.every(p => gameStatus.value.readyPlayers.includes(p.id));
 
   const handleNextRound = async () => {
     await backend.startNextRound(auth.access_token, discordSdk.instanceId);
