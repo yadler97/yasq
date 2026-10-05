@@ -4,13 +4,17 @@ import { dirname, join } from 'node:path';
 import Database from 'better-sqlite3';
 import dotenv from 'dotenv';
 
-import type { Leaderboard } from './src/models/leaderboard.js';
+import type { Leaderboard } from './models/leaderboard.js';
 import { DATABASE_DIR } from '@yasq/shared';
 
 dotenv.config({ path: '../.env' });
 
+let dbInstance: Database.Database | null = null;
+
 /** Open the database or return null (with a warning) if unconfigured or unopenable. */
-function openDatabase(): Database.Database | null {
+export function openDatabase(): Database.Database | null {
+  if (dbInstance) return dbInstance;
+
   const filePath = process.env.DATABASE_PATH;
   if (!filePath) return null;
 
@@ -18,33 +22,28 @@ function openDatabase(): Database.Database | null {
 
   try {
     if (fullPath !== ':memory:') mkdirSync(dirname(fullPath), { recursive: true });
-    const conn = new Database(fullPath);
-    conn.pragma('journal_mode = WAL');
-    conn.pragma('foreign_keys = ON'); // otherwise ON DELETE CASCADE is silently ignored
-    return conn;
+    dbInstance = new Database(fullPath);
+    dbInstance.pragma('journal_mode = WAL');
+    dbInstance.pragma('foreign_keys = ON');
+    return dbInstance;
   } catch (error: any) {
     console.warn('Failed to open database. Error:', error.message);
     return null;
   }
 }
 
-const db: Database.Database | null = openDatabase();
-
 function getDb(): Database.Database | null {
-  if (!db) {
-    console.warn('Database not configured (DATABASE_PATH missing or unusable).');
-    return null;
-  }
-  return db;
+  return openDatabase();
 }
 
 export async function initDatabase() {
-  if (!db) {
+  const conn = getDb();
+  if (!conn) {
     console.warn('Database not configured (DATABASE_PATH missing or unusable). Skipping initDatabase.');
     return;
   }
 
-  db.exec(`
+  conn.exec(`
     CREATE TABLE IF NOT EXISTS users (
       user_id TEXT PRIMARY KEY,
       username TEXT,
@@ -183,5 +182,8 @@ export async function getTopLifetimePlayers(limit: number = 5): Promise<PlayerRa
 
 /** Close the database gracefully */
 export function closeDatabase(): void {
-  db?.close();
+  if (dbInstance) {
+    dbInstance.close();
+    dbInstance = null;
+  }
 }

@@ -18,7 +18,7 @@ import fs from 'fs';
 
 import { capitalize, getDisplayName, type Playlist, type Track } from '@yasq/shared';
 
-import { getTopLifetimePlayers, getPlayerRank, initDatabase } from './db.js';
+import { getTopLifetimePlayers, getPlayerRank, initDatabase } from './src/db.js';
 import { isAllowed } from './src/access_control.js';
 import { getAudioDuration } from './src/helper.js';
 

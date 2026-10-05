@@ -28,7 +28,7 @@ import {
 
 import { GameInstance, UserGuess } from './game_instance.js';
 import { LeaderboardEntry } from './leaderboard.js';
-import { saveLeaderboard } from '../../db.js';
+import { saveLeaderboard } from '../db.js';
 import { setupTempDir } from '../helper.js';
 
 const HOST = 'host_123';

@@ -37,7 +37,7 @@ import { getCachedDisplayName, getFilePath, hash } from '../helper.js';
 import { LogCategory, logger } from '../utils/logger.js';
 import { Leaderboard, LeaderboardEntry, RoundResult, RoundSummary } from './leaderboard.js';
 import { GameStats } from './game_stats.js';
-import { saveLeaderboard } from '../../db.js';
+import { saveLeaderboard } from '../db.js';
 
 type UserId = string;
 
