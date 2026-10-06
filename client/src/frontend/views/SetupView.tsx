@@ -1,12 +1,7 @@
 import { useSignal } from '@preact/signals';
 import { TargetedEvent } from 'preact';
 
-import { audioPlayer, discordSdk, gameStatus, useAuth } from '../main';
-
-import * as backend from '../utils/backend';
-import { HOST_TIME_BONUS_LABELS } from '../utils/constants';
-import { OptionalTimeBonus, TOptionalTimeBonus } from '../utils/types';
-
+import { audioPlayer, gameStatus, useBackend } from '@yasq/client/src/globals';
 import {
   AchievementBonuses,
   AchievementBonusType,
@@ -21,18 +16,21 @@ import {
   TimeBonus,
 } from '@yasq/shared';
 
-import { ALL_JOKER_ICONS } from '../components/Icons';
-import { NonDraggableImg } from '../components/NonDraggableImg';
-import { HostTransferDropdown } from '../components/HostTransferDropdown';
-import { formatBonusMultiplier } from '../utils/helper';
-import { TimeBonusPlot } from '../components/TimeBonusPlot';
+import { HOST_TIME_BONUS_LABELS } from '../../common/constants';
+import { OptionalTimeBonus, TOptionalTimeBonus } from '../../common/types';
+import { formatBonusMultiplier } from '../../utils/helper';
 import { useTimeBonusSamples } from '../hooks/useTimeBonusSamples';
-import { WithTooltip } from '../components/Tooltip';
-import { RadioGroup } from '../components/RadioGroup';
-import { AchievementBonusSettingsPanel } from '../components/AchievementBonusSettings';
+
+import { ALL_JOKER_ICONS } from '@components/Icons';
+import { NonDraggableImg } from '@components/NonDraggableImg';
+import { HostTransferDropdown } from '@components/HostTransferDropdown';
+import { TimeBonusPlot } from '@components/TimeBonusPlot';
+import { WithTooltip } from '@components/Tooltip';
+import { RadioGroup } from '@components/RadioGroup';
+import { AchievementBonusSettingsPanel } from '@components/AchievementBonusSettings';
 
 export const SetupView = ({ isHost }: { isHost: boolean }) => {
-  const auth = useAuth();
+  const backend = useBackend();
   const roundCount = useSignal(gameStatus.value.settings.rounds || DEFAULT_ROUNDS);
   const maxGuessTime = useSignal(
     gameStatus.value.settings.maxGuessTime ? gameStatus.value.settings.maxGuessTime / 1000 : DEFAULT_MAX_GUESS_TIME
@@ -99,7 +97,7 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
     };
 
     try {
-      await backend.setupGame(auth.access_token, discordSdk.instanceId, currentSettings);
+      await backend.setupGame(currentSettings);
     } catch (e) {
       console.error('Setup failed:', e);
     }

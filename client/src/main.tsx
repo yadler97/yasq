@@ -1,80 +1,36 @@
-import { createContext, render } from 'preact';
+import { render } from 'preact';
 import { signal } from '@preact/signals';
-import { useContext } from 'preact/hooks';
 
-import { getUserId } from './utils/helper';
-import {
-  AbstractDiscordSdk,
-  authenticateWithDiscord,
-  AuthenticationResult,
-  establishServerConnection,
-  getDiscordSdk,
-  syncParticipants,
-} from './utils/connections';
-import { useKeyboardShortcut } from './hooks/useKeyboardShortcut';
-import { DEFAULT_VOLUME_SLIDER_VAL, GamePhase, GameSettings, GameStatus, MAX_VOLUME, Participant } from '@yasq/shared';
+import { backend, BackendContext, discordSdk, gameStatus, isMac, participants } from './globals';
+import { authenticateWithDiscord, establishServerConnection, syncParticipants } from './backend/connections';
+import { useKeyboardShortcut } from './frontend/hooks/useKeyboardShortcut';
+import { GamePhase } from '@yasq/shared';
 
-import { GameHeader, isHowToPlayOpen, isLocalSettingsOpen } from './components/GameHeader';
-import { HowToPlay } from './components/HowToPlay';
-import { LocalSettings } from './components/LocalSettings';
-import { Modal } from './components/Modal';
-import { Sidebar } from './components/Sidebar';
-import { LoadingState } from './components/LoadingSpinner';
+import { GameHeader, isHowToPlayOpen, isLocalSettingsOpen } from '@components/GameHeader';
+import { HowToPlay } from '@components/HowToPlay';
+import { LocalSettings } from '@components/LocalSettings';
+import { Modal } from '@components/Modal';
+import { Sidebar } from '@components/Sidebar';
+import { LoadingState } from '@components/LoadingSpinner';
 
-import { SetupView } from './views/SetupView';
-import { LobbyView } from './views/LobbyView';
-import { TrackSelectionView } from './views/TrackSelectionView';
-import { PlayingView } from './views/PlayingView';
-import { HostReviewView } from './views/HostReviewView';
-import { RoundResultsView } from './views/RoundResultsView';
-import { FinalResultsView } from './views/FinalResultsView';
+import { SetupView } from '@views/SetupView';
+import { LobbyView } from '@views/LobbyView';
+import { TrackSelectionView } from '@views/TrackSelectionView';
+import { PlayingView } from '@views/PlayingView';
+import { HostReviewView } from '@views/HostReviewView';
+import { RoundResultsView } from '@views/RoundResultsView';
+import { FinalResultsView } from '@views/FinalResultsView';
 
 import './style.css';
 
-const authState = signal<AuthenticationResult | null>(null);
-export const discordSdk: AbstractDiscordSdk = getDiscordSdk();
-export const participants = signal<Participant[]>([]);
-
-export const gameStatus = signal<GameStatus>({
-  state: {
-    game: 1,
-    round: 0,
-    phase: GamePhase.LOBBY,
-    playback: null,
-  },
-  hostId: null,
-  readyPlayers: [],
-  guessedPlayers: [],
-  lastWinnerId: null,
-  settings: GameSettings.withJokerArray(),
-  streaks: {},
-  lostStreaks: {},
-});
-export const volume = signal(DEFAULT_VOLUME_SLIDER_VAL);
-
-export const audioPlayer = new Audio();
-audioPlayer.loop = true;
-const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-const source = audioContext.createMediaElementSource(audioPlayer);
-
-export const gainNode = audioContext.createGain();
-source.connect(gainNode);
-gainNode.connect(audioContext.destination);
-gainNode.gain.value = DEFAULT_VOLUME_SLIDER_VAL * MAX_VOLUME;
-
-export const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-
-export const isInitializing = signal<boolean>(true);
-export const initError = signal<string | null>(null);
+const isInitializing = signal<boolean>(true);
+const initError = signal<string | null>(null);
 
 export const triggerManualReconnect = async () => {
   if (isInitializing.value) return;
 
   await initializeApplication();
 };
-
-const AuthContext = createContext<AuthenticationResult>(null!);
-export const useAuth = () => useContext(AuthContext);
 
 const App = () => {
   useKeyboardShortcut({ key: 'Q', altKey: !isMac, metaKey: isMac }, () => {
@@ -97,17 +53,18 @@ const App = () => {
     );
   }
 
-  if (!authState.value) return <LoadingState label="Authenticating" />;
+  const activeBackend = backend.value;
+
+  if (!activeBackend) return <LoadingState label="Authenticating" />;
 
   if (gameStatus.value.hostId === null) {
     return <LoadingState label="Starting Game" />;
   }
 
-  const isHost = String(getUserId(authState.value)) === String(gameStatus.value.hostId);
-  const authenticationResult = authState.value;
+  const isHost = activeBackend.userId === String(gameStatus.value.hostId);
 
   return (
-    <AuthContext.Provider value={authenticationResult}>
+    <BackendContext.Provider value={activeBackend}>
       <div className="container">
         <div className="game-column">
           <GameHeader />
@@ -143,7 +100,7 @@ const App = () => {
       <footer>
         <p className="version">Ver. {import.meta.env.VERSION}</p>
       </footer>
-    </AuthContext.Provider>
+    </BackendContext.Provider>
   );
 };
 
@@ -175,12 +132,12 @@ export const initializeApplication = async () => {
 
   try {
     // Authenticate user with the Discord backend
-    authState.value = await authenticateWithDiscord(discordSdk);
+    backend.value = await authenticateWithDiscord(discordSdk);
 
     // Establish a bidirectional socket connection to the YASQ server
-    establishServerConnection(discordSdk.instanceId, authState.value.access_token);
+    establishServerConnection(discordSdk.instanceId, backend.value.accessToken);
 
-    // Sync local information of the activity's participants with the backend
+    // Sync local information of the activity's participants with the Discord backend
     await syncParticipants(discordSdk, participants);
   } catch (error: any) {
     console.error('[INIT] Initialization Failed:', error);

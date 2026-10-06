@@ -13,16 +13,16 @@ import {
   Tag,
 } from '@yasq/shared';
 
-import { audioPlayer, discordSdk, gameStatus, isMac, participants, useAuth } from '../main';
-import * as backend from '../utils/backend';
-import * as connections from '../utils/connections';
-import { ALL_JOKER_ICONS } from '../components/Icons';
-import { findUser, getActionKeyLabel, getUserId } from '../utils/helper';
-import { NonDraggableImg } from '../components/NonDraggableImg';
+import { audioPlayer, gameStatus, isMac, participants, useBackend } from '@yasq/client/src/globals';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
-import { DiscordAvatar } from '../components/DiscordAvatar';
-import { TooltipDiv, WithTooltip } from '../components/Tooltip';
-import { LoadingSpinner } from '../components/LoadingSpinner';
+import { getSyncedServerTime } from '../../backend/timing';
+import { findUser, getActionKeyLabel } from '../../utils/helper';
+
+import { ALL_JOKER_ICONS } from '@components/Icons';
+import { NonDraggableImg } from '@components/NonDraggableImg';
+import { DiscordAvatar } from '@components/DiscordAvatar';
+import { TooltipDiv, WithTooltip } from '@components/Tooltip';
+import { LoadingSpinner } from '@components/LoadingSpinner';
 
 type JokerHint =
   | { type: Joker.OBFUSCATION; data: string }
@@ -135,7 +135,7 @@ enum PlayingViewPhase {
 }
 
 export const PlayingView = ({ isHost }: { isHost: boolean }) => {
-  const auth = useAuth();
+  const backend = useBackend();
   const hasSubmitted = useSignal(false);
   const isAudioBuffered = useSignal(false);
 
@@ -155,7 +155,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
 
   useEffect(() => {
     if (isHost) return;
-    backend.getAvailableJokers(auth.access_token, discordSdk.instanceId).then(data => {
+    backend.getAvailableJokers().then(data => {
       availableJokers.value = data.available;
     });
   }, [gameStatus.value.state.round, isHost]);
@@ -167,7 +167,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
     }
 
     try {
-      const response = await backend.useJoker(auth.access_token, discordSdk.instanceId, jokerType, targetId);
+      const response = await backend.useJoker(jokerType, targetId);
       const payload = await response.json();
       if (response.status === 200) {
         activeHint.value = {
@@ -192,7 +192,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
 
   const submitGuess = async (guess: string) => {
     hasSubmitted.value = true;
-    await backend.submitGuess(auth.access_token, discordSdk.instanceId, guess);
+    await backend.submitGuess(guess, getSyncedServerTime());
   };
 
   // Autofocus input when playing phase starts
@@ -260,7 +260,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
     const setupStartTime = performance.now();
 
     try {
-      const trackData = await backend.getCurrentTrack(auth.access_token, discordSdk.instanceId);
+      const trackData = await backend.getCurrentTrack();
       if (!trackData || !trackData.url || abortSignal.aborted) return;
 
       if (isHost) activeTrackInfo.value = trackData;
@@ -271,8 +271,6 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
 
       // Notify the server that we are ready to start the round now
       await backend.updateReadyToPlayStatus(
-        auth.access_token,
-        discordSdk.instanceId,
         gameStatus.value.state.round,
         isAudioBuffered.value,
         performance.now() - setupStartTime
@@ -326,7 +324,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
     const animateCountdownAndProgressBar = (_currentFrameStart: DOMHighResTimeStamp) => {
       if (abortSignal.aborted) return;
 
-      const now = connections.getSyncedServerTime();
+      const now = getSyncedServerTime();
       const timeDifference = now - startTime;
       const progressBar = progressBarRef.current;
 
@@ -375,11 +373,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
         }
 
         if (audioPlayer.paused) {
-          audioPlayer.play().catch(async () =>
-            backend.logToServer(LogLevel.ERROR, 'Failed to play track', getUserId(auth), {
-              instanceId: discordSdk.instanceId,
-            })
-          );
+          audioPlayer.play().catch(async () => backend.logToServer(LogLevel.ERROR, 'Failed to play track'));
         }
       }
 
@@ -489,7 +483,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
               <h2>Pick a player to spy on:</h2>
               <hr className="divider" />
               <div className="spy-hint-player-list">
-                {gameStatus.value.guessedPlayers.filter(id => id !== getUserId(auth)).length === 0 ? (
+                {gameStatus.value.guessedPlayers.filter(id => id !== backend.userId).length === 0 ? (
                   <p className="no-results">No player has submitted a guess yet.</p>
                 ) : (
                   gameStatus.value.guessedPlayers.map(targetId => {

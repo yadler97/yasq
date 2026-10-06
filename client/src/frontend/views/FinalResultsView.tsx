@@ -1,19 +1,19 @@
 import { useSignal } from '@preact/signals';
 import { useEffect, useState } from 'preact/hooks';
 
-import * as backend from '../utils/backend';
-import { audioPlayer, discordSdk, gameStatus, participants, useAuth } from '../main';
-import { findUser } from '../utils/helper';
+import { audioPlayer, discordSdk, gameStatus, participants, useBackend } from '@yasq/client/src/globals';
 import { ACHIEVEMENT_BONUS_POINTS, getAvatarUrl, getDisplayName } from '@yasq/shared';
-import { RoundBubblesGroup } from '../components/RoundBubble';
-import { DiscordAvatar } from '../components/DiscordAvatar';
-import { ReadyButton } from '../components/ReadyButton';
-import { GameStatsSummary } from '../components/GameStatsSummary';
-import { LoadingSpinner } from '../components/LoadingSpinner';
-import { TooltipDiv } from '../components/Tooltip';
+import { findUser } from '../../utils/helper';
+
+import { RoundBubblesGroup } from '@components/RoundBubble';
+import { DiscordAvatar } from '@components/DiscordAvatar';
+import { ReadyButton } from '@components/ReadyButton';
+import { GameStatsSummary } from '@components/GameStatsSummary';
+import { LoadingSpinner } from '@components/LoadingSpinner';
+import { TooltipDiv } from '@components/Tooltip';
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
-  const auth = useAuth();
+  const backend = useBackend();
   const leaderboard = useSignal<any[]>([]);
   const gameStats = useSignal<any>({});
   const [canExport, setCanExport] = useState(false);
@@ -28,7 +28,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
     audioPlayer.currentTime = 0;
     audioPlayer.src = '';
 
-    backend.getFinalResults(discordSdk.instanceId).then(data => {
+    backend.getFinalResults().then((data: any) => {
       leaderboard.value = data.leaderboard;
       gameStats.value = data.gameStats;
       setCanExport(data.canExport);
@@ -37,18 +37,14 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
 
   const handleDownload = async () => {
     setIsDownloading(true);
-    await backend.downloadResultsImage(discordSdk.instanceId, discordSdk);
+    await backend.downloadResultsImage(discordSdk);
     setIsDownloading(false);
   };
 
   const handlePostToChannel = async () => {
     setIsPosting(true);
     try {
-      const response = await backend.postResultsToDiscordChannel(
-        auth.access_token,
-        discordSdk.instanceId,
-        selectedChannel
-      );
+      const response = await backend.postResultsToDiscordChannel(selectedChannel);
 
       if (response.ok) {
         setHasPosted(true);
@@ -65,9 +61,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   useEffect(() => {
     if (!isHost) return;
 
-    backend
-      .getDiscordChannels(auth.access_token, discordSdk.instanceId, discordSdk.guildId!)
-      .then(data => setChannels(data));
+    backend.getDiscordChannels(discordSdk.guildId!).then((data: any) => setChannels(data));
   }, [isHost]);
 
   const playersExcludingHost = participants.value.filter(p => p.id !== gameStatus.value.hostId);
@@ -78,7 +72,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const handleRestart = async (e: MouseEvent) => {
     const btn = e.currentTarget as HTMLButtonElement;
     btn.disabled = true;
-    await backend.restartGame(auth.access_token, discordSdk.instanceId);
+    await backend.restartGame();
   };
 
   const totalPlayers = leaderboard.value.length;

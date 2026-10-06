@@ -1,8 +1,9 @@
 import { Signal, useSignal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
-import * as backend from '../utils/backend';
-import { TimeBonusPlotPayload } from '../utils/backend';
+
 import { TimeBonus } from '@yasq/shared';
+import { useBackend } from '@yasq/client/src/globals';
+import { TimeBonusPlotPayload } from '../../backend/apiFacade';
 
 /**
  * Fetch and cache sample data to display in a {@link TimeBonusPlot} for each variant of {@link TimeBonus}.
@@ -11,6 +12,7 @@ export const useTimeBonusSamples = (): {
   timeBonusSamples: Signal<Map<TimeBonus, TimeBonusPlotPayload>>;
   isLoading: Signal<boolean>;
 } => {
+  const backend = useBackend();
   const samplesCache = useSignal<Map<TimeBonus, TimeBonusPlotPayload>>(new Map());
   const isLoading = useSignal(false);
 
