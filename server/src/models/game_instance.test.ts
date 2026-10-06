@@ -732,7 +732,7 @@ describe('GameInstance - timeMultiplier:CONSTANT', () => {
   });
 });
 
-vi.mock('../../db.js', () => ({
+vi.mock('../db.js', () => ({
   saveLeaderboard: vi.fn(),
 }));
 
