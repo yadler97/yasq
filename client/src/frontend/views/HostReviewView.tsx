@@ -5,13 +5,13 @@ import { capitalize, getAvatarUrl, getDisplayName } from '@yasq/shared';
 
 import { participants, useBackend } from '@yasq/client/src/globals';
 import { ReviewData } from '../../common/types';
+import { findUser } from '../../utils/helper';
 
 import { ALL_JOKER_ICONS } from '@components/Icons';
 import { DiscordAvatar } from '@components/DiscordAvatar';
 import { TooltipDiv } from '@components/Tooltip';
 import { LoadingSpinner } from '@components/LoadingSpinner';
 import { RadioGroup } from '@components/RadioGroup';
-import { findUser } from 'src/utils/helper';
 
 export const HostReviewView = ({ isHost }: { isHost: boolean }) => {
   const backend = useBackend();
