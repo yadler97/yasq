@@ -7,24 +7,26 @@ import {
   Collection,
   EmbedBuilder,
   GatewayIntentBits,
+  GuildMember,
   MessageComponentInteraction,
   MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuInteraction,
+  TextChannel,
 } from 'discord.js';
 import type { AudioPlayer } from '@discordjs/voice';
 import path from 'path';
 import fs from 'fs';
 
-import { capitalize, getDisplayName, type Playlist, type Track } from '@yasq/shared';
+import { capitalize, GAME_COVERS_DIR, getDisplayName, TRACK_AUDIO_DIR, type Playlist, type Track } from '@yasq/shared';
 
 import { getTopLifetimePlayers, getPlayerRank, initDatabase } from './src/db.js';
 import { isAllowed } from './src/access_control.js';
-import { getAudioDuration } from './src/helper.js';
+import { getAudioDuration, getFilePath } from './src/helper.js';
 
 dotenv.config({ path: '../.env' });
 
-const activeAudioPlayers = new Map<string, { player: AudioPlayer; skipFn: () => void }>();
+const activeAudioPlayers = new Map<string, { player: AudioPlayer; voiceChannelId: string; skipFn: () => void }>();
 
 export async function startDiscordBot() {
   await initDatabase().catch(err => console.error('Database init error:', err));
@@ -192,8 +194,7 @@ async function handlePlayCommand(interaction: ChatInputCommandInteraction) {
   }
 
   const searchQuery = interaction.options.getString('track', true).toLowerCase();
-  const dataDir = process.env.DATA_SOURCE || 'sample';
-  const tracksFilePath = path.join(process.cwd(), 'data', dataDir, 'tracks.json');
+  const tracksFilePath = getFilePath('tracks.json');
 
   let tracks: Track[];
   try {
@@ -223,17 +224,25 @@ async function handlePlayCommand(interaction: ChatInputCommandInteraction) {
   }
 
   // Shared playback logic used for both direct single-match execution and menu selection
-  const handlePlayback = async (targetInteraction: any, chosenTrack: Track) => {
+  const handlePlayback = async (
+    targetInteraction: ChatInputCommandInteraction | StringSelectMenuInteraction,
+    chosenTrack: Track
+  ) => {
     if (!isAllowed(interaction.user.id, chosenTrack.audio)) {
       await targetInteraction.editReply('❌ You do not have permission to play this track.');
       return;
     }
 
-    const audioFilePath = path.join(process.cwd(), 'data', dataDir, 'music', chosenTrack.audio);
+    const audioFilePath = path.join(getFilePath(TRACK_AUDIO_DIR), chosenTrack.audio);
 
     if (!fs.existsSync(audioFilePath)) {
       await targetInteraction.editReply(`❌ Audio file \`${chosenTrack.audio}\` could not be found on disk.`);
       return;
+    }
+
+    // Clean up audio player from playlist command if it exists
+    if (activeAudioPlayers.has(interaction.guildId!)) {
+      activeAudioPlayers.delete(interaction.guildId!);
     }
 
     try {
@@ -248,7 +257,7 @@ async function handlePlayCommand(interaction: ChatInputCommandInteraction) {
       const resource = voice.createAudioResource(audioFilePath, { inlineVolume: true });
       voiceSession.player.play(resource);
 
-      const payload = buildTrackPayload(chosenTrack, dataDir);
+      const payload = buildTrackEmbedPayload(chosenTrack);
       await interaction.editReply({ content: '', ...payload });
     } catch (error) {
       console.error('Voice connection/playback error:', error);
@@ -337,9 +346,8 @@ async function handlePlaylistCommand(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  const dataDir = process.env.DATA_SOURCE || 'sample';
-  const playlistsFilePath = path.join(process.cwd(), 'data', dataDir, 'playlists.json');
-  const tracksFilePath = path.join(process.cwd(), 'data', dataDir, 'tracks.json');
+  const playlistsFilePath = getFilePath('playlists.json');
+  const tracksFilePath = getFilePath('tracks.json');
 
   let playlists: Playlist[];
   let tracks: Track[];
@@ -355,7 +363,7 @@ async function handlePlaylistCommand(interaction: ChatInputCommandInteraction) {
 
   // Shared playlist playback logic
   const handlePlaylistPlayback = async (
-    targetInteraction: any,
+    targetInteraction: ChatInputCommandInteraction | StringSelectMenuInteraction,
     selectedPlaylistName: string,
     followUpMessage?: any
   ) => {
@@ -387,7 +395,11 @@ async function handlePlaylistCommand(interaction: ChatInputCommandInteraction) {
 
       const playNextTrack = () => {
         if (currentIndex >= playlistTracks.length) {
-          (interaction.channel as any).send(`✅ Finished playing playlist **${playlist.name}**.`).catch(() => {});
+          if (interaction.channel instanceof TextChannel || interaction.channel?.isTextBased()) {
+            (interaction.channel as TextChannel)
+              .send(`✅ Finished playing playlist **${playlist.name}**.`)
+              .catch(() => {});
+          }
           activeAudioPlayers.delete(interaction.guildId!);
           return;
         }
@@ -403,7 +415,7 @@ async function handlePlaylistCommand(interaction: ChatInputCommandInteraction) {
           return;
         }
 
-        const audioFilePath = path.join(process.cwd(), 'data', dataDir, 'music', currentTrack.audio);
+        const audioFilePath = path.join(getFilePath(TRACK_AUDIO_DIR), currentTrack.audio);
 
         if (!fs.existsSync(audioFilePath)) {
           playNextTrack();
@@ -413,7 +425,7 @@ async function handlePlaylistCommand(interaction: ChatInputCommandInteraction) {
         const resource = voice.createAudioResource(audioFilePath, { inlineVolume: true });
         voiceSession.player.play(resource);
 
-        const trackPayload = buildTrackPayload(currentTrack, dataDir);
+        const trackPayload = buildTrackEmbedPayload(currentTrack);
         const payload = {
           content: `▶️️ Playing playlist **${playlist.name}** (${currentIndex}/${playlistTracks.length}):`,
           ...trackPayload,
@@ -422,12 +434,15 @@ async function handlePlaylistCommand(interaction: ChatInputCommandInteraction) {
         if (currentIndex === 1) {
           interaction.editReply(payload).catch(() => {});
         } else {
-          (interaction.channel as any).send(payload).catch(() => {});
+          if (interaction.channel instanceof TextChannel || interaction.channel?.isTextBased()) {
+            (interaction.channel as TextChannel).send(payload).catch(() => {});
+          }
         }
       };
 
       activeAudioPlayers.set(interaction.guildId!, {
         player: voiceSession.player,
+        voiceChannelId: voiceSession.targetVoiceChannel.id,
         skipFn: () => {
           // Stopping the player triggers the Idle event, which loads the next track
           voiceSession.player.stop();
@@ -517,17 +532,41 @@ async function handlePlaylistCommand(interaction: ChatInputCommandInteraction) {
 }
 
 async function handleSkipCommand(interaction: ChatInputCommandInteraction) {
-  await interaction.deferReply();
-
   const activeSession = activeAudioPlayers.get(interaction.guildId!);
   if (!activeSession) {
-    await interaction.editReply('❌ There is no active playlist playing right now.');
+    await interaction.reply({
+      content: '❌ There is no active playlist playing right now.',
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  // Ensure the user is in a voice channel
+  const member = interaction.member as GuildMember;
+  const userChannelId = member.voice?.channelId;
+
+  if (!userChannelId) {
+    await interaction.reply({
+      content: '❌ You must be in a voice channel to skip tracks.',
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  // Ensure the user is in the same voice channel as the bot
+  if (userChannelId !== activeSession.voiceChannelId) {
+    await interaction.reply({
+      content: '❌ You must be in the same voice channel as the bot to skip tracks.',
+      flags: MessageFlags.Ephemeral,
+    });
     return;
   }
 
   // Trigger the skip
   activeSession.skipFn();
-  await interaction.editReply('⏭️ Skipped to the next track!');
+  await interaction.reply({
+    content: '⏭️ Skipped to the next track!',
+  });
 }
 
 async function handleLeaveCommand(interaction: ChatInputCommandInteraction) {
@@ -535,11 +574,40 @@ async function handleLeaveCommand(interaction: ChatInputCommandInteraction) {
   const connection = voice.getVoiceConnection(interaction.guildId!);
 
   if (!connection) {
-    await interaction.reply({ content: '❌ I am not in a voice channel at the moment!', ephemeral: true });
+    await interaction.reply({
+      content: '❌ I am not in a voice channel at the moment!',
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  const member = interaction.member as GuildMember;
+  const userChannelId = member.voice?.channelId;
+
+  if (!userChannelId) {
+    await interaction.reply({
+      content: '❌ You must be in a voice channel to make me leave.',
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  // Ensure the user is in the same voice channel as the bot
+  const botChannelId = connection.joinConfig.channelId;
+  if (botChannelId && userChannelId !== botChannelId) {
+    await interaction.reply({
+      content: '❌ You must be in the same voice channel as the bot to make me leave.',
+      flags: MessageFlags.Ephemeral,
+    });
     return;
   }
 
   connection.destroy();
+
+  if (activeAudioPlayers.has(interaction.guildId!)) {
+    activeAudioPlayers.delete(interaction.guildId!);
+  }
+
   await interaction.reply('👋 Bye!');
 }
 
@@ -563,11 +631,11 @@ export async function connectToVoiceChannel(
   const player = voice.createAudioPlayer();
   connection.subscribe(player);
 
-  return { connection, player };
+  return { connection, player, targetVoiceChannel };
 }
 
-export function buildTrackPayload(track: Track, dataDir: string) {
-  const audioFilePath = path.join(process.cwd(), 'data', dataDir, 'music', track.audio);
+export function buildTrackEmbedPayload(track: Track) {
+  const audioFilePath = path.join(getFilePath(TRACK_AUDIO_DIR), track.audio);
   const durationStr = fs.existsSync(audioFilePath) ? getAudioDuration(audioFilePath) : 'Unknown';
 
   const embed = new EmbedBuilder()
@@ -588,7 +656,7 @@ export function buildTrackPayload(track: Track, dataDir: string) {
 
   const files: AttachmentBuilder[] = [];
   if (track.cover) {
-    const coverPath = path.join(process.cwd(), 'data', dataDir, 'game_covers', track.cover);
+    const coverPath = path.join(getFilePath(GAME_COVERS_DIR), track.cover);
     if (fs.existsSync(coverPath)) {
       const ext = path.extname(track.cover) || '.jpg';
       const attachmentName = `cover${ext}`;

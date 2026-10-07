@@ -64,7 +64,7 @@ const commands = [
         name: 'name',
         description: 'Search by playlist',
         type: ApplicationCommandOptionType.String,
-        required: true,
+        required: false,
       },
     ],
   },
