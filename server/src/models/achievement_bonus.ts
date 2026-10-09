@@ -20,6 +20,7 @@ export enum AchievementBonusAggregate {
   SUM = 'sum',
   MIN = 'min',
   MAX = 'max',
+  COUNT = 'count',
 }
 
 export enum AchievementBonusGoal {
@@ -40,6 +41,22 @@ export const ACHIEVEMENT_BONUS_RULES: AchievementRule[] = [
     filter: AchievementBonusFilter.CORRECT,
     aggregate: AchievementBonusAggregate.MIN,
     goal: AchievementBonusGoal.LOWEST,
+    reward: 100,
+  },
+  {
+    id: AchievementBonusType.MOST_PARTIALLY_CORRECT_GUESSES,
+    metric: AchievementBonusMetric.SCORE,
+    filter: AchievementBonusFilter.PARTIALLY_CORRECT,
+    aggregate: AchievementBonusAggregate.COUNT,
+    goal: AchievementBonusGoal.HIGHEST,
+    reward: 100,
+  },
+  {
+    id: AchievementBonusType.SLOWEST_AVERAGE_GUESS_TIME,
+    metric: AchievementBonusMetric.GUESS_TIME,
+    filter: AchievementBonusFilter.ANY,
+    aggregate: AchievementBonusAggregate.AVERAGE,
+    goal: AchievementBonusGoal.HIGHEST,
     reward: 100,
   },
 ];
@@ -168,6 +185,9 @@ export class AchievementBonusManager {
             break;
           case AchievementBonusAggregate.MAX:
             computedValue = acc.max === -Infinity ? 0 : acc.max;
+            break;
+          case AchievementBonusAggregate.COUNT:
+            computedValue = acc.count;
             break;
           default:
             computedValue = acc.latest;

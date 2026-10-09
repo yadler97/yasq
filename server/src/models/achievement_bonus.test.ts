@@ -43,10 +43,10 @@ describe('AchievementBonusManager', () => {
         reward: 50,
       },
       {
-        id: 'highestScoreSum',
+        id: 'mostPartiallyCorrectGuesses',
         metric: AchievementBonusMetric.SCORE,
-        filter: AchievementBonusFilter.ANY,
-        aggregate: AchievementBonusAggregate.SUM,
+        filter: AchievementBonusFilter.PARTIALLY_CORRECT,
+        aggregate: AchievementBonusAggregate.COUNT,
         goal: AchievementBonusGoal.HIGHEST,
         reward: 75,
       },
@@ -113,5 +113,20 @@ describe('AchievementBonusManager', () => {
     const state = achievements.achievements.get('fastestAverageGuess');
     expect(state?.userIds).toEqual(['user2']);
     expect(state?.value).toBe(2000);
+  });
+
+  it('should count occurrences correctly for COUNT aggregate', () => {
+    const roundResults: UserRoundResult[] = [
+      { userId: 'user1', scoreValue: 0.5 } as UserRoundResult, // Partially correct
+      { userId: 'user1', scoreValue: 0.5 } as UserRoundResult, // Partially correct
+      { userId: 'user2', scoreValue: 0.5 } as UserRoundResult, // Partially correct
+      { userId: 'user2', scoreValue: 1 } as UserRoundResult, // Correct, should be filtered out for mostPartiallyCorrectGuesses
+    ];
+
+    achievements.processRound(roundResults, mockTrack);
+
+    const state = achievements.achievements.get('mostPartiallyCorrectGuesses');
+    expect(state?.userIds).toEqual(['user1']);
+    expect(state?.value).toBe(2); // user1 has 2 partially correct guesses
   });
 });
