@@ -2,7 +2,7 @@ import { useSignal } from '@preact/signals';
 import { useEffect, useState } from 'preact/hooks';
 
 import { audioPlayer, discordSdk, gameStatus, participants, useBackend } from '@yasq/client/src/globals';
-import { ACHIEVEMENT_BONUS_POINTS, getAvatarUrl, getDisplayName } from '@yasq/shared';
+import { AchievementBonusType, getAvatarUrl, getDisplayName } from '@yasq/shared';
 import { findUser } from '../../utils/helper';
 
 import { RoundBubblesGroup } from '@components/RoundBubble';
@@ -16,6 +16,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const backend = useBackend();
   const leaderboard = useSignal<any[]>([]);
   const gameStats = useSignal<any>({});
+  const achievements = useSignal<Record<string, any>>({});
   const [canExport, setCanExport] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
@@ -31,6 +32,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
     backend.getFinalResults().then((data: any) => {
       leaderboard.value = data.leaderboard;
       gameStats.value = data.gameStats;
+      achievements.value = data.achievementBonuses;
       setCanExport(data.canExport);
     });
   }, []);
@@ -98,7 +100,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
           const isSecond = index === 1;
           const isThird = index === 2;
 
-          const achievements: string[] = player.achievementBonuses || [];
+          const achievementBonuses: [AchievementBonusType, number][] = player.achievementBonuses || [];
 
           return (
             <div
@@ -125,34 +127,37 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                     {getDisplayName(user)}
                   </div>
 
-                  {achievements.length > 0 && (
+                  {Array.from(achievementBonuses.entries()).length > 0 && (
                     <div className="player-achievements">
-                      {achievements.map((achievement, aIndex) => {
-                        const points = ACHIEVEMENT_BONUS_POINTS;
+                      {player.achievementBonuses &&
+                        player.achievementBonuses.map(
+                          ([achievementId, points]: [AchievementBonusType, number], aIndex: number) => {
+                            console.log('Achievement bonus:', achievementId, points);
 
-                        const { label, icon } = (() => {
-                          switch (achievement) {
-                            case 'HIGHEST_STREAK':
-                              return { label: 'Highest Streak', icon: '🔥' };
-                            case 'FASTEST_CORRECT_GUESS':
-                              return { label: 'Fastest Guess', icon: '⌚' };
-                            default:
-                              return { label: achievement, icon: '🏆' };
+                            const { label, icon } = (() => {
+                              switch (achievementId) {
+                                case 'HIGHEST_STREAK':
+                                  return { label: 'Highest Streak', icon: '🔥' };
+                                case 'FASTEST_CORRECT_GUESS':
+                                  return { label: 'Fastest Guess', icon: '⌚' };
+                                default:
+                                  return { label: achievementId, icon: '🏆' };
+                              }
+                            })();
+
+                            const tooltipId = `${player.userId}-${aIndex}`;
+
+                            return (
+                              <TooltipDiv
+                                id={tooltipId}
+                                text={`${label} (+${points} pts)`}
+                                className={`badge winner`}
+                              >
+                                {icon} +{points}
+                              </TooltipDiv>
+                            );
                           }
-                        })();
-
-                        const tooltipId = `${player.userId}-${aIndex}`;
-
-                        return (
-                          <TooltipDiv
-                            id={tooltipId}
-                            text={`${label} (+${points} pts)`}
-                            className={`badge winner`}
-                          >
-                            {icon} +{points}
-                          </TooltipDiv>
-                        );
-                      })}
+                        )}
                     </div>
                   )}
 
@@ -178,6 +183,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
       >
         <GameStatsSummary
           stats={gameStats.value}
+          achievements={achievements.value}
           participants={participants.value}
         />
 

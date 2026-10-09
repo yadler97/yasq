@@ -217,4 +217,38 @@ export class AchievementBonusManager {
       if (track) state.extraData = { track };
     }
   }
+
+  public static fromJSON(data: any): AchievementBonusManager {
+    const manager = new AchievementBonusManager([]);
+
+    if (data && typeof data === 'object') {
+      const achievementsMap = new Map<string, AchievementState>();
+
+      for (const [key, savedState] of Object.entries(data)) {
+        if (!savedState) continue;
+        const typedState = savedState as AchievementState;
+
+        const ruleId = typedState.rule?.id || key;
+
+        const userValuesMap = new Map<string, number | UserAccumulator>();
+        if (typedState.userValues) {
+          for (const [userId, val] of Object.entries(typedState.userValues)) {
+            userValuesMap.set(String(userId), val as number | UserAccumulator);
+          }
+        }
+
+        achievementsMap.set(ruleId, {
+          rule: typedState.rule,
+          userIds: Array.isArray(typedState.userIds) ? [...typedState.userIds] : [],
+          value: typedState.value !== undefined ? typedState.value : null,
+          userValues: userValuesMap,
+          ...(typedState.extraData !== undefined ? { extraData: typedState.extraData } : {}),
+        });
+      }
+
+      manager.achievements = achievementsMap;
+    }
+
+    return manager;
+  }
 }

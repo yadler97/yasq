@@ -110,7 +110,6 @@ export const DEFAULT_ENABLED_JOKERS: Joker[] = [
 ];
 
 export const BASE_POINTS: number = 100;
-export const ACHIEVEMENT_BONUS_POINTS = 100;
 export const MAX_TIME_MULTIPLIER: number = 1.0;
 export const MIN_TIME_MULTIPLIER: number = 0.0;
 export const EXPONENTIAL_DECAY_INTENSITY: number = 2.5;

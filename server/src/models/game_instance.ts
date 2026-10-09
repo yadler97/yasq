@@ -650,11 +650,15 @@ export class GameInstance {
         continue;
       }
 
-      // Apply the bonus to all users who currently hold or share the record
+      // Apply the bonus and its configured reward to all users who hold or share the record
       if (state.userIds && state.userIds.length > 0) {
+        const reward = state.rule.reward ?? 0;
+
         for (const userId of state.userIds) {
           const entry = this.leaderboard.getOrCreate(userId);
-          entry.addAchievementBonus(ruleId as AchievementBonusType);
+
+          // Pass the reward along if your leaderboard/entry supports it
+          entry.addAchievementBonus(ruleId as AchievementBonusType, reward);
         }
       }
     }
