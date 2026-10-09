@@ -138,7 +138,8 @@
             { "type": "platform", "value": "Platform C" },
             { "type": "release", "value": "2025" }
           ]
-        }
+        },
+        "round": 3
       }
     },
     "HIGHEST_STREAK": {
@@ -169,7 +170,7 @@
             "points": 220,
             "scoreValue": 1.0,
             "isFirst": true,
-            "time": "1.5",
+            "time": 1.5,
             "awardedBonuses": [
               { "type": "TIME_BONUS", "multiplier": 1.0 },
               { "type": "FIRST_BONUS", "multiplier": 0.2 }
@@ -181,7 +182,7 @@
             "points": 230,
             "scoreValue": 1.0,
             "isFirst": true,
-            "time": "6.0",
+            "time": 6.0,
             "awardedBonuses": [
               { "type": "TIME_BONUS", "multiplier": 1.0 },
               { "type": "FIRST_BONUS", "multiplier": 0.2 },
@@ -194,7 +195,7 @@
             "points": 211,
             "scoreValue": 1.0,
             "isFirst": false,
-            "time": "6.0",
+            "time": 6.0,
             "awardedBonuses": [
               { "type": "TIME_BONUS", "multiplier": 0.908 },
               { "type": "STREAK_BONUS", "multiplier": 0.2 }
@@ -213,7 +214,7 @@
             "points": 156,
             "scoreValue": 1.0,
             "isFirst": false,
-            "time": "27.0",
+            "time": 27.0,
             "awardedBonuses": [{ "type": "TIME_BONUS", "multiplier": 0.564 }]
           },
           {
@@ -222,7 +223,7 @@
             "points": 92,
             "scoreValue": 0.5,
             "isFirst": false,
-            "time": "15.0",
+            "time": 15.0,
             "awardedBonuses": [{ "type": "TIME_BONUS", "multiplier": 0.833 }]
           },
           {
@@ -231,7 +232,7 @@
             "points": 230,
             "scoreValue": 1.0,
             "isFirst": true,
-            "time": "0.5",
+            "time": 0.5,
             "awardedBonuses": [
               { "type": "TIME_BONUS", "multiplier": 1.0 },
               { "type": "FIRST_BONUS", "multiplier": 0.2 },
@@ -250,7 +251,7 @@
             "points": 0,
             "scoreValue": 0,
             "isFirst": false,
-            "time": "60.0",
+            "time": 60.0,
             "awardedBonuses": []
           },
           {
@@ -259,7 +260,7 @@
             "points": 0,
             "scoreValue": 0,
             "isFirst": false,
-            "time": "60.0",
+            "time": 60.0,
             "awardedBonuses": []
           },
           {
@@ -268,7 +269,7 @@
             "points": 0,
             "scoreValue": 0,
             "isFirst": false,
-            "time": "60.0",
+            "time": 60.0,
             "awardedBonuses": []
           }
         ]

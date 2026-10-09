@@ -138,7 +138,7 @@ export class AchievementBonusManager {
         acc.latest = val;
       }
 
-      this.recalculateLeaders(state, track);
+      this.recalculateLeaders(state, roundResults, track);
     }
   }
 
@@ -162,7 +162,7 @@ export class AchievementBonusManager {
     return null;
   }
 
-  private recalculateLeaders(state: AchievementState, track?: Track) {
+  private recalculateLeaders(state: AchievementState, roundResults?: UserRoundResult[], track?: Track) {
     let bestValue: number | null = null;
     let bestUserIds: string[] = [];
 
@@ -214,7 +214,12 @@ export class AchievementBonusManager {
     if (bestValue !== null) {
       state.value = bestValue;
       state.userIds = bestUserIds;
-      if (track) state.extraData = { track };
+      if (track || roundResults) {
+        state.extraData = {
+          ...(track ? { track } : {}),
+          ...(roundResults ? { round: roundResults[0]?.round } : {}),
+        };
+      }
     }
   }
 

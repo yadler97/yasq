@@ -102,7 +102,7 @@ function formatSubValue(state: any): string {
   if (!state.value && state.value !== 0) return '';
 
   if (state.rule && state.rule.metric === 'guessTime') {
-    return `⌚ ${state.value}s`;
+    return `⌚ ${state.value}s (Round ${state.extraData?.round || 'N/A'})`;
   }
 
   if (state.rule && state.rule.metric === 'streak') {
