@@ -33,14 +33,14 @@ function formatSubValue(state: any): string {
   if (!state.value && state.value !== 0) return '';
 
   if (state.rule && state.rule.metric === 'guessTime') {
-    return `⌚ ${state.value}s`;
+    return `⌚ ${state.value.toFixed(1)}s (Round ${state.extraData?.round || 'N/A'})`;
   }
 
   if (state.rule && state.rule.metric === 'streak') {
     return `🔥 ${state.value}`;
   }
 
-  return `${state.value} pts`;
+  return `${state.value}`;
 }
 
 export async function generateResultsImage(
@@ -79,7 +79,7 @@ export async function generateResultsImage(
   const highestTimeBonus = gameStats.bestScoringRound?.timeBonusSum ?? 0;
   const leastTimeBonus = gameStats.leastScoringRound?.timeBonusSum ?? 0;
 
-  const achievementEntries = achievementBonusManager ? Object.entries(achievementBonusManager) : [];
+  const achievementEntries = achievementBonusManager ? Object.entries(achievementBonusManager.achievements) : [];
 
   const statItems = [
     {

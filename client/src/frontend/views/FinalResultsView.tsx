@@ -132,8 +132,6 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                       {player.achievementBonuses &&
                         player.achievementBonuses.map(
                           ([achievementId, points]: [AchievementBonusType, number], aIndex: number) => {
-                            console.log('Achievement bonus:', achievementId, points);
-
                             const { label, icon } = (() => {
                               switch (achievementId) {
                                 case 'HIGHEST_STREAK':

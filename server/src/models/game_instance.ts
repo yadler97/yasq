@@ -274,7 +274,12 @@ export class GameInstance {
       this.streaks[userId] = 0;
     }
 
-    this.achievementBonusManager.updateMetric(userId, AchievementBonusMetric.STREAK, this.streaks[userId]);
+    this.achievementBonusManager.updateMetric(
+      userId,
+      AchievementBonusMetric.STREAK,
+      this.streaks[userId],
+      (current, incoming) => incoming > current
+    );
   }
 
   public calculateLostStreaks(): Record<UserId, number> {
@@ -643,7 +648,7 @@ export class GameInstance {
   }
 
   private applyAchievementBonuses(): void {
-    // Loop through all active achievements in your unified map
+    // Loop through all active achievements
     for (const [ruleId, state] of this.achievementBonusManager.achievements.entries()) {
       // Check if this achievement type is active/enabled for this game
       if (!this.activeAchievementBonuses.includes(ruleId as AchievementBonusType)) {
@@ -656,8 +661,6 @@ export class GameInstance {
 
         for (const userId of state.userIds) {
           const entry = this.leaderboard.getOrCreate(userId);
-
-          // Pass the reward along if your leaderboard/entry supports it
           entry.addAchievementBonus(ruleId as AchievementBonusType, reward);
         }
       }

@@ -318,8 +318,6 @@ export const setupCommonRoutes = (instances: Record<string, GameInstance>, getTr
       });
     }
 
-    console.log(Object.fromEntries(game.achievementBonusManager.achievements || []));
-
     res.send({
       leaderboard: game.leaderboard.getAll() || [],
       gameStats: game.gameStats || {},

@@ -102,9 +102,22 @@ export class AchievementBonusManager {
   }
 
   // Updates direct metrics like streaks
-  public updateMetric(userId: string, metric: AchievementBonusMetric, value: number) {
+  public updateMetric(
+    userId: string,
+    metric: AchievementBonusMetric,
+    value: number,
+    condition?: (current: number, incoming: number) => boolean
+  ) {
     for (const state of this.achievements.values()) {
       if (state.rule.metric === metric && !state.rule.aggregate && !state.rule.filter) {
+        if (condition) {
+          const rawVal = state.userValues.get(userId) ?? 0;
+          const currentVal = typeof rawVal === 'number' ? rawVal : rawVal.latest;
+
+          if (!condition(currentVal, value)) {
+            continue;
+          }
+        }
         state.userValues.set(userId, value);
         this.recalculateLeaders(state);
       }

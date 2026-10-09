@@ -77,6 +77,20 @@ describe('AchievementBonusManager', () => {
     expect(state?.value).toBe(6);
   });
 
+  it('should only update metric if condition is met', () => {
+    achievements.updateMetric('user1', AchievementBonusMetric.STREAK, 3);
+    achievements.updateMetric('user1', AchievementBonusMetric.STREAK, 2, (current, incoming) => incoming > current);
+
+    const state = achievements.achievements.get('highestStreak');
+    expect(state?.userIds).toEqual(['user1']);
+    expect(state?.value).toBe(3);
+
+    achievements.updateMetric('user1', AchievementBonusMetric.STREAK, 4, (current, incoming) => incoming > current);
+    const updatedState = achievements.achievements.get('highestStreak');
+    expect(updatedState?.userIds).toEqual(['user1']);
+    expect(updatedState?.value).toBe(4);
+  });
+
   it('should compute filtered and aggregated round metrics correctly', () => {
     const round1: UserRoundResult[] = [
       { userId: 'user1', scoreValue: 1, time: 2000 } as UserRoundResult,
