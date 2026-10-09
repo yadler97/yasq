@@ -259,7 +259,8 @@ export const setupHostRoutes = (
         game.temporaryDirectory(true),
         game.leaderboard,
         userDataCache,
-        game.gameStats
+        game.gameStats,
+        game.achievementBonusManager
       );
       logger.debug(
         `Final leaderboard: ${JSON.stringify(game.leaderboard.getAll(), null, 2)}`,
@@ -292,7 +293,8 @@ export const setupHostRoutes = (
         game.temporaryDirectory(true),
         game.leaderboard,
         userDataCache,
-        game.gameStats
+        game.gameStats,
+        game.achievementBonusManager
       );
     }
 

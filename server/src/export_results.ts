@@ -79,7 +79,9 @@ export async function generateResultsImage(
   const highestTimeBonus = gameStats.bestScoringRound?.timeBonusSum ?? 0;
   const leastTimeBonus = gameStats.leastScoringRound?.timeBonusSum ?? 0;
 
-  const achievementEntries = achievementBonusManager ? Object.entries(achievementBonusManager.achievements) : [];
+  const achievementEntries = achievementBonusManager?.achievements
+    ? Array.from(achievementBonusManager.achievements.entries())
+    : [];
 
   const statItems = [
     {
