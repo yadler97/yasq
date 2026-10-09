@@ -303,7 +303,8 @@ export const setupCommonRoutes = (instances: Record<string, GameInstance>, getTr
           game.temporaryDirectory(true),
           game.leaderboard,
           userDataCache,
-          game.gameStats
+          game.gameStats,
+          game.achievementBonusManager
         );
       }
 
@@ -320,6 +321,7 @@ export const setupCommonRoutes = (instances: Record<string, GameInstance>, getTr
     res.send({
       leaderboard: game.leaderboard.getAll() || [],
       gameStats: game.gameStats || {},
+      achievementBonuses: Object.fromEntries(game.achievementBonusManager.achievements || []),
       canExport: isPlaywrightExecutableInstalled(),
     });
   });

@@ -3,10 +3,11 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { ACHIEVEMENT_BONUS_POINTS, getAvatarUrl, getDisplayName, type Participant } from '@yasq/shared';
+import { capitalize, getAvatarUrl, getDisplayName, type Participant } from '@yasq/shared';
 import type { Leaderboard, LeaderboardEntry, RoundResult } from './models/leaderboard.js';
 import { LogCategory, logger } from './utils/logger.js';
 import type { GameStats } from './models/game_stats.js';
+import type { AchievementBonusManager } from './models/achievement_bonus.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,12 +29,27 @@ function getGameDuration(startTime?: number, endTime?: number): string {
   return `${mins}m ${secs}s`;
 }
 
+function formatSubValue(state: any): string {
+  if (!state.value && state.value !== 0) return '';
+
+  if (state.rule && state.rule.metric === 'guessTime') {
+    return `⌚ ${state.value.toFixed(1)}s (Round ${state.extraData?.round || 'N/A'})`;
+  }
+
+  if (state.rule && state.rule.metric === 'streak') {
+    return `🔥 ${state.value}`;
+  }
+
+  return `${state.value}`;
+}
+
 export async function generateResultsImage(
   instanceId: string,
   tempDir: string,
   leaderboardData: Leaderboard,
   userData: Map<string, Participant>,
-  gameStats: GameStats
+  gameStats: GameStats,
+  achievementBonusManager: AchievementBonusManager
 ) {
   if (!isPlaywrightExecutableInstalled()) {
     logger.warn(
@@ -63,15 +79,9 @@ export async function generateResultsImage(
   const highestTimeBonus = gameStats.bestScoringRound?.timeBonusSum ?? 0;
   const leastTimeBonus = gameStats.leastScoringRound?.timeBonusSum ?? 0;
 
-  const highestStreakUsers = gameStats.highestStreak?.userIds
-    ? gameStats.highestStreak.userIds
-        .map((id: string) => userData.get(id))
-        .filter((u): u is Participant => u !== undefined)
+  const achievementEntries = achievementBonusManager?.achievements
+    ? Array.from(achievementBonusManager.achievements.entries())
     : [];
-
-  const fastestCorrectGuessUser = gameStats.fastestCorrectGuess
-    ? userData.get(gameStats.fastestCorrectGuess.roundResults.userId)
-    : null;
 
   const statItems = [
     {
@@ -94,20 +104,19 @@ export async function generateResultsImage(
         : 'N/A',
       subValue: `${leastTimeBonus} pts`,
     },
-    {
-      label: 'Highest Streak',
-      users: highestStreakUsers,
-      value: highestStreakUsers.map((u: Participant) => getDisplayName(u)),
-      subValue: gameStats.highestStreak ? `🔥 ${gameStats.highestStreak.streak}` : '',
-    },
-    {
-      label: 'Fastest Correct Guess',
-      users: fastestCorrectGuessUser ? [fastestCorrectGuessUser] : [],
-      value: fastestCorrectGuessUser ? [getDisplayName(fastestCorrectGuessUser)] : ['None'],
-      subValue: gameStats.fastestCorrectGuess
-        ? `${gameStats.fastestCorrectGuess.roundResults.time || 'N/A'}s (Round ${gameStats.fastestCorrectGuess.roundResults.round || 'N/A'})`
-        : '',
-    },
+    ...achievementEntries.map(([ruleId, state]: [string, any]) => {
+      const users = (state.userIds || [])
+        .map((id: string) => userData.get(id))
+        .filter((u: any): u is Participant => u !== undefined);
+      const ruleName = capitalize(ruleId);
+
+      return {
+        label: ruleName,
+        users,
+        value: users.length > 0 ? users.map((u: Participant) => getDisplayName(u)) : ['None'],
+        subValue: formatSubValue(state),
+      };
+    }),
   ];
 
   const htmlContent = `
@@ -163,7 +172,7 @@ export async function generateResultsImage(
                 const isWinner = index === 0;
                 const user = userData.get(player.userId);
                 const userName = user ? getDisplayName(user) : 'Unknown';
-                const achievements = Array.from(player.achievementBonuses || []);
+                const achievements = Array.from(player.achievementBonuses?.entries() || []);
 
                 return `
                 <div class="player-wrapper">
@@ -178,18 +187,18 @@ export async function generateResultsImage(
                           ? `
                         <div class="player-achievements">
                           ${achievements
-                            .map((achievement: string) => {
+                            .map(([achievementId, points]: [string, number]) => {
                               const icon =
-                                achievement === 'HIGHEST_STREAK'
+                                achievementId === 'HIGHEST_STREAK'
                                   ? '🔥'
-                                  : achievement === 'FASTEST_CORRECT_GUESS'
+                                  : achievementId === 'FASTEST_CORRECT_GUESS'
                                     ? '⌚'
                                     : '🏆';
                               return `
                               <div class="badge winner">
-                                ${icon} +${ACHIEVEMENT_BONUS_POINTS}
+                                ${icon} +${points}
                               </div>
-                            `;
+                              `;
                             })
                             .join('')}
                         </div>

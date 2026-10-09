@@ -9,6 +9,7 @@ import type { Participant } from '@yasq/shared';
 import { setupTempDir } from './helper.js';
 import { Leaderboard } from './models/leaderboard.js';
 import { GameStats } from './models/game_stats.js';
+import { AchievementBonusManager } from './models/achievement_bonus.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,7 +59,14 @@ describe.skip('generateResultsImage', () => {
     const leaderboardData = Leaderboard.fromJSON(JSON.parse(rawJsonData));
 
     // Generate image
-    await generateResultsImage(instanceId, directoryPath, leaderboardData, mockUserData, new GameStats());
+    await generateResultsImage(
+      instanceId,
+      directoryPath,
+      leaderboardData,
+      mockUserData,
+      new GameStats(),
+      new AchievementBonusManager([])
+    );
 
     // Verify file asset existence on disk
     expect(fs.existsSync(testOutputPath)).toBe(true);

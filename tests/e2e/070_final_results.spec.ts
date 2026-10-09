@@ -70,19 +70,19 @@ test.describe('Player UI', () => {
     await expect(leastRoundItem.value).toHaveText('Round 1');
     await expect(leastRoundItem.subValue).not.toBeEmpty();
 
-    // 4. Highest Streak
-    const streakItem = finalResultsPage.getStatItem(3);
+    // 4. Fastest Correct Guess
+    const fastestItem = finalResultsPage.getStatItem(3);
+    await expect(fastestItem.label).toHaveText('Fastest Correct Guess');
+    await expect(fastestItem.value).toContainText('MockPlayer2');
+    await expect(fastestItem.subValue).toContainText('0.5s (Round 3)');
+    await expect(fastestItem.avatar).toBeVisible();
+
+    // 5. Highest Streak
+    const streakItem = finalResultsPage.getStatItem(4);
     await expect(streakItem.label).toHaveText('Highest Streak');
     await expect(streakItem.value).toContainText('MockPlayer1');
     await expect(streakItem.subValue).toContainText('3');
     await expect(streakItem.avatar).toBeVisible();
-
-    // 5. Fastest Correct Guess
-    const fastestItem = finalResultsPage.getStatItem(4);
-    await expect(fastestItem.label).toHaveText('Fastest Correct Guess');
-    await expect(fastestItem.value).toContainText('MockPlayer2');
-    await expect(fastestItem.subValue).toHaveText('0.5s (Round 3)');
-    await expect(fastestItem.avatar).toBeVisible();
   });
 
   test('should display winner badge in sidebar', async ({ sidebar, session }) => {
