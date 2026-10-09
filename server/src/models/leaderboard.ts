@@ -12,7 +12,7 @@ export class RoundResult {
     public points: number | null,
     public scoreValue: number,
     public isFirst: boolean,
-    public time: string | null,
+    public time: number | null,
     public awardedBonuses: PointsBonus[] = []
   ) {}
 }
