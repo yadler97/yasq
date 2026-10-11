@@ -33,8 +33,12 @@ test.describe('Host UI', () => {
     const badgeBuffer = await sharp(filePath).extract({ left: 0, top: 0, width: 1300, height: 1750 }).png().toBuffer();
     const currentHash = crypto.createHash('sha256').update(badgeBuffer).digest('hex');
 
-    const baselineHash = '80d79220f78167d070a82a25276f9d5364486f8b479f6be9eb4bd7e3e0abdac7';
-    expect(currentHash).toBe(baselineHash);
+    const allowedHashes = [
+      '80d79220f78167d070a82a25276f9d5364486f8b479f6be9eb4bd7e3e0abdac7', // Windows
+      '036487e2b6bf91e495a43189063a972a253d78c8baabe846eab3d2bfc8021346', // CI Pipeline
+    ];
+
+    expect(allowedHashes).toContain(currentHash);
   });
 });
 
