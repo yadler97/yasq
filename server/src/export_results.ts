@@ -172,62 +172,65 @@ export async function generateResultsImage(
                 const isWinner = index === 0;
                 const user = userData.get(player.userId);
                 const userName = user ? getDisplayName(user) : 'Unknown';
-                const achievements = Array.from(player.achievementBonuses?.entries() || []);
+                const playerAchievements = achievementEntries.filter(
+                  ([_, state]: [string, any]) => state?.userIds && state.userIds.includes(player.userId)
+                );
 
                 return `
-                <div class="player-wrapper">
-                  <div class="player-card ${isWinner ? 'winner' : ''}">
-                    <div class="player-main-info">
-                      <div class="rank">#${index + 1}</div>
-                      <img src="${getAvatarUrl(user!)}" alt="Avatar of ${userName}" class="avatar-small" draggable="false" />
-                      <div class="name">${isWinner ? '👑 ' : ''}${userName}</div>
+                  <div class="player-wrapper">
+                    <div class="player-card ${isWinner ? 'winner' : ''}">
+                      <div class="player-main-info">
+                        <div class="rank">#${index + 1}</div>
+                        <img src="${getAvatarUrl(user!)}" alt="Avatar of ${userName}" class="avatar-small" draggable="false" />
+                        <div class="name">${isWinner ? '👑 ' : ''}${userName}</div>
 
-                      ${
-                        achievements.length > 0
-                          ? `
-                        <div class="player-achievements">
-                          ${achievements
-                            .map(([achievementId, points]: [string, number]) => {
-                              const icon =
-                                achievementId === 'HIGHEST_STREAK'
-                                  ? '🔥'
-                                  : achievementId === 'FASTEST_CORRECT_GUESS'
-                                    ? '⌚'
-                                    : '🏆';
+                        ${
+                          playerAchievements.length > 0
+                            ? `
+                            <div class="player-achievements">
+                            ${playerAchievements
+                              .map(([_id, state]: [string, any]) => {
+                                const points = state.rule?.reward || 0;
+                                const icon =
+                                  state.rule?.metric === 'streak'
+                                    ? '🔥'
+                                    : state.rule?.metric === 'guessTime'
+                                      ? '⌚'
+                                      : '🏆';
+                                return `
+                                <div class="badge winner">
+                                  ${icon} +${points}
+                                </div>
+                                `;
+                              })
+                              .join('')}
+                          </div>
+                          `
+                            : ''
+                        }
+
+                        <div class="total-score">${player.totalScore} pts</div>
+                      </div>
+
+                      <div class="history-grid">
+                        <div class="history-label">Round Breakdown:</div>
+                        <div class="round-bubbles">
+                          ${player.roundHistory
+                            .map((r: RoundResult) => {
+                              const statusClass =
+                                r.scoreValue > 0.5 ? 'correct' : r.scoreValue === 0.5 ? 'partial' : 'incorrect';
                               return `
-                              <div class="badge winner">
-                                ${icon} +${points}
-                              </div>
+                                <div class="round-bubble ${statusClass} ${r.isFirst ? 'first' : ''}">
+                                  ${r.points}
+                                </div>
                               `;
                             })
                             .join('')}
                         </div>
-                      `
-                          : ''
-                      }
-
-                      <div class="total-score">${player.totalScore} pts</div>
-                    </div>
-
-                    <div class="history-grid">
-                      <div class="history-label">Round Breakdown:</div>
-                      <div class="round-bubbles">
-                        ${player.roundHistory
-                          .map((r: RoundResult) => {
-                            const statusClass =
-                              r.scoreValue > 0.5 ? 'correct' : r.scoreValue === 0.5 ? 'partial' : 'incorrect';
-                            return `
-                              <div class="round-bubble ${statusClass} ${r.isFirst ? 'first' : ''}">
-                                ${r.points}
-                              </div>
-                            `;
-                          })
-                          .join('')}
                       </div>
                     </div>
                   </div>
-                </div>
-              `;
+                `;
               })
               .join('')}
           </div>
@@ -241,32 +244,32 @@ export async function generateResultsImage(
                   const values = Array.isArray(item.value) ? item.value : [item.value];
 
                   return `
-                  <div class="game-stat-item">
-                    <span class="game-stat-label">${item.label}</span>
-                    ${
-                      users.length > 0
-                        ? users
-                            .map((user: Participant, uIndex: number) => {
-                              const userName = getDisplayName(user);
-                              const avatarUrl = getAvatarUrl(user);
-                              const displayValue = values[uIndex] || userName;
-                              return `
-                            <div class="game-stat-content">
-                              <img src="${avatarUrl}" alt="Avatar of ${userName}" class="avatar-small" draggable="false" style="width: 20px; height: 20px; border-radius: 50%;" />
-                              <strong class="game-stat-value">${displayValue}</strong>
-                            </div>
-                          `;
-                            })
-                            .join('')
-                        : `
-                        <div class="game-stat-content">
-                          <strong class="game-stat-value">${item.value}</strong>
-                        </div>
-                      `
-                    }
-                    ${item.subValue ? `<span class="game-stat-subvalue">${item.subValue}</span>` : ''}
-                  </div>
-                `;
+                    <div class="game-stat-item">
+                      <span class="game-stat-label">${item.label}</span>
+                      ${
+                        users.length > 0
+                          ? users
+                              .map((user: Participant, uIndex: number) => {
+                                const userName = getDisplayName(user);
+                                const avatarUrl = getAvatarUrl(user);
+                                const displayValue = values[uIndex] || userName;
+                                return `
+                              <div class="game-stat-content">
+                                <img src="${avatarUrl}" alt="Avatar of ${userName}" class="avatar-small" draggable="false" style="width: 20px; height: 20px; border-radius: 50%;" />
+                                <strong class="game-stat-value">${displayValue}</strong>
+                              </div>
+                            `;
+                              })
+                              .join('')
+                          : `
+                          <div class="game-stat-content">
+                            <strong class="game-stat-value">${item.value}</strong>
+                          </div>
+                        `
+                      }
+                      ${item.subValue ? `<span class="game-stat-subvalue">${item.subValue}</span>` : ''}
+                    </div>
+                  `;
                 })
                 .join('')}
             </div>

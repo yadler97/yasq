@@ -2,7 +2,7 @@ import { useSignal } from '@preact/signals';
 import { useEffect, useState } from 'preact/hooks';
 
 import { audioPlayer, discordSdk, gameStatus, participants, useBackend } from '@yasq/client/src/globals';
-import { AchievementBonusType, getAvatarUrl, getDisplayName } from '@yasq/shared';
+import { capitalize, getAvatarUrl, getDisplayName } from '@yasq/shared';
 import { findUser } from '../../utils/helper';
 
 import { RoundBubblesGroup } from '@components/RoundBubble';
@@ -100,7 +100,9 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
           const isSecond = index === 1;
           const isThird = index === 2;
 
-          const achievementBonuses: [AchievementBonusType, number][] = player.achievementBonuses || [];
+          const playerAchievements = Object.entries(achievements.value || {}).filter(
+            ([_, state]: [string, any]) => state?.userIds && state.userIds.includes(player.userId)
+          );
 
           return (
             <div
@@ -127,35 +129,27 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
                     {getDisplayName(user)}
                   </div>
 
-                  {Array.from(achievementBonuses.entries()).length > 0 && (
+                  {playerAchievements.length > 0 && (
                     <div className="player-achievements">
-                      {player.achievementBonuses &&
-                        player.achievementBonuses.map(
-                          ([achievementId, points]: [AchievementBonusType, number], aIndex: number) => {
-                            const { label, icon } = (() => {
-                              switch (achievementId) {
-                                case 'HIGHEST_STREAK':
-                                  return { label: 'Highest Streak', icon: '🔥' };
-                                case 'FASTEST_CORRECT_GUESS':
-                                  return { label: 'Fastest Guess', icon: '⌚' };
-                                default:
-                                  return { label: achievementId, icon: '🏆' };
-                              }
-                            })();
+                      {playerAchievements.map(([ruleId, state]: [string, any], aIndex: number) => {
+                        const points = state.rule?.reward || 0;
+                        const label = capitalize(ruleId);
+                        const icon =
+                          state.rule?.metric === 'streak' ? '🔥' : state.rule?.metric === 'guessTime' ? '⌚' : '🏆';
 
-                            const tooltipId = `${player.userId}-${aIndex}`;
+                        const tooltipId = `${player.userId}-${aIndex}`;
 
-                            return (
-                              <TooltipDiv
-                                id={tooltipId}
-                                text={`${label} (+${points} pts)`}
-                                className={`badge winner`}
-                              >
-                                {icon} +{points}
-                              </TooltipDiv>
-                            );
-                          }
-                        )}
+                        return (
+                          <TooltipDiv
+                            key={tooltipId}
+                            id={tooltipId}
+                            text={`${label} (+${points} pts)`}
+                            className="badge winner"
+                          >
+                            {icon} +{points}
+                          </TooltipDiv>
+                        );
+                      })}
                     </div>
                   )}
 
