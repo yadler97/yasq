@@ -144,9 +144,11 @@ export function setMockState(stateData: any): GameInstance {
     game.achievementBonusManager = AchievementBonusManager.fromJSON(stateData.achievements);
   }
 
-  userDataCache.clear();
-  for (const user of stateData.userData) {
-    userDataCache.set(user.id, user);
+  if (stateData.userData) {
+    userDataCache.clear();
+    for (const user of stateData.userData) {
+      userDataCache.set(user.id, user);
+    }
   }
 
   return game;
