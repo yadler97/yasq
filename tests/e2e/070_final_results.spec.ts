@@ -2,13 +2,8 @@ import { expect, test } from './test_setup.js';
 import AxeBuilder from '@axe-core/playwright';
 import sessionData from '../../mock_data/fixtures/final_results.json';
 
-import * as fs from 'fs';
 import * as crypto from 'crypto';
-
-function getFileHash(filePath: string): string {
-  const fileBuffer = fs.readFileSync(filePath);
-  return crypto.createHash('sha256').update(fileBuffer).digest('hex');
-}
+import sharp from 'sharp';
 
 test.describe('Host UI', () => {
   test.use({
@@ -28,8 +23,18 @@ test.describe('Host UI', () => {
     const filePath = './tests/e2e/test-results/downloaded-results.png';
     await download.saveAs(filePath);
 
-    const fileHash = getFileHash(filePath);
-    expect(fileHash).toBe('2b96f70bd85f4d6e1450a70719f159d5a08c7453283377811fecc6b461e7f66a');
+    const metadata = await sharp(filePath).metadata();
+
+    expect(metadata.format).toBe('png');
+    expect(metadata.width).toBe(1300);
+    expect(metadata.height).toBe(1842);
+
+    // crop date to get fixed content
+    const badgeBuffer = await sharp(filePath).extract({ left: 0, top: 0, width: 1300, height: 1750 }).png().toBuffer();
+    const currentHash = crypto.createHash('sha256').update(badgeBuffer).digest('hex');
+
+    const baselineHash = '80d79220f78167d070a82a25276f9d5364486f8b479f6be9eb4bd7e3e0abdac7';
+    expect(currentHash).toBe(baselineHash);
   });
 });
 

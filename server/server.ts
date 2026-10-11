@@ -163,7 +163,7 @@ export function setupServer() {
   const instances: Record<string, GameInstance> = {};
 
   if (isMockMode()) {
-    MockDate.set('2026-06-01T12:00:00.000Z');
+    MockDate.set('2026-02-01T12:00:00.000Z');
     loadMockState(instances);
   }
 
