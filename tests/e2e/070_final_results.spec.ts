@@ -2,15 +2,46 @@ import { expect, test } from './test_setup.js';
 import AxeBuilder from '@axe-core/playwright';
 import sessionData from '../../mock_data/fixtures/final_results.json';
 
-test.use({
-  sessionConfig: {
-    playerCount: 4,
-    userIndex: 1,
-    sessionData: sessionData,
-  },
+import * as fs from 'fs';
+import * as crypto from 'crypto';
+
+function getFileHash(filePath: string): string {
+  const fileBuffer = fs.readFileSync(filePath);
+  return crypto.createHash('sha256').update(fileBuffer).digest('hex');
+}
+
+test.describe('Host UI', () => {
+  test.use({
+    sessionConfig: {
+      playerCount: 4,
+      userIndex: 0,
+      sessionData: sessionData,
+    },
+  });
+
+  test('should download the results image with the expected hash', async ({ page, finalResultsPage }) => {
+    await finalResultsPage.imageDownloadBtn.waitFor({ state: 'visible' });
+    const downloadPromise = page.waitForEvent('download');
+    await finalResultsPage.imageDownloadBtn.click();
+    const download = await downloadPromise;
+
+    const filePath = './tests/e2e/test-results/downloaded-results.png';
+    await download.saveAs(filePath);
+
+    const fileHash = getFileHash(filePath);
+    expect(fileHash).toBe('2b96f70bd85f4d6e1450a70719f159d5a08c7453283377811fecc6b461e7f66a');
+  });
 });
 
 test.describe('Player UI', () => {
+  test.use({
+    sessionConfig: {
+      playerCount: 4,
+      userIndex: 1,
+      sessionData: sessionData,
+    },
+  });
+
   test('should display final leaderboard with correct scores and round history', async ({ finalResultsPage }) => {
     // Verify total count
     await expect(finalResultsPage.playerCards).toHaveCount(3);

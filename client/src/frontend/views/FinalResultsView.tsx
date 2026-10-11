@@ -106,6 +106,7 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
             {canExport && (
               <div className="export-section">
                 <button
+                  id="btn-download-image"
                   onClick={handleDownload}
                   disabled={isDownloading}
                 >

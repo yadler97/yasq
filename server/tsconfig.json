@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     /* File Layout */
-    "rootDir": "./",
     "outDir": "./dist",
     "noEmit": true,
 

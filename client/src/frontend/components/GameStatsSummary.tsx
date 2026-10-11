@@ -102,6 +102,9 @@ function formatSubValue(state: any): string {
   if (!state.value && state.value !== 0) return '';
 
   if (state.rule && state.rule.metric === 'guessTime') {
+    if (state.rule.aggregate === 'average') {
+      return `⌚ ${state.value.toFixed(1)}s`;
+    }
     return `⌚ ${state.value.toFixed(1)}s (Round ${state.extraData?.round || 'N/A'})`;
   }
 

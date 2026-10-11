@@ -20,7 +20,7 @@ import {
   type Track,
 } from '@yasq/shared';
 import { userDataCache } from '../src/helper.js';
-import { generateResultsImage, isPlaywrightExecutableInstalled } from '../src/export_results.js';
+import { generateResultsImage, isPlaywrightExecutableInstalled } from '../src/ssr/export_results.js';
 import { LogCategory, type LogContext, logger } from '../src/utils/logger.js';
 import { exchangeCodeForToken } from '../src/utils/discord.js';
 import { generateSampleTimeBonusSummary, SAMPLE_PARTICIPANTS } from '../src/utils/samples.js';

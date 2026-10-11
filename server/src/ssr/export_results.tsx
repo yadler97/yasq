@@ -8,13 +8,10 @@ import { fileURLToPath } from 'url';
 import { renderToString } from 'preact-render-to-string';
 
 import type { Participant } from '@yasq/shared';
-import type { Leaderboard } from './models/leaderboard.js';
-import { LogCategory, logger } from './utils/logger.js';
-import type { GameStats } from './models/game_stats.js';
-import type { AchievementBonusManager } from './models/achievement_bonus.js';
-
-import { Leaderboard as LeaderboardComponent } from '../../client/src/frontend/components/Leaderboard.js';
-import { GameStatsSummary } from '../../client/src/frontend/components/GameStatsSummary.js';
+import type { Leaderboard } from '../models/leaderboard.js';
+import { LogCategory, logger } from '../utils/logger.js';
+import type { GameStats } from '../models/game_stats.js';
+import type { AchievementBonusManager } from '../models/achievement_bonus.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +33,11 @@ export async function generateResultsImage(
   gameStats: GameStats,
   achievementBonusManager: AchievementBonusManager
 ) {
+  const leaderboardModulePath: string = '../../../client/src/frontend/components/Leaderboard.js';
+  const gameStatsModulePath: string = '../../../client/src/frontend/components/GameStatsSummary.js';
+  const { Leaderboard } = await import(leaderboardModulePath);
+  const { GameStatsSummary } = await import(gameStatsModulePath);
+
   if (!isPlaywrightExecutableInstalled()) {
     logger.warn(
       `Playwright Chromium executable not found. Skipping results image generation. Please run 'npx playwright install chromium'.`,
@@ -46,7 +48,7 @@ export async function generateResultsImage(
   }
 
   const outputPath = path.join(tempDir, 'results.png');
-  const cssFilePath = path.join(__dirname, '../../client/src/style.css');
+  const cssFilePath = path.join(__dirname, '../../../client/src/style.css');
   let cssContent = '';
   try {
     cssContent = fs.readFileSync(cssFilePath, 'utf8');
@@ -67,7 +69,7 @@ export async function generateResultsImage(
 
   // Render Preact components straight to HTML strings on the backend
   const leaderboardHtml = renderToString(
-    <LeaderboardComponent
+    <Leaderboard
       leaderboard={entries}
       achievements={achievementsObj}
       participants={participantsList}
