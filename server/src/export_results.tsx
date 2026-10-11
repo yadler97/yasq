@@ -13,8 +13,8 @@ import { LogCategory, logger } from './utils/logger.js';
 import type { GameStats } from './models/game_stats.js';
 import type { AchievementBonusManager } from './models/achievement_bonus.js';
 
-import { Leaderboard as LeaderboardComponent } from '@components/Leaderboard.js';
-import { GameStatsSummary } from '@components/GameStatsSummary.js';
+import { Leaderboard as LeaderboardComponent } from '../../client/src/frontend/components/Leaderboard.js';
+import { GameStatsSummary } from '../../client/src/frontend/components/GameStatsSummary.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
