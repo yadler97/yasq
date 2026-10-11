@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     /* File Layout */
-    "rootDir": "../",
+    "rootDir": "./",
     "outDir": "./dist",
+    "noEmit": true,
 
     /* Environment Settings */
     "module": "NodeNext",
@@ -12,6 +13,7 @@
     "types": ["node"],
 
     "paths": {
+      "@components/*": ["../client/src/frontend/components/*"],
       "react": ["../node_modules/preact/compat"],
       "react/jsx-runtime": ["../node_modules/preact/jsx-runtime"],
       "react-dom": ["../node_modules/preact/compat"]
