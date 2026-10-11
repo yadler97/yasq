@@ -2,15 +2,10 @@ import { useSignal } from '@preact/signals';
 import { useEffect, useState } from 'preact/hooks';
 
 import { audioPlayer, discordSdk, gameStatus, participants, useBackend } from '@yasq/client/src/globals';
-import { capitalize, getAvatarUrl, getDisplayName } from '@yasq/shared';
-import { findUser } from '../../utils/helper';
-
-import { RoundBubblesGroup } from '@components/RoundBubble';
-import { DiscordAvatar } from '@components/DiscordAvatar';
-import { ReadyButton } from '@components/ReadyButton';
-import { GameStatsSummary } from '@components/GameStatsSummary';
+import { Leaderboard } from '@components/Leaderboard';
 import { LoadingSpinner } from '@components/LoadingSpinner';
-import { TooltipDiv } from '@components/Tooltip';
+import { GameStatsSummary } from '@components/GameStatsSummary';
+import { ReadyButton } from '@components/ReadyButton';
 
 export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
   const backend = useBackend();
@@ -90,84 +85,11 @@ export const FinalResultsView = ({ isHost }: { isHost: boolean }) => {
     <div className="final-leaderboard centered">
       <h1 className="results-title">🏆 Final Results</h1>
 
-      <div className="leaderboard-container">
-        {leaderboard.value.map((player, index) => {
-          const user = findUser(participants.value, player.userId);
-
-          const staggerIndex = totalPlayers - 1 - index;
-          const delay = staggerIndex * 1.5;
-          const isWinner = index === 0;
-          const isSecond = index === 1;
-          const isThird = index === 2;
-
-          const playerAchievements = Object.entries(achievements.value || {}).filter(
-            ([_, state]: [string, any]) => state?.userIds && state.userIds.includes(player.userId)
-          );
-
-          return (
-            <div
-              key={player.userId}
-              className="player-wrapper"
-              style={{ animationDelay: `${delay}s` }}
-            >
-              <div
-                className={`player-card ${isWinner ? 'winner' : ''} ${isSecond ? 'second' : ''} ${isThird ? 'third' : ''}`}
-                style={{
-                  animationDelay: `${delay + 0.4}s`,
-                  zIndex: 1000 - index,
-                }}
-              >
-                {isWinner && <div className="shimmer-layer" />}
-                <div className="player-main-info">
-                  <div className="rank">#{index + 1}</div>
-                  <DiscordAvatar
-                    src={getAvatarUrl(user)}
-                    userName={getDisplayName(user)}
-                  />
-                  <div className="name">
-                    {isWinner ? '👑 ' : ''}
-                    {getDisplayName(user)}
-                  </div>
-
-                  {playerAchievements.length > 0 && (
-                    <div className="player-achievements">
-                      {playerAchievements.map(([ruleId, state]: [string, any], aIndex: number) => {
-                        const points = state.rule?.reward || 0;
-                        const label = capitalize(ruleId);
-                        const icon =
-                          state.rule?.metric === 'streak' ? '🔥' : state.rule?.metric === 'guessTime' ? '⌚' : '🏆';
-
-                        const tooltipId = `${player.userId}-${aIndex}`;
-
-                        return (
-                          <TooltipDiv
-                            key={tooltipId}
-                            id={tooltipId}
-                            text={`${label} (+${points} pts)`}
-                            className="badge winner"
-                          >
-                            {icon} +{points}
-                          </TooltipDiv>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  <div className="total-score">{player.totalScore} pts</div>
-                </div>
-
-                <div className="history-grid">
-                  <div className="history-label">Round Breakdown:</div>
-                  <RoundBubblesGroup
-                    rounds={player.roundHistory}
-                    userId={player.userId}
-                  />
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <Leaderboard
+        leaderboard={leaderboard.value}
+        achievements={achievements.value}
+        participants={participants.value}
+      />
 
       <div
         className="stats-and-controls"

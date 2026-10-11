@@ -24,6 +24,7 @@
     "mersenne-twister": "^1.1.0",
     "node-fetch": "^3.3.2",
     "opusscript": "^0.0.8",
+    "preact-render-to-string": "^6.8.0",
     "sharp": "^0.35.3",
     "socket.io": "^4.8.3"
   },
