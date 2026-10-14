@@ -63,6 +63,10 @@ export async function enrichParticipantsWithGuildNicknames(
   participants: Participant[],
   instanceId: string
 ): Promise<void> {
+  if (isMockMode()) {
+    return;
+  }
+
   const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
   if (!BOT_TOKEN) {
     logger.warn('DISCORD_BOT_TOKEN not set. Can not fetch guild nicknames.', LogCategory.DISCORD, instanceId);

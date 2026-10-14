@@ -20,7 +20,7 @@ test.describe('Host UI', () => {
     await finalResultsPage.imageDownloadBtn.click();
     const download = await downloadPromise;
 
-    const filePath = './tests/e2e/test-results/downloaded-results.png';
+    const filePath = './tests/test-results/downloaded-results.png';
     await download.saveAs(filePath);
 
     const metadata = await sharp(filePath).metadata();
