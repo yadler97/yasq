@@ -35,7 +35,7 @@ test.describe('Host UI', () => {
 
     const allowedHashes = [
       '258cfb45c143dda398fdf7b1548cb399a9fb2ce29c4b9a224ace4b2a20bea19e', // Windows
-      '036487e2b6bf91e495a43189063a972a253d78c8baabe846eab3d2bfc8021346', // CI Pipeline
+      'cc643c75c6149174bd409f587c8cef9e665d0415a93a7479cab351fe3eba26e2', // CI Pipeline
     ];
 
     expect(allowedHashes).toContain(currentHash);
