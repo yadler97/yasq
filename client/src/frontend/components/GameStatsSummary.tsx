@@ -2,6 +2,7 @@ import { capitalize, getAvatarUrl, getDisplayName, Participant, TrackInfo } from
 import { findUser, getGameDuration } from '../../utils/helper';
 import { DiscordAvatar } from './DiscordAvatar';
 import { NonDraggableImg } from './NonDraggableImg';
+import { TooltipDiv } from './Tooltip';
 
 export const GameStatsSummary = ({
   stats,
@@ -26,7 +27,6 @@ export const GameStatsSummary = ({
       label: 'Duration',
       users: [],
       value: getGameDuration(stats.startTime, stats.endTime),
-      subValue: `Start: ${formatTimestamp(stats.startTime)}\nEnd: ${formatTimestamp(stats.endTime)}`,
     },
     {
       label: 'Best Round',
@@ -64,11 +64,8 @@ export const GameStatsSummary = ({
           const users = item.users || [];
           const values = Array.isArray(item.value) ? item.value : [item.value];
 
-          return (
-            <div
-              key={index}
-              className="game-stat-item"
-            >
+          const content = (
+            <>
               <span className="game-stat-label">{item.label}</span>
               {users.length > 0 ? (
                 users.map((user: Participant, uIndex: number) => {
@@ -96,28 +93,41 @@ export const GameStatsSummary = ({
                 </div>
               )}
               {item.subValue && <span className="game-stat-subvalue">{item.subValue}</span>}
-              {item.trackInfo && (
-                <>
-                  <hr className="game-stat-divider" />
-                  <div className="game-stat-track-container">
-                    <NonDraggableImg
-                      src={item.trackInfo.gameCoverUrl || '/default.svg'}
-                      alt={`Cover of ${item.trackInfo.track.game}`}
-                      onError={e => {
-                        (e.currentTarget as HTMLImageElement).src = '/default.svg';
-                      }}
-                    />
-                    <div className="game-stat-track-details">
-                      <span>
-                        <strong>{item.trackInfo.track.game}</strong>
-                      </span>
-                      <span>
-                        <i>{item.trackInfo.track.title}</i>
-                      </span>
-                    </div>
+            </>
+          );
+
+          return item.trackInfo ? (
+            <TooltipDiv
+              text={
+                <div className="game-stat-track-container">
+                  <NonDraggableImg
+                    src={item.trackInfo.gameCoverUrl || '/default.svg'}
+                    alt={`Cover of ${item.trackInfo.track.game}`}
+                    onError={e => {
+                      (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                    }}
+                  />
+                  <div className="game-stat-track-details">
+                    <span>
+                      <strong>{item.trackInfo.track.game}</strong>
+                    </span>
+                    <span>
+                      <i>{item.trackInfo.track.title}</i>
+                    </span>
                   </div>
-                </>
-              )}
+                </div>
+              }
+              key={index}
+              className="game-stat-item tooltip-game-stat-item"
+            >
+              {content}
+            </TooltipDiv>
+          ) : (
+            <div
+              key={index}
+              className="game-stat-item"
+            >
+              {content}
             </div>
           );
         })}
@@ -142,10 +152,3 @@ function formatSubValue(state: any): string {
 
   return `${state.value}`;
 }
-
-const formatTimestamp = (timestamp?: string | number): string => {
-  if (!timestamp) return 'N/A';
-  const date = new Date(timestamp);
-
-  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-};
