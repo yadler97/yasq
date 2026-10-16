@@ -21,18 +21,21 @@ export const GameStatsSummary = ({
     users: Participant[];
     value: string | string[];
     subValue?: string;
+    tooltipText?: string;
     trackInfo?: TrackInfo;
   }> = [
     {
-      label: 'Duration',
+      label: 'Game Duration',
       users: [],
       value: getGameDuration(stats.startTime, stats.endTime),
+      tooltipText: `Start: ${formatTimestamp(stats.startTime)}\nEnd: ${formatTimestamp(stats.endTime)}`,
     },
     {
       label: 'Best Round',
       users: [],
       value: stats.bestScoringRound ? `Round ${stats.bestScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${highestTimeBonus} pts`,
+      tooltipText: 'The easiest track for the group, featuring the most fastest correct guesses',
       trackInfo: stats.bestScoringRound.trackInfo,
     },
     {
@@ -40,6 +43,7 @@ export const GameStatsSummary = ({
       users: [],
       value: stats.leastScoringRound ? `Round ${stats.leastScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${leastTimeBonus} pts`,
+      tooltipText: 'The hardest track for the group, featuring the fewest and slowest correct guesses',
       trackInfo: stats.leastScoringRound.trackInfo,
     },
     ...Object.entries(achievements).map(([ruleId, state]: [string, any]) => {
@@ -51,6 +55,7 @@ export const GameStatsSummary = ({
         users,
         value: users.length > 0 ? users.map((u: Participant) => getDisplayName(u)) : ['None'],
         subValue: formatSubValue(state),
+        tooltipText: state.rule.description,
         trackInfo: state.extraData?.trackInfo,
       };
     }),
@@ -96,25 +101,31 @@ export const GameStatsSummary = ({
             </>
           );
 
-          return item.trackInfo ? (
+          return item.trackInfo || item.tooltipText ? (
             <TooltipDiv
               text={
-                <div className="game-stat-track-container">
-                  <NonDraggableImg
-                    src={item.trackInfo.gameCoverUrl || '/default.svg'}
-                    alt={`Cover of ${item.trackInfo.track.game}`}
-                    onError={e => {
-                      (e.currentTarget as HTMLImageElement).src = '/default.svg';
-                    }}
-                  />
-                  <div className="game-stat-track-details">
-                    <span>
-                      <strong>{item.trackInfo.track.game}</strong>
-                    </span>
-                    <span>
-                      <i>{item.trackInfo.track.title}</i>
-                    </span>
-                  </div>
+                <div class="game-stat-tooltip-content">
+                  {item.tooltipText && <span className="game-stat-tooltip-text">{item.tooltipText}</span>}
+                  {item.tooltipText && item.trackInfo && <hr className="game-stat-divider" />}
+                  {item.trackInfo && (
+                    <div className="game-stat-track-container">
+                      <NonDraggableImg
+                        src={item.trackInfo.gameCoverUrl || '/default.svg'}
+                        alt={`Cover of ${item.trackInfo.track.game}`}
+                        onError={e => {
+                          (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                        }}
+                      />
+                      <div className="game-stat-track-details">
+                        <span>
+                          <strong>{item.trackInfo.track.game}</strong>
+                        </span>
+                        <span>
+                          <i>{item.trackInfo.track.title}</i>
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               }
               key={index}
@@ -152,3 +163,10 @@ function formatSubValue(state: any): string {
 
   return `${state.value}`;
 }
+
+const formatTimestamp = (timestamp?: string | number): string => {
+  if (!timestamp) return 'N/A';
+  const date = new Date(timestamp);
+
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+};

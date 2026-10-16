@@ -2083,6 +2083,25 @@ input[value='1']:checked + .btn-radio.correct {
   display: block;
 }
 
+.game-stat-tooltip-content {
+  display: flex;
+  flex-flow: column;
+  gap: var(--space-small);
+}
+
+.game-stat-tooltip-text {
+  display: block;
+  white-space: pre-line;
+}
+
+.game-stat-divider {
+  width: 100%;
+  border: 0;
+  border-top: 1px dashed var(--text-muted);
+  height: 0;
+  margin: 0;
+}
+
 .game-stat-track-container {
   position: relative;
   display: flex;
@@ -2097,11 +2116,10 @@ input[value='1']:checked + .btn-radio.correct {
 .game-stat-track-container img {
   width: 40px;
   height: 40px;
-  min-width: 32px;
+  flex-shrink: 0;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: var(--border-radius-medium);
-  overflow: hidden;
 }
 
 .game-stat-track-details {

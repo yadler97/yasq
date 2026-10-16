@@ -34,6 +34,7 @@ export const ACHIEVEMENT_BONUS_RULES: AchievementRule[] = [
     metric: AchievementBonusMetric.STREAK,
     goal: AchievementBonusGoal.HIGHEST,
     reward: 100,
+    description: 'Awarded to the player who built the highest continuous streak throughout the game.',
   },
   {
     id: AchievementBonusType.FASTEST_CORRECT_GUESS,
@@ -42,6 +43,7 @@ export const ACHIEVEMENT_BONUS_RULES: AchievementRule[] = [
     aggregate: AchievementBonusAggregate.MIN,
     goal: AchievementBonusGoal.LOWEST,
     reward: 100,
+    description: 'Awarded to the player who submitted a fully correct guess in the shortest amount of time.',
   },
   {
     id: AchievementBonusType.MOST_PARTIALLY_CORRECT_GUESSES,
@@ -50,6 +52,7 @@ export const ACHIEVEMENT_BONUS_RULES: AchievementRule[] = [
     aggregate: AchievementBonusAggregate.COUNT,
     goal: AchievementBonusGoal.HIGHEST,
     reward: 100,
+    description: 'Awarded to the player who achieved the highest number of partially correct guesses.',
   },
   {
     id: AchievementBonusType.SLOWEST_AVERAGE_GUESS_TIME,
@@ -58,6 +61,7 @@ export const ACHIEVEMENT_BONUS_RULES: AchievementRule[] = [
     aggregate: AchievementBonusAggregate.AVERAGE,
     goal: AchievementBonusGoal.HIGHEST,
     reward: 100,
+    description: 'Awarded to the player with the slowest average guess time throughout the game.',
   },
 ];
 
@@ -68,6 +72,7 @@ export interface AchievementRule {
   aggregate?: AchievementBonusAggregate;
   goal: AchievementBonusGoal;
   reward?: number;
+  description?: string;
 }
 
 interface UserAccumulator {

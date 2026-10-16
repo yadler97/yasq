@@ -34,7 +34,7 @@ test.describe('Host UI', () => {
     const currentHash = crypto.createHash('sha256').update(badgeBuffer).digest('hex');
 
     const allowedHashes = [
-      '16853585f4ad39aa57a132df6c0b70860dc492da1d8697e9a87e28515cf2406e', // Windows
+      '233f430f7ca746e0c44d5ece90e770b2b3f2696ec00b7150836a00e1b8da7afa', // Windows
       '3f1c2239918f542636b1785c2e2ec5152d3375fc2d1de8f1a31655d3315f37b1', // CI Pipeline
     ];
 
@@ -95,7 +95,7 @@ test.describe('Player UI', () => {
 
     // 1. Duration
     const durationItem = finalResultsPage.getStatItem(0);
-    await expect(durationItem.label).toHaveText('Duration');
+    await expect(durationItem.label).toHaveText('Game Duration');
     await expect(durationItem.value).toHaveText('5m 0s');
 
     // 2. Best Round

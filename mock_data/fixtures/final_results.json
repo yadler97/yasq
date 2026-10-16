@@ -126,7 +126,8 @@
         "filter": "correct",
         "aggregate": "min",
         "goal": "lowest",
-        "reward": 100
+        "reward": 100,
+        "description": "Awarded to the player who submitted a fully correct guess in the shortest amount of time."
       },
       "userIds": ["2"],
       "value": 0.5,
@@ -153,7 +154,8 @@
         "id": "HIGHEST_STREAK",
         "metric": "streak",
         "goal": "highest",
-        "reward": 100
+        "reward": 100,
+        "description": "Awarded to the player who built the highest continuous streak throughout the game."
       },
       "userIds": ["1"],
       "value": 3,
