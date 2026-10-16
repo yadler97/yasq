@@ -35,7 +35,7 @@ export const GameStatsSummary = ({
       users: [],
       value: stats.bestScoringRound ? `Round ${stats.bestScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${highestTimeBonus} pts`,
-      tooltipText: 'The easiest track for the group, featuring the most fastest correct guesses',
+      tooltipText: 'The easiest track for the group, featuring the most fastest correct guesses.',
       trackInfo: stats.bestScoringRound.trackInfo,
     },
     {
@@ -43,7 +43,7 @@ export const GameStatsSummary = ({
       users: [],
       value: stats.leastScoringRound ? `Round ${stats.leastScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${leastTimeBonus} pts`,
-      tooltipText: 'The hardest track for the group, featuring the fewest and slowest correct guesses',
+      tooltipText: 'The hardest track for the group, featuring the fewest and slowest correct guesses.',
       trackInfo: stats.leastScoringRound.trackInfo,
     },
     ...Object.entries(achievements).map(([ruleId, state]: [string, any]) => {

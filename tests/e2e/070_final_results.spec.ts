@@ -35,7 +35,7 @@ test.describe('Host UI', () => {
 
     const allowedHashes = [
       '233f430f7ca746e0c44d5ece90e770b2b3f2696ec00b7150836a00e1b8da7afa', // Windows
-      '3f1c2239918f542636b1785c2e2ec5152d3375fc2d1de8f1a31655d3315f37b1', // CI Pipeline
+      'bb3c5244d0c5413e0f350ac90db87c1db781890baa2a46a8c519aa9fd4751ebd', // CI Pipeline
     ];
 
     expect(allowedHashes).toContain(currentHash);
@@ -123,6 +123,19 @@ test.describe('Player UI', () => {
     await expect(streakItem.value).toContainText('MockPlayer1');
     await expect(streakItem.subValue).toContainText('3');
     await expect(streakItem.avatar).toBeVisible();
+  });
+
+  test('should display tooltip when hovering over game stat item', async ({ finalResultsPage }) => {
+    const bestRoundItem = finalResultsPage.getStatItem(1);
+    await expect(bestRoundItem.tooltip).toBeHidden();
+    await bestRoundItem.item.hover();
+    await expect(bestRoundItem.tooltip).toBeVisible();
+
+    await expect(bestRoundItem.tooltipText).toHaveText(
+      'The easiest track for the group, featuring the most fastest correct guesses.'
+    );
+    await expect(bestRoundItem.trackGame).toHaveText('Game C');
+    await expect(bestRoundItem.trackTitle).toHaveText('Track C');
   });
 
   test('should display winner badge in sidebar', async ({ sidebar, session }) => {
