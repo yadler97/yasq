@@ -58,13 +58,15 @@
           "awardedBonuses": []
         }
       ],
-      "track": {
-        "game": "Game C",
-        "title": "Track C",
-        "tags": [
-          { "type": "platform", "value": "Platform C" },
-          { "type": "release", "value": "2025" }
-        ]
+      "trackInfo": {
+        "track": {
+          "game": "Game C",
+          "title": "Track C",
+          "tags": [
+            { "type": "platform", "value": "Platform C" },
+            { "type": "release", "value": "2025" }
+          ]
+        }
       }
     },
     "leastScoringRound": {
@@ -104,13 +106,15 @@
           "awardedBonuses": []
         }
       ],
-      "track": {
-        "game": "Game A",
-        "title": "Track A",
-        "tags": [
-          { "type": "platform", "value": "Platform A" },
-          { "type": "release", "value": "2023" }
-        ]
+      "trackInfo": {
+        "track": {
+          "game": "Game A",
+          "title": "Track A",
+          "tags": [
+            { "type": "platform", "value": "Platform A" },
+            { "type": "release", "value": "2023" }
+          ]
+        }
       }
     }
   },
@@ -131,13 +135,15 @@
         "2": 0.5
       },
       "extraData": {
-        "track": {
-          "game": "Game C",
-          "title": "Track C",
-          "tags": [
-            { "type": "platform", "value": "Platform C" },
-            { "type": "release", "value": "2025" }
-          ]
+        "trackInfo": {
+          "track": {
+            "game": "Game C",
+            "title": "Track C",
+            "tags": [
+              { "type": "platform", "value": "Platform C" },
+              { "type": "release", "value": "2025" }
+            ]
+          }
         },
         "round": 3
       }

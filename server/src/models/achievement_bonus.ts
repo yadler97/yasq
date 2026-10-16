@@ -1,5 +1,5 @@
 import type { UserRoundResult } from './leaderboard.js';
-import { AchievementBonusType, type Track } from '@yasq/shared';
+import { AchievementBonusType, type TrackInfo } from '@yasq/shared';
 
 export enum AchievementBonusMetric {
   GUESS_TIME = 'guessTime',
@@ -125,7 +125,7 @@ export class AchievementBonusManager {
   }
 
   // Processes round results using the single unified map
-  public processRound(roundResults: UserRoundResult[], track: Track) {
+  public processRound(roundResults: UserRoundResult[], trackInfo: TrackInfo) {
     for (const state of this.achievements.values()) {
       if (!state.rule.aggregate && !state.rule.filter) continue;
 
@@ -151,7 +151,7 @@ export class AchievementBonusManager {
         acc.latest = val;
       }
 
-      this.recalculateLeaders(state, roundResults, track);
+      this.recalculateLeaders(state, roundResults, trackInfo);
     }
   }
 
@@ -175,7 +175,7 @@ export class AchievementBonusManager {
     return null;
   }
 
-  private recalculateLeaders(state: AchievementState, roundResults?: UserRoundResult[], track?: Track) {
+  private recalculateLeaders(state: AchievementState, roundResults?: UserRoundResult[], trackInfo?: TrackInfo) {
     let bestValue: number | null = null;
     let bestUserIds: string[] = [];
 
@@ -227,9 +227,9 @@ export class AchievementBonusManager {
     if (bestValue !== null) {
       state.value = bestValue;
       state.userIds = bestUserIds;
-      if (track || roundResults) {
+      if (trackInfo || roundResults) {
         state.extraData = {
-          ...(track ? { track } : {}),
+          ...(trackInfo ? { trackInfo: trackInfo } : {}),
           ...(roundResults ? { round: roundResults[0]?.round } : {}),
         };
       }

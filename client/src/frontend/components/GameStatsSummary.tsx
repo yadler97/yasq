@@ -1,6 +1,7 @@
-import { capitalize, getAvatarUrl, getDisplayName, Participant } from '@yasq/shared';
+import { capitalize, getAvatarUrl, getDisplayName, Participant, TrackInfo } from '@yasq/shared';
 import { findUser, getGameDuration } from '../../utils/helper';
 import { DiscordAvatar } from './DiscordAvatar';
+import { NonDraggableImg } from './NonDraggableImg';
 
 export const GameStatsSummary = ({
   stats,
@@ -19,23 +20,27 @@ export const GameStatsSummary = ({
     users: Participant[];
     value: string | string[];
     subValue?: string;
+    trackInfo?: TrackInfo;
   }> = [
     {
       label: 'Duration',
       users: [],
       value: getGameDuration(stats.startTime, stats.endTime),
+      subValue: `Start: ${formatTimestamp(stats.startTime)}\nEnd: ${formatTimestamp(stats.endTime)}`,
     },
     {
       label: 'Best Round',
       users: [],
       value: stats.bestScoringRound ? `Round ${stats.bestScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${highestTimeBonus} pts`,
+      trackInfo: stats.bestScoringRound.trackInfo,
     },
     {
-      label: 'Least Round',
+      label: 'Worst Round',
       users: [],
       value: stats.leastScoringRound ? `Round ${stats.leastScoringRound.roundResults[0]?.round || 'N/A'}` : 'N/A',
       subValue: `${leastTimeBonus} pts`,
+      trackInfo: stats.leastScoringRound.trackInfo,
     },
     ...Object.entries(achievements).map(([ruleId, state]: [string, any]) => {
       const users = state.userIds.map((id: string) => findUser(participants, id)).filter(Boolean);
@@ -46,6 +51,7 @@ export const GameStatsSummary = ({
         users,
         value: users.length > 0 ? users.map((u: Participant) => getDisplayName(u)) : ['None'],
         subValue: formatSubValue(state),
+        trackInfo: state.extraData?.trackInfo,
       };
     }),
   ];
@@ -90,6 +96,28 @@ export const GameStatsSummary = ({
                 </div>
               )}
               {item.subValue && <span className="game-stat-subvalue">{item.subValue}</span>}
+              {item.trackInfo && (
+                <>
+                  <hr className="game-stat-divider" />
+                  <div className="game-stat-track-container">
+                    <NonDraggableImg
+                      src={item.trackInfo.gameCoverUrl || '/default.svg'}
+                      alt={`Cover of ${item.trackInfo.track.game}`}
+                      onError={e => {
+                        (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                      }}
+                    />
+                    <div className="game-stat-track-details">
+                      <span>
+                        <strong>{item.trackInfo.track.game}</strong>
+                      </span>
+                      <span>
+                        <i>{item.trackInfo.track.title}</i>
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           );
         })}
@@ -114,3 +142,10 @@ function formatSubValue(state: any): string {
 
   return `${state.value}`;
 }
+
+const formatTimestamp = (timestamp?: string | number): string => {
+  if (!timestamp) return 'N/A';
+  const date = new Date(timestamp);
+
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+};
