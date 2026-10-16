@@ -34,8 +34,8 @@ test.describe('Host UI', () => {
     const currentHash = crypto.createHash('sha256').update(badgeBuffer).digest('hex');
 
     const allowedHashes = [
-      '258cfb45c143dda398fdf7b1548cb399a9fb2ce29c4b9a224ace4b2a20bea19e', // Windows
-      'cc643c75c6149174bd409f587c8cef9e665d0415a93a7479cab351fe3eba26e2', // CI Pipeline
+      '16853585f4ad39aa57a132df6c0b70860dc492da1d8697e9a87e28515cf2406e', // Windows
+      '3f1c2239918f542636b1785c2e2ec5152d3375fc2d1de8f1a31655d3315f37b1', // CI Pipeline
     ];
 
     expect(allowedHashes).toContain(currentHash);
@@ -106,7 +106,7 @@ test.describe('Player UI', () => {
 
     // 3. Least Round
     const leastRoundItem = finalResultsPage.getStatItem(2);
-    await expect(leastRoundItem.label).toHaveText('Least Round');
+    await expect(leastRoundItem.label).toHaveText('Worst Round');
     await expect(leastRoundItem.value).toHaveText('Round 1');
     await expect(leastRoundItem.subValue).not.toBeEmpty();
 
