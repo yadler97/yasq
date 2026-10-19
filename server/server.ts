@@ -27,6 +27,7 @@ import {
 } from '@yasq/shared';
 import { loadPermissions } from './src/access_control.js';
 import { setupWebsocketServer } from './src/socket_server.js';
+import { LogCategory, logger } from './src/utils/logger.js';
 
 dotenv.config({ path: '../.env' });
 
@@ -114,7 +115,7 @@ function loadPlaylists(playlistsPath: string): Playlist[] {
   }
 }
 
-function setupFileWatcher(filePath: string, onFileChange: () => void, fileName: string): fs.FSWatcher | undefined {
+function setupFileWatcher(filePath: string, onFileChange: () => void): fs.FSWatcher | undefined {
   if (!fs.existsSync(filePath)) {
     return;
   }
@@ -127,9 +128,8 @@ function setupFileWatcher(filePath: string, onFileChange: () => void, fileName: 
     changeTimeout = setTimeout(() => {
       try {
         onFileChange();
-        console.log(`✓ ${fileName} reloaded`);
       } catch (err) {
-        console.error(`Error reloading ${fileName}:`, err);
+        console.error(`Error reloading ${filePath}:`, err);
       }
     }, 100);
   });
@@ -170,7 +170,7 @@ export function setupServer() {
   const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
   const activeDataDir = validateDataSource(projectRoot);
-  console.log(`Loading server data from: ${activeDataDir}`);
+  logger.debug(`Loading server data from: ${activeDataDir}`, LogCategory.GENERAL);
 
   const tracksPath = getFilePath('tracks.json');
   const playlistsPath = getFilePath('playlists.json');
@@ -178,30 +178,41 @@ export function setupServer() {
 
   // Cache the data in memory
   let cachedTracks = loadTracks(tracksPath);
+  logger.debug(`✓ Tracks loaded: ${cachedTracks.length} total`, LogCategory.GENERAL);
   let cachedPlaylists = loadPlaylists(playlistsPath);
+  logger.debug(`✓ Playlists loaded: ${cachedPlaylists.length} total`, LogCategory.GENERAL);
 
   const app = express();
   const httpServer = createServer(app);
   const socketServer = setupWebsocketServer(httpServer, instances);
 
   // Watch for file changes and update cache
-  const tracksWatcher = setupFileWatcher(
-    tracksPath,
-    () => {
-      cachedTracks = loadTracks(tracksPath);
-      socketServer.emit(GameEvent.TRACKS_UPDATED);
-    },
-    'Tracks'
-  );
+  const tracksWatcher = setupFileWatcher(tracksPath, () => {
+    const previousTracks = cachedTracks;
+    cachedTracks = loadTracks(tracksPath);
+    socketServer.emit(GameEvent.TRACKS_UPDATED);
 
-  const playlistsWatcher = setupFileWatcher(
-    playlistsPath,
-    () => {
-      cachedPlaylists = loadPlaylists(playlistsPath);
-      socketServer.emit(GameEvent.PLAYLISTS_UPDATED);
-    },
-    'Playlists'
-  );
+    // Count how many tracks differ from the previous cache
+    const previousSet = new Set(previousTracks.map(t => JSON.stringify(t)));
+    const changedCount = cachedTracks.filter(t => !previousSet.has(JSON.stringify(t))).length;
+
+    logger.debug(`✓ Tracks reloaded: ${cachedTracks.length} total, ${changedCount} changed/new`, LogCategory.GENERAL);
+  });
+
+  const playlistsWatcher = setupFileWatcher(playlistsPath, () => {
+    const previousPlaylists = cachedPlaylists;
+    cachedPlaylists = loadPlaylists(playlistsPath);
+    socketServer.emit(GameEvent.PLAYLISTS_UPDATED);
+
+    // Count how many playlists differ from the previous cache
+    const previousSet = new Set(previousPlaylists.map(t => JSON.stringify(t)));
+    const changedCount = cachedPlaylists.filter(t => !previousSet.has(JSON.stringify(t))).length;
+
+    logger.debug(
+      `✓ Playlists reloaded: ${cachedPlaylists.length} total, ${changedCount} changed/new`,
+      LogCategory.GENERAL
+    );
+  });
 
   // Allow express to parse JSON bodies
   app.use(express.json());
