@@ -35,6 +35,7 @@ export class FinalResultsPage extends BasePage {
       getBadge: (badgeIndex: number) => {
         const badge = badges.nth(badgeIndex);
         const tooltip = badge.locator('.tooltip-content');
+
         return {
           badge,
           tooltip,
@@ -48,6 +49,7 @@ export class FinalResultsPage extends BasePage {
   getStatItem(index: number) {
     const item = this.statItems.nth(index);
     const tooltip = item.locator('.tooltip-content');
+
     return {
       item,
       label: item.locator('.game-stat-label'),

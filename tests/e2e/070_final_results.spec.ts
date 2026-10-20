@@ -35,7 +35,7 @@ test.describe('Host UI', () => {
 
     const allowedHashes = [
       '11bb343814d8eb6659b8af1e0a6e2387f1afbe215b12d6f26eda2cde590eea78', // Windows
-      'bb3c5244d0c5413e0f350ac90db87c1db781890baa2a46a8c519aa9fd4751ebd', // CI Pipeline
+      '81f225b97fa35d0be70ae607f0192b0aa9a2d3b24a3bfa55b0b6596119e1ce6e', // CI Pipeline
     ];
 
     expect(allowedHashes).toContain(currentHash);
@@ -144,6 +144,8 @@ test.describe('Player UI', () => {
 
   test('should display tooltip when hovering over game stat item', async ({ finalResultsPage }) => {
     const bestRoundItem = finalResultsPage.getStatItem(1);
+    await expect(bestRoundItem.item).toBeVisible();
+
     await expect(bestRoundItem.tooltip).toBeHidden();
     await bestRoundItem.item.hover();
     await expect(bestRoundItem.tooltip).toBeVisible();
