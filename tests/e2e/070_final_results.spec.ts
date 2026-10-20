@@ -27,14 +27,14 @@ test.describe('Host UI', () => {
 
     expect(metadata.format).toBe('png');
     expect(metadata.width).toBe(1300);
-    expect(metadata.height).toBe(1842);
+    expect(metadata.height).toBe(1804);
 
     // crop date to get fixed content
     const badgeBuffer = await sharp(filePath).extract({ left: 0, top: 0, width: 1300, height: 1750 }).png().toBuffer();
     const currentHash = crypto.createHash('sha256').update(badgeBuffer).digest('hex');
 
     const allowedHashes = [
-      '233f430f7ca746e0c44d5ece90e770b2b3f2696ec00b7150836a00e1b8da7afa', // Windows
+      '11bb343814d8eb6659b8af1e0a6e2387f1afbe215b12d6f26eda2cde590eea78', // Windows
       'bb3c5244d0c5413e0f350ac90db87c1db781890baa2a46a8c519aa9fd4751ebd', // CI Pipeline
     ];
 
@@ -76,7 +76,7 @@ test.describe('Player UI', () => {
     await expect(firstPlace.card).toHaveClass(/winner/);
     await expect(firstPlace.rank).toHaveText('#1');
     await expect(firstPlace.name).toContainText('MockPlayer1');
-    await expect(firstPlace.score).toContainText('761 pts');
+    await expect(firstPlace.score).toContainText('661 pts');
 
     await expect(firstPlace.bubbles).toHaveCount(3);
     await expect(firstPlace.bubbles.first()).toHaveClass(/correct/);
@@ -87,6 +87,23 @@ test.describe('Player UI', () => {
     // Verify UI visibility
     await expect(finalResultsPage.readyBtn).toBeVisible();
     await expect(finalResultsPage.restartBtn).toBeHidden();
+  });
+
+  test('should display player achievement badges only for active achievements', async ({ finalResultsPage }) => {
+    // Player 1 has highest streak, but that's not active -> no achievement bonus badge
+    const player1 = finalResultsPage.getPlayerCard(0);
+    await expect(player1.badges).toHaveCount(0);
+
+    // Player 2 has fastest correct guess, which is also active -> achievement bonus badge
+    const player2 = finalResultsPage.getPlayerCard(1);
+    await expect(player2.badges).toHaveCount(1);
+    await expect(player2.getBadge(0).badge).toContainText('+100');
+
+    // Verify tooltip
+    await expect(player2.getBadge(0).tooltip).toBeHidden();
+    player2.getBadge(0).badge.hover();
+    await expect(player2.getBadge(0).tooltip).toBeVisible();
+    await expect(player2.getBadge(0).tooltip).toContainText('Fastest Correct Guess (+100 pts)');
   });
 
   test('should properly display game stats summary and values', async ({ finalResultsPage }) => {
