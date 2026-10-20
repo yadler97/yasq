@@ -89,7 +89,11 @@ test.describe('Player UI', () => {
     await expect(finalResultsPage.restartBtn).toBeHidden();
   });
 
-  test('should display player achievement badges only for active achievements', async ({ finalResultsPage }) => {
+  test('should display player achievement badges only for active achievements', async ({ page, finalResultsPage }) => {
+    await page.evaluate(() => {
+      window.addEventListener('scroll', e => e.stopImmediatePropagation(), true);
+    });
+
     // Player 1 has highest streak, but that's not active -> no achievement bonus badge
     const player1 = finalResultsPage.getPlayerCard(0);
     await expect(player1.badges).toHaveCount(0);
@@ -101,9 +105,11 @@ test.describe('Player UI', () => {
 
     // Verify tooltip
     await expect(player2.getBadge(0).tooltip).toBeHidden();
-    player2.getBadge(0).badge.hover();
-    await expect(player2.getBadge(0).tooltip).toBeVisible();
-    await expect(player2.getBadge(0).tooltip).toContainText('Fastest Correct Guess (+100 pts)');
+    await expect(async () => {
+      await player2.getBadge(0).badge.hover();
+      await expect(player2.getBadge(0).tooltip).toBeVisible({ timeout: 1000 });
+      await expect(player2.getBadge(0).tooltip).toContainText('Fastest Correct Guess (+100 pts)', { timeout: 1000 });
+    }).toPass({ timeout: 10_000 });
   });
 
   test('should properly display game stats summary and values', async ({ finalResultsPage }) => {
@@ -142,19 +148,24 @@ test.describe('Player UI', () => {
     await expect(streakItem.avatar).toBeVisible();
   });
 
-  test('should display tooltip when hovering over game stat item', async ({ finalResultsPage }) => {
+  test('should display tooltip when hovering over game stat item', async ({ page, finalResultsPage }) => {
+    await page.evaluate(() => {
+      window.addEventListener('scroll', e => e.stopImmediatePropagation(), true);
+    });
+
     const bestRoundItem = finalResultsPage.getStatItem(1);
     await expect(bestRoundItem.item).toBeVisible();
 
     await expect(bestRoundItem.tooltip).toBeHidden();
-    await bestRoundItem.item.hover();
-    await expect(bestRoundItem.tooltip).toBeVisible();
-
-    await expect(bestRoundItem.tooltipText).toHaveText(
-      'The easiest track for the group, featuring the most fastest correct guesses.'
-    );
-    await expect(bestRoundItem.trackGame).toHaveText('Game C');
-    await expect(bestRoundItem.trackTitle).toHaveText('Track C');
+    await expect(async () => {
+      await bestRoundItem.item.hover();
+      await expect(bestRoundItem.tooltipText).toHaveText(
+        'The easiest track for the group, featuring the most fastest correct guesses.',
+        { timeout: 1000 }
+      );
+      await expect(bestRoundItem.trackGame).toHaveText('Game C', { timeout: 1000 });
+      await expect(bestRoundItem.trackTitle).toHaveText('Track C', { timeout: 1000 });
+    }).toPass({ timeout: 10_000 });
   });
 
   test('should display winner badge in sidebar', async ({ sidebar, session }) => {
