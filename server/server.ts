@@ -24,7 +24,6 @@ import {
   GAME_COVERS_DIR,
   GameEvent,
   HOST_PREFIX,
-  type Playlist,
   SAMPLE_DATA_DIR,
   STATIC_FILES_DIR,
   TEMP_FILES_DIR,
@@ -36,7 +35,9 @@ import { loadPermissions } from './src/access_control.js';
 import { loadDefaultGameSettings } from './src/models/settings.js';
 import { setupWebsocketServer } from './src/socket_server.js';
 import { LogCategory, logger } from './src/utils/logger.js';
-import { loadTracks, ValidationError } from './src/models/tracks.js';
+import { loadTracks } from './src/models/tracks.js';
+import type { ValidationError } from './src/utils/validate_config.js';
+import { loadPlaylists } from './src/models/playlists.js';
 
 dotenv.config({ path: '../.env' });
 
@@ -97,21 +98,6 @@ export function validateDataSource(
   }
 
   return resolvedTarget;
-}
-
-function loadPlaylists(playlistsPath: string): Playlist[] {
-  if (!fs.existsSync(playlistsPath)) {
-    logger.warn(`Playlists file not found at '${playlistsPath}'. Starting with no playlists.`, LogCategory.SETUP, null);
-    return [];
-  }
-
-  try {
-    const playlistsRaw = fs.readFileSync(playlistsPath, 'utf-8');
-    return JSON.parse(playlistsRaw) as Playlist[];
-  } catch (err) {
-    logger.error(`Error parsing JSON from ${playlistsPath}:`, LogCategory.SETUP, null, err as Error);
-    return [];
-  }
 }
 
 function setupFileWatcher(filePath: string, onFileChange: () => void): fs.FSWatcher | undefined {

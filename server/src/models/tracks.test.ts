@@ -2,8 +2,9 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import fs from 'fs';
 
 import { LogCategory, logger } from '../utils/logger.js';
-import { loadTracks, ValidationError } from './tracks.js';
+import { loadTracks } from './tracks.js';
 import { setServerRootDir } from '../utils/helper.js';
+import { ValidationError } from '../utils/validate_config.js';
 
 vi.mock('fs');
 
@@ -66,7 +67,7 @@ describe('loadTrackas', () => {
         audio: 'track002.mp3',
       },
     ]);
-    expect(infoSpy).toHaveBeenCalledWith("Successfully loaded 2 tracks from 'custom.json'.", LogCategory.SETUP);
+    expect(infoSpy).toHaveBeenCalledWith("Loading tracks from 'custom.json'.", LogCategory.SETUP);
   });
 
   it('should list invalid properties', () => {
@@ -110,5 +111,48 @@ describe('loadTrackas', () => {
       '3. Item 2: Property \'audio\' received invalid value "track002.mp3" (Audio file does not exist in the designated track audio directory).'
     );
     expect((error as ValidationError).exitCode).toBe(22);
+  });
+
+  it('should list missing properties', () => {
+    const missingConfig = [
+      {
+        // 'game' is completely missing
+        title: 'Track A',
+        audio: 'track001.mp3',
+      },
+    ];
+
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(missingConfig));
+
+    let error: unknown;
+    try {
+      loadTracks('missing.json');
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).toBeInstanceOf(ValidationError);
+    const errorMessage = (error as ValidationError).message;
+
+    expect(errorMessage).toContain("Found 1 invalid configuration property in 'missing.json':");
+    expect(errorMessage).toContain("1. Item 1: Property 'game' is missing (Required)");
+    expect((error as ValidationError).exitCode).toBe(22);
+  });
+
+  it('should throw an error when tracks file is missing', () => {
+    vi.mocked(fs.existsSync).mockReturnValue(false);
+
+    let error: unknown;
+    try {
+      loadTracks('missing-tracks.json');
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).toBeInstanceOf(ValidationError);
+    const validationError = error as ValidationError;
+    expect(validationError.message).toContain("Tracks file not found at 'missing-tracks.json'.");
+    expect(validationError.exitCode).toBe(20);
   });
 });
