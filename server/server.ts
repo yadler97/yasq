@@ -36,6 +36,7 @@ import { loadPermissions } from './src/access_control.js';
 import { loadDefaultGameSettings } from './src/models/settings.js';
 import { setupWebsocketServer } from './src/socket_server.js';
 import { LogCategory, logger } from './src/utils/logger.js';
+import { loadTracks, ValidationError } from './src/models/tracks.js';
 
 dotenv.config({ path: '../.env' });
 
@@ -96,19 +97,6 @@ export function validateDataSource(
   }
 
   return resolvedTarget;
-}
-
-function loadTracks(tracksPath: string): Track[] {
-  if (!fs.existsSync(tracksPath)) {
-    abortStartup(`Tracks file not found at '${tracksPath}'.`, 20);
-  }
-
-  try {
-    const tracksRaw = fs.readFileSync(tracksPath, 'utf-8');
-    return JSON.parse(tracksRaw) as Track[];
-  } catch (err) {
-    abortStartup(`Error parsing JSON from ${tracksPath}: ${err}`, 21);
-  }
 }
 
 function loadPlaylists(playlistsPath: string): Playlist[] {
@@ -190,7 +178,13 @@ export function setupServer() {
   const settingsPath = getFilePath('settings.json');
 
   // Cache the data in memory
-  let cachedTracks = loadTracks(tracksPath);
+  let cachedTracks: Track[];
+  try {
+    cachedTracks = loadTracks(tracksPath);
+  } catch (error) {
+    const err = error as ValidationError;
+    abortStartup(err.message, err.exitCode);
+  }
   logger.debug(`✓ Tracks loaded: ${cachedTracks.length} total`, LogCategory.SETUP);
   let cachedPlaylists = loadPlaylists(playlistsPath);
   logger.debug(`✓ Playlists loaded: ${cachedPlaylists.length} total`, LogCategory.SETUP);
