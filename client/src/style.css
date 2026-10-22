@@ -1352,9 +1352,12 @@ input[type='radio']:checked + .btn-radio {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+
+  width: 100%;
+  height: 100%;
 }
 
 .choice-button:hover {
