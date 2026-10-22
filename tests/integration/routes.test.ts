@@ -1,6 +1,8 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthenticationResult, BackendApiFacade } from '../../client/src/backend/apiFacade';
-import { setupServer } from '../../server';
+import fs from 'fs';
+import type { Server } from 'http';
+import { AddressInfo } from 'net';
+
 import {
   AchievementBonusMode,
   AchievementBonusType,
@@ -15,8 +17,9 @@ import {
   StreakBonusMultiplier,
   TimeBonus,
 } from '@yasq/shared';
-import type { Server } from 'http';
-import { AddressInfo } from 'net';
+
+import { AuthenticationResult, BackendApiFacade } from '../../client/src/backend/apiFacade';
+import { setupServer } from '../../server';
 import { TestBackendApi, TestGameState } from '../utils/testApi';
 import { exchangeCodeForToken, getDiscordUser } from '../../server/src/utils/discord';
 import { LogCategory, logger } from '@yasq/server/src/utils/logger';
@@ -50,12 +53,22 @@ let unknownFacade: BackendApiFacade;
 let testBackend: TestBackendApi;
 let loggerSpy: ReturnType<typeof vi.spyOn>;
 
+const originalExistsSync = fs.existsSync;
+
 vi.mock('../../server/src/utils/discord', () => ({
   exchangeCodeForToken: vi.fn(),
   getDiscordUser: vi.fn(),
 }));
 
 beforeAll(async () => {
+  vi.spyOn(fs, 'existsSync').mockImplementation(filePath => {
+    const pathStr = String(filePath);
+    if (pathStr.endsWith('.mp3') || pathStr.endsWith('.jpg')) {
+      return true;
+    }
+    return originalExistsSync(pathStr);
+  });
+
   process.env.VITE_MOCK_MODE = 'true';
   httpServer = setupServer();
 
