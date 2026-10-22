@@ -2162,6 +2162,8 @@ input[value='1']:checked + .btn-radio.correct {
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
+
+  --screen-margin: 15px; /* used for mobile mode */
 }
 
 /* Tooltip Arrow - Counter-shifts to stay glued to the trigger center */

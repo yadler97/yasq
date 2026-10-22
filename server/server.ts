@@ -179,6 +179,7 @@ export function setupServer() {
     cachedPlaylists = loadPlaylists(playlistsPath);
     logger.info(`✓ Playlists loaded: ${cachedPlaylists.length} total`, LogCategory.SETUP);
   } catch (error) {
+    cachedPlaylists = [];
     const err = error as ValidationError;
     logger.warn(`${err.message}\nSkipping playlist loading.`, LogCategory.SETUP, null);
   }
