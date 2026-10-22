@@ -1,5 +1,4 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import fs from 'fs';
 import type { Server } from 'http';
 import { AddressInfo } from 'net';
 
@@ -53,22 +52,12 @@ let unknownFacade: BackendApiFacade;
 let testBackend: TestBackendApi;
 let loggerSpy: ReturnType<typeof vi.spyOn>;
 
-const originalExistsSync = fs.existsSync;
-
 vi.mock('../../server/src/utils/discord', () => ({
   exchangeCodeForToken: vi.fn(),
   getDiscordUser: vi.fn(),
 }));
 
 beforeAll(async () => {
-  vi.spyOn(fs, 'existsSync').mockImplementation(filePath => {
-    const pathStr = String(filePath);
-    if (pathStr.endsWith('.mp3') || pathStr.endsWith('.jpg')) {
-      return true;
-    }
-    return originalExistsSync(pathStr);
-  });
-
   process.env.VITE_MOCK_MODE = 'true';
   httpServer = setupServer();
 
