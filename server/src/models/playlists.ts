@@ -1,14 +1,32 @@
 import fs from 'fs';
+import path from 'path';
 import { z } from 'zod';
 
-import { type Playlist } from '@yasq/shared';
+import { TRACK_AUDIO_DIR, type Playlist } from '@yasq/shared';
 
 import { LogCategory, logger } from '../utils/logger.js';
-import { formatValidationError, resolveProperty, type ValidationIssue } from '../utils/validate_config.js';
+import {
+  formatValidationError,
+  resolveProperty,
+  ValidationError,
+  type ValidationIssue,
+} from '../utils/validate_config.js';
+import { getFilePath, isMockMode } from '../utils/helper.js';
 
 const playlistSchema = z.object({
   name: z.string().nonempty(),
-  tracks: z.array(z.string().nonempty()),
+  tracks: z.array(
+    z
+      .string()
+      .nonempty()
+      .refine(
+        trackFilename => {
+          const absolutePath = getFilePath(path.join(TRACK_AUDIO_DIR, trackFilename));
+          return isMockMode() || fs.existsSync(absolutePath);
+        },
+        { message: 'Track file does not exist in the designated track audio directory' }
+      )
+  ),
 });
 
 const playlistListSchema = z.array(playlistSchema);
@@ -19,8 +37,7 @@ const playlistListSchema = z.array(playlistSchema);
  */
 export function loadPlaylists(configPath: string): Playlist[] {
   if (!fs.existsSync(configPath)) {
-    logger.warn(`Playlists file not found at '${configPath}'. Skipping playlist loading.`, LogCategory.SETUP, null);
-    return [];
+    throw new ValidationError(`Playlists file not found at '${configPath}'.`);
   }
 
   let parsedConfig: unknown;
@@ -28,11 +45,10 @@ export function loadPlaylists(configPath: string): Playlist[] {
     const fileContent = fs.readFileSync(configPath, 'utf-8');
     parsedConfig = JSON.parse(fileContent);
   } catch (err) {
-    logger.warn(`Error parsing JSON from playlists file '${configPath}': ${err}`, LogCategory.SETUP, null);
-    return [];
+    throw new ValidationError(`Error parsing JSON from ${configPath}: ${err}`);
   }
 
-  logger.info(`Loading playlists from '${configPath}'.`, LogCategory.SETUP);
+  logger.debug(`Loading playlists from '${configPath}'.`, LogCategory.SETUP);
 
   const result = playlistListSchema.safeParse(parsedConfig);
 
@@ -58,8 +74,7 @@ export function loadPlaylists(configPath: string): Playlist[] {
       `Found ${issues.length} invalid configuration ${pluralized} in playlists file '${configPath}':\n` +
       issues.map(formatValidationError).join('\n');
 
-    logger.warn(warningMessage, LogCategory.SETUP, null);
-    return [];
+    throw new ValidationError(warningMessage, 22);
   }
 
   return result.data as Playlist[];

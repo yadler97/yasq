@@ -10,7 +10,7 @@ vi.mock('fs');
 
 const serverDir: string = process.cwd();
 
-let infoSpy: ReturnType<typeof vi.spyOn>;
+let debugSpy: ReturnType<typeof vi.spyOn>;
 
 beforeAll(() => {
   setServerRootDir(serverDir);
@@ -18,7 +18,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  infoSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
+  debugSpy = vi.spyOn(logger, 'debug').mockImplementation(() => {});
 });
 
 afterEach(() => {
@@ -67,7 +67,7 @@ describe('loadTrackas', () => {
         audio: 'track002.mp3',
       },
     ]);
-    expect(infoSpy).toHaveBeenCalledWith("Loading tracks from 'custom.json'.", LogCategory.SETUP);
+    expect(debugSpy).toHaveBeenCalledWith("Loading tracks from 'custom.json'.", LogCategory.SETUP);
   });
 
   it('should list invalid properties', () => {

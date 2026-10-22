@@ -4,13 +4,13 @@ import fs from 'fs';
 import { LogCategory, logger } from '../utils/logger.js';
 import { loadPlaylists } from './playlists.js';
 import { setServerRootDir } from '../utils/helper.js';
+import { ValidationError } from '../utils/validate_config.js';
 
 vi.mock('fs');
 
 const serverDir: string = process.cwd();
 
-let warnSpy: ReturnType<typeof vi.spyOn>;
-let infoSpy: ReturnType<typeof vi.spyOn>;
+let debugSpy: ReturnType<typeof vi.spyOn>;
 
 beforeAll(() => {
   setServerRootDir(serverDir);
@@ -18,8 +18,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.resetAllMocks();
-  warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
-  infoSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
+  debugSpy = vi.spyOn(logger, 'debug').mockImplementation(() => {});
 });
 
 afterEach(() => {
@@ -45,7 +44,7 @@ describe('loadPlaylists', () => {
     const result = loadPlaylists('playlists.json');
 
     expect(result).toEqual(customPlaylists);
-    expect(infoSpy).toHaveBeenCalledWith("Loading playlists from 'playlists.json'.", LogCategory.SETUP);
+    expect(debugSpy).toHaveBeenCalledWith("Loading playlists from 'playlists.json'.", LogCategory.SETUP);
   });
 
   it('should log a warning and return empty array on invalid playlist properties', () => {
@@ -54,33 +53,53 @@ describe('loadPlaylists', () => {
         name: '', // Invalid: empty string
         tracks: 'track001.mp3', // Invalid: not an array
       },
+      {
+        name: 'Playlist 2',
+        tracks: ['track003.mp3'], // Invalid: audio file does not exist
+      },
     ];
 
-    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.existsSync).mockImplementation(filePath => {
+      if (String(filePath).endsWith('track003.mp3')) return false;
+      return true;
+    });
     vi.mocked(fs.readFileSync).mockReturnValue(JSON.stringify(invalidPlaylists));
 
-    const result = loadPlaylists('playlists.json');
+    let error: unknown;
+    try {
+      loadPlaylists('invalid.json');
+    } catch (err) {
+      error = err;
+    }
 
-    expect(result).toEqual([]);
-    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(error).toBeInstanceOf(ValidationError);
+    const errorMessage = (error as ValidationError).message;
 
-    const loggedWarning = warnSpy.mock.calls[0][0];
-    expect(loggedWarning).toContain("Found 2 invalid configuration properties in playlists file 'playlists.json':");
-    expect(loggedWarning).toContain(
+    expect(errorMessage).toContain("Found 3 invalid configuration properties in playlists file 'invalid.json':");
+    expect(errorMessage).toContain(
       '1. Item 1: Property \'name\' received invalid value "" (Too small: expected string to have >=1 characters).'
     );
-    expect(loggedWarning).toContain(
+    expect(errorMessage).toContain(
       '2. Item 1: Property \'tracks\' received invalid value "track001.mp3" (Invalid input: expected array, received string).'
+    );
+    expect(errorMessage).toContain(
+      '3. Item 2: Property \'tracks.0\' received invalid value "track003.mp3" (Track file does not exist in the designated track audio directory).'
     );
   });
 
   it('should log a warning and return empty array when playlist file is missing', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
-    const result = loadPlaylists('missing.json');
+    let error: unknown;
+    try {
+      loadPlaylists('missing-playlists.json');
+    } catch (err) {
+      error = err;
+    }
 
-    expect(result).toEqual([]);
-    expect(warnSpy).toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0]).toContain("Playlists file not found at 'missing.json'.");
+    expect(error).toBeInstanceOf(ValidationError);
+    const errorMessage = (error as ValidationError).message;
+
+    expect(errorMessage).toContain("Playlists file not found at 'missing-playlists.json'.");
   });
 });

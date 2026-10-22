@@ -70,7 +70,7 @@ export function loadTracks(configPath: string): Track[] {
     throw new ValidationError(`Error parsing JSON from ${configPath}: ${err}`, 21);
   }
 
-  logger.info(`Loading tracks from '${configPath}'.`, LogCategory.SETUP);
+  logger.debug(`Loading tracks from '${configPath}'.`, LogCategory.SETUP);
 
   const result = trackListSchema.safeParse(parsedConfig);
 

@@ -10,7 +10,7 @@ export interface ValidationIssue {
 export class ValidationError extends Error {
   constructor(
     message: string,
-    public readonly exitCode: number
+    public readonly exitCode?: number
   ) {
     super(message);
     this.name = 'ValidationError';

@@ -24,6 +24,7 @@ import {
   GAME_COVERS_DIR,
   GameEvent,
   HOST_PREFIX,
+  type Playlist,
   SAMPLE_DATA_DIR,
   STATIC_FILES_DIR,
   TEMP_FILES_DIR,
@@ -167,13 +168,20 @@ export function setupServer() {
   let cachedTracks: Track[];
   try {
     cachedTracks = loadTracks(tracksPath);
+    logger.info(`✓ Tracks loaded: ${cachedTracks.length} total`, LogCategory.SETUP);
   } catch (error) {
     const err = error as ValidationError;
-    abortStartup(err.message, err.exitCode);
+    abortStartup(err.message, err.exitCode ?? 1);
   }
-  logger.debug(`✓ Tracks loaded: ${cachedTracks.length} total`, LogCategory.SETUP);
-  let cachedPlaylists = loadPlaylists(playlistsPath);
-  logger.debug(`✓ Playlists loaded: ${cachedPlaylists.length} total`, LogCategory.SETUP);
+
+  let cachedPlaylists: Playlist[];
+  try {
+    cachedPlaylists = loadPlaylists(playlistsPath);
+    logger.info(`✓ Playlists loaded: ${cachedPlaylists.length} total`, LogCategory.SETUP);
+  } catch (error) {
+    const err = error as ValidationError;
+    logger.warn(`${err.message}\nSkipping playlist loading.`, LogCategory.SETUP, null);
+  }
 
   loadDefaultGameSettings(settingsPath);
   loadPermissions(permissionsPath);
@@ -184,30 +192,48 @@ export function setupServer() {
 
   // Watch for file changes and update cache
   const tracksWatcher = setupFileWatcher(tracksPath, () => {
-    const previousTracks = cachedTracks;
-    cachedTracks = loadTracks(tracksPath);
-    socketServer.emit(GameEvent.TRACKS_UPDATED);
+    try {
+      const previousTracks = cachedTracks ?? [];
+      cachedTracks = loadTracks(tracksPath);
+      socketServer.emit(GameEvent.TRACKS_UPDATED);
 
-    // Count how many tracks differ from the previous cache
-    const previousSet = new Set(previousTracks.map(t => JSON.stringify(t)));
-    const changedCount = cachedTracks.filter(t => !previousSet.has(JSON.stringify(t))).length;
+      // Count how many tracks differ from the previous cache
+      const previousSet = new Set(previousTracks.map(t => JSON.stringify(t)));
+      const changedCount = cachedTracks.filter(t => !previousSet.has(JSON.stringify(t))).length;
 
-    logger.debug(`✓ Tracks reloaded: ${cachedTracks.length} total, ${changedCount} changed/new`, LogCategory.SETUP);
+      logger.info(`✓ Tracks reloaded: ${cachedTracks.length} total, ${changedCount} changed/new`, LogCategory.SETUP);
+    } catch (error) {
+      const err = error as ValidationError;
+      logger.error(
+        `Error reloading tracks: ${err.message}\nKeeping previous track cache (${cachedTracks.length} tracks).`,
+        LogCategory.SETUP,
+        null
+      );
+    }
   });
 
   const playlistsWatcher = setupFileWatcher(playlistsPath, () => {
-    const previousPlaylists = cachedPlaylists;
-    cachedPlaylists = loadPlaylists(playlistsPath);
-    socketServer.emit(GameEvent.PLAYLISTS_UPDATED);
+    try {
+      const previousPlaylists = cachedPlaylists ?? [];
+      cachedPlaylists = loadPlaylists(playlistsPath);
+      socketServer.emit(GameEvent.PLAYLISTS_UPDATED);
 
-    // Count how many playlists differ from the previous cache
-    const previousSet = new Set(previousPlaylists.map(t => JSON.stringify(t)));
-    const changedCount = cachedPlaylists.filter(t => !previousSet.has(JSON.stringify(t))).length;
+      // Count how many playlists differ from the previous cache
+      const previousSet = new Set(previousPlaylists.map(t => JSON.stringify(t)));
+      const changedCount = cachedPlaylists.filter(t => !previousSet.has(JSON.stringify(t))).length;
 
-    logger.debug(
-      `✓ Playlists reloaded: ${cachedPlaylists.length} total, ${changedCount} changed/new`,
-      LogCategory.SETUP
-    );
+      logger.info(
+        `✓ Playlists reloaded: ${cachedPlaylists.length} total, ${changedCount} changed/new`,
+        LogCategory.SETUP
+      );
+    } catch (error) {
+      const err = error as ValidationError;
+      logger.warn(
+        `Error reloading playlists: ${err.message}\nKeeping previous playlists cache (${cachedPlaylists.length} playlists).`,
+        LogCategory.SETUP,
+        null
+      );
+    }
   });
 
   const settingsWatcher = setupFileWatcher(settingsPath, () => {
