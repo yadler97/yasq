@@ -32,7 +32,7 @@ import {
   type Track,
   TRACK_AUDIO_DIR,
 } from '@yasq/shared';
-import { loadPermissions } from './src/access_control.js';
+import { loadPermissions } from './src/models/permissions.js';
 import { loadDefaultGameSettings } from './src/models/settings.js';
 import { setupWebsocketServer } from './src/socket_server.js';
 import { LogCategory, logger } from './src/utils/logger.js';
@@ -184,8 +184,15 @@ export function setupServer() {
     logger.warn(`${err.message}\nSkipping playlist loading.`, LogCategory.SETUP, null);
   }
 
+  try {
+    loadPermissions(permissionsPath);
+    logger.info(`✓ Permissions loaded successfully`, LogCategory.SETUP);
+  } catch (error) {
+    const err = error as ValidationError;
+    logger.warn(`${err.message}\nSkipping permissions loading.`, LogCategory.SETUP, null);
+  }
+
   loadDefaultGameSettings(settingsPath);
-  loadPermissions(permissionsPath);
 
   const app = express();
   const httpServer = createServer(app);
@@ -231,6 +238,20 @@ export function setupServer() {
       const err = error as ValidationError;
       logger.warn(
         `Error reloading playlists: ${err.message}\nKeeping previous playlists cache (${cachedPlaylists.length} playlists).`,
+        LogCategory.SETUP,
+        null
+      );
+    }
+  });
+
+  const permissionsWatcher = setupFileWatcher(permissionsPath, () => {
+    try {
+      loadPermissions(permissionsPath);
+      logger.info(`✓ Permissions reloaded successfully`, LogCategory.SETUP);
+    } catch (error) {
+      const err = error as ValidationError;
+      logger.warn(
+        `Error reloading permissions: ${err.message}\nKeeping previous permissions configuration.`,
         LogCategory.SETUP,
         null
       );
@@ -291,6 +312,7 @@ export function setupServer() {
   httpServer.on('close', () => {
     tracksWatcher?.close();
     playlistsWatcher?.close();
+    permissionsWatcher?.close();
     settingsWatcher?.close();
   });
 

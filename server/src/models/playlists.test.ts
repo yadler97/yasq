@@ -47,7 +47,7 @@ describe('loadPlaylists', () => {
     expect(debugSpy).toHaveBeenCalledWith("Loading playlists from 'playlists.json'.", LogCategory.SETUP);
   });
 
-  it('should log a warning and return empty array on invalid playlist properties', () => {
+  it('should throw an error on invalid playlist properties', () => {
     const invalidPlaylists = [
       {
         name: '', // Invalid: empty string
@@ -87,7 +87,7 @@ describe('loadPlaylists', () => {
     );
   });
 
-  it('should log a warning and return empty array when playlist file is missing', () => {
+  it('should throw an error when playlist file is missing', () => {
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
     let error: unknown;
