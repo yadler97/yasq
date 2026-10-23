@@ -33,7 +33,8 @@ const playlistListSchema = z.array(playlistSchema);
 
 /**
  * Loads playlists from a given JSON config path.
- * Logs a warning and returns an empty array if the file is missing, invalid JSON, or fails validation.
+ * Checks that audio files exist within their respective directories.
+ * Throws a ValidationError if the file is missing, invalid JSON, or fails schema validation.
  */
 export function loadPlaylists(configPath: string): Playlist[] {
   if (!fs.existsSync(configPath)) {

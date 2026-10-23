@@ -54,8 +54,9 @@ const trackSchema = z.object({
 const trackListSchema = z.array(trackSchema);
 
 /**
- * Loads and strictly validates tracks from a given JSON config path.
+ * Loads tracks from a given JSON config path.
  * Checks that audio and optional cover files exist within their respective directories.
+ * Throws a ValidationError if the file is missing, invalid JSON, or fails schema validation.
  */
 export function loadTracks(configPath: string): Track[] {
   if (!fs.existsSync(configPath)) {

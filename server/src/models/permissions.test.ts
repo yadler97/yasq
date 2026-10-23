@@ -58,14 +58,14 @@ describe('isAllowed', () => {
   it('should throw an error and start with no restrictions if file is invalid', () => {
     const invalidPermissions = [
       {
-        type: 'greylist', // Invalid: must be blacklist oh whitelist
+        type: 'greylist', // Invalid: must be blacklist or whitelist
         userIds: '1', // Invalid: not an array
         files: ['track001.mp3'],
       },
       {
         type: 'whitelist',
         // Invalid: userIds missing
-        files: [1], // Invalid: array ,ust contain strings
+        files: [1], // Invalid: array must contain strings
       },
     ];
 
