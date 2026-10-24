@@ -2,16 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
 
-import { TRACK_AUDIO_DIR, type Playlist } from '@yasq/shared';
+import { type Playlist, TRACK_AUDIO_DIR } from '@yasq/shared';
 
 import { LogCategory, logger } from '../utils/logger.js';
+import { getFilePath, isMockMode } from '../utils/helper.js';
 import {
-  formatValidationError,
+  formatListItemValidationIssue,
+  type ListItemValidationIssue,
   resolveProperty,
   ValidationError,
-  type ValidationIssue,
-} from '../utils/validate_config.js';
-import { getFilePath, isMockMode } from '../utils/helper.js';
+} from './validate_config.js';
 
 const playlistSchema = z.object({
   name: z.string().nonempty(),
@@ -24,7 +24,7 @@ const playlistSchema = z.object({
           const absolutePath = getFilePath(path.join(TRACK_AUDIO_DIR, trackFilename));
           return isMockMode() || fs.existsSync(absolutePath);
         },
-        { message: 'Track file does not exist in the designated track audio directory' }
+        { error: 'Track file does not exist in the designated track audio directory' }
       )
   ),
 });
@@ -54,7 +54,7 @@ export function loadPlaylists(configPath: string): Playlist[] {
   const result = playlistListSchema.safeParse(parsedConfig);
 
   if (!result.success) {
-    const issues: ValidationIssue[] = [];
+    const issues: ListItemValidationIssue[] = [];
 
     for (const issue of result.error.issues) {
       const pathArr = issue.path;
@@ -73,7 +73,7 @@ export function loadPlaylists(configPath: string): Playlist[] {
     const pluralized = issues.length === 1 ? 'property' : 'properties';
     const warningMessage =
       `Found ${issues.length} invalid configuration ${pluralized} in playlists file '${configPath}':\n` +
-      issues.map(formatValidationError).join('\n');
+      issues.map(formatListItemValidationIssue).join('\n');
 
     throw new ValidationError(warningMessage, 22);
   }

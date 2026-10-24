@@ -2,16 +2,16 @@ import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
 
-import { GAME_COVERS_DIR, TRACK_AUDIO_DIR, type Track } from '@yasq/shared';
+import { GAME_COVERS_DIR, type Track, TRACK_AUDIO_DIR } from '@yasq/shared';
 
 import { getFilePath, isMockMode } from '../utils/helper.js';
 import { LogCategory, logger } from '../utils/logger.js';
 import {
-  formatValidationError,
+  formatListItemValidationIssue,
+  type ListItemValidationIssue,
   resolveProperty,
   ValidationError,
-  type ValidationIssue,
-} from '../utils/validate_config.js';
+} from './validate_config.js';
 
 const trackSchema = z.object({
   game: z.string().nonempty(),
@@ -25,7 +25,7 @@ const trackSchema = z.object({
         const absolutePath = getFilePath(path.join(TRACK_AUDIO_DIR, audioFilename));
         return isMockMode() || fs.existsSync(absolutePath);
       },
-      { message: 'Audio file does not exist in the designated track audio directory' }
+      { error: 'Audio file does not exist in the designated track audio directory' }
     ),
 
   cover: z
@@ -38,7 +38,7 @@ const trackSchema = z.object({
         const absolutePath = getFilePath(path.join(GAME_COVERS_DIR, coverFilename));
         return isMockMode() || fs.existsSync(absolutePath);
       },
-      { message: 'Cover file does not exist in the designated game covers directory' }
+      { error: 'Cover file does not exist in the designated game covers directory' }
     ),
 
   tags: z
@@ -76,7 +76,7 @@ export function loadTracks(configPath: string): Track[] {
   const result = trackListSchema.safeParse(parsedConfig);
 
   if (!result.success) {
-    const issues: ValidationIssue[] = [];
+    const issues: ListItemValidationIssue[] = [];
 
     for (const issue of result.error.issues) {
       const pathArr = issue.path;
@@ -95,7 +95,7 @@ export function loadTracks(configPath: string): Track[] {
     const pluralized = issues.length === 1 ? 'property' : 'properties';
     const errorMessage =
       `Found ${issues.length} invalid configuration ${pluralized} in '${configPath}':\n` +
-      issues.map(formatValidationError).join('\n');
+      issues.map(formatListItemValidationIssue).join('\n');
     throw new ValidationError(errorMessage, 22);
   }
 

@@ -23,7 +23,7 @@ import {
   type Track,
 } from '@yasq/shared';
 import { filterDiscordTextChannels, getCachedDisplayName, userDataCache } from '../src/utils/helper.js';
-import { isAllowed } from '../src/models/permissions.js';
+import { isAllowed } from '../src/config/permissions.js';
 import { generateResultsImage } from '../src/ssr/export_results.js';
 import { LogCategory, logger } from '../src/utils/logger.js';
 import { getChannelsForGuild, postResultsToChannel } from '../src/utils/discord.js';
@@ -107,7 +107,7 @@ export const setupHostRoutes = (
       timeBonus: z.enum(TimeBonus).nullable(),
       streakBonusMultiplier: z.enum(StreakBonusMultiplier),
       achievementBonuses: z
-        .union([
+        .discriminatedUnion('mode', [
           z.object({
             mode: z.literal(AchievementBonusMode.MANUAL),
             enabledTypes: z.array(z.enum(AchievementBonusType)),
@@ -118,7 +118,7 @@ export const setupHostRoutes = (
               .number()
               .int()
               .positive()
-              .max(Object.keys(AchievementBonusType).length - 1, {
+              .lt(Object.keys(AchievementBonusType).length, {
                 error: `'randomCount' must be smaller than the total number of available achievement bonus types (${Object.keys(AchievementBonusType).length})`,
               }),
           }),
