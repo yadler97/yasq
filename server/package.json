@@ -9,6 +9,8 @@
     "url": "git+https://github.com/yadler97/yasq.git"
   },
   "scripts": {
+    "commands:register": "tsx commands.ts",
+    "commands:deregister": "tsx commands.ts --deregister",
     "dev": "cross-env NODE_ENV=development tsx watch main.ts",
     "prod": "cross-env NODE_ENV=production tsx main.ts",
     "test": "cross-env NODE_ENV=test vitest"

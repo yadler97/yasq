@@ -263,8 +263,7 @@ Any properties you omit will automatically fall back to their defaults.
 You can register commands to allow players to access some functionality via a bot.
 
 ```bash
-cd server
-node commands.ts
+npm run commands:register
 ```
 
 This requires a valid `DISCORD_BOT_TOKEN` to be set in the `.env` file.
@@ -282,6 +281,12 @@ The following commands exist:
 | **`/leave`**    | Kick the bot out of the voice channel | None                | None                                                           |
 
 This also allows players to launch the activity directly from the chat interface via an Entry Point Command.
+
+To deregister the commands again, run:
+
+```bash
+npm run commands:deregister
+```
 
 #### Database (Optional)
 
