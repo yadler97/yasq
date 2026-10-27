@@ -21,6 +21,7 @@ import {
 } from './src/utils/helper.js';
 import {
   API_ROOT,
+  APP_SOUNDS_DIR,
   GAME_COVERS_DIR,
   GameEvent,
   HOST_PREFIX,
@@ -32,13 +33,13 @@ import {
   type Track,
   TRACK_AUDIO_DIR,
 } from '@yasq/shared';
-import { loadPermissions } from './src/models/permissions.js';
-import { loadDefaultGameSettings } from './src/models/settings.js';
+import { loadPermissions } from './src/config/permissions.js';
+import { loadSettingsConfig } from './src/config/settings.js';
 import { setupWebsocketServer } from './src/socket_server.js';
 import { LogCategory, logger } from './src/utils/logger.js';
-import { loadTracks } from './src/models/tracks.js';
+import { loadTracks } from './src/config/tracks.js';
 import type { ValidationError } from './src/utils/validate_config.js';
-import { loadPlaylists } from './src/models/playlists.js';
+import { loadPlaylists } from './src/config/playlists.js';
 
 dotenv.config({ path: '../.env' });
 
@@ -192,7 +193,7 @@ export function setupServer() {
     logger.warn(`${err.message}\nSkipping permissions loading.`, LogCategory.SETUP, null);
   }
 
-  loadDefaultGameSettings(settingsPath);
+  loadSettingsConfig(settingsPath);
 
   const app = express();
   const httpServer = createServer(app);
@@ -259,7 +260,7 @@ export function setupServer() {
   });
 
   const settingsWatcher = setupFileWatcher(settingsPath, () => {
-    loadDefaultGameSettings(settingsPath);
+    loadSettingsConfig(settingsPath);
   });
 
   // Allow express to parse JSON bodies
@@ -267,9 +268,11 @@ export function setupServer() {
 
   const musicPath = getFilePath(TRACK_AUDIO_DIR);
   const gameCoverPath = getFilePath(GAME_COVERS_DIR);
+  const appSoundsPath = getFilePath(APP_SOUNDS_DIR);
 
   app.use(`/${TRACK_AUDIO_DIR}`, express.static(musicPath));
   app.use(`/${GAME_COVERS_DIR}`, express.static(gameCoverPath));
+  app.use(`/${APP_SOUNDS_DIR}`, express.static(appSoundsPath));
 
   // Folder for serving temporary static files
   const tempDir = setupTempDir(projectRoot);
