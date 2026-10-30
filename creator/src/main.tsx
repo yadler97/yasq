@@ -3,7 +3,7 @@ import { useState, useEffect } from 'preact/hooks';
 import type { Tag, Track } from '@yasq/shared';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'add' | 'list'>('add');
+  const [view, setView] = useState<'list' | 'form'>('list');
   const [tracks, setTracks] = useState<Track[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -12,6 +12,8 @@ export function App() {
   const [game, setGame] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioFilename, setAudioFilename] = useState('');
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverFilename, setCoverFilename] = useState('');
   const [tags, setTags] = useState<Tag[]>([]);
 
   const addTagField = () => setTags([...tags, { type: '', value: '' }]);
@@ -37,16 +39,24 @@ export function App() {
     setGame('');
     setAudioFile(null);
     setAudioFilename('');
+    setCoverFile(null);
+    setCoverFilename('');
     setTags([]);
     setEditingIndex(null);
+  };
+
+  const openAddForm = () => {
+    resetForm();
+    setView('form');
   };
 
   const submitTrack = async (e: Event) => {
     e.preventDefault();
 
     let filename = audioFilename;
+    let coverName = coverFilename;
 
-    // Upload new binary audio file if selected
+    // Upload audio file if selected
     if (audioFile) {
       const uploadRes = await fetch('/api/upload', {
         method: 'POST',
@@ -59,7 +69,20 @@ export function App() {
       }
     }
 
-    const trackData = { title, game, audio: filename, tags };
+    // Upload cover image if selected
+    if (coverFile) {
+      const res = await fetch('/api/upload?type=cover', {
+        method: 'POST',
+        headers: { 'X-File-Name': encodeURIComponent(coverFile.name) },
+        body: coverFile,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        coverName = data.filename;
+      }
+    }
+
+    const trackData = { title, game, audio: filename, cover: coverName, tags };
 
     const url = editingIndex !== null ? `/api/tracks/${editingIndex}` : '/api/tracks';
     const method = editingIndex !== null ? 'PUT' : 'POST';
@@ -71,10 +94,9 @@ export function App() {
     });
 
     if (res.ok) {
-      alert(editingIndex !== null ? 'Track updated successfully!' : 'Track saved locally!');
       resetForm();
       fetchTracks();
-      setActiveTab('list');
+      setView('list');
     }
   };
 
@@ -84,9 +106,11 @@ export function App() {
     setGame(track.game);
     setAudioFilename(track.audio);
     setAudioFile(null);
+    setCoverFilename(track.cover || '');
+    setCoverFile(null);
     setTags(track.tags || []);
     setEditingIndex(index);
-    setActiveTab('add');
+    setView('form');
   };
 
   const deleteTrack = async (index: number) => {
@@ -101,33 +125,30 @@ export function App() {
     <div className="creator-wrapper">
       <header className="creator-header">
         <h2>Creator Dashboard</h2>
-        <div className="tabs">
+        {view === 'list' ? (
           <button
-            onClick={() => {
-              resetForm();
-              setActiveTab('add');
-            }}
-            className={activeTab === 'add' ? 'active' : ''}
+            onClick={openAddForm}
+            className="primary-btn"
           >
-            {editingIndex !== null ? 'Edit Track' : 'Add Track'}
+            + Add Track
           </button>
+        ) : (
           <button
-            onClick={() => {
-              setActiveTab('list');
-              fetchTracks();
-            }}
-            className={activeTab === 'list' ? 'active' : ''}
+            onClick={() => setView('list')}
+            className="secondary-btn"
           >
-            Existing Tracks ({tracks.length})
+            ← Back to List
           </button>
-        </div>
+        )}
       </header>
 
-      {activeTab === 'add' ? (
+      {view === 'form' ? (
         <form
           onSubmit={submitTrack}
           className="creator-form"
         >
+          <h3>{editingIndex !== null ? 'Edit Track' : 'Add New Track'}</h3>
+
           <div className="field">
             <label>Game Name</label>
             <input
@@ -162,7 +183,23 @@ export function App() {
                 }
               }}
             />
-            {audioFilename && <small>Current file: {audioFilename}</small>}
+            {audioFilename && <small>Current audio file: {audioFilename}</small>}
+          </div>
+
+          <div className="field">
+            <label>Cover Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={e => {
+                const files = (e.target as HTMLInputElement).files;
+                if (files && files[0]) {
+                  setCoverFile(files[0]);
+                  setCoverFilename(files[0].name);
+                }
+              }}
+            />
+            {coverFilename && <small>Current cover file: {coverFilename}</small>}
           </div>
 
           <div className="field">
@@ -208,15 +245,16 @@ export function App() {
             >
               {editingIndex !== null ? 'Update Track' : 'Save Track'}
             </button>
-            {editingIndex !== null && (
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={resetForm}
-              >
-                Cancel
-              </button>
-            )}
+            <button
+              type="button"
+              className="secondary-btn"
+              onClick={() => {
+                resetForm();
+                setView('list');
+              }}
+            >
+              Cancel
+            </button>
           </div>
         </form>
       ) : (
@@ -229,6 +267,12 @@ export function App() {
                 key={i}
                 className="track-card"
               >
+                {track.cover && (
+                  <img
+                    src={`/covers/${track.cover}`}
+                    alt={`Cover of ${track.game}`}
+                  />
+                )}
                 <p>
                   <strong>Game:</strong> {track.game}
                 </p>

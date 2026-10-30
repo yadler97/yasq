@@ -2,15 +2,16 @@ import type { Plugin } from 'vite';
 import fs from 'fs';
 import path from 'path';
 
-import { Track } from '@yasq/shared';
+import { GAME_COVERS_DIR, STATIC_FILES_DIR, Track, TRACK_AUDIO_DIR } from '@yasq/shared';
 
 export function persistPlugin(): Plugin {
   return {
     name: 'persist',
     configureServer(server) {
-      const baseDir = path.resolve(process.cwd(), '../server/data/creator');
+      const baseDir = path.resolve(process.cwd(), '../server', STATIC_FILES_DIR, 'creator');
       const tracksFile = path.join(baseDir, 'tracks.json');
-      const musicDir = path.join(baseDir, 'music');
+      const musicDir = path.join(baseDir, TRACK_AUDIO_DIR);
+      const coversDir = path.join(baseDir, GAME_COVERS_DIR);
 
       const readTracks = (): Track[] => {
         if (!fs.existsSync(tracksFile)) return [];
@@ -22,9 +23,18 @@ export function persistPlugin(): Plugin {
         fs.writeFileSync(tracksFile, JSON.stringify(tracks, null, 2));
       };
 
-      // Serve uploaded audio files statically
+      // Serve static audio files
       server.middlewares.use('/music', (req, res, next) => {
         const filePath = path.join(musicDir, req.url || '');
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          return fs.createReadStream(filePath).pipe(res);
+        }
+        next();
+      });
+
+      // Serve static cover images
+      server.middlewares.use('/covers', (req, res, next) => {
+        const filePath = path.join(coversDir, req.url || '');
         if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
           return fs.createReadStream(filePath).pipe(res);
         }
@@ -35,9 +45,15 @@ export function persistPlugin(): Plugin {
       server.middlewares.use('/api/upload', async (req, res) => {
         if (req.method !== 'POST') return;
 
-        const filename = decodeURIComponent((req.headers['x-file-name'] as string) || 'audio.mp3');
-        fs.mkdirSync(musicDir, { recursive: true });
-        const targetPath = path.join(musicDir, filename);
+        const url = new URL(req.url || '', `http://${req.headers.host}`);
+        const type = url.searchParams.get('type');
+        const targetDir = type === 'cover' ? coversDir : musicDir;
+
+        const defaultName = type === 'cover' ? 'cover.jpg' : 'audio.mp3';
+        const filename = decodeURIComponent((req.headers['x-file-name'] as string) || defaultName);
+
+        fs.mkdirSync(targetDir, { recursive: true });
+        const targetPath = path.join(targetDir, filename);
 
         const writeStream = fs.createWriteStream(targetPath);
         req.pipe(writeStream);
