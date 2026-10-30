@@ -1,6 +1,9 @@
 import { render } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
+
 import type { Tag, Track } from '@yasq/shared';
+
+import './style.css';
 
 export function App() {
   const [view, setView] = useState<'list' | 'form'>('list');
@@ -124,7 +127,7 @@ export function App() {
   return (
     <div className="creator-wrapper">
       <header className="creator-header">
-        <h2>Creator Dashboard</h2>
+        <h2>YASQ Creator Dashboard</h2>
         {view === 'list' ? (
           <button
             onClick={openAddForm}
@@ -273,19 +276,17 @@ export function App() {
                     alt={`Cover of ${track.game}`}
                   />
                 )}
-                <p>
-                  <strong>Game:</strong> {track.game}
-                </p>
-                <p>
-                  <strong>Title:</strong> {track.title}
-                </p>
-                <p>
-                  <strong>Audio File:</strong> {track.audio}
-                </p>
+                <div>
+                  <p>
+                    <strong>{track.game}</strong>
+                  </p>
+                  <p>
+                    <i>{track.title}</i>
+                  </p>
+                </div>
                 <audio
                   controls
                   src={`/music/${track.audio}`}
-                  style={{ width: '100%', marginTop: '8px' }}
                 />
                 <div className="card-actions">
                   <button

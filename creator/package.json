@@ -8,8 +8,8 @@
     "url": "git+https://github.com/yadler97/yasq.git"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build"
+    "dev": "vite --configLoader runner",
+    "build": "vite build --configLoader runner"
   },
   "dependencies": {
     "@yasq/shared": "*",

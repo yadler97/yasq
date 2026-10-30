@@ -1,0 +1,210 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #1a1a1a;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-content: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #121212;
+}
+
+#app {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.creator-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.creator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  padding-bottom: 1rem;
+}
+
+.creator-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Buttons */
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.25s,
+    background-color 0.25s;
+}
+
+.primary-btn {
+  background-color: #646cff;
+  color: white;
+}
+.primary-btn:hover {
+  background-color: #535bf2;
+}
+
+.secondary-btn {
+  background-color: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+}
+.secondary-btn:hover {
+  background-color: #3a3a3a;
+  border-color: #666;
+}
+
+.danger-btn {
+  background-color: #5c1d1d;
+  color: #ff8080;
+  border: 1px solid #7d2a2a;
+}
+.danger-btn:hover {
+  background-color: #7d2a2a;
+  color: #ffa6a6;
+}
+
+/* Form Styles */
+.creator-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+
+.creator-form h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.field input[type='text'],
+.field input[type='file'] {
+  padding: 0.7rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.field input[type='file'] {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.field small {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+.tag-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tag-row input {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Tracks List & Cards */
+.tracks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.track-card {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: #1e1e1e;
+  padding: 1.2rem;
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.track-card img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #444;
+  flex-shrink: 0;
+  background: #2a2a2a;
+}
+
+.track-card > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.track-card p {
+  margin: 0 0 0.3rem 0;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-card audio {
+  flex: 1;
+  margin-top: 0.5rem;
+  height: 36px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
