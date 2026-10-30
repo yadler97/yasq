@@ -10,7 +10,8 @@ export function App() {
   // Form state
   const [title, setTitle] = useState('');
   const [game, setGame] = useState('');
-  const [audio, setAudioPath] = useState('');
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioFilename, setAudioFilename] = useState('');
   const [tags, setTags] = useState<Tag[]>([]);
 
   const addTagField = () => setTags([...tags, { type: '', value: '' }]);
@@ -34,14 +35,31 @@ export function App() {
   const resetForm = () => {
     setTitle('');
     setGame('');
-    setAudioPath('');
+    setAudioFile(null);
+    setAudioFilename('');
     setTags([]);
     setEditingIndex(null);
   };
 
   const submitTrack = async (e: Event) => {
     e.preventDefault();
-    const trackData = { title, game, audio, tags };
+
+    let filename = audioFilename;
+
+    // Upload new binary audio file if selected
+    if (audioFile) {
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'X-File-Name': encodeURIComponent(audioFile.name) },
+        body: audioFile,
+      });
+      if (uploadRes.ok) {
+        const data = await uploadRes.json();
+        filename = data.filename;
+      }
+    }
+
+    const trackData = { title, game, audio: filename, tags };
 
     const url = editingIndex !== null ? `/api/tracks/${editingIndex}` : '/api/tracks';
     const method = editingIndex !== null ? 'PUT' : 'POST';
@@ -64,7 +82,8 @@ export function App() {
     const track = tracks[index];
     setTitle(track.title);
     setGame(track.game);
-    setAudioPath(track.audio);
+    setAudioFilename(track.audio);
+    setAudioFile(null);
     setTags(track.tags || []);
     setEditingIndex(index);
     setActiveTab('add');
@@ -130,13 +149,20 @@ export function App() {
           </div>
 
           <div className="field">
-            <label>Audio File Path</label>
+            <label>Audio File</label>
             <input
-              type="text"
-              required
-              value={audio}
-              onInput={e => setAudioPath((e.target as HTMLInputElement).value)}
+              type="file"
+              accept="audio/*"
+              required={editingIndex === null && !audioFilename}
+              onChange={e => {
+                const files = (e.target as HTMLInputElement).files;
+                if (files && files[0]) {
+                  setAudioFile(files[0]);
+                  setAudioFilename(files[0].name);
+                }
+              }}
             />
+            {audioFilename && <small>Current file: {audioFilename}</small>}
           </div>
 
           <div className="field">
@@ -210,8 +236,13 @@ export function App() {
                   <strong>Title:</strong> {track.title}
                 </p>
                 <p>
-                  <strong>Path:</strong> {track.audio}
+                  <strong>Audio File:</strong> {track.audio}
                 </p>
+                <audio
+                  controls
+                  src={`/music/${track.audio}`}
+                  style={{ width: '100%', marginTop: '8px' }}
+                />
                 <div className="card-actions">
                   <button
                     onClick={() => startEdit(i)}

@@ -8,8 +8,9 @@ export function persistPlugin(): Plugin {
   return {
     name: 'persist',
     configureServer(server) {
-      const dataDir = path.resolve(process.cwd(), 'data');
-      const tracksFile = path.join(dataDir, 'tracks.json');
+      const baseDir = path.resolve(process.cwd(), '../server/data/creator');
+      const tracksFile = path.join(baseDir, 'tracks.json');
+      const musicDir = path.join(baseDir, 'music');
 
       const readTracks = (): Track[] => {
         if (!fs.existsSync(tracksFile)) return [];
@@ -17,12 +18,45 @@ export function persistPlugin(): Plugin {
       };
 
       const writeTracks = (tracks: Track[]) => {
-        fs.mkdirSync(dataDir, { recursive: true });
+        fs.mkdirSync(baseDir, { recursive: true });
         fs.writeFileSync(tracksFile, JSON.stringify(tracks, null, 2));
       };
 
+      // Serve uploaded audio files statically
+      server.middlewares.use('/music', (req, res, next) => {
+        const filePath = path.join(musicDir, req.url || '');
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          return fs.createReadStream(filePath).pipe(res);
+        }
+        next();
+      });
+
+      // Handle raw binary audio file uploads
+      server.middlewares.use('/api/upload', async (req, res) => {
+        if (req.method !== 'POST') return;
+
+        const filename = decodeURIComponent((req.headers['x-file-name'] as string) || 'audio.mp3');
+        fs.mkdirSync(musicDir, { recursive: true });
+        const targetPath = path.join(musicDir, filename);
+
+        const writeStream = fs.createWriteStream(targetPath);
+        req.pipe(writeStream);
+
+        req.on('end', () => {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ filename }));
+        });
+
+        req.on('error', () => {
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ error: 'Failed to upload file' }));
+        });
+      });
+
+      // RESTful /api/tracks endpoints (GET, POST, PUT, DELETE using implicit index)
       server.middlewares.use('/api/tracks', async (req, res) => {
-        // Parse URL to isolate path parameters (e.g., /api/tracks/:id)
         const url = new URL(req.url || '', `http://${req.headers.host}`);
         const pathSegments = url.pathname.split('/').filter(Boolean);
         const indexParam = pathSegments[0] !== undefined ? parseInt(pathSegments[0], 10) : NaN;
@@ -54,19 +88,15 @@ export function persistPlugin(): Plugin {
             req.on('data', chunk => chunks.push(chunk));
             req.on('end', () => {
               try {
-                const body = JSON.parse(Buffer.concat(chunks).toString());
+                const body = JSON.parse(Buffer.concat(chunks).toString()) as Track;
                 const tracks = readTracks();
-
-                // Assign a unique ID if not present
-                const newTrack = { id: body.id || Date.now().toString(), ...body };
-                tracks.push(newTrack);
-
+                tracks.push(body);
                 writeTracks(tracks);
 
-                res.statusCode = 201; // Created
-                return res.end(JSON.stringify(newTrack));
+                res.statusCode = 201;
+                return res.end(JSON.stringify(body));
               } catch {
-                res.statusCode = 400; // Bad Request
+                res.statusCode = 400;
                 return res.end(JSON.stringify({ error: 'Invalid JSON payload' }));
               }
             });
@@ -79,7 +109,7 @@ export function persistPlugin(): Plugin {
             req.on('data', chunk => chunks.push(chunk));
             req.on('end', () => {
               try {
-                const body = JSON.parse(Buffer.concat(chunks).toString());
+                const body = JSON.parse(Buffer.concat(chunks).toString()) as Track;
                 const tracks = readTracks();
 
                 if (indexParam < 0 || indexParam >= tracks.length) {
