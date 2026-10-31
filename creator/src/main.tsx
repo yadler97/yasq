@@ -10,6 +10,39 @@ export function App() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
+  // Helper to read page from URL query params
+  const getInitialPage = () => {
+    const params = new URLSearchParams(window.location.search);
+    const p = parseInt(params.get('page') || '1', 10);
+    return isNaN(p) || p < 1 ? 1 : p;
+  };
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(getInitialPage);
+  const pageSize = 5;
+
+  // Sync state when browser back/forward buttons are used
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPage(getInitialPage());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Update URL query parameter when currentPage changes
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (currentPage === 1) {
+      params.delete('page');
+    } else {
+      params.set('page', currentPage.toString());
+    }
+    const newSearch = params.toString();
+    const newUrl = `${window.location.pathname}${newSearch ? `?` + newSearch : ''}`;
+    window.history.pushState({ page: currentPage }, '', newUrl);
+  }, [currentPage]);
+
   // Form state
   const [title, setTitle] = useState('');
   const [game, setGame] = useState('');
@@ -103,8 +136,8 @@ export function App() {
     }
   };
 
-  const startEdit = (index: number) => {
-    const track = tracks[index];
+  const startEdit = (absoluteIndex: number) => {
+    const track = tracks[absoluteIndex];
     setTitle(track.title);
     setGame(track.game);
     setAudioFilename(track.audio);
@@ -112,16 +145,53 @@ export function App() {
     setCoverFilename(track.cover || '');
     setCoverFile(null);
     setTags(track.tags || []);
-    setEditingIndex(index);
+    setEditingIndex(absoluteIndex);
     setView('form');
   };
 
-  const deleteTrack = async (index: number) => {
+  const deleteTrack = async (absoluteIndex: number) => {
     if (!confirm('Are you sure you want to delete this track?')) return;
-    const res = await fetch(`/api/tracks/${index}`, { method: 'DELETE' });
+    const res = await fetch(`/api/tracks/${absoluteIndex}`, { method: 'DELETE' });
     if (res.ok || res.status === 204) {
+      // Adjust current page if we delete the last item on the current page
+      const newTotalPages = Math.ceil((tracks.length - 1) / pageSize) || 1;
+      if (currentPage > newTotalPages) {
+        setCurrentPage(newTotalPages);
+      }
       fetchTracks();
     }
+  };
+
+  // Pagination calculations
+  const totalPages = Math.ceil(tracks.length / pageSize) || 1;
+  const paginatedTracks = tracks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Pagination helper to generate visible page numbers
+  const getPageNumbers = () => {
+    const delta = 2; // Number of pages to show around current page
+    const range: number[] = [];
+    const rangeWithDots: (number | string)[] = [];
+    let l: number | undefined;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+        range.push(i);
+      }
+    }
+
+    range.forEach(i => {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push('...');
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    });
+
+    return rangeWithDots;
   };
 
   return (
@@ -261,49 +331,97 @@ export function App() {
           </div>
         </form>
       ) : (
-        <div className="tracks-list">
-          {tracks.length === 0 ? (
-            <p>No tracks saved yet.</p>
-          ) : (
-            tracks.map((track, i) => (
-              <div
-                key={i}
-                className="track-card"
+        <div className="tracks-container">
+          <div className="tracks-list">
+            {tracks.length === 0 ? (
+              <p>No tracks saved yet.</p>
+            ) : (
+              paginatedTracks.map((track, i) => {
+                const absoluteIndex = (currentPage - 1) * pageSize + i;
+                return (
+                  <div
+                    key={absoluteIndex}
+                    className="track-card"
+                  >
+                    {track.cover && (
+                      <img
+                        loading="lazy"
+                        src={`/covers/${track.cover}`}
+                        alt={`Cover of ${track.game}`}
+                      />
+                    )}
+                    <div className="track-info">
+                      <p>
+                        <strong>{track.game}</strong>
+                      </p>
+                      <p>
+                        <i>{track.title}</i>
+                      </p>
+                    </div>
+                    <audio
+                      controls
+                      preload="none"
+                      src={`/music/${track.audio}`}
+                    />
+                    <div className="card-actions">
+                      <button
+                        onClick={() => startEdit(absoluteIndex)}
+                        className="secondary-btn"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteTrack(absoluteIndex)}
+                        className="danger-btn"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                className="secondary-btn"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
               >
-                {track.cover && (
-                  <img
-                    src={`/covers/${track.cover}`}
-                    alt={`Cover of ${track.game}`}
-                  />
+                ← Prev
+              </button>
+
+              <div className="page-numbers">
+                {getPageNumbers().map((page, index) =>
+                  typeof page === 'number' ? (
+                    <button
+                      key={index}
+                      className={`secondary-btn page-btn ${currentPage === page ? 'active' : ''}`}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </button>
+                  ) : (
+                    <span
+                      key={index}
+                      className="page-dots"
+                    >
+                      {page}
+                    </span>
+                  )
                 )}
-                <div>
-                  <p>
-                    <strong>{track.game}</strong>
-                  </p>
-                  <p>
-                    <i>{track.title}</i>
-                  </p>
-                </div>
-                <audio
-                  controls
-                  src={`/music/${track.audio}`}
-                />
-                <div className="card-actions">
-                  <button
-                    onClick={() => startEdit(i)}
-                    className="secondary-btn"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => deleteTrack(i)}
-                    className="danger-btn"
-                  >
-                    Delete
-                  </button>
-                </div>
               </div>
-            ))
+
+              <button
+                className="secondary-btn"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+              >
+                Next →
+              </button>
+            </div>
           )}
         </div>
       )}
