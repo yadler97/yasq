@@ -2,7 +2,7 @@ import type { Plugin } from 'vite';
 import fs from 'fs';
 import path from 'path';
 
-import { GAME_COVERS_DIR, STATIC_FILES_DIR, Track, TRACK_AUDIO_DIR } from '@yasq/shared';
+import { GAME_COVERS_DIR, Playlist, STATIC_FILES_DIR, Track, TRACK_AUDIO_DIR } from '@yasq/shared';
 
 export function persistPlugin(): Plugin {
   return {
@@ -10,6 +10,7 @@ export function persistPlugin(): Plugin {
     configureServer(server) {
       const baseDir = path.resolve(process.cwd(), '../server', STATIC_FILES_DIR, 'creator');
       const tracksFile = path.join(baseDir, 'tracks.json');
+      const playlistsFile = path.join(baseDir, 'playlists.json');
       const musicDir = path.join(baseDir, TRACK_AUDIO_DIR);
       const coversDir = path.join(baseDir, GAME_COVERS_DIR);
 
@@ -21,6 +22,16 @@ export function persistPlugin(): Plugin {
       const writeTracks = (tracks: Track[]) => {
         fs.mkdirSync(baseDir, { recursive: true });
         fs.writeFileSync(tracksFile, JSON.stringify(tracks, null, 2));
+      };
+
+      const readPlaylists = (): Playlist[] => {
+        if (!fs.existsSync(playlistsFile)) return [];
+        return JSON.parse(fs.readFileSync(playlistsFile, 'utf-8'));
+      };
+
+      const writePlaylists = (playlists: Playlist[]) => {
+        fs.mkdirSync(baseDir, { recursive: true });
+        fs.writeFileSync(playlistsFile, JSON.stringify(playlists, null, 2));
       };
 
       // Serve static audio files
@@ -169,6 +180,54 @@ export function persistPlugin(): Plugin {
           res.statusCode = 500;
           return res.end(JSON.stringify({ error: err.message }));
         }
+      });
+
+      // Playlist API Endpoints
+      server.middlewares.use('/api/playlists', (req, res, next) => {
+        const urlParts = req.url?.split('/').filter(Boolean) || [];
+        const index = urlParts.length > 0 ? parseInt(urlParts[0], 10) : NaN;
+
+        if (req.method === 'GET') {
+          res.setHeader('Content-Type', 'application/json');
+          return res.end(JSON.stringify(readPlaylists()));
+        }
+
+        if (req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => (body += chunk));
+          req.on('end', () => {
+            const playlists = readPlaylists();
+            const newPlaylist = JSON.parse(body);
+            playlists.push(newPlaylist);
+            writePlaylists(playlists);
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(newPlaylist));
+          });
+          return;
+        }
+
+        if (req.method === 'PUT' && !isNaN(index)) {
+          let body = '';
+          req.on('data', chunk => (body += chunk));
+          req.on('end', () => {
+            const playlists = readPlaylists();
+            playlists[index] = JSON.parse(body);
+            writePlaylists(playlists);
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(playlists[index]));
+          });
+          return;
+        }
+
+        if (req.method === 'DELETE' && !isNaN(index)) {
+          const playlists = readPlaylists();
+          playlists.splice(index, 1);
+          writePlaylists(playlists);
+          res.statusCode = 204;
+          return res.end();
+        }
+
+        next();
       });
     },
   };

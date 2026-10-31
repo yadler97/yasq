@@ -91,6 +91,18 @@ button {
   color: #ffa6a6;
 }
 
+.main-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.main-tabs button.active {
+  background: #646cff;
+  border-color: #646cff;
+  color: #fff;
+  font-weight: bold;
+}
+
 /* Form Styles */
 .creator-form {
   display: flex;
@@ -203,6 +215,7 @@ button {
 .card-actions {
   display: flex;
   gap: 0.5rem;
+  justify-content: end;
 }
 
 .tracks-container {
@@ -245,4 +258,34 @@ button {
 .page-dots {
   color: #888;
   padding: 0 0.2rem;
+}
+
+.playlists-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.playlist-track-selector {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 0.8rem;
+  background: #181818;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.playlist-track-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.playlist-track-item input {
+  cursor: pointer;
 }
