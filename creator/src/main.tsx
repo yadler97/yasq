@@ -350,6 +350,7 @@ export function App() {
       {route.type === 'playlists-list' && (
         <PlaylistList
           playlists={playlists}
+          tracks={tracks}
           currentPage={currentPlaylistPage}
           totalPages={playlistTotalPages}
           pageSize={pageSize}

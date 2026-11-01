@@ -1,7 +1,10 @@
-import type { Playlist } from '@yasq/shared';
+import { useState } from 'preact/hooks';
+
+import type { Playlist, Track } from '@yasq/shared';
 
 interface PlaylistListProps {
   playlists: Playlist[];
+  tracks: Track[];
   currentPage: number;
   totalPages: number;
   pageSize: number;
@@ -12,6 +15,7 @@ interface PlaylistListProps {
 
 export function PlaylistList({
   playlists,
+  tracks,
   currentPage,
   totalPages,
   pageSize,
@@ -19,7 +23,12 @@ export function PlaylistList({
   onDelete,
   getPageNumbers,
 }: PlaylistListProps) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const paginatedPlaylists = playlists.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const toggleExpand = (absoluteIndex: number) => {
+    setExpandedIndex(expandedIndex === absoluteIndex ? null : absoluteIndex);
+  };
 
   return (
     <>
@@ -38,33 +47,92 @@ export function PlaylistList({
         ) : (
           paginatedPlaylists.map((pl, i) => {
             const absoluteIndex = (currentPage - 1) * pageSize + i;
+            const isExpanded = expandedIndex === absoluteIndex;
+
             return (
               <div
                 key={absoluteIndex}
                 className="track-card playlist-card"
               >
-                <div className="track-info">
-                  <p>
-                    <strong>{pl.name}</strong>
-                  </p>
-                  <p>
-                    <i>{pl.tracks.length} tracks included</i>
-                  </p>
+                <div className="playlist-card-header">
+                  <div className="track-info">
+                    <p>
+                      <strong>{pl.name}</strong>
+                    </p>
+                    <p>
+                      <i>{pl.tracks.length} tracks included</i>
+                    </p>
+                  </div>
+                  <div className="card-actions">
+                    <button
+                      onClick={() => toggleExpand(absoluteIndex)}
+                      className="secondary-btn"
+                    >
+                      <span>{isExpanded ? 'Hide Tracks ' : 'View Tracks '}</span>
+                      <span className={`arrow-indicator ${isExpanded ? 'open' : ''}`} />
+                    </button>
+                    <button
+                      onClick={() => onNavigate(`/playlists/${absoluteIndex}/edit`, currentPage)}
+                      className="secondary-btn"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onDelete(absoluteIndex)}
+                      className="danger-btn"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                <div className="card-actions">
-                  <button
-                    onClick={() => onNavigate(`/playlists/${absoluteIndex}/edit`, currentPage)}
-                    className="secondary-btn"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(absoluteIndex)}
-                    className="danger-btn"
-                  >
-                    Delete
-                  </button>
-                </div>
+
+                {isExpanded && (
+                  <div className="playlist-tracks-dropdown">
+                    {pl.tracks.length === 0 ? (
+                      <p className="empty-text">No tracks in this playlist.</p>
+                    ) : (
+                      <ul className="playlist-tracks-list">
+                        {pl.tracks.map((audioFilename, tIdx) => {
+                          const matchedTrack = tracks.find(t => t.audio === audioFilename);
+                          return (
+                            <li
+                              key={tIdx}
+                              className="track-card"
+                            >
+                              {matchedTrack ? (
+                                <>
+                                  <img
+                                    loading="lazy"
+                                    src={matchedTrack.cover ? `/covers/${matchedTrack.cover}` : '/default.svg'}
+                                    alt={`Cover of ${matchedTrack.game}`}
+                                    onError={e => {
+                                      (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                                    }}
+                                  />
+                                  <div className="track-info">
+                                    <p>
+                                      <strong>{matchedTrack.game}</strong>
+                                    </p>
+                                    <p>
+                                      <i>{matchedTrack.title}</i>
+                                    </p>
+                                  </div>
+                                  <audio
+                                    controls
+                                    preload="none"
+                                    src={`/music/${matchedTrack.audio}`}
+                                  />
+                                </>
+                              ) : (
+                                <i>{audioFilename} (Unknown track)</i>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })
