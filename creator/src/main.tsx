@@ -3,6 +3,11 @@ import { useState, useEffect } from 'preact/hooks';
 
 import type { Playlist, Tag, Track } from '@yasq/shared';
 
+import { TrackList } from './components/TrackList';
+import { TrackForm } from './components/TrackForm';
+import { PlaylistList } from './components/PlaylistList';
+import { PlaylistForm } from './components/PlaylistForm';
+
 import './style.css';
 
 type Route =
@@ -21,7 +26,7 @@ export function App() {
   const parseRoute = (): Route => {
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
-    const parts = path.split('/').filter(Boolean); // e.g. ['tracks'], ['playlists', 'new'], etc.
+    const parts = path.split('/').filter(Boolean);
 
     const p = parseInt(params.get('page') || '1', 10);
     const page = isNaN(p) || p < 1 ? 1 : p;
@@ -232,10 +237,7 @@ export function App() {
   };
 
   const currentPage = route.type === 'tracks-list' ? route.page : 1;
-  const paginatedTracks = tracks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-
   const currentPlaylistPage = route.type === 'playlists-list' ? route.page : 1;
-  const paginatedPlaylists = playlists.slice((currentPlaylistPage - 1) * pageSize, currentPlaylistPage * pageSize);
 
   const getPageNumbers = (current: number, total: number) => {
     const delta = 2;
@@ -289,398 +291,65 @@ export function App() {
 
       {/* TRACKS LIST VIEW */}
       {route.type === 'tracks-list' && (
-        <>
-          <div className="tab-actions">
-            <button
-              onClick={() => navigate('/tracks/new')}
-              className="primary-btn"
-            >
-              + Add Track
-            </button>
-          </div>
-
-          <div className="tracks-container">
-            <div className="tracks-list">
-              {tracks.length === 0 ? (
-                <p>No tracks saved yet.</p>
-              ) : (
-                paginatedTracks.map((track, i) => {
-                  const absoluteIndex = (currentPage - 1) * pageSize + i;
-                  return (
-                    <div
-                      key={absoluteIndex}
-                      className="track-card"
-                    >
-                      {track.cover && (
-                        <img
-                          loading="lazy"
-                          src={`/covers/${track.cover}`}
-                          alt={`Cover of ${track.game}`}
-                        />
-                      )}
-                      <div className="track-info">
-                        <p>
-                          <strong>{track.game}</strong>
-                        </p>
-                        <p>
-                          <i>{track.title}</i>
-                        </p>
-                      </div>
-                      <audio
-                        controls
-                        preload="none"
-                        src={`/music/${track.audio}`}
-                      />
-                      <div className="card-actions">
-                        <button
-                          onClick={() => navigate(`/tracks/${absoluteIndex}/edit`)}
-                          className="secondary-btn"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deleteTrack(absoluteIndex)}
-                          className="danger-btn"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            {totalPages > 1 && (
-              <div className="pagination">
-                <button
-                  className="secondary-btn"
-                  disabled={currentPage === 1}
-                  onClick={() => navigate(`/tracks?page=${currentPage - 1}`)}
-                >
-                  ← Prev
-                </button>
-
-                <div className="page-numbers">
-                  {getPageNumbers(currentPage, totalPages).map((page, index) =>
-                    typeof page === 'number' ? (
-                      <button
-                        key={index}
-                        className={`secondary-btn page-btn ${currentPage === page ? 'active' : ''}`}
-                        onClick={() => navigate(`/tracks?page=${page}`)}
-                      >
-                        {page}
-                      </button>
-                    ) : (
-                      <span
-                        key={index}
-                        className="page-dots"
-                      >
-                        {page}
-                      </span>
-                    )
-                  )}
-                </div>
-
-                <button
-                  className="secondary-btn"
-                  disabled={currentPage === totalPages}
-                  onClick={() => navigate(`/tracks?page=${currentPage + 1}`)}
-                >
-                  Next →
-                </button>
-              </div>
-            )}
-          </div>
-        </>
+        <TrackList
+          tracks={tracks}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onNavigate={navigate}
+          onDelete={deleteTrack}
+          getPageNumbers={getPageNumbers}
+        />
       )}
 
       {/* TRACKS FORM VIEW (NEW / EDIT) */}
       {(route.type === 'tracks-new' || route.type === 'tracks-edit') && (
-        <>
-          <div className="tab-actions">
-            <button
-              onClick={() => navigate('/tracks')}
-              className="secondary-btn"
-            >
-              ← Back to List
-            </button>
-          </div>
-
-          <form
-            onSubmit={submitTrack}
-            className="creator-form"
-          >
-            <h3>{route.type === 'tracks-edit' ? 'Edit Track' : 'Add New Track'}</h3>
-
-            <div className="field">
-              <label>Game Name</label>
-              <input
-                type="text"
-                required
-                value={game}
-                onInput={e => setGame((e.target as HTMLInputElement).value)}
-              />
-            </div>
-
-            <div className="field">
-              <label>Track Title</label>
-              <input
-                type="text"
-                required
-                value={title}
-                onInput={e => setTitle((e.target as HTMLInputElement).value)}
-              />
-            </div>
-
-            <div className="field">
-              <label>Audio File</label>
-              <input
-                type="file"
-                accept="audio/*"
-                required={route.type === 'tracks-new' && !audioFilename}
-                onChange={e => {
-                  const files = (e.target as HTMLInputElement).files;
-                  if (files && files[0]) {
-                    setAudioFile(files[0]);
-                    setAudioFilename(files[0].name);
-                  }
-                }}
-              />
-              {audioFilename && <small>Current audio file: {audioFilename}</small>}
-            </div>
-
-            <div className="field">
-              <label>Cover Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={e => {
-                  const files = (e.target as HTMLInputElement).files;
-                  if (files && files[0]) {
-                    setCoverFile(files[0]);
-                    setCoverFilename(files[0].name);
-                  }
-                }}
-              />
-              {coverFilename && <small>Current cover file: {coverFilename}</small>}
-            </div>
-
-            <div className="field">
-              <label>Tags</label>
-              {tags.map((tag, index) => (
-                <div
-                  key={index}
-                  className="tag-row"
-                >
-                  <input
-                    type="text"
-                    placeholder="Type"
-                    value={tag.type}
-                    onInput={e => updateTag(index, 'type', (e.target as HTMLInputElement).value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Value"
-                    value={tag.value}
-                    onInput={e => updateTag(index, 'value', (e.target as HTMLInputElement).value)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeTag(index)}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={addTagField}
-              >
-                + Add Tag
-              </button>
-            </div>
-
-            <div className="form-actions">
-              <button
-                type="submit"
-                className="primary-btn"
-              >
-                {route.type === 'tracks-edit' ? 'Update Track' : 'Save Track'}
-              </button>
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={() => navigate('/tracks')}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </>
+        <TrackForm
+          isEditing={route.type === 'tracks-edit'}
+          game={game}
+          setGame={setGame}
+          title={title}
+          setTitle={setTitle}
+          audioFilename={audioFilename}
+          setAudioFile={setAudioFile}
+          setAudioFilename={setAudioFilename}
+          coverFilename={coverFilename}
+          setCoverFile={setCoverFile}
+          setCoverFilename={setCoverFilename}
+          tags={tags}
+          addTagField={addTagField}
+          removeTag={removeTag}
+          updateTag={updateTag}
+          onSubmit={submitTrack}
+          onCancel={() => navigate('/tracks')}
+        />
       )}
 
       {/* PLAYLISTS LIST VIEW */}
       {route.type === 'playlists-list' && (
-        <>
-          <div className="tab-actions">
-            <button
-              onClick={() => navigate('/playlists/new')}
-              className="primary-btn"
-            >
-              + Add Playlist
-            </button>
-          </div>
-
-          <div className="playlists-container">
-            {playlists.length === 0 ? (
-              <p>No playlists created yet.</p>
-            ) : (
-              paginatedPlaylists.map((pl, i) => {
-                const absoluteIndex = (currentPlaylistPage - 1) * pageSize + i;
-                return (
-                  <div
-                    key={absoluteIndex}
-                    className="track-card playlist-card"
-                  >
-                    <div className="track-info">
-                      <p>
-                        <strong>{pl.name}</strong>
-                      </p>
-                      <p>
-                        <i>{pl.tracks.length} tracks included</i>
-                      </p>
-                    </div>
-                    <div className="card-actions">
-                      <button
-                        onClick={() => navigate(`/playlists/${absoluteIndex}/edit`)}
-                        className="secondary-btn"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => deletePlaylist(absoluteIndex)}
-                        className="danger-btn"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-
-            {playlistTotalPages > 1 && (
-              <div className="pagination">
-                <button
-                  className="secondary-btn"
-                  disabled={currentPlaylistPage === 1}
-                  onClick={() => navigate(`/playlists?page=${currentPlaylistPage - 1}`)}
-                >
-                  ← Prev
-                </button>
-
-                <div className="page-numbers">
-                  {getPageNumbers(currentPlaylistPage, playlistTotalPages).map((page, index) =>
-                    typeof page === 'number' ? (
-                      <button
-                        key={index}
-                        className={`secondary-btn page-btn ${currentPlaylistPage === page ? 'active' : ''}`}
-                        onClick={() => navigate(`/playlists?page=${page}`)}
-                      >
-                        {page}
-                      </button>
-                    ) : (
-                      <span
-                        key={index}
-                        className="page-dots"
-                      >
-                        {page}
-                      </span>
-                    )
-                  )}
-                </div>
-
-                <button
-                  className="secondary-btn"
-                  disabled={currentPlaylistPage === playlistTotalPages}
-                  onClick={() => navigate(`/playlists?page=${currentPlaylistPage + 1}`)}
-                >
-                  Next →
-                </button>
-              </div>
-            )}
-          </div>
-        </>
+        <PlaylistList
+          playlists={playlists}
+          currentPage={currentPlaylistPage}
+          totalPages={playlistTotalPages}
+          pageSize={pageSize}
+          onNavigate={navigate}
+          onDelete={deletePlaylist}
+          getPageNumbers={getPageNumbers}
+        />
       )}
 
       {/* PLAYLISTS FORM VIEW (NEW / EDIT) */}
       {(route.type === 'playlists-new' || route.type === 'playlists-edit') && (
-        <>
-          <div className="tab-actions">
-            <button
-              onClick={() => navigate('/playlists')}
-              className="secondary-btn"
-            >
-              ← Back to Playlists
-            </button>
-          </div>
-
-          <form
-            onSubmit={submitPlaylist}
-            className="creator-form"
-          >
-            <h3>{route.type === 'playlists-edit' ? 'Edit Playlist' : 'Add New Playlist'}</h3>
-
-            <div className="field">
-              <label>Playlist Name</label>
-              <input
-                type="text"
-                required
-                value={playlistName}
-                onInput={e => setPlaylistName((e.target as HTMLInputElement).value)}
-              />
-            </div>
-
-            <div className="field">
-              <label>Select Tracks ({selectedTracks.length} selected)</label>
-              <div className="playlist-track-selector">
-                {tracks.map((t, idx) => (
-                  <label
-                    key={idx}
-                    className="playlist-track-item"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedTracks.includes(t.audio)}
-                      onChange={() => toggleTrackInPlaylist(t.audio)}
-                    />
-                    <span>
-                      <strong>{t.game}</strong> - {t.title} <small>({t.audio})</small>
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button
-                type="submit"
-                className="primary-btn"
-              >
-                {route.type === 'playlists-edit' ? 'Update Playlist' : 'Save Playlist'}
-              </button>
-              <button
-                type="button"
-                className="secondary-btn"
-                onClick={() => navigate('/playlists')}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </>
+        <PlaylistForm
+          isEditing={route.type === 'playlists-edit'}
+          playlistName={playlistName}
+          setPlaylistName={setPlaylistName}
+          tracks={tracks}
+          selectedTracks={selectedTracks}
+          toggleTrackInPlaylist={toggleTrackInPlaylist}
+          onSubmit={submitPlaylist}
+          onCancel={() => navigate('/playlists')}
+        />
       )}
     </div>
   );
