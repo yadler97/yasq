@@ -10,6 +10,9 @@ interface PlaylistListProps {
   pageSize: number;
   onNavigate: (url: string, returnPage?: number) => void;
   onDelete: (absoluteIndex: number) => void;
+  onPlayTrack: (track: Track) => void;
+  activeTrack: Track | null;
+  isPlaying: boolean;
   getPageNumbers: (current: number, total: number) => (number | string)[];
 }
 
@@ -21,6 +24,9 @@ export function PlaylistList({
   pageSize,
   onNavigate,
   onDelete,
+  onPlayTrack,
+  activeTrack,
+  isPlaying,
   getPageNumbers,
 }: PlaylistListProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -94,6 +100,8 @@ export function PlaylistList({
                       <ul className="playlist-tracks-list">
                         {pl.tracks.map((audioFilename, tIdx) => {
                           const matchedTrack = tracks.find(t => t.audio === audioFilename);
+                          const isThisPlaying = activeTrack?.audio === matchedTrack?.audio && isPlaying;
+
                           return (
                             <li
                               key={tIdx}
@@ -117,11 +125,14 @@ export function PlaylistList({
                                       <i>{matchedTrack.title}</i>
                                     </p>
                                   </div>
-                                  <audio
-                                    controls
-                                    preload="none"
-                                    src={`/music/${matchedTrack.audio}`}
-                                  />
+                                  {matchedTrack && (
+                                    <button
+                                      onClick={() => onPlayTrack(matchedTrack)}
+                                      className="secondary-btn"
+                                    >
+                                      {isThisPlaying ? '⏸ Pause' : '▶ Play'}
+                                    </button>
+                                  )}
                                 </>
                               ) : (
                                 <i>{audioFilename} (Unknown track)</i>

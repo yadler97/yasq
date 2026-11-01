@@ -7,6 +7,9 @@ interface TrackListProps {
   pageSize: number;
   onNavigate: (url: string, returnPage?: number) => void;
   onDelete: (absoluteIndex: number) => void;
+  onPlayTrack: (track: Track) => void;
+  activeTrack: Track | null;
+  isPlaying: boolean;
   getPageNumbers: (current: number, total: number) => (number | string)[];
 }
 
@@ -17,6 +20,9 @@ export function TrackList({
   pageSize,
   onNavigate,
   onDelete,
+  onPlayTrack,
+  activeTrack,
+  isPlaying,
   getPageNumbers,
 }: TrackListProps) {
   const paginatedTracks = tracks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -39,6 +45,8 @@ export function TrackList({
           ) : (
             paginatedTracks.map((track, i) => {
               const absoluteIndex = (currentPage - 1) * pageSize + i;
+              const isThisPlaying = activeTrack?.audio === track.audio && isPlaying;
+
               return (
                 <div
                   key={absoluteIndex}
@@ -60,12 +68,13 @@ export function TrackList({
                       <i>{track.title}</i>
                     </p>
                   </div>
-                  <audio
-                    controls
-                    preload="none"
-                    src={`/music/${track.audio}`}
-                  />
                   <div className="card-actions">
+                    <button
+                      onClick={() => onPlayTrack(track)}
+                      className="secondary-btn"
+                    >
+                      {isThisPlaying ? '⏸ Pause' : '▶ Play'}
+                    </button>
                     <button
                       onClick={() => onNavigate(`/tracks/${absoluteIndex}/edit`, currentPage)}
                       className="secondary-btn"

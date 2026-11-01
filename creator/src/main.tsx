@@ -1,5 +1,5 @@
 import { render } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 
 import type { Playlist, Tag, Track } from '@yasq/shared';
 
@@ -21,6 +21,9 @@ type Route =
 export function App() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [activeTrack, setActiveTrack] = useState<Track | null>(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Parse current route from window.location path and search
   const parseRoute = (): Route => {
@@ -286,6 +289,19 @@ export function App() {
 
   const isTracksActive = route.type.startsWith('tracks');
 
+  const handlePlayTrack = (track: Track) => {
+    if (activeTrack?.audio === track.audio) {
+      if (isPlaying) {
+        audioRef.current?.pause();
+      } else {
+        audioRef.current?.play();
+      }
+    } else {
+      setActiveTrack(track);
+      setIsPlaying(true);
+    }
+  };
+
   return (
     <div className="creator-wrapper">
       <header className="creator-header">
@@ -316,6 +332,9 @@ export function App() {
           pageSize={pageSize}
           onNavigate={navigate}
           onDelete={deleteTrack}
+          onPlayTrack={handlePlayTrack}
+          activeTrack={activeTrack}
+          isPlaying={isPlaying}
           getPageNumbers={getPageNumbers}
         />
       )}
@@ -356,6 +375,9 @@ export function App() {
           pageSize={pageSize}
           onNavigate={navigate}
           onDelete={deletePlaylist}
+          onPlayTrack={handlePlayTrack}
+          activeTrack={activeTrack}
+          isPlaying={isPlaying}
           getPageNumbers={getPageNumbers}
         />
       )}
@@ -375,6 +397,38 @@ export function App() {
             navigate(`/playlists?page=${returnPage}`);
           }}
         />
+      )}
+
+      {activeTrack && (
+        <div className="central-audio-player">
+          <div className="player-meta">
+            <img
+              loading="lazy"
+              src={activeTrack.cover ? `/covers/${activeTrack.cover}` : '/default.svg'}
+              alt={`Cover of ${activeTrack.game}`}
+              onError={e => {
+                (e.currentTarget as HTMLImageElement).src = '/default.svg';
+              }}
+            />
+            <div className="track-info">
+              <p>
+                <strong>{activeTrack.game}</strong>
+              </p>
+              <p>
+                <i>{activeTrack.title}</i>
+              </p>
+            </div>
+          </div>
+          <audio
+            ref={audioRef}
+            controls
+            autoPlay
+            src={`/music/${activeTrack.audio}`}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onEnded={() => setIsPlaying(false)}
+          />
+        </div>
       )}
     </div>
   );
