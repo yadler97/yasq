@@ -5,7 +5,7 @@ interface PlaylistListProps {
   currentPage: number;
   totalPages: number;
   pageSize: number;
-  onNavigate: (url: string) => void;
+  onNavigate: (url: string, returnPage?: number) => void;
   onDelete: (absoluteIndex: number) => void;
   getPageNumbers: (current: number, total: number) => (number | string)[];
 }
@@ -25,7 +25,7 @@ export function PlaylistList({
     <>
       <div className="tab-actions">
         <button
-          onClick={() => onNavigate('/playlists/new')}
+          onClick={() => onNavigate('/playlists/new', currentPage)}
           className="primary-btn"
         >
           + Add Playlist
@@ -53,7 +53,7 @@ export function PlaylistList({
                 </div>
                 <div className="card-actions">
                   <button
-                    onClick={() => onNavigate(`/playlists/${absoluteIndex}/edit`)}
+                    onClick={() => onNavigate(`/playlists/${absoluteIndex}/edit`, currentPage)}
                     className="secondary-btn"
                   >
                     Edit

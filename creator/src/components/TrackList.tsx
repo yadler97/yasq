@@ -5,7 +5,7 @@ interface TrackListProps {
   currentPage: number;
   totalPages: number;
   pageSize: number;
-  onNavigate: (url: string) => void;
+  onNavigate: (url: string, returnPage?: number) => void;
   onDelete: (absoluteIndex: number) => void;
   getPageNumbers: (current: number, total: number) => (number | string)[];
 }
@@ -25,7 +25,7 @@ export function TrackList({
     <>
       <div className="tab-actions">
         <button
-          onClick={() => onNavigate('/tracks/new')}
+          onClick={() => onNavigate('/tracks/new', currentPage)}
           className="primary-btn"
         >
           + Add Track
@@ -44,13 +44,14 @@ export function TrackList({
                   key={absoluteIndex}
                   className="track-card"
                 >
-                  {track.cover && (
-                    <img
-                      loading="lazy"
-                      src={`/covers/${track.cover}`}
-                      alt={`Cover of ${track.game}`}
-                    />
-                  )}
+                  <img
+                    loading="lazy"
+                    src={track.cover ? `/covers/${track.cover}` : '/default.svg'}
+                    alt={`Cover of ${track.game}`}
+                    onError={e => {
+                      (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                    }}
+                  />
                   <div className="track-info">
                     <p>
                       <strong>{track.game}</strong>
@@ -66,7 +67,7 @@ export function TrackList({
                   />
                   <div className="card-actions">
                     <button
-                      onClick={() => onNavigate(`/tracks/${absoluteIndex}/edit`)}
+                      onClick={() => onNavigate(`/tracks/${absoluteIndex}/edit`, currentPage)}
                       className="secondary-btn"
                     >
                       Edit

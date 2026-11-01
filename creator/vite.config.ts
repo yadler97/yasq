@@ -4,4 +4,5 @@ import { persistPlugin } from './persist.js';
 
 export default defineConfig({
   plugins: [preact(), persistPlugin()],
+  publicDir: 'src/assets',
 });

@@ -73,8 +73,10 @@ export function App() {
   }, [tracks.length, totalPages, playlists.length, playlistTotalPages, route]);
 
   // Navigation helper
-  const navigate = (url: string) => {
-    window.history.pushState({}, '', url);
+  const navigate = (url: string, returnPage?: number) => {
+    const currentState = window.history.state || {};
+    const newState = returnPage !== undefined ? { ...currentState, returnPage } : currentState;
+    window.history.pushState(newState, '', url);
     setRoute(parseRoute());
   };
 
@@ -191,8 +193,16 @@ export function App() {
     });
 
     if (res.ok) {
-      fetchTracks();
-      navigate('/tracks');
+      await fetchTracks();
+
+      let targetPage: number;
+      if (isEditing) {
+        targetPage = Math.floor(route.index / pageSize) + 1;
+      } else {
+        targetPage = Math.ceil((tracks.length + 1) / pageSize);
+      }
+
+      navigate(`/tracks?page=${targetPage}`);
     }
   };
 
@@ -217,8 +227,16 @@ export function App() {
     });
 
     if (res.ok) {
-      fetchPlaylists();
-      navigate('/playlists');
+      await fetchPlaylists();
+
+      let targetPage: number;
+      if (isEditing) {
+        targetPage = Math.floor(route.index / pageSize) + 1;
+      } else {
+        targetPage = Math.ceil((playlists.length + 1) / pageSize);
+      }
+
+      navigate(`/playlists?page=${targetPage}`);
     }
   };
 
@@ -236,7 +254,7 @@ export function App() {
     }
   };
 
-  const currentPage = route.type === 'tracks-list' ? route.page : 1;
+  const currentTracksPage = route.type === 'tracks-list' ? route.page : 1;
   const currentPlaylistPage = route.type === 'playlists-list' ? route.page : 1;
 
   const getPageNumbers = (current: number, total: number) => {
@@ -293,7 +311,7 @@ export function App() {
       {route.type === 'tracks-list' && (
         <TrackList
           tracks={tracks}
-          currentPage={currentPage}
+          currentPage={currentTracksPage}
           totalPages={totalPages}
           pageSize={pageSize}
           onNavigate={navigate}
@@ -321,7 +339,10 @@ export function App() {
           removeTag={removeTag}
           updateTag={updateTag}
           onSubmit={submitTrack}
-          onCancel={() => navigate('/tracks')}
+          onCancel={() => {
+            const returnPage = window.history.state?.returnPage || 1;
+            navigate(`/tracks?page=${returnPage}`);
+          }}
         />
       )}
 
@@ -348,7 +369,10 @@ export function App() {
           selectedTracks={selectedTracks}
           toggleTrackInPlaylist={toggleTrackInPlaylist}
           onSubmit={submitPlaylist}
-          onCancel={() => navigate('/playlists')}
+          onCancel={() => {
+            const returnPage = window.history.state?.returnPage || 1;
+            navigate(`/playlists?page=${returnPage}`);
+          }}
         />
       )}
     </div>
