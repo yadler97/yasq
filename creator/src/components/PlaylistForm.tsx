@@ -1,26 +1,57 @@
-import type { Track } from '@yasq/shared';
+import type { Playlist, Track } from '@yasq/shared';
+import { useEffect, useState } from 'preact/hooks';
 
 interface PlaylistFormProps {
   isEditing: boolean;
-  playlistName: string;
-  setPlaylistName: (val: string) => void;
+  indexedPlaylist?: { playlist: Playlist; originalIndex: number };
   tracks: Track[];
-  selectedTracks: string[];
-  toggleTrackInPlaylist: (audio: string) => void;
-  onSubmit: (e: Event) => void;
+  onSuccess: () => Promise<void> | void;
   onCancel: () => void;
 }
 
-export function PlaylistForm({
-  isEditing,
-  playlistName,
-  setPlaylistName,
-  tracks,
-  selectedTracks,
-  toggleTrackInPlaylist,
-  onSubmit,
-  onCancel,
-}: PlaylistFormProps) {
+export function PlaylistForm({ isEditing, indexedPlaylist, tracks, onSuccess, onCancel }: PlaylistFormProps) {
+  // Playlist Form State
+  const [playlistName, setPlaylistName] = useState('');
+  const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (isEditing) {
+      const playlist = indexedPlaylist?.playlist;
+      if (playlist) {
+        setPlaylistName(playlist.name);
+        setSelectedTracks(playlist.tracks);
+      }
+    } else {
+      setPlaylistName('');
+      setSelectedTracks([]);
+    }
+  }, [isEditing, indexedPlaylist]);
+
+  const submitPlaylist = async (e: Event) => {
+    e.preventDefault();
+    const playlistData: Playlist = { name: playlistName, tracks: selectedTracks };
+    const url = isEditing ? `/api/playlists/${indexedPlaylist?.originalIndex}` : '/api/playlists';
+    const method = isEditing ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(playlistData),
+    });
+
+    if (res.ok) {
+      await onSuccess();
+    }
+  };
+
+  const toggleTrackInPlaylist = (audioFilename: string) => {
+    if (selectedTracks.includes(audioFilename)) {
+      setSelectedTracks(selectedTracks.filter(f => f !== audioFilename));
+    } else {
+      setSelectedTracks([...selectedTracks, audioFilename]);
+    }
+  };
+
   return (
     <>
       <div className="tab-actions">
@@ -33,14 +64,15 @@ export function PlaylistForm({
       </div>
 
       <form
-        onSubmit={onSubmit}
+        onSubmit={submitPlaylist}
         className="creator-form"
       >
         <h3>{isEditing ? 'Edit Playlist' : 'Add New Playlist'}</h3>
 
         <div className="field">
-          <label>Playlist Name</label>
+          <label htmlFor="playlist-name-input">Playlist Name</label>
           <input
+            id="playlist-name-input"
             type="text"
             required
             value={playlistName}
