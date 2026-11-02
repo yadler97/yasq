@@ -9,6 +9,7 @@ import { PlaylistList } from './components/PlaylistList';
 import { PlaylistForm } from './components/PlaylistForm';
 
 import './style.css';
+import { FilterSidebar } from './components/FilterSidebar';
 
 type Route =
   | { type: 'tracks-list'; page: number }
@@ -88,47 +89,6 @@ export function App() {
       );
     });
   }, [tracks, searchQuery]);
-
-  const reachableTagsMap = useMemo(() => {
-    const validTags = new Map<string, number>();
-    const categories = Object.keys(availableTagsByCategory);
-
-    categories.forEach(catToSkip => {
-      // Get all active category filters EXCEPT the category currently being checked
-      const otherFilters = Object.entries(selectedTags).filter(([type, vals]) => type !== catToSkip && vals.length > 0);
-
-      // Filter base tracks against all OTHER active categories (AND logic across types, OR within type)
-      const reachableInCat = baseTracks.filter(({ track }) =>
-        otherFilters.every(([type, selectedVals]) =>
-          track.tags?.some(t => t.type === type && selectedVals.includes(t.value))
-        )
-      );
-
-      // Count occurrences of tags for the current category
-      reachableInCat.forEach(({ track }) => {
-        track.tags?.forEach(tag => {
-          if (tag.type === catToSkip) {
-            validTags.set(tag.value, (validTags.get(tag.value) || 0) + 1);
-          }
-        });
-      });
-    });
-
-    return validTags;
-  }, [baseTracks, selectedTags, availableTagsByCategory]);
-
-  const toggleTagSelection = (type: string, value: string) => {
-    setSelectedTags(prev => {
-      const currentVals = prev[type] || [];
-      const updatedVals = currentVals.includes(value) ? currentVals.filter(v => v !== value) : [...currentVals, value];
-
-      const nextState = { ...prev, [type]: updatedVals };
-      if (updatedVals.length === 0) delete nextState[type];
-      return nextState;
-    });
-  };
-
-  const clearAllTags = () => setSelectedTags({});
 
   const activeTagCategories = Object.entries(selectedTags).filter(([_, vals]) => vals.length > 0);
 
@@ -281,8 +241,6 @@ export function App() {
     }
   };
 
-  const searchPlaceholder = isTracksActive ? 'Search title, game...' : 'Search playlist name...';
-
   return (
     <div className="creator-wrapper">
       <header className="creator-header">
@@ -306,66 +264,16 @@ export function App() {
 
       <div className="creator-body">
         <aside className="creator-sidebar">
-          <div className="search-box">
-            <label htmlFor="search-input">Search</label>
-            <input
-              id="search-input"
-              type="text"
-              placeholder={searchPlaceholder}
-              value={searchQuery}
-              onInput={e => setSearchQuery((e.target as HTMLInputElement).value)}
-            />
-          </div>
-
-          {isTracksActive && Object.keys(availableTagsByCategory).length > 0 && (
-            <div className="tag-filter-section">
-              <div className="tag-filter-header">
-                <label>Filter by Tag</label>
-                {activeTagCategories.length > 0 && (
-                  <button
-                    onClick={clearAllTags}
-                    className="secondary-btn"
-                  >
-                    Clear All
-                  </button>
-                )}
-              </div>
-
-              {Object.entries(availableTagsByCategory).map(([category, tagValues]) => (
-                <div
-                  key={category}
-                  className="tag-category-group"
-                >
-                  <span className="tag-category-title">{category}</span>
-                  <div className="tag-checkboxes-list">
-                    {tagValues.map(val => {
-                      const isChecked = selectedTags[category]?.includes(val) ?? false;
-                      const count = reachableTagsMap.get(val) || 0;
-                      const isDisabled = !isChecked && count === 0;
-
-                      return (
-                        <label
-                          key={val}
-                          className={`tag-checkbox-label ${isDisabled ? 'disabled' : ''}`}
-                        >
-                          <div className="tag-checkbox-content">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              disabled={isDisabled}
-                              onChange={() => toggleTagSelection(category, val)}
-                            />
-                            <span>{val}</span>
-                          </div>
-                          <span className="tag-badge">{count}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <FilterSidebar
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
+            activeTagCategories={activeTagCategories}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            availableTagsByCategory={availableTagsByCategory}
+            baseTracks={baseTracks}
+            isTracksActive={isTracksActive}
+          />
         </aside>
 
         <main className="creator-main-content">
@@ -381,6 +289,7 @@ export function App() {
               onPlayTrack={handlePlayTrack}
               activeTrack={activeTrack}
               isPlaying={isPlaying}
+              hasActiveFilters={Boolean(searchQuery) || activeTagCategories.length > 0}
               getPageNumbers={getPageNumbers}
             />
           )}
@@ -415,6 +324,7 @@ export function App() {
               onPlayTrack={handlePlayTrack}
               activeTrack={activeTrack}
               isPlaying={isPlaying}
+              hasActiveFilters={Boolean(searchQuery) || activeTagCategories.length > 0}
               getPageNumbers={getPageNumbers}
             />
           )}

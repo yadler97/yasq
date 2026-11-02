@@ -11,6 +11,7 @@ interface TrackListProps {
   onPlayTrack: (track: Track) => void;
   activeTrack: Track | null;
   isPlaying: boolean;
+  hasActiveFilters: boolean;
   getPageNumbers: (current: number, total: number) => (number | string)[];
 }
 
@@ -25,6 +26,7 @@ export function TrackList({
   onPlayTrack,
   activeTrack,
   isPlaying,
+  hasActiveFilters,
   getPageNumbers,
 }: TrackListProps) {
   const paginatedTracks = tracks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -57,7 +59,7 @@ export function TrackList({
       <div className="tracks-container">
         <div className="tracks-list">
           {tracks.length === 0 ? (
-            <p>No tracks saved yet.</p>
+            <p>{hasActiveFilters ? 'No tracks match the selected filters.' : 'No tracks saved yet.'}</p>
           ) : (
             paginatedTracks.map(({ track, originalIndex }) => {
               const isThisPlaying = activeTrack?.audio === track.audio && isPlaying;

@@ -428,7 +428,16 @@ button:focus-visible {
   color: #a1a1aa;
 }
 
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .search-box input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
   padding: 8px 12px;
   background: #27272a;
   border: 1px solid #3f3f46;
@@ -437,6 +446,12 @@ button:focus-visible {
   font-size: 0.95rem;
   width: 100%;
   box-sizing: border-box;
+}
+
+.clear-search-btn {
+  flex: 0 0 38px;
+  height: 38px;
+  padding: 0;
 }
 
 .search-box input:focus {

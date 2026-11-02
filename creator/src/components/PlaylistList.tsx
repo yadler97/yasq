@@ -14,6 +14,7 @@ interface PlaylistListProps {
   onPlayTrack: (track: Track) => void;
   activeTrack: Track | null;
   isPlaying: boolean;
+  hasActiveFilters: boolean;
   getPageNumbers: (current: number, total: number) => (number | string)[];
 }
 
@@ -29,6 +30,7 @@ export function PlaylistList({
   onPlayTrack,
   activeTrack,
   isPlaying,
+  hasActiveFilters,
   getPageNumbers,
 }: PlaylistListProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
@@ -65,7 +67,7 @@ export function PlaylistList({
 
       <div className="playlists-container">
         {playlists.length === 0 ? (
-          <p>No playlists created yet.</p>
+          <p>{hasActiveFilters ? 'No playlists match the selected filters.' : 'No playlists saved yet.'}</p>
         ) : (
           paginatedPlaylists.map(({ playlist, originalIndex }) => {
             const isExpanded = expandedIndex === originalIndex;

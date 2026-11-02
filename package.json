@@ -16,6 +16,7 @@
   "scripts": {
     "dev:server": "npm run dev -w server",
     "dev:client": "npm run dev -w client",
+    "dev:creator": "npm run dev -w creator",
     "dev": "concurrently \"npm run dev:server\" \"wait-on http://localhost:3001/health && npm run dev:client\"",
     "dev:mock": "cross-env VITE_MOCK_MODE=true npm run dev",
     "dev:mock:track_selection": "cross-env MOCK_STATE=../mock_data/fixtures/track_selection.json npm run dev:mock",

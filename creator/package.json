@@ -1,7 +1,7 @@
 {
   "name": "@yasq/creator",
   "private": true,
-  "description": "",
+  "description": "The creator UI for YASQ built with Preact",
   "type": "module",
   "repository": {
     "type": "git",
