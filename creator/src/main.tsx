@@ -1,5 +1,5 @@
 import { render } from 'preact';
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect, useRef, useMemo } from 'preact/hooks';
 
 import type { Playlist, Tag, Track } from '@yasq/shared';
 
@@ -18,10 +18,13 @@ type Route =
   | { type: 'playlists-new' }
   | { type: 'playlists-edit'; index: number };
 
+type SelectedTagsState = Record<string, string[]>;
+
 export function App() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTags, setSelectedTags] = useState<SelectedTagsState>({});
 
   const [activeTrack, setActiveTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -57,14 +60,85 @@ export function App() {
 
   const [route, setRoute] = useState<Route>(parseRoute);
 
+  const availableTagsByCategory = useMemo(() => {
+    const groups: Record<string, string[]> = {};
+    tracks.forEach(track => {
+      track.tags?.forEach(tag => {
+        if (!groups[tag.type]) groups[tag.type] = [];
+        if (!groups[tag.type].includes(tag.value)) {
+          groups[tag.type].push(tag.value);
+        }
+      });
+    });
+
+    // Sort tag values within each category alphabetically
+    Object.keys(groups).forEach(type => groups[type].sort());
+    return groups;
+  }, [tracks]);
+
   const indexedTracks = tracks.map((track, originalIndex) => ({ track, originalIndex }));
 
-  // Filtered lists based on search query
-  const filteredTracks = indexedTracks.filter(
-    ({ track }) =>
-      track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      track.game.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const baseTracks = useMemo(() => {
+    return indexedTracks.filter(({ track }) => {
+      return (
+        track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        track.game.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    });
+  }, [tracks, searchQuery]);
+
+  const reachableTagsMap = useMemo(() => {
+    const validTags = new Map<string, number>();
+    const categories = Object.keys(availableTagsByCategory);
+
+    categories.forEach(catToSkip => {
+      // Get all active category filters EXCEPT the category currently being checked
+      const otherFilters = Object.entries(selectedTags).filter(([type, vals]) => type !== catToSkip && vals.length > 0);
+
+      // Filter base tracks against all OTHER active categories (AND logic across types, OR within type)
+      const reachableInCat = baseTracks.filter(({ track }) =>
+        otherFilters.every(([type, selectedVals]) =>
+          track.tags?.some(t => t.type === type && selectedVals.includes(t.value))
+        )
+      );
+
+      // Count occurrences of tags for the current category
+      reachableInCat.forEach(({ track }) => {
+        track.tags?.forEach(tag => {
+          if (tag.type === catToSkip) {
+            validTags.set(tag.value, (validTags.get(tag.value) || 0) + 1);
+          }
+        });
+      });
+    });
+
+    return validTags;
+  }, [baseTracks, selectedTags, availableTagsByCategory]);
+
+  const toggleTagSelection = (type: string, value: string) => {
+    setSelectedTags(prev => {
+      const currentVals = prev[type] || [];
+      const updatedVals = currentVals.includes(value) ? currentVals.filter(v => v !== value) : [...currentVals, value];
+
+      const nextState = { ...prev, [type]: updatedVals };
+      if (updatedVals.length === 0) delete nextState[type];
+      return nextState;
+    });
+  };
+
+  const clearAllTags = () => setSelectedTags({});
+
+  const activeTagCategories = Object.entries(selectedTags).filter(([_, vals]) => vals.length > 0);
+
+  const filteredTracks = useMemo(() => {
+    if (activeTagCategories.length === 0) return baseTracks;
+
+    return baseTracks.filter(({ track }) =>
+      activeTagCategories.every(([type, selectedVals]) =>
+        track.tags?.some(t => t.type === type && selectedVals.includes(t.value))
+      )
+    );
+  }, [baseTracks, activeTagCategories]);
 
   const indexedPlaylists = playlists.map((playlist, originalIndex) => ({ playlist, originalIndex }));
   const filteredPlaylists = indexedPlaylists.filter(({ playlist }) =>
@@ -354,6 +428,56 @@ export function App() {
               onInput={e => setSearchQuery((e.target as HTMLInputElement).value)}
             />
           </div>
+
+          {isTracksActive && Object.keys(availableTagsByCategory).length > 0 && (
+            <div className="tag-filter-section">
+              <div className="tag-filter-header">
+                <label>Filter by Tag</label>
+                {activeTagCategories.length > 0 && (
+                  <button
+                    onClick={clearAllTags}
+                    className="secondary-btn"
+                  >
+                    Clear All
+                  </button>
+                )}
+              </div>
+
+              {Object.entries(availableTagsByCategory).map(([category, tagValues]) => (
+                <div
+                  key={category}
+                  className="tag-category-group"
+                >
+                  <span className="tag-category-title">{category}</span>
+                  <div className="tag-checkboxes-list">
+                    {tagValues.map(val => {
+                      const isChecked = selectedTags[category]?.includes(val) ?? false;
+                      const count = reachableTagsMap.get(val) || 0;
+                      const isDisabled = !isChecked && count === 0;
+
+                      return (
+                        <label
+                          key={val}
+                          className={`tag-checkbox-label ${isDisabled ? 'disabled' : ''}`}
+                        >
+                          <div className="tag-checkbox-content">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              disabled={isDisabled}
+                              onChange={() => toggleTagSelection(category, val)}
+                            />
+                            <span>{val}</span>
+                          </div>
+                          <span className="tag-badge">{count}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </aside>
 
         <main className="creator-main-content">
