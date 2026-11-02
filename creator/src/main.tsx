@@ -21,6 +21,8 @@ type Route =
 export function App() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const [activeTrack, setActiveTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -54,9 +56,24 @@ export function App() {
   };
 
   const [route, setRoute] = useState<Route>(parseRoute);
+
+  const indexedTracks = tracks.map((track, originalIndex) => ({ track, originalIndex }));
+
+  // Filtered lists based on search query
+  const filteredTracks = indexedTracks.filter(
+    ({ track }) =>
+      track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      track.game.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const indexedPlaylists = playlists.map((playlist, originalIndex) => ({ playlist, originalIndex }));
+  const filteredPlaylists = indexedPlaylists.filter(({ playlist }) =>
+    playlist.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const pageSize = 5;
-  const totalPages = Math.ceil(tracks.length / pageSize) || 1;
-  const playlistTotalPages = Math.ceil(playlists.length / pageSize) || 1;
+  const tracksTotalPages = Math.ceil(filteredTracks.length / pageSize) || 1;
+  const playlistTotalPages = Math.ceil(filteredPlaylists.length / pageSize) || 1;
 
   // Sync route on browser back/forward buttons
   useEffect(() => {
@@ -67,13 +84,13 @@ export function App() {
 
   // Clamp pages if needed after data loads
   useEffect(() => {
-    if (route.type === 'tracks-list' && tracks.length > 0 && route.page > totalPages) {
-      navigate(`/tracks?page=${totalPages}`);
+    if (route.type === 'tracks-list' && tracks.length > 0 && route.page > tracksTotalPages) {
+      navigate(`/tracks?page=${tracksTotalPages}`);
     }
     if (route.type === 'playlists-list' && playlists.length > 0 && route.page > playlistTotalPages) {
       navigate(`/playlists?page=${playlistTotalPages}`);
     }
-  }, [tracks.length, totalPages, playlists.length, playlistTotalPages, route]);
+  }, [tracks.length, tracksTotalPages, playlists.length, playlistTotalPages, route]);
 
   // Navigation helper
   const navigate = (url: string, returnPage?: number) => {
@@ -302,6 +319,8 @@ export function App() {
     }
   };
 
+  const searchPlaceholder = isTracksActive ? 'Search title, game...' : 'Search playlist name...';
+
   return (
     <div className="creator-wrapper">
       <header className="creator-header">
@@ -323,81 +342,94 @@ export function App() {
         </nav>
       </header>
 
-      {/* TRACKS LIST VIEW */}
-      {route.type === 'tracks-list' && (
-        <TrackList
-          tracks={tracks}
-          currentPage={currentTracksPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onNavigate={navigate}
-          onDelete={deleteTrack}
-          onPlayTrack={handlePlayTrack}
-          activeTrack={activeTrack}
-          isPlaying={isPlaying}
-          getPageNumbers={getPageNumbers}
-        />
-      )}
+      <div className="creator-body">
+        <aside className="creator-sidebar">
+          <div className="search-box">
+            <label htmlFor="search-input">Search</label>
+            <input
+              id="search-input"
+              type="text"
+              placeholder={searchPlaceholder}
+              value={searchQuery}
+              onInput={e => setSearchQuery((e.target as HTMLInputElement).value)}
+            />
+          </div>
+        </aside>
 
-      {/* TRACKS FORM VIEW (NEW / EDIT) */}
-      {(route.type === 'tracks-new' || route.type === 'tracks-edit') && (
-        <TrackForm
-          isEditing={route.type === 'tracks-edit'}
-          game={game}
-          setGame={setGame}
-          title={title}
-          setTitle={setTitle}
-          audioFilename={audioFilename}
-          setAudioFile={setAudioFile}
-          setAudioFilename={setAudioFilename}
-          coverFilename={coverFilename}
-          setCoverFile={setCoverFile}
-          setCoverFilename={setCoverFilename}
-          tags={tags}
-          addTagField={addTagField}
-          removeTag={removeTag}
-          updateTag={updateTag}
-          onSubmit={submitTrack}
-          onCancel={() => {
-            const returnPage = window.history.state?.returnPage || 1;
-            navigate(`/tracks?page=${returnPage}`);
-          }}
-        />
-      )}
+        <main className="creator-main-content">
+          {route.type === 'tracks-list' && (
+            <TrackList
+              tracks={filteredTracks}
+              currentPage={currentTracksPage}
+              totalPages={tracksTotalPages}
+              pageSize={pageSize}
+              onNavigate={navigate}
+              onDelete={deleteTrack}
+              onPlayTrack={handlePlayTrack}
+              activeTrack={activeTrack}
+              isPlaying={isPlaying}
+              getPageNumbers={getPageNumbers}
+            />
+          )}
 
-      {/* PLAYLISTS LIST VIEW */}
-      {route.type === 'playlists-list' && (
-        <PlaylistList
-          playlists={playlists}
-          tracks={tracks}
-          currentPage={currentPlaylistPage}
-          totalPages={playlistTotalPages}
-          pageSize={pageSize}
-          onNavigate={navigate}
-          onDelete={deletePlaylist}
-          onPlayTrack={handlePlayTrack}
-          activeTrack={activeTrack}
-          isPlaying={isPlaying}
-          getPageNumbers={getPageNumbers}
-        />
-      )}
+          {(route.type === 'tracks-new' || route.type === 'tracks-edit') && (
+            <TrackForm
+              isEditing={route.type === 'tracks-edit'}
+              game={game}
+              setGame={setGame}
+              title={title}
+              setTitle={setTitle}
+              audioFilename={audioFilename}
+              setAudioFile={setAudioFile}
+              setAudioFilename={setAudioFilename}
+              coverFilename={coverFilename}
+              setCoverFile={setCoverFile}
+              setCoverFilename={setCoverFilename}
+              tags={tags}
+              addTagField={addTagField}
+              removeTag={removeTag}
+              updateTag={updateTag}
+              onSubmit={submitTrack}
+              onCancel={() => {
+                const returnPage = window.history.state?.returnPage || 1;
+                navigate(`/tracks?page=${returnPage}`);
+              }}
+            />
+          )}
 
-      {/* PLAYLISTS FORM VIEW (NEW / EDIT) */}
-      {(route.type === 'playlists-new' || route.type === 'playlists-edit') && (
-        <PlaylistForm
-          isEditing={route.type === 'playlists-edit'}
-          playlistName={playlistName}
-          setPlaylistName={setPlaylistName}
-          tracks={tracks}
-          selectedTracks={selectedTracks}
-          toggleTrackInPlaylist={toggleTrackInPlaylist}
-          onSubmit={submitPlaylist}
-          onCancel={() => {
-            const returnPage = window.history.state?.returnPage || 1;
-            navigate(`/playlists?page=${returnPage}`);
-          }}
-        />
-      )}
+          {route.type === 'playlists-list' && (
+            <PlaylistList
+              playlists={filteredPlaylists}
+              tracks={tracks}
+              currentPage={currentPlaylistPage}
+              totalPages={playlistTotalPages}
+              pageSize={pageSize}
+              onNavigate={navigate}
+              onDelete={deletePlaylist}
+              onPlayTrack={handlePlayTrack}
+              activeTrack={activeTrack}
+              isPlaying={isPlaying}
+              getPageNumbers={getPageNumbers}
+            />
+          )}
+
+          {(route.type === 'playlists-new' || route.type === 'playlists-edit') && (
+            <PlaylistForm
+              isEditing={route.type === 'playlists-edit'}
+              playlistName={playlistName}
+              setPlaylistName={setPlaylistName}
+              tracks={tracks}
+              selectedTracks={selectedTracks}
+              toggleTrackInPlaylist={toggleTrackInPlaylist}
+              onSubmit={submitPlaylist}
+              onCancel={() => {
+                const returnPage = window.history.state?.returnPage || 1;
+                navigate(`/playlists?page=${returnPage}`);
+              }}
+            />
+          )}
+        </main>
+      </div>
 
       {activeTrack && (
         <div className="central-audio-player">

@@ -1,7 +1,7 @@
 import type { Track } from '@yasq/shared';
 
 interface TrackListProps {
-  tracks: Track[];
+  tracks: { track: Track; originalIndex: number }[];
   currentPage: number;
   totalPages: number;
   pageSize: number;
@@ -43,13 +43,12 @@ export function TrackList({
           {tracks.length === 0 ? (
             <p>No tracks saved yet.</p>
           ) : (
-            paginatedTracks.map((track, i) => {
-              const absoluteIndex = (currentPage - 1) * pageSize + i;
+            paginatedTracks.map(({ track, originalIndex }) => {
               const isThisPlaying = activeTrack?.audio === track.audio && isPlaying;
 
               return (
                 <div
-                  key={absoluteIndex}
+                  key={originalIndex}
                   className="track-card"
                 >
                   <img
@@ -76,13 +75,13 @@ export function TrackList({
                       {isThisPlaying ? '⏸ Pause' : '▶ Play'}
                     </button>
                     <button
-                      onClick={() => onNavigate(`/tracks/${absoluteIndex}/edit`, currentPage)}
+                      onClick={() => onNavigate(`/tracks/${originalIndex}/edit`, currentPage)}
                       className="secondary-btn"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => onDelete(absoluteIndex)}
+                      onClick={() => onDelete(originalIndex)}
                       className="danger-btn"
                     >
                       Delete

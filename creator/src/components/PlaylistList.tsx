@@ -3,7 +3,7 @@ import { useState } from 'preact/hooks';
 import type { Playlist, Track } from '@yasq/shared';
 
 interface PlaylistListProps {
-  playlists: Playlist[];
+  playlists: { playlist: Playlist; originalIndex: number }[];
   tracks: Track[];
   currentPage: number;
   totalPages: number;
@@ -51,40 +51,39 @@ export function PlaylistList({
         {playlists.length === 0 ? (
           <p>No playlists created yet.</p>
         ) : (
-          paginatedPlaylists.map((pl, i) => {
-            const absoluteIndex = (currentPage - 1) * pageSize + i;
-            const isExpanded = expandedIndex === absoluteIndex;
+          paginatedPlaylists.map(({ playlist, originalIndex }) => {
+            const isExpanded = expandedIndex === originalIndex;
 
             return (
               <div
-                key={absoluteIndex}
+                key={originalIndex}
                 className="track-card playlist-card"
               >
                 <div className="playlist-card-header">
                   <div className="track-info">
                     <p>
-                      <strong>{pl.name}</strong>
+                      <strong>{playlist.name}</strong>
                     </p>
                     <p>
-                      <i>{pl.tracks.length} tracks included</i>
+                      <i>{playlist.tracks.length} tracks included</i>
                     </p>
                   </div>
                   <div className="card-actions">
                     <button
-                      onClick={() => toggleExpand(absoluteIndex)}
+                      onClick={() => toggleExpand(originalIndex)}
                       className="secondary-btn"
                     >
                       <span>{isExpanded ? 'Hide Tracks ' : 'View Tracks '}</span>
                       <span className={`arrow-indicator ${isExpanded ? 'open' : ''}`} />
                     </button>
                     <button
-                      onClick={() => onNavigate(`/playlists/${absoluteIndex}/edit`, currentPage)}
+                      onClick={() => onNavigate(`/playlists/${originalIndex}/edit`, currentPage)}
                       className="secondary-btn"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => onDelete(absoluteIndex)}
+                      onClick={() => onDelete(originalIndex)}
                       className="danger-btn"
                     >
                       Delete
@@ -94,11 +93,11 @@ export function PlaylistList({
 
                 {isExpanded && (
                   <div className="playlist-tracks-dropdown">
-                    {pl.tracks.length === 0 ? (
+                    {playlist.tracks.length === 0 ? (
                       <p className="empty-text">No tracks in this playlist.</p>
                     ) : (
                       <ul className="playlist-tracks-list">
-                        {pl.tracks.map((audioFilename, tIdx) => {
+                        {playlist.tracks.map((audioFilename, tIdx) => {
                           const matchedTrack = tracks.find(t => t.audio === audioFilename);
                           const isThisPlaying = activeTrack?.audio === matchedTrack?.audio && isPlaying;
 
