@@ -30,6 +30,8 @@ export function App() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  const [pageSize, setPageSize] = useState<number>(10);
+
   // Parse current route from window.location path and search
   const parseRoute = (): Route => {
     const path = window.location.pathname;
@@ -145,7 +147,6 @@ export function App() {
     playlist.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const pageSize = 5;
   const tracksTotalPages = Math.ceil(filteredTracks.length / pageSize) || 1;
   const playlistTotalPages = Math.ceil(filteredPlaylists.length / pageSize) || 1;
 
@@ -378,6 +379,13 @@ export function App() {
     return rangeWithDots;
   };
 
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    // Preserve current route tab while resetting page parameter to 1
+    const currentTab = isTracksActive ? '/tracks' : '/playlists';
+    navigate(`${currentTab}?page=1`);
+  };
+
   const isTracksActive = route.type.startsWith('tracks');
 
   const handlePlayTrack = (track: Track) => {
@@ -487,6 +495,7 @@ export function App() {
               currentPage={currentTracksPage}
               totalPages={tracksTotalPages}
               pageSize={pageSize}
+              onPageSizeChange={handlePageSizeChange}
               onNavigate={navigate}
               onDelete={deleteTrack}
               onPlayTrack={handlePlayTrack}
@@ -528,6 +537,7 @@ export function App() {
               currentPage={currentPlaylistPage}
               totalPages={playlistTotalPages}
               pageSize={pageSize}
+              onPageSizeChange={handlePageSizeChange}
               onNavigate={navigate}
               onDelete={deletePlaylist}
               onPlayTrack={handlePlayTrack}

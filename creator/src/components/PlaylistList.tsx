@@ -8,6 +8,7 @@ interface PlaylistListProps {
   currentPage: number;
   totalPages: number;
   pageSize: number;
+  onPageSizeChange: (size: number) => void;
   onNavigate: (url: string, returnPage?: number) => void;
   onDelete: (absoluteIndex: number) => void;
   onPlayTrack: (track: Track) => void;
@@ -22,6 +23,7 @@ export function PlaylistList({
   currentPage,
   totalPages,
   pageSize,
+  onPageSizeChange,
   onNavigate,
   onDelete,
   onPlayTrack,
@@ -45,6 +47,20 @@ export function PlaylistList({
         >
           + Add Playlist
         </button>
+
+        <div className="page-size-selector">
+          <label htmlFor="page-size-select">Per page:</label>
+          <select
+            id="page-size-select"
+            value={pageSize}
+            onChange={e => onPageSizeChange(Number((e.target as HTMLSelectElement).value))}
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
       </div>
 
       <div className="playlists-container">
