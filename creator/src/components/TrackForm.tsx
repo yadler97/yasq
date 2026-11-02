@@ -1,15 +1,23 @@
 import type { Tag, Track } from '@yasq/shared';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 
 interface TrackFormProps {
   isEditing: boolean;
   indexedTrack?: { track: Track; originalIndex: number };
+  tracks: Track[];
   availableTagsByCategory: Record<string, string[]>;
   onSuccess: () => Promise<void> | void;
   onCancel: () => void;
 }
 
-export function TrackForm({ isEditing, indexedTrack, availableTagsByCategory, onSuccess, onCancel }: TrackFormProps) {
+export function TrackForm({
+  isEditing,
+  indexedTrack,
+  tracks,
+  availableTagsByCategory,
+  onSuccess,
+  onCancel,
+}: TrackFormProps) {
   // Track Form State
   const [title, setTitle] = useState('');
   const [game, setGame] = useState('');
@@ -95,6 +103,10 @@ export function TrackForm({ isEditing, indexedTrack, availableTagsByCategory, on
     }
   };
 
+  const availableGames = useMemo(() => {
+    return Array.from(new Set(tracks.map(t => t.game).filter(Boolean)));
+  }, [tracks]);
+
   return (
     <>
       <div className="tab-actions">
@@ -119,8 +131,17 @@ export function TrackForm({ isEditing, indexedTrack, availableTagsByCategory, on
             type="text"
             required
             value={game}
+            list="game-names-list"
             onInput={e => setGame((e.target as HTMLInputElement).value)}
           />
+          <datalist id="game-names-list">
+            {availableGames.map(game => (
+              <option
+                key={game}
+                value={game}
+              />
+            ))}
+          </datalist>
         </div>
 
         <div className="field">

@@ -263,18 +263,20 @@ export function App() {
       </header>
 
       <div className="creator-body">
-        <aside className="creator-sidebar">
-          <FilterSidebar
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-            activeTagCategories={activeTagCategories}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            availableTagsByCategory={availableTagsByCategory}
-            baseTracks={baseTracks}
-            isTracksActive={isTracksActive}
-          />
-        </aside>
+        {(route.type === 'tracks-list' || route.type === 'playlists-list') && (
+          <aside className="creator-sidebar">
+            <FilterSidebar
+              selectedTags={selectedTags}
+              setSelectedTags={setSelectedTags}
+              activeTagCategories={activeTagCategories}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              availableTagsByCategory={availableTagsByCategory}
+              baseTracks={baseTracks}
+              isTracksActive={isTracksActive}
+            />
+          </aside>
+        )}
 
         <main className="creator-main-content">
           {route.type === 'tracks-list' && (
@@ -302,6 +304,7 @@ export function App() {
                   ? { track: tracks[route.index], originalIndex: route.index }
                   : undefined
               }
+              tracks={tracks}
               availableTagsByCategory={availableTagsByCategory}
               onSuccess={handleTrackFormSuccess}
               onCancel={() => {

@@ -11,6 +11,9 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --blurple: #646cff;
+  --blurple-hover: #535bf2;
 }
 
 body {
@@ -64,11 +67,11 @@ button {
 }
 
 .primary-btn {
-  background-color: #646cff;
+  background-color: var(--blurple);
   color: white;
 }
 .primary-btn:hover {
-  background-color: #535bf2;
+  background-color: var(--blurple-hover);
 }
 
 .secondary-btn {
@@ -97,8 +100,8 @@ button {
 }
 
 .main-tabs button.active {
-  background: #646cff;
-  border-color: #646cff;
+  background: var(--blurple);
+  border-color: var(--blurple);
   color: #fff;
   font-weight: bold;
 }
@@ -249,8 +252,8 @@ button {
 }
 
 .page-btn.active {
-  background: #646cff;
-  border-color: #646cff;
+  background: var(--blurple);
+  border-color: var(--blurple);
   color: #fff;
   font-weight: bold;
 }
@@ -342,7 +345,7 @@ button {
 input:focus-visible,
 select:focus-visible,
 button:focus-visible {
-  outline: 3px solid #646cff;
+  outline: 3px solid var(--blurple);
   outline-offset: 2px;
 }
 
@@ -407,7 +410,6 @@ button:focus-visible {
   flex-flow: column;
   grid-column: 2;
   overflow-y: auto;
-  background: #121214;
   max-width: 60vw;
   width: 100%;
   margin: 0 auto;
@@ -456,7 +458,7 @@ button:focus-visible {
 
 .search-box input:focus {
   outline: none;
-  border-color: #6366f1;
+  border-color: var(--blurple);
 }
 
 .tag-filter-header {
@@ -512,7 +514,7 @@ button:focus-visible {
 }
 
 .tag-checkbox-label input[type='checkbox'] {
-  accent-color: #6366f1;
+  accent-color: var(--blurple);
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -550,7 +552,7 @@ button:focus-visible {
 
 .tag-checkbox-label:hover .tag-badge {
   color: #fff;
-  border-color: #6366f1;
+  border-color: var(--blurple);
 }
 
 .tag-checkbox-label.disabled .tag-badge {
@@ -585,5 +587,5 @@ button:focus-visible {
 }
 
 .page-size-selector select:focus {
-  border-color: #6366f1;
+  border-color: var(--blurple);
 }
