@@ -7,6 +7,7 @@ import { TrackList } from './components/TrackList';
 import { TrackForm } from './components/TrackForm';
 import { PlaylistList } from './components/PlaylistList';
 import { PlaylistForm } from './components/PlaylistForm';
+import { SettingsForm } from './components/SettingsForm';
 
 import './style.css';
 import { FilterSidebar } from './components/FilterSidebar';
@@ -17,13 +18,15 @@ type Route =
   | { type: 'tracks-edit'; index: number }
   | { type: 'playlists-list'; page: number }
   | { type: 'playlists-new' }
-  | { type: 'playlists-edit'; index: number };
+  | { type: 'playlists-edit'; index: number }
+  | { type: 'settings' };
 
 type SelectedTagsState = Record<string, string[]>;
 
 export function App() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [settings, setSettings] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<SelectedTagsState>({});
 
@@ -41,6 +44,10 @@ export function App() {
 
     const p = parseInt(params.get('page') || '1', 10);
     const page = isNaN(p) || p < 1 ? 1 : p;
+
+    if (parts[0] === 'settings') {
+      return { type: 'settings' };
+    }
 
     if (parts[0] === 'playlists') {
       if (parts[1] === 'new') return { type: 'playlists-new' };
@@ -142,7 +149,6 @@ export function App() {
     if (route.type === 'tracks-edit') {
       targetPage = Math.floor(route.index / pageSize) + 1;
     } else {
-      // Adding a new track (tracks.length + 1)
       targetPage = Math.ceil((tracks.length + 1) / pageSize);
     }
 
@@ -172,9 +178,15 @@ export function App() {
     if (res.ok) setPlaylists(await res.json());
   };
 
+  const fetchSettings = async () => {
+    const res = await fetch('/api/settings');
+    if (res.ok) setSettings(await res.json());
+  };
+
   useEffect(() => {
     fetchTracks();
     fetchPlaylists();
+    fetchSettings();
   }, []);
 
   const deleteTrack = async (absoluteIndex: number) => {
@@ -221,12 +233,13 @@ export function App() {
 
   const handlePageSizeChange = (newSize: number) => {
     setPageSize(newSize);
-    // Preserve current route tab while resetting page parameter to 1
     const currentTab = isTracksActive ? '/tracks' : '/playlists';
     navigate(`${currentTab}?page=1`);
   };
 
   const isTracksActive = route.type.startsWith('tracks');
+  const isPlaylistsActive = route.type.startsWith('playlists');
+  const isSettingsActive = route.type === 'settings';
 
   const handlePlayTrack = (track: Track) => {
     if (activeTrack?.audio === track.audio) {
@@ -254,10 +267,17 @@ export function App() {
           </button>
 
           <button
-            className={`secondary-btn ${!isTracksActive ? 'active' : ''}`}
+            className={`secondary-btn ${isPlaylistsActive ? 'active' : ''}`}
             onClick={() => navigate('/playlists')}
           >
             Playlists
+          </button>
+
+          <button
+            className={`secondary-btn ${isSettingsActive ? 'active' : ''}`}
+            onClick={() => navigate('/settings')}
+          >
+            Settings
           </button>
         </nav>
       </header>
@@ -348,6 +368,9 @@ export function App() {
               }}
             />
           )}
+
+          {route.type === 'settings' &&
+            (settings ? <SettingsForm initialSettings={settings} /> : <p>Loading settings...</p>)}
         </main>
       </div>
 

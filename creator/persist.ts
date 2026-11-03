@@ -2,7 +2,15 @@ import type { Plugin } from 'vite';
 import fs from 'fs';
 import path from 'path';
 
-import { GAME_COVERS_DIR, Playlist, STATIC_FILES_DIR, Track, TRACK_AUDIO_DIR } from '@yasq/shared';
+import {
+  APP_SOUNDS_DIR,
+  DEFAULT_SETTINGS,
+  GAME_COVERS_DIR,
+  Playlist,
+  STATIC_FILES_DIR,
+  Track,
+  TRACK_AUDIO_DIR,
+} from '@yasq/shared';
 
 export function persistPlugin(): Plugin {
   return {
@@ -11,8 +19,10 @@ export function persistPlugin(): Plugin {
       const baseDir = path.resolve(process.cwd(), '../server', STATIC_FILES_DIR, 'creator');
       const tracksFile = path.join(baseDir, 'tracks.json');
       const playlistsFile = path.join(baseDir, 'playlists.json');
+      const settingsFile = path.join(baseDir, 'settings.json');
       const musicDir = path.join(baseDir, TRACK_AUDIO_DIR);
       const coversDir = path.join(baseDir, GAME_COVERS_DIR);
+      const soundsDir = path.join(baseDir, APP_SOUNDS_DIR);
 
       const readTracks = (): Track[] => {
         if (!fs.existsSync(tracksFile)) return [];
@@ -32,6 +42,22 @@ export function persistPlugin(): Plugin {
       const writePlaylists = (playlists: Playlist[]) => {
         fs.mkdirSync(baseDir, { recursive: true });
         fs.writeFileSync(playlistsFile, JSON.stringify(playlists, null, 2));
+      };
+
+      const readSettings = (): any => {
+        if (!fs.existsSync(settingsFile)) return DEFAULT_SETTINGS;
+        try {
+          const data = fs.readFileSync(settingsFile, 'utf-8');
+          return data.trim() ? JSON.parse(data) : DEFAULT_SETTINGS;
+        } catch (err) {
+          console.error('Failed to parse settings file, using defaults', err);
+          return DEFAULT_SETTINGS;
+        }
+      };
+
+      const writeSettings = (settings: any) => {
+        fs.mkdirSync(baseDir, { recursive: true });
+        fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2));
       };
 
       // Serve static audio files
@@ -58,7 +84,18 @@ export function persistPlugin(): Plugin {
 
         const url = new URL(req.url || '', `http://${req.headers.host}`);
         const type = url.searchParams.get('type');
-        const targetDir = type === 'cover' ? coversDir : musicDir;
+
+        let targetDir: string;
+        switch (type) {
+          case 'cover':
+            targetDir = coversDir;
+            break;
+          case 'sound':
+            targetDir = soundsDir;
+            break;
+          default:
+            targetDir = musicDir;
+        }
 
         const defaultName = type === 'cover' ? 'cover.jpg' : 'audio.mp3';
         const filename = decodeURIComponent((req.headers['x-file-name'] as string) || defaultName);
@@ -225,6 +262,42 @@ export function persistPlugin(): Plugin {
           writePlaylists(playlists);
           res.statusCode = 204;
           return res.end();
+        }
+
+        next();
+      });
+
+      // Settings API Endpoints
+      server.middlewares.use('/api/settings', (req, res, next) => {
+        if (req.method === 'GET') {
+          res.setHeader('Content-Type', 'application/json');
+          return res.end(JSON.stringify(readSettings()));
+        }
+
+        if (req.method === 'PUT' || req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => (body += chunk));
+          req.on('end', () => {
+            const updatedSettings = JSON.parse(body);
+            writeSettings(updatedSettings);
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(updatedSettings));
+          });
+          return;
+        }
+
+        if (req.method === 'DELETE') {
+          try {
+            if (fs.existsSync(settingsFile)) {
+              fs.unlinkSync(settingsFile);
+            }
+            res.setHeader('Content-Type', 'application/json');
+            return res.end(JSON.stringify(DEFAULT_SETTINGS));
+          } catch (err) {
+            console.error('Failed to delete settings file', err);
+            res.statusCode = 500;
+            return res.end(JSON.stringify({ error: 'Failed to delete settings file' }));
+          }
         }
 
         next();

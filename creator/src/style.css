@@ -117,9 +117,18 @@ button {
   border: 1px solid #333;
 }
 
-.creator-form h3 {
+.creator-form h3,
+.creator-form h4 {
   margin-top: 0;
   margin-bottom: 0.5rem;
+}
+
+.creator-form h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .field {
@@ -137,6 +146,7 @@ button {
 }
 
 .field input[type='text'],
+.field input[type='number'],
 .field input[type='file'] {
   padding: 0.7rem;
   border-radius: 6px;
@@ -266,7 +276,7 @@ button {
 .playlists-container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .playlist-track-selector {
@@ -588,4 +598,48 @@ button:focus-visible {
 
 .page-size-selector select:focus {
   border-color: var(--blurple);
+}
+
+.radio-group-pills {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.radio-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid #444;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: #2a2a2a;
+  user-select: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.radio-pill:hover {
+  background-color: #3a3a3a;
+  border-color: #666;
+}
+
+.radio-pill.active {
+  background: var(--blurple);
+  color: white;
+  border-color: var(--blurple);
+}
+
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-input-wrapper input[type='file'] {
+  flex: 1;
+  min-width: 0;
 }
