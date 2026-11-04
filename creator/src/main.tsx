@@ -372,39 +372,52 @@ export function App() {
           {route.type === 'settings' &&
             (settings ? <SettingsForm initialSettings={settings} /> : <p>Loading settings...</p>)}
         </main>
-      </div>
 
-      {activeTrack && (
-        <div className="central-audio-player">
-          <div className="player-meta">
-            <img
-              loading="lazy"
-              src={activeTrack.cover ? `/covers/${activeTrack.cover}` : '/default.svg'}
-              alt={`Cover of ${activeTrack.game}`}
-              onError={e => {
-                (e.currentTarget as HTMLImageElement).src = '/default.svg';
+        {activeTrack && (
+          <aside className="central-audio-player">
+            <button
+              className="player-close-btn"
+              onClick={() => {
+                if (audioRef.current) {
+                  audioRef.current.pause();
+                }
+                setActiveTrack(null);
+                setIsPlaying(false);
               }}
-            />
-            <div className="track-info">
-              <p>
-                <strong>{activeTrack.game}</strong>
-              </p>
-              <p>
-                <i>{activeTrack.title}</i>
-              </p>
+              aria-label="Close player"
+            >
+              &times;
+            </button>
+            <div className="player-meta">
+              <img
+                loading="lazy"
+                src={activeTrack.cover ? `/covers/${activeTrack.cover}` : '/default.svg'}
+                alt={`Cover of ${activeTrack.game}`}
+                onError={e => {
+                  (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                }}
+              />
+              <div className="track-info">
+                <p>
+                  <strong>{activeTrack.game}</strong>
+                </p>
+                <p>
+                  <i>{activeTrack.title}</i>
+                </p>
+              </div>
             </div>
-          </div>
-          <audio
-            ref={audioRef}
-            controls
-            autoPlay
-            src={`/music/${activeTrack.audio}`}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={() => setIsPlaying(false)}
-          />
-        </div>
-      )}
+            <audio
+              ref={audioRef}
+              controls
+              autoPlay
+              src={`/music/${activeTrack.audio}`}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
+            />
+          </aside>
+        )}
+      </div>
     </div>
   );
 }

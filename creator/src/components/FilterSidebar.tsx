@@ -85,7 +85,7 @@ export function FilterSidebar({
               onClick={() => setSearchQuery('')}
               className="secondary-btn clear-search-btn"
             >
-              ×
+              &times;
             </button>
           )}
         </div>

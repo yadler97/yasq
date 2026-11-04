@@ -28,7 +28,7 @@ body {
 #app {
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 20px;
   box-sizing: border-box;
 }
 
@@ -96,7 +96,7 @@ button {
 
 .main-tabs {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .main-tabs button.active {
@@ -220,15 +220,17 @@ button {
   font-size: 0.95rem;
 }
 
-.track-card audio {
-  flex: 1;
-  height: 36px;
-}
-
 .card-actions {
   display: flex;
+  flex-wrap: wrap;
+  flex: 1;
   gap: 0.5rem;
-  justify-content: end;
+  justify-content: flex-end;
+  max-width: 30rem;
+}
+
+.card-actions button {
+  flex: 1 1 100px;
 }
 
 .tracks-container {
@@ -315,6 +317,11 @@ button {
   width: 100%;
 }
 
+.playlist-card-header .track-info {
+  flex: 0.75;
+  min-width: 0;
+}
+
 .arrow-indicator {
   border: solid currentColor;
   border-width: 0 2px 2px 0;
@@ -360,10 +367,6 @@ button:focus-visible {
 }
 
 .central-audio-player {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
   background: #1e1e1e;
   border: 1px solid #333;
   padding: 15px;
@@ -371,13 +374,39 @@ button:focus-visible {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  width: 320px;
+  gap: 20px;
+  height: max-content;
+  margin-top: auto;
+  position: sticky;
+  bottom: 20px;
+  flex-shrink: 0;
+}
+
+.central-audio-player .player-close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 16px;
 }
 
 .central-audio-player .player-meta {
   display: flex;
   gap: 10px;
+}
+
+.player-meta .track-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+}
+
+.player-meta p {
+  margin: 0;
 }
 
 .player-meta img {
@@ -401,6 +430,7 @@ button:focus-visible {
   flex: 1;
   width: 100%;
   gap: 20px;
+  min-height: 0;
 }
 
 .creator-sidebar {
@@ -637,6 +667,10 @@ button:focus-visible {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.file-input-wrapper button {
+  height: stretch;
 }
 
 .file-input-wrapper input[type='file'] {
