@@ -87,7 +87,7 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
   })();
 
   const correctPlayerIds = roundData.value?.correctPlayers || [];
-  const correctParticipants: Participant[] = participants.value.filter(p => correctPlayerIds.includes(p.id));
+  const correctParticipants: Participant[] = correctPlayerIds.map(id => findUser(participants.value, id));
 
   const lostStreaks = roundData.value.lostStreaks ? Object.entries(roundData.value.lostStreaks) : [];
   const lostStreaksListHtml = lostStreaks.length > 0 && (
