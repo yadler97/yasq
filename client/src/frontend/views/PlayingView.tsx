@@ -176,11 +176,6 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
     }
   };
 
-  const resetJokerHint = () => {
-    activeHint.value = null;
-    jokerError.value = null;
-  };
-
   const submitGuess = async (guess: string) => {
     hasSubmitted.value = true;
     await backend.submitGuess(guess, getSyncedServerTime());
@@ -507,7 +502,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
           {jokerError.value && (
             <div className="joker-error-container">
               <span>⚠️ {jokerError.value}</span>
-              <button onClick={resetJokerHint}>Ok</button>
+              <button onClick={() => (jokerError.value = null)}>Ok</button>
             </div>
           )}
 
