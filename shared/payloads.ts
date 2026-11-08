@@ -4,8 +4,24 @@
  * for the domain models on the server.
  */
 
-import { type AchievementBonusType } from './constants.js';
-import type { PointsBonus, TrackInfo } from './types.js';
+import { type AchievementBonusType, Joker } from './constants.js';
+import type {
+  GlimpseHint,
+  MultipleChoiceHint,
+  ObfuscationHint,
+  PointsBonus,
+  SpyHint,
+  Tag,
+  TimeBonusSummary,
+  TrackInfo,
+  TriviaHint,
+} from './types.js';
+
+/**
+ * Result of a fallible network call. Contains either an object of the specified type `T` if `ok` is `true` or
+ * a descriptive error message if `ok` is `false`.
+ */
+export type Fallible<T extends object> = ({ ok: true } & T) | { ok: false; error: string };
 
 export interface RoundResultDto {
   round: number;
@@ -14,6 +30,23 @@ export interface RoundResultDto {
   scoreValue: number;
   isFirst: boolean;
   awardedBonuses: PointsBonus[];
+}
+
+export interface RoundSummaryDto {
+  round: number;
+  timeBonusSummary: TimeBonusSummary | null;
+}
+
+export interface RoundDataDto {
+  round: number;
+  result: RoundResultDto[];
+  summary: RoundSummaryDto | null;
+  correctPlayers: string[];
+  lostStreaks: Record<string, number>;
+  correctAnswer: string | undefined;
+  trackTitle: string | undefined;
+  tags: Tag[];
+  gameCover: string | undefined;
 }
 
 export interface UserRoundResultDto extends RoundResultDto {
@@ -65,3 +98,10 @@ export interface FinalResultsResponse {
   };
   canExport: boolean;
 }
+
+export type JokerHintDto =
+  | { type: Joker.OBFUSCATION; data: ObfuscationHint }
+  | { type: Joker.TRIVIA; data: TriviaHint }
+  | { type: Joker.MULTIPLE_CHOICE; data: MultipleChoiceHint }
+  | { type: Joker.SPY; data: SpyHint }
+  | { type: Joker.GLIMPSE; data: GlimpseHint };
