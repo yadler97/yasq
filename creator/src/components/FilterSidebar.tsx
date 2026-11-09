@@ -1,4 +1,5 @@
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
+
 import type { Track } from '@yasq/shared';
 
 interface FilterSidebarProps {
@@ -24,6 +25,16 @@ export function FilterSidebar({
   baseTracks,
   isTracksActive,
 }: FilterSidebarProps) {
+  // Track collapsed state per category
+  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
+
+  const toggleCategoryCollapse = (category: string) => {
+    setCollapsedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category],
+    }));
+  };
+
   const toggleTagSelection = (type: string, value: string) => {
     setSelectedTags(prev => {
       const currentVals = prev[type] || [];
@@ -105,39 +116,57 @@ export function FilterSidebar({
             )}
           </div>
 
-          {Object.entries(availableTagsByCategory).map(([category, tagValues]) => (
-            <div
-              key={category}
-              className="tag-category-group"
-            >
-              <span className="tag-category-title">{category}</span>
-              <div className="tag-checkboxes-list">
-                {tagValues.map(val => {
-                  const isChecked = selectedTags[category]?.includes(val) ?? false;
-                  const count = reachableTagsMap.get(val) || 0;
-                  const isDisabled = !isChecked && count === 0;
+          {Object.entries(availableTagsByCategory).map(([category, tagValues]) => {
+            const isCollapsed = collapsedCategories[category] || false;
 
-                  return (
-                    <label
-                      key={val}
-                      className={`tag-checkbox-label ${isDisabled ? 'disabled' : ''}`}
-                    >
-                      <div className="tag-checkbox-content">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          disabled={isDisabled}
-                          onChange={() => toggleTagSelection(category, val)}
-                        />
-                        <span>{val}</span>
-                      </div>
-                      <span className="tag-badge">{count}</span>
-                    </label>
-                  );
-                })}
+            return (
+              <div
+                key={category}
+                className="tag-category-group"
+              >
+                <div
+                  className="tag-category-header"
+                  onClick={() => toggleCategoryCollapse(category)}
+                >
+                  <span className="tag-category-title">{category}</span>
+                  <button
+                    type="button"
+                    className="collapse-btn"
+                  >
+                    {isCollapsed ? '+' : '−'}
+                  </button>
+                </div>
+
+                {!isCollapsed && (
+                  <div className="tag-checkboxes-list">
+                    {tagValues.map(val => {
+                      const isChecked = selectedTags[category]?.includes(val) ?? false;
+                      const count = reachableTagsMap.get(val) || 0;
+                      const isDisabled = !isChecked && count === 0;
+
+                      return (
+                        <label
+                          key={val}
+                          className={`tag-checkbox-label ${isDisabled ? 'disabled' : ''}`}
+                        >
+                          <div className="tag-checkbox-content">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              disabled={isDisabled}
+                              onChange={() => toggleTagSelection(category, val)}
+                            />
+                            <span>{val}</span>
+                          </div>
+                          <span className="tag-badge">{count}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </>

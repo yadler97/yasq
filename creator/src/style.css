@@ -522,13 +522,29 @@ button:focus-visible {
   margin-top: 12px;
 }
 
+.tag-category-header {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #27272a;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0px;
+  margin-right: 10px;
+  color: #a1a1aa;
+}
+
 .tag-category-title {
   font-size: 0.8rem;
   font-weight: 600;
   color: #a1a1aa;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid #27272a;
   padding-bottom: 4px;
 }
 

@@ -88,7 +88,7 @@ export function TrackForm({
       }
     }
 
-    const trackData = { title, game, audio: filename, cover: coverName, tags };
+    const trackData = { game, title, audio: filename, cover: coverName, tags };
     const url = isEditing ? `/api/tracks/${indexedTrack?.originalIndex}` : '/api/tracks';
     const method = isEditing ? 'PUT' : 'POST';
 
