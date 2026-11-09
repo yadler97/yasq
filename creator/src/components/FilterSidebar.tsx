@@ -25,11 +25,11 @@ export function FilterSidebar({
   baseTracks,
   isTracksActive,
 }: FilterSidebarProps) {
-  // Track collapsed state per category
-  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
+  // Track expanded tag categories
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
   const toggleCategoryCollapse = (category: string) => {
-    setCollapsedCategories(prev => ({
+    setExpandedCategories(prev => ({
       ...prev,
       [category]: !prev[category],
     }));
@@ -117,7 +117,7 @@ export function FilterSidebar({
           </div>
 
           {Object.entries(availableTagsByCategory).map(([category, tagValues]) => {
-            const isCollapsed = collapsedCategories[category] || false;
+            const isExpanded = expandedCategories[category] ?? false;
 
             return (
               <div
@@ -133,11 +133,11 @@ export function FilterSidebar({
                     type="button"
                     className="collapse-btn"
                   >
-                    {isCollapsed ? '+' : '−'}
+                    {isExpanded ? '−' : '+'}
                   </button>
                 </div>
 
-                {!isCollapsed && (
+                {isExpanded && (
                   <div className="tag-checkboxes-list">
                     {tagValues.map(val => {
                       const isChecked = selectedTags[category]?.includes(val) ?? false;

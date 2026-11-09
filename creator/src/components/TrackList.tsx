@@ -1,3 +1,5 @@
+import { useState } from 'preact/hooks';
+
 import type { Track } from '@yasq/shared';
 
 interface TrackListProps {
@@ -29,7 +31,23 @@ export function TrackList({
   hasActiveFilters,
   getPageNumbers,
 }: TrackListProps) {
-  const paginatedTracks = tracks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const [sortBy, setSortBy] = useState<'title' | 'game' | 'original'>('original');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // Sort tracks before pagination
+  const sortedTracks = [...tracks].sort((a, b) => {
+    if (sortBy === 'title') {
+      const cmp = a.track.title.localeCompare(b.track.title);
+      return sortOrder === 'asc' ? cmp : -cmp;
+    }
+    if (sortBy === 'game') {
+      const cmp = a.track.game.localeCompare(b.track.game);
+      return sortOrder === 'asc' ? cmp : -cmp;
+    }
+    return sortOrder === 'asc' ? a.originalIndex - b.originalIndex : b.originalIndex - a.originalIndex;
+  });
+
+  const paginatedTracks = sortedTracks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <>
@@ -41,18 +59,45 @@ export function TrackList({
           + Add Track
         </button>
 
-        <div className="page-size-selector">
-          <label htmlFor="page-size-select">Per page:</label>
-          <select
-            id="page-size-select"
-            value={pageSize}
-            onChange={e => onPageSizeChange(Number((e.target as HTMLSelectElement).value))}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
+        <div className="tab-controls-group">
+          <span className="track-count-info">{tracks.length} tracks found</span>
+          <div className="sort-selector">
+            <label htmlFor="sort-select">Sort by:</label>
+            <select
+              id="sort-select"
+              value={`${sortBy}-${sortOrder}`}
+              onChange={e => {
+                const [newSortBy, newSortOrder] = (e.currentTarget as HTMLSelectElement).value.split('-') as [
+                  'title' | 'game' | 'original',
+                  'asc' | 'desc',
+                ];
+                setSortBy(newSortBy);
+                setSortOrder(newSortOrder);
+                // Reset page to 1 on sort change so the user sees the newly sorted top items
+                onNavigate('/tracks?page=1');
+              }}
+            >
+              <option value="original-asc">Default (Newest/Oldest)</option>
+              <option value="game-asc">Game (A-Z)</option>
+              <option value="game-desc">Game (Z-A)</option>
+              <option value="title-asc">Title (A-Z)</option>
+              <option value="title-desc">Title (Z-A)</option>
+            </select>
+          </div>
+
+          <div className="page-size-selector">
+            <label htmlFor="page-size-select">Per page:</label>
+            <select
+              id="page-size-select"
+              value={pageSize}
+              onChange={e => onPageSizeChange(Number((e.target as HTMLSelectElement).value))}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
         </div>
       </div>
 

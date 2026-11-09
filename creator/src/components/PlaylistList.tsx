@@ -34,7 +34,20 @@ export function PlaylistList({
   getPageNumbers,
 }: PlaylistListProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const paginatedPlaylists = playlists.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const [sortBy, setSortBy] = useState<'name' | 'original'>('original');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // Sort playlists before pagination
+  const sortedPlaylists = [...playlists].sort((a, b) => {
+    if (sortBy === 'name') {
+      const cmp = a.playlist.name.localeCompare(b.playlist.name);
+      return sortOrder === 'asc' ? cmp : -cmp;
+    }
+    return sortOrder === 'asc' ? a.originalIndex - b.originalIndex : b.originalIndex - a.originalIndex;
+  });
+
+  const paginatedPlaylists = sortedPlaylists.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const toggleExpand = (absoluteIndex: number) => {
     setExpandedIndex(expandedIndex === absoluteIndex ? null : absoluteIndex);
@@ -50,18 +63,43 @@ export function PlaylistList({
           + Add Playlist
         </button>
 
-        <div className="page-size-selector">
-          <label htmlFor="page-size-select">Per page:</label>
-          <select
-            id="page-size-select"
-            value={pageSize}
-            onChange={e => onPageSizeChange(Number((e.target as HTMLSelectElement).value))}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
+        <div className="tab-controls-group">
+          <span className="track-count-info">{playlists.length} playlists found</span>
+          <div className="sort-selector">
+            <label htmlFor="sort-select">Sort by:</label>
+            <select
+              id="sort-select"
+              value={`${sortBy}-${sortOrder}`}
+              onChange={e => {
+                const [newSortBy, newSortOrder] = (e.currentTarget as HTMLSelectElement).value.split('-') as [
+                  'name' | 'original',
+                  'asc' | 'desc',
+                ];
+                setSortBy(newSortBy);
+                setSortOrder(newSortOrder);
+                // Reset page to 1 on sort change so the user sees the newly sorted top items
+                onNavigate('/playlists?page=1');
+              }}
+            >
+              <option value="original-asc">Default (Newest/Oldest)</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+            </select>
+          </div>
+
+          <div className="page-size-selector">
+            <label htmlFor="page-size-select">Per page:</label>
+            <select
+              id="page-size-select"
+              value={pageSize}
+              onChange={e => onPageSizeChange(Number((e.target as HTMLSelectElement).value))}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
         </div>
       </div>
 

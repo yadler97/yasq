@@ -20,7 +20,6 @@ body {
   margin: 0;
   display: flex;
   place-content: center;
-  min-width: 320px;
   min-height: 100vh;
   background-color: #121212;
 }
@@ -427,7 +426,7 @@ button:focus-visible {
 
 .creator-body {
   display: grid;
-  grid-template-columns: 280px 1fr 280px;
+  grid-template-columns: min(20vw, 300px) minmax(50vw, 1fr) min(20vw, 300px);
   flex: 1;
   width: 100%;
   gap: 20px;
@@ -451,7 +450,6 @@ button:focus-visible {
   flex-flow: column;
   grid-column: 2;
   overflow-y: auto;
-  max-width: 60vw;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
@@ -624,7 +622,15 @@ button:focus-visible {
   width: 100%;
 }
 
-.page-size-selector {
+.tab-controls-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.tab-controls-group .page-size-selector,
+.tab-controls-group .sort-selector,
+.track-count-info {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -632,7 +638,7 @@ button:focus-visible {
   color: #a1a1aa;
 }
 
-.page-size-selector select {
+.tab-controls-group select {
   background: #27272a;
   border: 1px solid #3f3f46;
   color: #fff;
