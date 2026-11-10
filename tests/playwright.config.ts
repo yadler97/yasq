@@ -70,6 +70,7 @@ export default defineConfig({
     {
       name: 'creator',
       testDir: './creator',
+      workers: 1,
       use: {
         ...devices['Desktop Chrome'],
         baseURL: 'http://localhost:5174',
