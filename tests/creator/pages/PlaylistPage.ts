@@ -8,6 +8,9 @@ export class PlaylistPage extends CreatorPage {
   readonly playlistNameInput: Locator;
   readonly trackCheckboxes: Locator;
   readonly savePlaylistButton: Locator;
+  readonly updatePlaylistButton: Locator;
+  readonly searchInput: Locator;
+  readonly clearSearchButton: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -17,9 +20,20 @@ export class PlaylistPage extends CreatorPage {
     this.playlistNameInput = page.getByLabel('Playlist Name');
     this.trackCheckboxes = page.locator('.playlist-track-selector input[type="checkbox"]');
     this.savePlaylistButton = page.getByRole('button', { name: 'Save Playlist' });
+    this.updatePlaylistButton = page.getByRole('button', { name: 'Update Playlist' });
+    this.searchInput = page.getByRole('textbox', { name: 'Search' });
+    this.clearSearchButton = page.locator('.clear-search-btn');
   }
 
   getPlaylistCard(name: string): Locator {
     return this.playlistCards.filter({ hasText: name });
+  }
+
+  getPlaylistTracks(name: string): Locator {
+    return this.getPlaylistCard(name).locator('.playlist-tracks-dropdown');
+  }
+
+  getTrackCheckbox(gameName: string): Locator {
+    return this.page.locator('.playlist-track-item').filter({ hasText: gameName }).locator('input[type="checkbox"]');
   }
 }

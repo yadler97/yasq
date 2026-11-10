@@ -1,27 +1,25 @@
 import { expect, test } from './test_setup.js';
 
 test.describe('Track Creation', () => {
-  test('should create a track with a tag', async ({ trackPage }, testInfo) => {
-    const audioFileName = `playwright-${testInfo.testId.replace(/[^a-zA-Z0-9_-]/g, '-')}.mp3`;
-
+  test('should create a track with a tag', async ({ trackPage }) => {
     await trackPage.goto('/tracks');
     await trackPage.addTrackButton.click();
     await expect(trackPage.trackForm.getByRole('heading', { name: 'Add New Track' })).toBeVisible();
 
-    await trackPage.gameNameInput.fill('Playwright Test Game');
-    await trackPage.trackTitleInput.fill('Playwright Test Track');
+    await trackPage.gameNameInput.fill('Game A');
+    await trackPage.trackTitleInput.fill('Track A');
     await trackPage.audioFileInput.setInputFiles({
-      name: audioFileName,
+      name: 'test-audio.mp3',
       mimeType: 'audio/mpeg',
       buffer: Buffer.from('test audio'),
     });
     await trackPage.addTagButton.click();
-    await trackPage.getTagTypeInput().fill('Test Category');
-    await trackPage.getTagValueInput().fill('Test Tag');
+    await trackPage.getTagTypeInput().fill('platform');
+    await trackPage.getTagValueInput().fill('Platform A');
     await trackPage.saveTrackButton.click();
 
-    const trackCard = trackPage.getTrackCard('Playwright Test Track');
-    await expect(trackCard).toContainText('Playwright Test Game');
+    const trackCard = trackPage.getTrackCard('Game A');
+    await expect(trackCard).toContainText('Track A');
   });
 });
 
@@ -39,7 +37,6 @@ test.describe('Track Edit/Delete', () => {
     await trackPage.updateTrackButton.click();
 
     const updatedTrackCard = trackPage.getTrackCard('Game B');
-    await expect(updatedTrackCard).toContainText('Game B');
     await expect(updatedTrackCard).toContainText('Track B');
   });
 
