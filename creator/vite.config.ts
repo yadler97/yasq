@@ -5,4 +5,7 @@ import { persistPlugin } from './persist.js';
 export default defineConfig({
   plugins: [preact(), persistPlugin()],
   publicDir: 'src/assets',
+  server: {
+    port: 5174,
+  },
 });

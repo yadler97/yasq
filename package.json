@@ -48,6 +48,8 @@
     "test:e2e:ui": "playwright test --config=tests/playwright.config.ts --project=e2e --ui",
     "test:components": "playwright test --config=tests/playwright.config.ts --project=components",
     "test:components:ui": "playwright test --config=tests/playwright.config.ts --project=components --ui",
+    "test:e2e:creator": "playwright test --config=tests/playwright.config.ts --project=creator",
+    "test:e2e:creator:ui": "playwright test --config=tests/playwright.config.ts --project=creator --ui",
     "test:gui": "playwright test --config=tests/playwright.config.ts",
     "test:gui:ui": "playwright test --config=tests/playwright.config.ts --ui"
   },

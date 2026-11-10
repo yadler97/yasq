@@ -16,7 +16,12 @@ export function persistPlugin(): Plugin {
   return {
     name: 'persist',
     configureServer(server) {
-      const baseDir = path.resolve(process.cwd(), '../server', STATIC_FILES_DIR, 'creator');
+      const isTest = process.env.NODE_ENV === 'test';
+
+      const baseDir = isTest
+        ? path.resolve(process.cwd(), '../tests/creator/data')
+        : path.resolve(process.cwd(), '../server', STATIC_FILES_DIR, 'creator');
+
       const tracksFile = path.join(baseDir, 'tracks.json');
       const playlistsFile = path.join(baseDir, 'playlists.json');
       const settingsFile = path.join(baseDir, 'settings.json');
