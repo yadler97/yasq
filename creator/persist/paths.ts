@@ -15,6 +15,7 @@ export const paths = {
   baseDir,
   tracksFile: path.join(baseDir, 'tracks.json'),
   playlistsFile: path.join(baseDir, 'playlists.json'),
+  permissionsFile: path.join(baseDir, 'permissions.json'),
   settingsFile: path.join(baseDir, 'settings.json'),
   musicDir: path.join(baseDir, TRACK_AUDIO_DIR),
   coversDir: path.join(baseDir, GAME_COVERS_DIR),

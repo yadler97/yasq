@@ -8,6 +8,7 @@ import { TrackForm } from './components/TrackForm';
 import { PlaylistList } from './components/PlaylistList';
 import { PlaylistForm } from './components/PlaylistForm';
 import { SettingsForm } from './components/SettingsForm';
+import { PermissionsForm } from './components/PermissionsForm';
 
 import './style.css';
 import { FilterSidebar } from './components/FilterSidebar';
@@ -19,7 +20,8 @@ type Route =
   | { type: 'playlists-list'; page: number }
   | { type: 'playlists-new' }
   | { type: 'playlists-edit'; index: number }
-  | { type: 'settings' };
+  | { type: 'settings' }
+  | { type: 'permissions' };
 
 type SelectedTagsState = Record<string, string[]>;
 
@@ -47,6 +49,10 @@ export function App() {
 
     if (parts[0] === 'settings') {
       return { type: 'settings' };
+    }
+
+    if (parts[0] === 'permissions') {
+      return { type: 'permissions' };
     }
 
     if (parts[0] === 'playlists') {
@@ -239,6 +245,7 @@ export function App() {
 
   const isTracksActive = route.type.startsWith('tracks');
   const isPlaylistsActive = route.type.startsWith('playlists');
+  const isPermissionsActive = route.type === 'permissions';
   const isSettingsActive = route.type === 'settings';
 
   const handlePlayTrack = (track: Track) => {
@@ -271,6 +278,13 @@ export function App() {
             onClick={() => navigate('/playlists')}
           >
             Playlists
+          </button>
+
+          <button
+            className={`secondary-btn ${isPermissionsActive ? 'active' : ''}`}
+            onClick={() => navigate('/permissions')}
+          >
+            Permissions
           </button>
 
           <button
@@ -371,6 +385,8 @@ export function App() {
 
           {route.type === 'settings' &&
             (settings ? <SettingsForm initialSettings={settings} /> : <p>Loading settings...</p>)}
+
+          {route.type === 'permissions' && <PermissionsForm />}
         </main>
 
         {activeTrack && (
