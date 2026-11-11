@@ -1,3 +1,6 @@
+import AxeBuilder from '@axe-core/playwright';
+
+import { formatViolations, highlightAccessibilityViolations } from '../utils/accessibility.js';
 import { expect, test } from './test_setup.js';
 
 test.describe('Track Creation', () => {
@@ -87,5 +90,55 @@ test.describe('Track Filtering', () => {
     await trackPage.clearTagFiltersButton.click();
     await expect(trackPage.getTagCheckbox('Platform B')).not.toBeChecked();
     await expect(trackPage.trackCards).toHaveCount(3);
+  });
+});
+
+test.describe('Accessibility', () => {
+  test.use({ creatorDataFixture: 'multiple-tracks' });
+
+  test('should not have any automatically detectable accessibility issues in track list', async ({
+    trackPage,
+    page,
+  }, testInfo) => {
+    await trackPage.goto('/tracks');
+
+    const accessibilityScanResults = await new AxeBuilder({ page })
+      .disableRules(['color-contrast', 'page-has-heading-one'])
+      .analyze();
+
+    highlightAccessibilityViolations(page, accessibilityScanResults.violations);
+
+    await testInfo.attach('violations', {
+      body: JSON.stringify(accessibilityScanResults.violations, null, 2),
+      contentType: 'application/json',
+    });
+
+    expect(
+      accessibilityScanResults.violations.length,
+      `Accessibility violations found:${formatViolations(accessibilityScanResults.violations)}\n\nSee attached violations file for more details.`
+    ).toEqual(0);
+  });
+
+  test('should not have any automatically detectable accessibility issues in track form', async ({
+    trackPage,
+    page,
+  }, testInfo) => {
+    await trackPage.goto('/tracks/new');
+
+    const accessibilityScanResults = await new AxeBuilder({ page })
+      .disableRules(['color-contrast', 'page-has-heading-one'])
+      .analyze();
+
+    highlightAccessibilityViolations(page, accessibilityScanResults.violations);
+
+    await testInfo.attach('violations', {
+      body: JSON.stringify(accessibilityScanResults.violations, null, 2),
+      contentType: 'application/json',
+    });
+
+    expect(
+      accessibilityScanResults.violations.length,
+      `Accessibility violations found:${formatViolations(accessibilityScanResults.violations)}\n\nSee attached violations file for more details.`
+    ).toEqual(0);
   });
 });

@@ -1,3 +1,6 @@
+import AxeBuilder from '@axe-core/playwright';
+
+import { formatViolations, highlightAccessibilityViolations } from '../utils/accessibility.js';
 import { expect, test } from './test_setup.js';
 
 test.describe('Playlist Creation', () => {
@@ -82,5 +85,55 @@ test.describe('Playlist Filtering', () => {
     await playlistPage.clearSearchButton.click();
     await expect(playlistPage.searchInput).toHaveValue('');
     await expect(playlistPage.playlistCards).toHaveCount(3);
+  });
+});
+
+test.describe('Accessibility', () => {
+  test.use({ creatorDataFixture: 'multiple-playlists' });
+
+  test('should not have any automatically detectable accessibility issues in playlist list', async ({
+    playlistPage,
+    page,
+  }, testInfo) => {
+    await playlistPage.goto('/playlists');
+
+    const accessibilityScanResults = await new AxeBuilder({ page })
+      .disableRules(['color-contrast', 'page-has-heading-one'])
+      .analyze();
+
+    highlightAccessibilityViolations(page, accessibilityScanResults.violations);
+
+    await testInfo.attach('violations', {
+      body: JSON.stringify(accessibilityScanResults.violations, null, 2),
+      contentType: 'application/json',
+    });
+
+    expect(
+      accessibilityScanResults.violations.length,
+      `Accessibility violations found:${formatViolations(accessibilityScanResults.violations)}\n\nSee attached violations file for more details.`
+    ).toEqual(0);
+  });
+
+  test('should not have any automatically detectable accessibility issues in playlist form', async ({
+    playlistPage,
+    page,
+  }, testInfo) => {
+    await playlistPage.goto('/playlists/new');
+
+    const accessibilityScanResults = await new AxeBuilder({ page })
+      .disableRules(['color-contrast', 'page-has-heading-one'])
+      .analyze();
+
+    highlightAccessibilityViolations(page, accessibilityScanResults.violations);
+
+    await testInfo.attach('violations', {
+      body: JSON.stringify(accessibilityScanResults.violations, null, 2),
+      contentType: 'application/json',
+    });
+
+    expect(
+      accessibilityScanResults.violations.length,
+      `Accessibility violations found:${formatViolations(accessibilityScanResults.violations)}\n\nSee attached violations file for more details.`
+    ).toEqual(0);
   });
 });
