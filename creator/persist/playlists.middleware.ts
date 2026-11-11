@@ -93,9 +93,11 @@ export function registerPlaylistsMiddleware(server: any) {
       // Fallthrough for unhandled HTTP methods or paths
       res.statusCode = 405; // Method Not Allowed
       return res.end(JSON.stringify({ error: `Method ${req.method} not allowed` }));
-    } catch (err: any) {
+    } catch (error) {
       res.statusCode = 500;
-      return res.end(JSON.stringify({ error: err.message }));
+      return res.end(
+        JSON.stringify({ error: error instanceof Error ? error.message : 'Failed to access playlists file.' })
+      );
     }
   });
 }

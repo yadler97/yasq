@@ -9,9 +9,12 @@ import { PlaylistList } from './components/PlaylistList';
 import { PlaylistForm } from './components/PlaylistForm';
 import { SettingsForm } from './components/SettingsForm';
 import { PermissionsForm } from './components/PermissionsForm';
+import { PermissionsList } from './components/PermissionsList';
+import { FilterSidebar } from './components/FilterSidebar';
+
+import type { PermissionRule } from './types';
 
 import './style.css';
-import { FilterSidebar } from './components/FilterSidebar';
 
 type Route =
   | { type: 'tracks-list'; page: number }
@@ -21,13 +24,17 @@ type Route =
   | { type: 'playlists-new' }
   | { type: 'playlists-edit'; index: number }
   | { type: 'settings' }
-  | { type: 'permissions' };
+  | { type: 'permissions-list'; page: number }
+  | { type: 'permissions-new' }
+  | { type: 'permissions-edit'; index: number };
 
 type SelectedTagsState = Record<string, string[]>;
 
 export function App() {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [permissions, setPermissions] = useState<PermissionRule[]>([]);
+  const [permissionsError, setPermissionsError] = useState('');
   const [settings, setSettings] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<SelectedTagsState>({});
@@ -52,7 +59,12 @@ export function App() {
     }
 
     if (parts[0] === 'permissions') {
-      return { type: 'permissions' };
+      if (parts[1] === 'new') return { type: 'permissions-new' };
+      if (parts.length === 3 && parts[2] === 'edit') {
+        const index = parseInt(parts[1], 10);
+        return { type: 'permissions-edit', index: isNaN(index) ? 0 : index };
+      }
+      return { type: 'permissions-list', page };
     }
 
     if (parts[0] === 'playlists') {
@@ -122,6 +134,7 @@ export function App() {
 
   const tracksTotalPages = Math.ceil(filteredTracks.length / pageSize) || 1;
   const playlistTotalPages = Math.ceil(filteredPlaylists.length / pageSize) || 1;
+  const permissionsTotalPages = Math.ceil(permissions.length / pageSize) || 1;
 
   // Sync route on browser back/forward buttons
   useEffect(() => {
@@ -138,7 +151,18 @@ export function App() {
     if (route.type === 'playlists-list' && playlists.length > 0 && route.page > playlistTotalPages) {
       navigate(`/playlists?page=${playlistTotalPages}`);
     }
-  }, [tracks.length, tracksTotalPages, playlists.length, playlistTotalPages, route]);
+    if (route.type === 'permissions-list' && permissions.length > 0 && route.page > permissionsTotalPages) {
+      navigate(`/permissions?page=${permissionsTotalPages}`);
+    }
+  }, [
+    tracks.length,
+    tracksTotalPages,
+    playlists.length,
+    playlistTotalPages,
+    permissions.length,
+    permissionsTotalPages,
+    route,
+  ]);
 
   // Navigation helper
   const navigate = (url: string, returnPage?: number) => {
@@ -174,6 +198,19 @@ export function App() {
     navigate(`/playlists?page=${targetPage}`);
   };
 
+  const handlePermissionFormSuccess = async () => {
+    await fetchPermissions();
+
+    let targetPage: number;
+    if (route.type === 'permissions-edit') {
+      targetPage = Math.floor(route.index / pageSize) + 1;
+    } else {
+      targetPage = Math.ceil((permissions.length + 1) / pageSize);
+    }
+
+    navigate(`/permissions?page=${targetPage}`);
+  };
+
   const fetchTracks = async () => {
     const res = await fetch('/api/tracks');
     if (res.ok) setTracks(await res.json());
@@ -189,10 +226,18 @@ export function App() {
     if (res.ok) setSettings(await res.json());
   };
 
+  const fetchPermissions = async () => {
+    const res = await fetch('/api/permissions');
+    if (res.ok) setPermissions(await res.json());
+  };
+
   useEffect(() => {
     fetchTracks();
     fetchPlaylists();
     fetchSettings();
+    void fetchPermissions().catch(error => {
+      setPermissionsError(error instanceof Error ? error.message : 'Failed to load permissions.');
+    });
   }, []);
 
   const deleteTrack = async (absoluteIndex: number) => {
@@ -207,8 +252,15 @@ export function App() {
     if (res.ok || res.status === 204) fetchPlaylists();
   };
 
+  const deletePermission = async (absoluteIndex: number) => {
+    if (!confirm('Are you sure you want to delete this permission rule?')) return;
+    const res = await fetch(`/api/permissions/${absoluteIndex}`, { method: 'DELETE' });
+    if (res.ok || res.status === 204) fetchPermissions();
+  };
+
   const currentTracksPage = route.type === 'tracks-list' ? route.page : 1;
   const currentPlaylistPage = route.type === 'playlists-list' ? route.page : 1;
+  const currentPermissionsPage = route.type === 'permissions-list' ? route.page : 1;
 
   const getPageNumbers = (current: number, total: number) => {
     const delta = 2;
@@ -239,13 +291,13 @@ export function App() {
 
   const handlePageSizeChange = (newSize: number) => {
     setPageSize(newSize);
-    const currentTab = isTracksActive ? '/tracks' : '/playlists';
+    const currentTab = isTracksActive ? '/tracks' : isPlaylistsActive ? '/playlists' : '/permissions';
     navigate(`${currentTab}?page=1`);
   };
 
   const isTracksActive = route.type.startsWith('tracks');
   const isPlaylistsActive = route.type.startsWith('playlists');
-  const isPermissionsActive = route.type === 'permissions';
+  const isPermissionsActive = route.type.startsWith('permissions');
   const isSettingsActive = route.type === 'settings';
 
   const handlePlayTrack = (track: Track) => {
@@ -386,7 +438,39 @@ export function App() {
           {route.type === 'settings' &&
             (settings ? <SettingsForm initialSettings={settings} /> : <p>Loading settings...</p>)}
 
-          {route.type === 'permissions' && <PermissionsForm />}
+          {route.type === 'permissions-list' && (
+            <>
+              {permissionsError && <p role="alert">{permissionsError}</p>}
+              <PermissionsList
+                permissions={permissions.map((rule, originalIndex) => ({ rule, originalIndex }))}
+                tracks={tracks}
+                currentPage={currentPermissionsPage}
+                totalPages={permissionsTotalPages}
+                pageSize={pageSize}
+                onPageSizeChange={handlePageSizeChange}
+                onNavigate={navigate}
+                onDelete={index => void deletePermission(index)}
+                getPageNumbers={getPageNumbers}
+              />
+            </>
+          )}
+
+          {(route.type === 'permissions-new' || route.type === 'permissions-edit') && (
+            <PermissionsForm
+              isEditing={route.type === 'permissions-edit'}
+              indexedRule={
+                route.type === 'permissions-edit' && permissions[route.index]
+                  ? { rule: permissions[route.index], originalIndex: route.index }
+                  : undefined
+              }
+              tracks={tracks}
+              onSuccess={handlePermissionFormSuccess}
+              onCancel={() => {
+                const returnPage = window.history.state?.returnPage || 1;
+                navigate(`/permissions?page=${returnPage}`);
+              }}
+            />
+          )}
         </main>
 
         {activeTrack && (
