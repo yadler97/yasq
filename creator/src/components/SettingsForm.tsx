@@ -182,7 +182,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="creator-form"
+      className="card creator-form"
     >
       <h3>Game Settings</h3>
 

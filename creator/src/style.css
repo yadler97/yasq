@@ -14,6 +14,8 @@
 
   --blurple: #646cff;
   --blurple-hover: #535bf2;
+
+  --card: #1e1e1e;
 }
 
 body {
@@ -106,15 +108,21 @@ button {
   font-weight: bold;
 }
 
-/* Form Styles */
-.creator-form {
+.card {
   display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  background: #1e1e1e;
-  padding: 1.5rem;
+  gap: 1rem;
+  align-items: center;
+  background: var(--card);
+  padding: 1.2rem;
   border-radius: 12px;
   border: 1px solid #333;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Form Styles */
+.creator-form {
+  flex-direction: column;
+  align-items: normal;
 }
 
 .creator-form h3,
@@ -189,18 +197,7 @@ button {
   gap: 1rem;
 }
 
-.track-card {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  background: #1e1e1e;
-  padding: 1.2rem;
-  border-radius: 12px;
-  border: 1px solid #333;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.track-card img {
+.card img {
   width: 90px;
   height: 90px;
   object-fit: cover;
@@ -210,12 +207,12 @@ button {
   background: #2a2a2a;
 }
 
-.track-card > div {
+.card > div {
   flex: 1;
   min-width: 0;
 }
 
-.track-card p {
+.card p {
   margin: 0 0 0.3rem 0;
   font-size: 0.95rem;
 }
@@ -313,15 +310,9 @@ button {
   padding: 0;
 }
 
-.permission-rule {
-  display: flex;
+.permission-rule-card {
+  align-items: normal;
   flex-direction: column;
-  gap: 0.65rem;
-  padding: 1rem;
-  border: 1px solid #3a3a3a;
-  border-radius: 8px;
-  background: #181818;
-  overflow-wrap: anywhere;
 }
 
 .permission-rule-header {
@@ -431,8 +422,8 @@ button {
 }
 
 .permission-rule-file-cover {
-  width: 3rem;
-  height: 3rem;
+  width: 3rem !important;
+  height: 3rem !important;
   object-fit: cover;
   border: 1px solid #444;
   border-radius: 6px;
@@ -517,19 +508,13 @@ button:focus-visible {
 }
 
 .central-audio-player {
-  background: #1e1e1e;
-  border: 1px solid #333;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  display: flex;
   flex-direction: column;
-  gap: 20px;
   height: max-content;
   margin-top: auto;
   position: sticky;
   bottom: 20px;
   flex-shrink: 0;
+  align-items: normal;
 }
 
 .central-audio-player .player-close-btn {
@@ -584,15 +569,9 @@ button:focus-visible {
 }
 
 .creator-sidebar {
-  grid-column: 1;
-  background: #1e1e1e;
-  border-radius: 12px;
-  border: 1px solid #333;
-  padding: 20px;
-  display: flex;
   flex-direction: column;
-  gap: 16px;
   height: min-content;
+  align-items: normal;
 }
 
 .creator-main-content {

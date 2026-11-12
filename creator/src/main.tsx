@@ -414,7 +414,7 @@ export function App() {
 
       <div className="creator-body">
         {(route.type === 'tracks-list' || route.type === 'playlists-list' || route.type === 'permissions-list') && (
-          <aside className="creator-sidebar">
+          <aside className="card creator-sidebar">
             <FilterSidebar
               selectedTags={selectedTags}
               setSelectedTags={setSelectedTags}
@@ -544,7 +544,7 @@ export function App() {
         </main>
 
         {activeTrack && (
-          <aside className="central-audio-player">
+          <aside className="card central-audio-player">
             <button
               className="player-close-btn"
               onClick={() => {

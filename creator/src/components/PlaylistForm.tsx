@@ -65,7 +65,7 @@ export function PlaylistForm({ isEditing, indexedPlaylist, tracks, onSuccess, on
 
       <form
         onSubmit={submitPlaylist}
-        className="creator-form"
+        className="card creator-form"
       >
         <h3>{isEditing ? 'Edit Playlist' : 'Add New Playlist'}</h3>
 

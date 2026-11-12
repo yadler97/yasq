@@ -120,7 +120,7 @@ export function TrackForm({
 
       <form
         onSubmit={submitTrack}
-        className="creator-form"
+        className="card creator-form"
       >
         <h3>{isEditing ? 'Edit Track' : 'Add New Track'}</h3>
 

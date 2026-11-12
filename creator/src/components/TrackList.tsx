@@ -112,7 +112,7 @@ export function TrackList({
               return (
                 <div
                   key={originalIndex}
-                  className="track-card"
+                  className="card"
                 >
                   <img
                     loading="lazy"

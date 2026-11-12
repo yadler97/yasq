@@ -147,7 +147,7 @@ export function PermissionsForm({ isEditing, indexedRule, tracks, onSuccess, onC
       </div>
 
       <form
-        className="creator-form"
+        className="card creator-form"
         onSubmit={submitRule}
       >
         <h3>{isEditing ? 'Edit Permission Rule' : 'Add Permission Rule'}</h3>

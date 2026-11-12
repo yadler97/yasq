@@ -68,9 +68,9 @@ export function PermissionsList({
           </p>
         ) : (
           pagePermissions.map(({ rule, originalIndex }) => (
-            <article
+            <div
               key={originalIndex}
-              className="permission-rule"
+              className="card permission-rule-card"
             >
               <div className="permission-rule-header">
                 <span className={`permission-rule-type ${rule.type}`}>{rule.type}</span>
@@ -157,7 +157,7 @@ export function PermissionsList({
                   })}
                 </ul>
               </div>
-            </article>
+            </div>
           ))
         )}
 

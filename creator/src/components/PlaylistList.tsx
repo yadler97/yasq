@@ -113,7 +113,7 @@ export function PlaylistList({
             return (
               <div
                 key={originalIndex}
-                className="track-card playlist-card"
+                className="card playlist-card"
               >
                 <div className="playlist-card-header">
                   <div className="track-info">
@@ -160,7 +160,7 @@ export function PlaylistList({
                           return (
                             <li
                               key={tIdx}
-                              className="track-card"
+                              className="card"
                             >
                               {matchedTrack ? (
                                 <>
