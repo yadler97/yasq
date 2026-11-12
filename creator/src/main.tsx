@@ -12,7 +12,7 @@ import { PermissionsForm } from './components/PermissionsForm';
 import { PermissionsList } from './components/PermissionsList';
 import { FilterSidebar } from './components/FilterSidebar';
 
-import type { PermissionRule } from './types';
+import type { DiscordUser, PermissionRule } from './types';
 
 import './style.css';
 
@@ -35,9 +35,12 @@ export function App() {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [permissions, setPermissions] = useState<PermissionRule[]>([]);
   const [permissionsError, setPermissionsError] = useState('');
+  const [permissionUserProfiles, setPermissionUserProfiles] = useState<Record<string, DiscordUser>>({});
+  const [permissionProfilesError, setPermissionProfilesError] = useState('');
   const [settings, setSettings] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<SelectedTagsState>({});
+  const [selectedPermissionTypes, setSelectedPermissionTypes] = useState<PermissionRule['type'][]>([]);
 
   const [activeTrack, setActiveTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -131,10 +134,28 @@ export function App() {
   const filteredPlaylists = indexedPlaylists.filter(({ playlist }) =>
     playlist.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const trackDetailsByAudio = new Map(tracks.map(track => [track.audio, track]));
+  const filteredPermissions = permissions
+    .map((rule, originalIndex) => ({ rule, originalIndex }))
+    .filter(({ rule }) => {
+      const matchesType = selectedPermissionTypes.length === 0 || selectedPermissionTypes.includes(rule.type);
+      const searchableText = [
+        rule.type,
+        ...rule.userIds.flatMap(userId => [userId, permissionUserProfiles[userId]?.username ?? '']),
+        ...rule.files.flatMap(file => {
+          const track = trackDetailsByAudio.get(file);
+          return [file, track?.game ?? '', track?.title ?? ''];
+        }),
+      ]
+        .join(' ')
+        .toLowerCase();
+      const matchesSearch = !searchQuery || searchableText.includes(searchQuery.toLowerCase());
+      return matchesType && matchesSearch;
+    });
 
   const tracksTotalPages = Math.ceil(filteredTracks.length / pageSize) || 1;
   const playlistTotalPages = Math.ceil(filteredPlaylists.length / pageSize) || 1;
-  const permissionsTotalPages = Math.ceil(permissions.length / pageSize) || 1;
+  const permissionsTotalPages = Math.ceil(filteredPermissions.length / pageSize) || 1;
 
   // Sync route on browser back/forward buttons
   useEffect(() => {
@@ -151,7 +172,7 @@ export function App() {
     if (route.type === 'playlists-list' && playlists.length > 0 && route.page > playlistTotalPages) {
       navigate(`/playlists?page=${playlistTotalPages}`);
     }
-    if (route.type === 'permissions-list' && permissions.length > 0 && route.page > permissionsTotalPages) {
+    if (route.type === 'permissions-list' && filteredPermissions.length > 0 && route.page > permissionsTotalPages) {
       navigate(`/permissions?page=${permissionsTotalPages}`);
     }
   }, [
@@ -160,6 +181,7 @@ export function App() {
     playlists.length,
     playlistTotalPages,
     permissions.length,
+    filteredPermissions.length,
     permissionsTotalPages,
     route,
   ]);
@@ -230,6 +252,48 @@ export function App() {
     const res = await fetch('/api/permissions');
     if (res.ok) setPermissions(await res.json());
   };
+
+  useEffect(() => {
+    let isCurrent = true;
+    const userIds = [...new Set(permissions.flatMap(rule => rule.userIds))];
+    if (userIds.length === 0) {
+      setPermissionUserProfiles({});
+      setPermissionProfilesError('');
+      return () => {
+        isCurrent = false;
+      };
+    }
+
+    const loadProfiles = async () => {
+      try {
+        const users: DiscordUser[] = [];
+        for (let offset = 0; offset < userIds.length; offset += 100) {
+          const params = new URLSearchParams();
+          userIds.slice(offset, offset + 100).forEach(id => params.append('id', id));
+          const response = await fetch(`/api/discord-user-profiles?${params}`);
+          const result = await response.json();
+          if (!response.ok) {
+            throw new Error(result.error || `Request failed (${response.status}).`);
+          }
+          users.push(...(result as DiscordUser[]));
+        }
+
+        if (isCurrent) {
+          setPermissionUserProfiles(Object.fromEntries(users.map(user => [user.id, user])));
+          setPermissionProfilesError('');
+        }
+      } catch (error) {
+        if (isCurrent) {
+          setPermissionProfilesError(error instanceof Error ? error.message : 'Could not load Discord user profiles.');
+        }
+      }
+    };
+
+    void loadProfiles();
+    return () => {
+      isCurrent = false;
+    };
+  }, [permissions]);
 
   useEffect(() => {
     fetchTracks();
@@ -349,7 +413,7 @@ export function App() {
       </header>
 
       <div className="creator-body">
-        {(route.type === 'tracks-list' || route.type === 'playlists-list') && (
+        {(route.type === 'tracks-list' || route.type === 'playlists-list' || route.type === 'permissions-list') && (
           <aside className="creator-sidebar">
             <FilterSidebar
               selectedTags={selectedTags}
@@ -360,6 +424,9 @@ export function App() {
               availableTagsByCategory={availableTagsByCategory}
               baseTracks={baseTracks}
               isTracksActive={isTracksActive}
+              isPermissionsActive={isPermissionsActive}
+              selectedPermissionTypes={selectedPermissionTypes}
+              setSelectedPermissionTypes={setSelectedPermissionTypes}
             />
           </aside>
         )}
@@ -441,9 +508,11 @@ export function App() {
           {route.type === 'permissions-list' && (
             <>
               {permissionsError && <p role="alert">{permissionsError}</p>}
+              {permissionProfilesError && <p role="alert">{permissionProfilesError}</p>}
               <PermissionsList
-                permissions={permissions.map((rule, originalIndex) => ({ rule, originalIndex }))}
+                permissions={filteredPermissions}
                 tracks={tracks}
+                userProfiles={permissionUserProfiles}
                 currentPage={currentPermissionsPage}
                 totalPages={permissionsTotalPages}
                 pageSize={pageSize}
@@ -451,6 +520,7 @@ export function App() {
                 onNavigate={navigate}
                 onDelete={index => void deletePermission(index)}
                 getPageNumbers={getPageNumbers}
+                hasActiveFilters={Boolean(searchQuery) || selectedPermissionTypes.length > 0}
               />
             </>
           )}

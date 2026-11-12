@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'preact/hooks';
-
 import type { Track } from '@yasq/shared';
 
 import type { DiscordUser, PermissionRule } from '../types';
@@ -7,6 +5,7 @@ import type { DiscordUser, PermissionRule } from '../types';
 interface PermissionsListProps {
   permissions: { rule: PermissionRule; originalIndex: number }[];
   tracks: Track[];
+  userProfiles: Record<string, DiscordUser>;
   currentPage: number;
   totalPages: number;
   pageSize: number;
@@ -14,26 +13,13 @@ interface PermissionsListProps {
   onNavigate: (url: string, returnPage?: number) => void;
   onDelete: (index: number) => void;
   getPageNumbers: (current: number, total: number) => (number | string)[];
-}
-
-async function fetchUserProfiles(ids: string[]): Promise<DiscordUser[]> {
-  const users: DiscordUser[] = [];
-  for (let offset = 0; offset < ids.length; offset += 100) {
-    const params = new URLSearchParams();
-    ids.slice(offset, offset + 100).forEach(id => params.append('id', id));
-    const response = await fetch(`/api/discord-user-profiles?${params}`);
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.error || `Request failed (${response.status}).`);
-    }
-    users.push(...(result as DiscordUser[]));
-  }
-  return users;
+  hasActiveFilters: boolean;
 }
 
 export function PermissionsList({
   permissions,
   tracks,
+  userProfiles,
   currentPage,
   totalPages,
   pageSize,
@@ -41,45 +27,10 @@ export function PermissionsList({
   onNavigate,
   onDelete,
   getPageNumbers,
+  hasActiveFilters,
 }: PermissionsListProps) {
-  const [userProfiles, setUserProfiles] = useState<Record<string, DiscordUser>>({});
-  const [profileError, setProfileError] = useState('');
   const pagePermissions = permissions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  const visibleUserIds = [...new Set(pagePermissions.flatMap(({ rule }) => rule.userIds))].sort();
-  const visibleUserIdsKey = visibleUserIds.join(',');
-  const trackNames = new Map(tracks.map(track => [track.audio, `${track.game} — ${track.title}`]));
-
-  useEffect(() => {
-    let isCurrent = true;
-    if (visibleUserIds.length === 0) {
-      setProfileError('');
-      return () => {
-        isCurrent = false;
-      };
-    }
-
-    const loadProfiles = async () => {
-      try {
-        const users = await fetchUserProfiles(visibleUserIds);
-        if (isCurrent) {
-          setUserProfiles(current => ({
-            ...current,
-            ...Object.fromEntries(users.map(user => [user.id, user])),
-          }));
-          setProfileError('');
-        }
-      } catch (error) {
-        if (isCurrent) {
-          setProfileError(error instanceof Error ? error.message : 'Could not load Discord user profiles.');
-        }
-      }
-    };
-
-    void loadProfiles();
-    return () => {
-      isCurrent = false;
-    };
-  }, [visibleUserIdsKey]);
+  const tracksByAudio = new Map(tracks.map(track => [track.audio, track]));
 
   return (
     <>
@@ -110,10 +61,11 @@ export function PermissionsList({
         </div>
       </div>
 
-      {profileError && <p role="alert">{profileError}</p>}
       <div className="playlists-container">
         {permissions.length === 0 ? (
-          <p>No permission rules configured.</p>
+          <p>
+            {hasActiveFilters ? 'No permission rules match the selected filters.' : 'No permission rules configured.'}
+          </p>
         ) : (
           pagePermissions.map(({ rule, originalIndex }) => (
             <article
@@ -177,9 +129,32 @@ export function PermissionsList({
               <div className="permission-rule-detail">
                 <strong>Tracks</strong>
                 <ul className="permission-rule-files">
-                  {rule.files.map(file => (
-                    <li key={file}>{trackNames.get(file) || file}</li>
-                  ))}
+                  {rule.files.map(file => {
+                    const track = tracksByAudio.get(file);
+                    return (
+                      <li
+                        key={file}
+                        className="permission-rule-file"
+                      >
+                        <img
+                          className="permission-rule-file-cover"
+                          src={track?.cover ? `/covers/${track.cover}` : '/default.svg'}
+                          alt=""
+                          loading="lazy"
+                          onError={event => {
+                            event.currentTarget.src = '/default.svg';
+                          }}
+                        />
+                        <span className="permission-rule-file-info">
+                          <span>
+                            <strong>{track?.game ?? 'Unknown track'}</strong>
+                            {track && ` — ${track.title}`}
+                          </span>
+                          <small>{file}</small>
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </article>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'preact/hooks';
 
 import type { Track } from '@yasq/shared';
+import type { PermissionRule } from '../types';
 
 interface FilterSidebarProps {
   selectedTags: Record<string, string[]>;
@@ -13,6 +14,11 @@ interface FilterSidebarProps {
   availableTagsByCategory: Record<string, string[]>;
   baseTracks: { track: Track; originalIndex: number }[];
   isTracksActive: boolean;
+  isPermissionsActive: boolean;
+  selectedPermissionTypes: PermissionRule['type'][];
+  setSelectedPermissionTypes: (
+    update: PermissionRule['type'][] | ((prev: PermissionRule['type'][]) => PermissionRule['type'][])
+  ) => void;
 }
 
 export function FilterSidebar({
@@ -24,6 +30,9 @@ export function FilterSidebar({
   availableTagsByCategory,
   baseTracks,
   isTracksActive,
+  isPermissionsActive,
+  selectedPermissionTypes,
+  setSelectedPermissionTypes,
 }: FilterSidebarProps) {
   // Track expanded tag categories
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
@@ -47,6 +56,14 @@ export function FilterSidebar({
   };
 
   const clearAllTags = () => setSelectedTags({});
+
+  const togglePermissionType = (type: PermissionRule['type']) => {
+    setSelectedPermissionTypes(prev =>
+      prev.includes(type) ? prev.filter(selected => selected !== type) : [...prev, type]
+    );
+  };
+
+  const clearPermissionTypes = () => setSelectedPermissionTypes([]);
 
   const reachableTagsMap = useMemo(() => {
     const validTags = new Map<string, number>();
@@ -76,7 +93,11 @@ export function FilterSidebar({
     return validTags;
   }, [baseTracks, selectedTags, availableTagsByCategory]);
 
-  const searchPlaceholder = isTracksActive ? 'Search title, game...' : 'Search playlist name...';
+  const searchPlaceholder = isTracksActive
+    ? 'Search title, game...'
+    : isPermissionsActive
+      ? 'Search username, user ID, game, filename...'
+      : 'Search playlist name...';
 
   return (
     <>
@@ -167,6 +188,40 @@ export function FilterSidebar({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {isPermissionsActive && (
+        <div className="tag-filter-section">
+          <div className="tag-filter-header">
+            <label>Filter by Permission Type</label>
+            {selectedPermissionTypes.length > 0 && (
+              <button
+                type="button"
+                onClick={clearPermissionTypes}
+                className="secondary-btn"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="tag-checkboxes-list">
+            {(['whitelist', 'blacklist'] as const).map(type => (
+              <label
+                key={type}
+                className="tag-checkbox-label"
+              >
+                <div className="tag-checkbox-content">
+                  <input
+                    type="checkbox"
+                    checked={selectedPermissionTypes.includes(type)}
+                    onChange={() => togglePermissionType(type)}
+                  />
+                  <span>{type === 'whitelist' ? 'Whitelist' : 'Blacklist'}</span>
+                </div>
+              </label>
+            ))}
+          </div>
         </div>
       )}
     </>

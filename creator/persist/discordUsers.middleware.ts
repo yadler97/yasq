@@ -1,6 +1,7 @@
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { Connect } from 'vite';
 import http from 'http';
+import { getAvatarUrl, Participant } from '@yasq/shared';
 
 interface DiscordGuildSummary {
   id: string;
@@ -22,16 +23,6 @@ interface DiscordGuildMember {
     global_name: string | null;
     avatar: string | null;
   };
-}
-
-function getAvatarUrl(userId: string, avatarHash: string | null): string {
-  if (!avatarHash) {
-    const defaultAvatarIndex = Number((BigInt(userId) >> 22n) % 6n);
-    return `https://cdn.discordapp.com/embed/avatars/${defaultAvatarIndex}.png`;
-  }
-
-  const extension = avatarHash.startsWith('a_') ? 'gif' : 'png';
-  return `https://cdn.discordapp.com/avatars/${userId}/${avatarHash}.${extension}?size=64`;
 }
 
 async function fetchGuildMembers(guildId: string, botToken: string): Promise<DiscordUserSummary[]> {
@@ -74,7 +65,7 @@ async function fetchGuildMembers(guildId: string, botToken: string): Promise<Dis
         id: user.id,
         username: user.username,
         displayName: nick || user.global_name || user.username,
-        avatarUrl: getAvatarUrl(user.id, user.avatar),
+        avatarUrl: getAvatarUrl(user as Participant),
       }))
     );
 

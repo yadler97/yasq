@@ -1,6 +1,7 @@
 import { expect, test as base } from '@playwright/test';
 import { cp, mkdir, rm, stat } from 'node:fs/promises';
 import { isAbsolute, relative, resolve } from 'node:path';
+import { PermissionsPage } from './pages/PermissionsPage';
 import { PlaylistPage } from './pages/PlaylistPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { TrackPage } from './pages/TrackPage';
@@ -13,6 +14,7 @@ type CreatorFixtures = {
   creatorDataFixture: string | undefined;
   trackPage: TrackPage;
   playlistPage: PlaylistPage;
+  permissionsPage: PermissionsPage;
   settingsPage: SettingsPage;
 };
 
@@ -50,6 +52,7 @@ export const test = base.extend<CreatorFixtures>({
   ],
   trackPage: async ({ page }, use) => use(new TrackPage(page)),
   playlistPage: async ({ page }, use) => use(new PlaylistPage(page)),
+  permissionsPage: async ({ page }, use) => use(new PermissionsPage(page)),
   settingsPage: async ({ page }, use) => use(new SettingsPage(page)),
 });
 
