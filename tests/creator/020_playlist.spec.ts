@@ -88,6 +88,25 @@ test.describe('Playlist Filtering', () => {
   });
 });
 
+test.describe('Playlist Sorting', () => {
+  test.use({ creatorDataFixture: 'sorting' });
+
+  test('should sort playlists by name', async ({ playlistPage }) => {
+    await playlistPage.goto('/playlists');
+
+    await expect(playlistPage.playlistNames).toHaveText(['Playlist B', 'Playlist C', 'Playlist A']);
+
+    await playlistPage.sortSelect.selectOption('name-asc');
+    await expect(playlistPage.playlistNames).toHaveText(['Playlist A', 'Playlist B', 'Playlist C']);
+
+    await playlistPage.sortSelect.selectOption('name-desc');
+    await expect(playlistPage.playlistNames).toHaveText(['Playlist C', 'Playlist B', 'Playlist A']);
+
+    await playlistPage.sortSelect.selectOption('original-asc');
+    await expect(playlistPage.playlistNames).toHaveText(['Playlist B', 'Playlist C', 'Playlist A']);
+  });
+});
+
 test.describe('Accessibility', () => {
   test.use({ creatorDataFixture: 'multiple-playlists' });
 

@@ -114,6 +114,31 @@ test.describe('Track Filtering', () => {
   });
 });
 
+test.describe('Track Sorting', () => {
+  test.use({ creatorDataFixture: 'sorting' });
+
+  test('should sort tracks by game and title', async ({ trackPage }) => {
+    await trackPage.goto('/tracks');
+
+    await expect(trackPage.trackNames).toHaveText(['Game C', 'Game A', 'Game B']);
+
+    await trackPage.sortSelect.selectOption('game-asc');
+    await expect(trackPage.trackNames).toHaveText(['Game A', 'Game B', 'Game C']);
+
+    await trackPage.sortSelect.selectOption('game-desc');
+    await expect(trackPage.trackNames).toHaveText(['Game C', 'Game B', 'Game A']);
+
+    await trackPage.sortSelect.selectOption('title-asc');
+    await expect(trackPage.trackNames).toHaveText(['Game A', 'Game C', 'Game B']);
+
+    await trackPage.sortSelect.selectOption('title-desc');
+    await expect(trackPage.trackNames).toHaveText(['Game B', 'Game C', 'Game A']);
+
+    await trackPage.sortSelect.selectOption('original-asc');
+    await expect(trackPage.trackNames).toHaveText(['Game C', 'Game A', 'Game B']);
+  });
+});
+
 test.describe('Accessibility', () => {
   test.use({ creatorDataFixture: 'multiple-tracks' });
 
