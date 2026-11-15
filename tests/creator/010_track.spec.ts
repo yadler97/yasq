@@ -136,6 +136,9 @@ test.describe('Track Sorting', () => {
 
     await trackPage.sortSelect.selectOption('original-asc');
     await expect(trackPage.trackNames).toHaveText(['Game C', 'Game A', 'Game B']);
+
+    await trackPage.sortSelect.selectOption('original-desc');
+    await expect(trackPage.trackNames).toHaveText(['Game B', 'Game A', 'Game C']);
   });
 });
 

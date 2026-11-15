@@ -77,7 +77,8 @@ export function TrackList({
                 onNavigate('/tracks?page=1');
               }}
             >
-              <option value="original-asc">Default (Newest/Oldest)</option>
+              <option value="original-asc">Default (Oldest-Newest)</option>
+              <option value="original-desc">Default (Newest-Oldest)</option>
               <option value="game-asc">Game (A-Z)</option>
               <option value="game-desc">Game (Z-A)</option>
               <option value="title-asc">Title (A-Z)</option>

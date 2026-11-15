@@ -81,7 +81,8 @@ export function PlaylistList({
                 onNavigate('/playlists?page=1');
               }}
             >
-              <option value="original-asc">Default (Newest/Oldest)</option>
+              <option value="original-asc">Default (Oldest-Newest)</option>
+              <option value="original-desc">Default (Newest-Oldest)</option>
               <option value="name-asc">Name (A-Z)</option>
               <option value="name-desc">Name (Z-A)</option>
             </select>

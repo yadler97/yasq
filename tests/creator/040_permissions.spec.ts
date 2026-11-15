@@ -23,12 +23,12 @@ const discordUsers = [
   },
 ];
 
-async function mockDiscordRequests(page: Page) {
+async function mockDiscordRequests(page: Page, guilds = [{ id: GUILD_ID, name: 'Test Server' }]) {
   await page.route('**/api/discord-guilds', route =>
     route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify([{ id: GUILD_ID, name: 'Test Server' }]),
+      body: JSON.stringify(guilds),
     })
   );
 
@@ -83,6 +83,82 @@ test.describe('Permission Rule Creation', () => {
     await expect(trackItem).toContainText('Track A');
     await expect(trackItem).toContainText('fixture-track-1.mp3');
     await expect(trackItem.locator('img')).toHaveAttribute('src', '/default.svg');
+  });
+
+  test('should create a permission rule with a manually entered user ID when no server is selected', async ({
+    page,
+    permissionsPage,
+  }) => {
+    const userId = '987654321012345678';
+    await mockDiscordRequests(page);
+    await permissionsPage.goto('/permissions/new');
+
+    await expect(permissionsPage.discordServerSelect).toHaveValue('');
+    await expect(permissionsPage.manualUserIdInput).toBeVisible();
+    await permissionsPage.manualUserIdInput.fill(userId);
+    await permissionsPage.addManualUserIdButton.click();
+    await expect(permissionsPage.manualUserIds).toContainText(userId);
+
+    await permissionsPage.getTrackCheckbox('Game A').check();
+    await permissionsPage.addRuleButton.click();
+
+    const permissionRule = permissionsPage.getPermissionRule(userId);
+    await expect(permissionRule).toContainText('whitelist');
+    await expect(permissionRule).toContainText(userId);
+  });
+
+  test('should allow adding user IDs when no servers are available', async ({ page, permissionsPage }) => {
+    const userId = '987654321012345678';
+    await mockDiscordRequests(page, []);
+    await permissionsPage.goto('/permissions/new');
+
+    await expect(permissionsPage.discordServerSelect).toBeDisabled();
+    await expect(permissionsPage.manualUserIdInput).toBeVisible();
+    await permissionsPage.manualUserIdInput.fill(userId);
+    await permissionsPage.addManualUserIdButton.click();
+
+    await expect(permissionsPage.manualUserIds).toContainText(userId);
+  });
+
+  test('should clear user and track searches', async ({ page, permissionsPage }) => {
+    await mockDiscordRequests(page);
+    await permissionsPage.goto('/permissions/new');
+    await permissionsPage.discordServerSelect.selectOption(GUILD_ID);
+
+    await permissionsPage.userSearchInput.fill('alice');
+    await expect(permissionsPage.getUserCheckbox('Bob')).toBeHidden();
+    await permissionsPage.clearUserSearchButton.click();
+    await expect(permissionsPage.userSearchInput).toHaveValue('');
+    await expect(permissionsPage.getUserCheckbox('Bob')).toBeVisible();
+
+    await permissionsPage.trackSearchInput.fill('Game A');
+    await expect(permissionsPage.getTrackCheckbox('Game B')).toBeHidden();
+    await permissionsPage.clearTrackSearchButton.click();
+    await expect(permissionsPage.trackSearchInput).toHaveValue('');
+    await expect(permissionsPage.getTrackCheckbox('Game B')).toBeVisible();
+  });
+
+  test('should clear user and track selections independently', async ({ page, permissionsPage }) => {
+    await mockDiscordRequests(page);
+    await permissionsPage.goto('/permissions/new');
+    await permissionsPage.discordServerSelect.selectOption(GUILD_ID);
+
+    const aliceCheckbox = permissionsPage.getUserCheckbox('Alice');
+    const gameACheckbox = permissionsPage.getTrackCheckbox('Game A');
+    const gameBCheckbox = permissionsPage.getTrackCheckbox('Game B');
+    await aliceCheckbox.check();
+    await gameACheckbox.check();
+    await gameBCheckbox.check();
+
+    await permissionsPage.clearUserSelectionsButton.click();
+    await expect(aliceCheckbox).not.toBeChecked();
+    await expect(gameACheckbox).toBeChecked();
+    await expect(gameBCheckbox).toBeChecked();
+
+    await permissionsPage.clearTrackSelectionsButton.click();
+    await expect(gameACheckbox).not.toBeChecked();
+    await expect(gameBCheckbox).not.toBeChecked();
+    await expect(aliceCheckbox).not.toBeChecked();
   });
 });
 

@@ -34,6 +34,7 @@ export function PermissionsForm({ isEditing, indexedRule, tracks, onSuccess, onC
   const [trackQuery, setTrackQuery] = useState('');
   const [ruleType, setRuleType] = useState<PermissionRule['type']>('whitelist');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+  const [manualUserId, setManualUserId] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [isLoadingGuilds, setIsLoadingGuilds] = useState(true);
@@ -121,11 +122,21 @@ export function PermissionsForm({ isEditing, indexedRule, tracks, onSuccess, onC
   const filteredTracks = tracks.filter(track =>
     `${track.game} ${track.title} ${track.audio}`.toLowerCase().includes(trackQuery.toLowerCase())
   );
+  const manualUserIds = selectedUserIds.filter(userId => !users.some(user => user.id === userId));
+  const showManualUserIdInput = !guildId || guilds.length === 0 || (!isLoadingMembers && users.length === 0);
 
   const toggleUser = (userId: string) => {
     setSelectedUserIds(current =>
       current.includes(userId) ? current.filter(id => id !== userId) : [...current, userId]
     );
+  };
+
+  const addManualUserId = () => {
+    const userId = manualUserId.trim();
+    if (!userId) return;
+
+    setSelectedUserIds(current => (current.includes(userId) ? current : [...current, userId]));
+    setManualUserId('');
   };
 
   const toggleTrack = (audio: string) => {
@@ -187,52 +198,155 @@ export function PermissionsForm({ isEditing, indexedRule, tracks, onSuccess, onC
         </div>
 
         <div className="field">
-          <label htmlFor="permission-user-search">Users ({selectedUserIds.length} selected)</label>
+          <div className="tag-filter-header">
+            <label htmlFor={showManualUserIdInput ? 'permission-manual-user-id' : 'permission-user-search'}>
+              Users ({selectedUserIds.length} selected)
+            </label>
+            {selectedUserIds.length > 0 && (
+              <button
+                type="button"
+                className="secondary-btn"
+                aria-label="Clear selected users"
+                onClick={() => setSelectedUserIds([])}
+              >
+                Clear All
+              </button>
+            )}
+          </div>
           <small>
             {isLoadingMembers
               ? 'Loading all server members...'
               : guildId
-                ? `${users.length} server members loaded.`
-                : 'Select a server to load its members.'}
+                ? users.length > 0
+                  ? `${users.length} server members loaded.`
+                  : 'No server members found. Add user IDs manually.'
+                : guilds.length > 0
+                  ? 'Select a server to load its members, or add user IDs manually.'
+                  : 'No servers available. Add user IDs manually.'}
           </small>
-          <input
-            id="permission-user-search"
-            type="text"
-            placeholder="Search users by name or ID"
-            value={userQuery}
-            disabled={!guildId || isLoadingMembers || users.length === 0}
-            onInput={event => setUserQuery((event.target as HTMLInputElement).value)}
-          />
-          <div className="playlist-track-selector">
-            {filteredUsers.map(user => (
-              <label
-                key={user.id}
-                className="playlist-track-item"
-              >
+          {!showManualUserIdInput && (
+            <>
+              <div className="search-input-wrapper">
                 <input
-                  type="checkbox"
-                  checked={selectedUserIds.includes(user.id)}
-                  onChange={() => toggleUser(user.id)}
+                  id="permission-user-search"
+                  type="text"
+                  placeholder="Search users by name or ID"
+                  value={userQuery}
+                  disabled={!guildId || isLoadingMembers || users.length === 0}
+                  onInput={event => setUserQuery((event.target as HTMLInputElement).value)}
                 />
-                <span>
-                  <strong>{user.displayName}</strong> (@{user.username}) <small>({user.id})</small>
-                </span>
-              </label>
-            ))}
-            {!isLoadingMembers && guildId && filteredUsers.length === 0 && <small>No matching users.</small>}
-          </div>
+                {userQuery && (
+                  <button
+                    type="button"
+                    className="secondary-btn clear-search-btn"
+                    aria-label="Clear user search"
+                    onClick={() => setUserQuery('')}
+                  >
+                    &times;
+                  </button>
+                )}
+              </div>
+              <div className="playlist-track-selector">
+                {filteredUsers.map(user => (
+                  <label
+                    key={user.id}
+                    className="playlist-track-item"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.includes(user.id)}
+                      onChange={() => toggleUser(user.id)}
+                    />
+                    <span>
+                      <strong>{user.displayName}</strong> (@{user.username}) <small>({user.id})</small>
+                    </span>
+                  </label>
+                ))}
+                {!isLoadingMembers && guildId && filteredUsers.length === 0 && <small>No matching users.</small>}
+              </div>
+            </>
+          )}
+          {showManualUserIdInput && (
+            <div className="permission-manual-user-entry">
+              <label htmlFor="permission-manual-user-id">Add Discord User ID</label>
+              <div className="permission-manual-user-controls">
+                <input
+                  id="permission-manual-user-id"
+                  type="text"
+                  value={manualUserId}
+                  placeholder="Discord user ID"
+                  onInput={event => setManualUserId((event.target as HTMLInputElement).value)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      addManualUserId();
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  disabled={!manualUserId.trim()}
+                  onClick={addManualUserId}
+                >
+                  Add ID
+                </button>
+              </div>
+            </div>
+          )}
+          {manualUserIds.length > 0 && (
+            <ul className="permission-manual-user-list">
+              {manualUserIds.map(userId => (
+                <li key={userId}>
+                  <span>{userId}</span>
+                  <button
+                    type="button"
+                    className="secondary-btn"
+                    aria-label={`Remove user ${userId}`}
+                    onClick={() => toggleUser(userId)}
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="field">
-          <label htmlFor="permission-track-search">Tracks ({selectedFiles.length} selected)</label>
-          <input
-            id="permission-track-search"
-            type="text"
-            placeholder="Search tracks by game, title, or filename"
-            value={trackQuery}
-            disabled={tracks.length === 0}
-            onInput={event => setTrackQuery((event.target as HTMLInputElement).value)}
-          />
+          <div className="tag-filter-header">
+            <label htmlFor="permission-track-search">Tracks ({selectedFiles.length} selected)</label>
+            {selectedFiles.length > 0 && (
+              <button
+                type="button"
+                className="secondary-btn"
+                aria-label="Clear selected tracks"
+                onClick={() => setSelectedFiles([])}
+              >
+                Clear All
+              </button>
+            )}
+          </div>
+          <div className="search-input-wrapper">
+            <input
+              id="permission-track-search"
+              type="text"
+              placeholder="Search tracks by game, title, or filename"
+              value={trackQuery}
+              disabled={tracks.length === 0}
+              onInput={event => setTrackQuery((event.target as HTMLInputElement).value)}
+            />
+            {trackQuery && (
+              <button
+                type="button"
+                className="secondary-btn clear-search-btn"
+                aria-label="Clear track search"
+                onClick={() => setTrackQuery('')}
+              >
+                &times;
+              </button>
+            )}
+          </div>
           <div className="playlist-track-selector">
             {filteredTracks.map((track, index) => (
               <label

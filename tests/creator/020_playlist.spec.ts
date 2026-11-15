@@ -104,6 +104,9 @@ test.describe('Playlist Sorting', () => {
 
     await playlistPage.sortSelect.selectOption('original-asc');
     await expect(playlistPage.playlistNames).toHaveText(['Playlist B', 'Playlist C', 'Playlist A']);
+
+    await playlistPage.sortSelect.selectOption('original-desc');
+    await expect(playlistPage.playlistNames).toHaveText(['Playlist A', 'Playlist C', 'Playlist B']);
   });
 });
 
