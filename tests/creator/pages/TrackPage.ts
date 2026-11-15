@@ -19,7 +19,7 @@ export class TrackPage extends CreatorPage {
   constructor(page: Page) {
     super(page);
     this.addTrackButton = page.getByRole('button', { name: '+ Add Track' });
-    this.trackCards = page.locator('.tracks-container .track-card');
+    this.trackCards = page.locator('.tracks-container .tracks-list .card');
     this.trackForm = page.locator('form.creator-form');
     this.gameNameInput = page.getByLabel('Game Name');
     this.trackTitleInput = page.getByLabel('Track Title');

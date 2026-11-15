@@ -304,10 +304,21 @@ export function App() {
     });
   }, []);
 
+  const closePlayer = () => {
+    audioRef.current?.pause();
+    setActiveTrack(null);
+    setIsPlaying(false);
+  };
+
   const deleteTrack = async (absoluteIndex: number) => {
     if (!confirm('Are you sure you want to delete this track?')) return;
     const res = await fetch(`/api/tracks/${absoluteIndex}`, { method: 'DELETE' });
-    if (res.ok || res.status === 204) fetchTracks();
+    if (res.ok || res.status === 204) {
+      if (activeTrack?.audio === tracks[absoluteIndex]?.audio) {
+        closePlayer();
+      }
+      fetchTracks();
+    }
   };
 
   const deletePlaylist = async (absoluteIndex: number) => {
@@ -550,13 +561,7 @@ export function App() {
           <aside className="card central-audio-player">
             <button
               className="player-close-btn"
-              onClick={() => {
-                if (audioRef.current) {
-                  audioRef.current.pause();
-                }
-                setActiveTrack(null);
-                setIsPlaying(false);
-              }}
+              onClick={closePlayer}
               aria-label="Close player"
             >
               &times;

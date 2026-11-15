@@ -57,6 +57,27 @@ test.describe('Track Edit/Delete', () => {
 
     await expect(trackPage.getTrackCard('Game A')).toHaveCount(0);
   });
+
+  test('should close the player when its track is deleted', async ({ page, trackPage }) => {
+    await trackPage.goto('/tracks');
+    const trackCard = trackPage.getTrackCard('Game A');
+    await trackCard.getByRole('button', { name: '▶ Play' }).click();
+
+    const player = page.locator('.central-audio-player');
+    await expect(player).toBeVisible();
+    await expect(player).toContainText('Track A');
+
+    const dialogMessage = page.waitForEvent('dialog').then(async dialog => {
+      const message = dialog.message();
+      await dialog.accept();
+      return message;
+    });
+    await trackCard.getByRole('button', { name: 'Delete' }).click();
+    expect(await dialogMessage).toBe('Are you sure you want to delete this track?');
+
+    await expect(trackPage.getTrackCard('Game A')).toHaveCount(0);
+    await expect(player).toHaveCount(0);
+  });
 });
 
 test.describe('Track Filtering', () => {
