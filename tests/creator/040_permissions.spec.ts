@@ -74,9 +74,15 @@ test.describe('Permission Rule Creation', () => {
     const permissionRule = permissionsPage.getPermissionRule('Alice');
     await expect(permissionRule).toContainText('whitelist');
     await expect(permissionRule).toContainText('Bob');
-    await expect(permissionRule).toContainText('Game A');
     await expect(permissionRule.locator(`img[src="${ALICE_AVATAR_URL}"]`)).toHaveCount(1);
     await expect(permissionRule.locator(`img[src="${BOB_AVATAR_URL}"]`)).toHaveCount(1);
+
+    await permissionRule.getByRole('button', { name: 'View Tracks' }).click();
+    const trackItem = permissionsPage.getPermissionRuleTrackItem('Bob').filter({ hasText: 'Game A' });
+    await expect(trackItem).toContainText('Game A');
+    await expect(trackItem).toContainText('Track A');
+    await expect(trackItem).toContainText('fixture-track-1.mp3');
+    await expect(trackItem.locator('img')).toHaveAttribute('src', '/default.svg');
   });
 });
 
@@ -87,6 +93,7 @@ test.describe('Permission Rule Edit/Delete', () => {
     await mockDiscordRequests(page);
     await permissionsPage.goto('/permissions');
     const permissionRule = permissionsPage.getPermissionRule('Alice');
+    await expect(permissionRule).toContainText('1 tracks included');
 
     await permissionRule.getByRole('button', { name: 'Edit' }).click();
     await expect(permissionsPage.permissionForm.getByRole('heading', { name: 'Edit Permission Rule' })).toBeVisible();
@@ -96,17 +103,24 @@ test.describe('Permission Rule Edit/Delete', () => {
     await expect(aliceCheckbox).toBeChecked();
     await expect(bobCheckbox).not.toBeChecked();
     await expect(permissionsPage.getTrackCheckbox('Game A')).toBeChecked();
+    await expect(permissionsPage.getTrackCheckbox('Game B')).not.toBeChecked();
+    await expect(permissionsPage.getTrackCheckbox('Game C')).not.toBeChecked();
 
     await aliceCheckbox.uncheck();
     await bobCheckbox.check();
     await permissionsPage.ruleTypeSelect.selectOption('blacklist');
+    await permissionsPage.getTrackCheckbox('Game B').check();
     await permissionsPage.updateRuleButton.click();
 
     const updatedPermissionRule = permissionsPage.getPermissionRule('Bob');
     await expect(updatedPermissionRule).toContainText('blacklist');
     await expect(updatedPermissionRule).not.toContainText('Alice');
-    await expect(updatedPermissionRule).toContainText('Game A');
-    const trackItem = permissionsPage.getPermissionRuleTrackItem('Bob');
+    await expect(updatedPermissionRule).toContainText('2 tracks included');
+
+    await updatedPermissionRule.getByRole('button', { name: 'View Tracks' }).click();
+    const trackItem = permissionsPage.getPermissionRuleTrackItem('Bob').filter({ hasText: 'Game A' });
+    await expect(trackItem).toHaveCount(1);
+    await expect(trackItem).toContainText('Game A');
     await expect(trackItem).toContainText('Track A');
     await expect(trackItem).toContainText('fixture-track.mp3');
     await expect(trackItem.locator('img')).toHaveAttribute('src', '/default.svg');

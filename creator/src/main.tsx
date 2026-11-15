@@ -519,6 +519,9 @@ export function App() {
                 onPageSizeChange={handlePageSizeChange}
                 onNavigate={navigate}
                 onDelete={index => void deletePermission(index)}
+                onPlayTrack={handlePlayTrack}
+                activeTrack={activeTrack}
+                isPlaying={isPlaying}
                 getPageNumbers={getPageNumbers}
                 hasActiveFilters={Boolean(searchQuery) || selectedPermissionTypes.length > 0}
               />

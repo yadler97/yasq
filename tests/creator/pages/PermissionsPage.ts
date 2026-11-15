@@ -16,7 +16,7 @@ export class PermissionsPage extends CreatorPage {
   constructor(page: Page) {
     super(page);
     this.addPermissionButton = page.getByRole('button', { name: '+ Add Permission' });
-    this.permissionRules = page.locator('.permission-rule');
+    this.permissionRules = page.locator('.permission-rule-card');
     this.permissionForm = page.locator('form.creator-form');
     this.searchInput = page.getByRole('textbox', { name: 'Search' });
     this.clearSearchButton = page.locator('.clear-search-btn');

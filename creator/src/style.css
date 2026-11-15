@@ -410,8 +410,14 @@ button {
   flex-flow: column;
   gap: 0.5rem;
   list-style: none;
-  margin: 0;
   padding: 0;
+}
+
+.permission-rule-tracks-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .permission-rule-file {
@@ -433,6 +439,7 @@ button {
 .permission-rule-file-info {
   display: grid;
   gap: 0.15rem;
+  flex: 1;
   min-width: 0;
 }
 
@@ -622,11 +629,6 @@ button:focus-visible {
   flex: 0 0 38px;
   height: 38px;
   padding: 0;
-}
-
-.search-box input:focus {
-  outline: none;
-  border-color: var(--blurple);
 }
 
 .tag-filter-header {
