@@ -202,8 +202,8 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
           id="maxGuessTime"
           type="number"
           step="1"
-          value={settings.gameSettings.maxGuessTime / 1000}
-          onInput={e => handleGameChange('maxGuessTime', Number((e.target as HTMLInputElement).value) * 1000)}
+          value={settings.gameSettings.maxGuessTime}
+          onInput={e => handleGameChange('maxGuessTime', Number((e.target as HTMLInputElement).value))}
         />
       </div>
 
