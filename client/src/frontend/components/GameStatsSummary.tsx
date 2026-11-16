@@ -1,13 +1,4 @@
-import {
-  AchievementStateDto,
-  capitalize,
-  GameStatsDto,
-  getAvatarUrl,
-  getDisplayName,
-  Participant,
-  TrackInfo,
-} from '@yasq/shared';
-import defaultCover from '@yasq/shared/assets/default.svg?url';
+import { AchievementStateDto, GameStatsDto, getAvatarUrl, getDisplayName, Participant, TrackInfo } from '@yasq/shared';
 
 import { findUser, getGameDuration } from '../../utils/helper';
 import { DiscordAvatar } from './DiscordAvatar';
@@ -58,10 +49,9 @@ export const GameStatsSummary = ({
     },
     ...Object.entries(achievements).map(([ruleId, state]: [string, AchievementStateDto]) => {
       const users = state.userIds.map((id: string) => findUser(participants, id)).filter(Boolean);
-      const ruleName = capitalize(ruleId);
 
       return {
-        label: ruleName,
+        label: ruleId,
         users,
         value: users.length > 0 ? users.map((u: Participant) => getDisplayName(u)) : ['None'],
         subValue: formatSubValue(state),
@@ -120,10 +110,10 @@ export const GameStatsSummary = ({
                   {item.trackInfo && (
                     <div className="game-stat-track-container">
                       <NonDraggableImg
-                        src={item.trackInfo.gameCoverUrl || defaultCover}
+                        src={item.trackInfo.gameCoverUrl || '/default.svg'}
                         alt={`Cover of ${item.trackInfo.track.game}`}
                         onError={e => {
-                          (e.currentTarget as HTMLImageElement).src = defaultCover;
+                          (e.currentTarget as HTMLImageElement).src = '/default.svg';
                         }}
                       />
                       <div className="game-stat-track-details">

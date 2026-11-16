@@ -1,8 +1,8 @@
 import { render } from 'preact';
 import { useState, useEffect, useRef, useMemo } from 'preact/hooks';
 
-import type { Playlist, Track } from '@yasq/shared';
-import defaultCover from '@yasq/shared/assets/default.svg?url';
+import { type Playlist, type Track } from '@yasq/shared';
+import defaultCover from '../../client/src/assets/default.svg';
 
 import { TrackList } from './components/TrackList';
 import { TrackForm } from './components/TrackForm';

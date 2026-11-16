@@ -2,6 +2,10 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import fs from 'fs';
 
 import {
+  AchievementBonusAggregate,
+  AchievementBonusFilter,
+  AchievementBonusGoal,
+  AchievementBonusMetric,
   AchievementBonusMode,
   AchievementBonusType,
   DEFAULT_APP_SETTINGS,
@@ -175,6 +179,33 @@ describe('settings', () => {
       const settings = getAppSettings();
       expect(settings.sounds.finalResultsJingle).toBeNull();
       expect(settings.sounds.finalResultsLoop).toBeUndefined();
+    });
+
+    it('should use configured achievement bonuses instead of the built-in rules', () => {
+      const customRules = [
+        {
+          name: 'Fastest Guess',
+          metric: AchievementBonusMetric.GUESS_TIME,
+          filter: AchievementBonusFilter.CORRECT,
+          aggregate: AchievementBonusAggregate.MIN,
+          goal: AchievementBonusGoal.LOWEST,
+          reward: 250,
+        },
+      ];
+      mockAppSettings({ achievementBonuses: customRules }, true);
+
+      expect(getAppSettings().achievementBonuses).toEqual(customRules);
+      expect(getDefaultGameSettings().achievementBonuses).toEqual({
+        mode: AchievementBonusMode.MANUAL,
+        enabledTypes: ['Fastest Guess'],
+      });
+    });
+
+    it('should preserve an explicitly empty custom achievement list', () => {
+      mockAppSettings({ achievementBonuses: [] }, true);
+
+      expect(getAppSettings().achievementBonuses).toEqual([]);
+      expect(getDefaultGameSettings().achievementBonuses).toBeNull();
     });
   });
 

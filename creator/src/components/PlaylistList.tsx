@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 
-import type { Playlist, Track } from '@yasq/shared';
-import defaultCover from '@yasq/shared/assets/default.svg?url';
+import { type Playlist, type Track } from '@yasq/shared';
+import defaultCover from '../../../client/src/assets/default.svg';
 
 interface PlaylistListProps {
   playlists: { playlist: Playlist; originalIndex: number }[];

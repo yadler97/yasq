@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 
-import type { Track } from '@yasq/shared';
-import defaultCover from '@yasq/shared/assets/default.svg?url';
+import { type Track } from '@yasq/shared';
+import defaultCover from '../../../client/src/assets/default.svg';
 
 import type { DiscordUser, PermissionRule } from '../types';
 

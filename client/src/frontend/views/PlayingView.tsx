@@ -13,7 +13,6 @@ import {
   RoundTimings,
   Tag,
 } from '@yasq/shared';
-import defaultCover from '@yasq/shared/assets/default.svg?url';
 
 import { audioPlayer, gameStatus, isMac, participants, useBackend } from '@globals';
 import { useKeyboardShortcut } from '../hooks/useKeyboardShortcut';
@@ -431,10 +430,10 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
                 <hr className="divider" />
                 <div className="track-details">
                   <NonDraggableImg
-                    src={activeTrackInfo.value.gameCover || defaultCover}
+                    src={activeTrackInfo.value.gameCover || '/default.svg'}
                     alt={`Cover of ${activeTrackInfo.value.correctAnswer}`}
                     onError={e => {
-                      (e.currentTarget as HTMLImageElement).src = defaultCover;
+                      (e.currentTarget as HTMLImageElement).src = '/default.svg';
                     }}
                   />
                   <div>

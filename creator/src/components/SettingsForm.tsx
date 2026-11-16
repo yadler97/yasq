@@ -1,8 +1,14 @@
 import { useRef, useState } from 'preact/hooks';
 
 import {
+  AchievementBonusAggregate,
+  AchievementBonusFilter,
+  AchievementBonusGoal,
+  AchievementBonusMetric,
   AchievementBonusMode,
-  AchievementBonusType,
+  type AchievementBonusRule,
+  capitalize,
+  DEFAULT_ACHIEVEMENT_BONUS_RULES,
   FirstBonusMultiplier,
   Joker,
   StreakBonusMultiplier,
@@ -21,13 +27,14 @@ interface Settings {
       mode: string;
       enabledTypes?: string[];
       randomCount?: number;
-    };
+    } | null;
   };
   appSettings: {
     sounds: {
       finalResultsJingle: string;
       finalResultsLoop: string;
     };
+    achievementBonuses?: AchievementBonusRule[];
   };
 }
 
@@ -68,6 +75,17 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
   const [finalResultsLoopFile, setFinalResultsLoopFile] = useState<File | null>(null);
   const finalResultsJingleFileRef = useRef<HTMLInputElement>(null);
   const finalResultsLoopFileRef = useRef<HTMLInputElement>(null);
+  const [achievementRuleDraft, setAchievementRuleDraft] = useState({
+    name: '',
+    description: '',
+    metric: AchievementBonusMetric.GUESS_TIME,
+    filter: AchievementBonusFilter.ANY,
+    aggregate: AchievementBonusAggregate.AVERAGE,
+    goal: AchievementBonusGoal.HIGHEST,
+    reward: 100,
+  });
+  const [achievementRuleError, setAchievementRuleError] = useState('');
+  const [isAchievementRuleFormOpen, setIsAchievementRuleFormOpen] = useState(false);
 
   const handleGameChange = (field: string, value: any) => {
     setSettings(prev => ({
@@ -101,10 +119,10 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
     }
   };
 
-  const handleToggleAchievementType = (type: AchievementBonusType) => {
+  const handleToggleAchievementType = (type: string) => {
     if (!achievementBonuses || achievementBonuses.mode !== AchievementBonusMode.MANUAL) return;
 
-    const currentTypes = (achievementBonuses.enabledTypes || []) as AchievementBonusType[];
+    const currentTypes = achievementBonuses.enabledTypes || [];
 
     const updatedTypes = currentTypes.includes(type) ? currentTypes.filter(t => t !== type) : [...currentTypes, type];
 
@@ -122,6 +140,108 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         sounds: { ...prev.appSettings.sounds, [field]: value },
       },
     }));
+  };
+
+  const configuredRules = settings.appSettings.achievementBonuses ?? DEFAULT_ACHIEVEMENT_BONUS_RULES;
+  const availableRules = configuredRules;
+  const achievementModeOptions = availableRules.length
+    ? ACHIEVEMENT_MODE_OPTIONS
+    : ACHIEVEMENT_MODE_OPTIONS.slice(0, 1);
+
+  const updateAchievementRules = (rules: AchievementBonusRule[]) => {
+    setSettings(prev => {
+      const previousTypes =
+        prev.appSettings.achievementBonuses !== undefined
+          ? prev.appSettings.achievementBonuses.map(rule => rule.name)
+          : DEFAULT_ACHIEVEMENT_BONUS_RULES.map(rule => rule.name);
+      const nextTypes = rules.map(rule => rule.name);
+      const currentBonuses = prev.gameSettings.achievementBonuses;
+
+      let updatedBonuses = nextTypes.length === 0 ? null : currentBonuses;
+      if (nextTypes.length > 0 && currentBonuses?.mode === AchievementBonusMode.MANUAL) {
+        const selectedTypes = currentBonuses.enabledTypes ?? [];
+        updatedBonuses = {
+          ...currentBonuses,
+          enabledTypes: [
+            ...selectedTypes.filter(id => nextTypes.includes(id)),
+            ...nextTypes.filter(id => !previousTypes.includes(id)),
+          ],
+        };
+      } else if (nextTypes.length > 0 && currentBonuses?.mode === AchievementBonusMode.RANDOM) {
+        updatedBonuses = {
+          ...currentBonuses,
+          randomCount: Math.min(currentBonuses.randomCount ?? 1, nextTypes.length),
+        };
+      }
+
+      return {
+        ...prev,
+        gameSettings: { ...prev.gameSettings, achievementBonuses: updatedBonuses },
+        appSettings: {
+          ...prev.appSettings,
+          achievementBonuses: rules,
+        },
+      };
+    });
+  };
+
+  const restoreDefaultAchievementRules = () => {
+    const defaultNames = new Set(DEFAULT_ACHIEVEMENT_BONUS_RULES.map(rule => rule.name.toLowerCase()));
+    const currentRulesByName = new Map(configuredRules.map(rule => [rule.name.toLowerCase(), rule]));
+    const restoredDefaults = DEFAULT_ACHIEVEMENT_BONUS_RULES.map(
+      rule => currentRulesByName.get(rule.name.toLowerCase()) ?? rule
+    );
+    const customRules = configuredRules.filter(rule => !defaultNames.has(rule.name.toLowerCase()));
+
+    updateAchievementRules([...restoredDefaults, ...customRules]);
+  };
+
+  const hasMissingDefaultRules = DEFAULT_ACHIEVEMENT_BONUS_RULES.some(
+    rule => !configuredRules.some(existing => existing.name.toLowerCase() === rule.name.toLowerCase())
+  );
+
+  const addAchievementRule = () => {
+    const name = achievementRuleDraft.name.trim();
+
+    if (!name) {
+      setAchievementRuleError('Enter a name.');
+      return;
+    }
+    if (configuredRules.some(rule => rule.name.toLocaleLowerCase() === name.toLocaleLowerCase())) {
+      setAchievementRuleError('Achievement names must be unique.');
+      return;
+    }
+    if (achievementRuleDraft.reward < 0 || !Number.isFinite(achievementRuleDraft.reward)) {
+      setAchievementRuleError('Reward must be a non-negative number.');
+      return;
+    }
+
+    const rule: AchievementBonusRule = {
+      name,
+      metric: achievementRuleDraft.metric,
+      goal: achievementRuleDraft.goal,
+      reward: achievementRuleDraft.reward,
+      ...(achievementRuleDraft.metric === AchievementBonusMetric.STREAK
+        ? {}
+        : {
+            filter: achievementRuleDraft.filter,
+            aggregate: achievementRuleDraft.aggregate,
+          }),
+      ...(achievementRuleDraft.description.trim() ? { description: achievementRuleDraft.description.trim() } : {}),
+    };
+
+    updateAchievementRules([...configuredRules, rule]);
+    setAchievementRuleDraft({
+      name: '',
+      description: '',
+      metric: AchievementBonusMetric.GUESS_TIME,
+      filter: AchievementBonusFilter.ANY,
+      aggregate: AchievementBonusAggregate.AVERAGE,
+      goal: AchievementBonusGoal.HIGHEST,
+      reward: 100,
+    });
+    setAchievementRuleError('');
+    setIsAchievementRuleFormOpen(false);
   };
 
   const handleSubmit = async (e: Event) => {
@@ -298,9 +418,9 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         <label>Mode</label>
         <div
           className="radio-group-pills"
-          style={{ gridTemplateColumns: `repeat(${ACHIEVEMENT_MODE_OPTIONS.length}, 1fr)` }}
+          style={{ gridTemplateColumns: `repeat(${achievementModeOptions.length}, 1fr)` }}
         >
-          {ACHIEVEMENT_MODE_OPTIONS.map(opt => (
+          {achievementModeOptions.map(opt => (
             <label
               key={opt.value}
               className={`radio-pill ${currentMode === opt.value ? 'active' : ''}`}
@@ -318,22 +438,22 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         </div>
       </div>
 
-      {currentMode === AchievementBonusMode.MANUAL && (
+      {achievementBonuses?.mode === AchievementBonusMode.MANUAL && (
         <div className="field">
           <label>Enabled Achievement Types</label>
           <div className="tag-checkboxes-list">
-            {Object.values(AchievementBonusType).map(type => (
+            {availableRules.map(rule => (
               <label
-                key={type}
+                key={rule.name}
                 className="tag-checkbox-label"
               >
                 <div className="tag-checkbox-content">
                   <input
                     type="checkbox"
-                    checked={achievementBonuses.enabledTypes?.includes(type)}
-                    onChange={() => handleToggleAchievementType(type)}
+                    checked={achievementBonuses.enabledTypes?.includes(rule.name)}
+                    onChange={() => handleToggleAchievementType(rule.name)}
                   />
-                  <span>{type}</span>
+                  <span>{rule.name === rule.name.toUpperCase() ? capitalize(rule.name) : rule.name}</span>
                 </div>
               </label>
             ))}
@@ -341,18 +461,18 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         </div>
       )}
 
-      {currentMode === AchievementBonusMode.RANDOM && (
+      {achievementBonuses?.mode === AchievementBonusMode.RANDOM && (
         <div className="field">
           <label htmlFor="randomCount">Random Count</label>
           <input
             id="randomCount"
             type="number"
             min="1"
-            max={Object.values(AchievementBonusType).length - 1}
+            max={availableRules.length - 1}
             value={achievementBonuses.randomCount}
             onInput={e => {
               const val = Number((e.target as HTMLInputElement).value);
-              const maxAllowed = Object.values(AchievementBonusType).length - 1;
+              const maxAllowed = availableRules.length - 1;
               const clamped = Math.min(Math.max(1, val), maxAllowed);
               handleGameChange('achievementBonuses', {
                 ...achievementBonuses,
@@ -364,6 +484,186 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
       )}
 
       <h3>App Settings</h3>
+
+      <div className="tag-filter-header">
+        <label>Achievement Bonuses</label>
+        {hasMissingDefaultRules && (
+          <button
+            type="button"
+            className="secondary-btn"
+            onClick={restoreDefaultAchievementRules}
+          >
+            Restore Default Bonuses
+          </button>
+        )}
+      </div>
+      <ul
+        className="achievement-bonus-list"
+        aria-label="Achievement bonuses"
+      >
+        {configuredRules.map(rule => (
+          <li key={rule.name}>
+            {rule.name}
+            <button
+              type="button"
+              className="secondary-btn"
+              aria-label={`Remove ${rule.name}`}
+              onClick={() => updateAchievementRules(configuredRules.filter(existing => existing.name !== rule.name))}
+            >
+              Remove
+            </button>
+          </li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        className="secondary-btn"
+        aria-expanded={isAchievementRuleFormOpen}
+        aria-controls="achievement-bonus-form"
+        onClick={() => setIsAchievementRuleFormOpen(isOpen => !isOpen)}
+      >
+        {isAchievementRuleFormOpen ? 'Cancel' : 'Add custom achievement bonus'}
+      </button>
+      <div
+        id="achievement-bonus-form"
+        className="achievement-bonus-form"
+        hidden={!isAchievementRuleFormOpen}
+      >
+        <div className="field">
+          <label htmlFor="achievement-rule-name">Name</label>
+          <input
+            id="achievement-rule-name"
+            type="text"
+            maxLength={64}
+            value={achievementRuleDraft.name}
+            onInput={e => setAchievementRuleDraft(prev => ({ ...prev, name: (e.target as HTMLInputElement).value }))}
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="achievement-rule-description">Description (optional)</label>
+          <input
+            id="achievement-rule-description"
+            type="text"
+            value={achievementRuleDraft.description}
+            onInput={e =>
+              setAchievementRuleDraft(prev => ({ ...prev, description: (e.target as HTMLInputElement).value }))
+            }
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="achievement-rule-metric">Metric</label>
+          <select
+            id="achievement-rule-metric"
+            value={achievementRuleDraft.metric}
+            onChange={e =>
+              setAchievementRuleDraft(prev => ({
+                ...prev,
+                metric: (e.target as HTMLSelectElement).value as AchievementBonusMetric,
+              }))
+            }
+          >
+            {Object.values(AchievementBonusMetric).map(metric => (
+              <option
+                key={metric}
+                value={metric}
+              >
+                {metric}
+              </option>
+            ))}
+          </select>
+        </div>
+        {achievementRuleDraft.metric !== AchievementBonusMetric.STREAK && (
+          <>
+            <div className="field">
+              <label htmlFor="achievement-rule-filter">Filter</label>
+              <select
+                id="achievement-rule-filter"
+                value={achievementRuleDraft.filter}
+                onChange={e =>
+                  setAchievementRuleDraft(prev => ({
+                    ...prev,
+                    filter: (e.target as HTMLSelectElement).value as AchievementBonusFilter,
+                  }))
+                }
+              >
+                {Object.values(AchievementBonusFilter).map(filter => (
+                  <option
+                    key={filter}
+                    value={filter}
+                  >
+                    {filter}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="achievement-rule-aggregate">Aggregate</label>
+              <select
+                id="achievement-rule-aggregate"
+                value={achievementRuleDraft.aggregate}
+                onChange={e =>
+                  setAchievementRuleDraft(prev => ({
+                    ...prev,
+                    aggregate: (e.target as HTMLSelectElement).value as AchievementBonusAggregate,
+                  }))
+                }
+              >
+                {Object.values(AchievementBonusAggregate).map(aggregate => (
+                  <option
+                    key={aggregate}
+                    value={aggregate}
+                  >
+                    {aggregate}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
+        <div className="field">
+          <label htmlFor="achievement-rule-goal">Goal</label>
+          <select
+            id="achievement-rule-goal"
+            value={achievementRuleDraft.goal}
+            onChange={e =>
+              setAchievementRuleDraft(prev => ({
+                ...prev,
+                goal: (e.target as HTMLSelectElement).value as AchievementBonusGoal,
+              }))
+            }
+          >
+            {Object.values(AchievementBonusGoal).map(goal => (
+              <option
+                key={goal}
+                value={goal}
+              >
+                {goal}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="achievement-rule-reward">Reward</label>
+          <input
+            id="achievement-rule-reward"
+            type="number"
+            min="0"
+            step="1"
+            value={achievementRuleDraft.reward}
+            onInput={e =>
+              setAchievementRuleDraft(prev => ({ ...prev, reward: Number((e.target as HTMLInputElement).value) }))
+            }
+          />
+        </div>
+        {achievementRuleError && <p role="alert">{achievementRuleError}</p>}
+        <button
+          type="button"
+          className="secondary-btn"
+          onClick={addAchievementRule}
+        >
+          Add Achievement Bonus
+        </button>
+      </div>
 
       <div className="field">
         <label htmlFor="final-results-jingle-file-input">Final Results Jingle File</label>

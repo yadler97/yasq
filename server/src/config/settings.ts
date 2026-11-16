@@ -2,11 +2,16 @@ import fs from 'fs';
 import { z } from 'zod';
 
 import {
+  AchievementBonusAggregate,
+  AchievementBonusFilter,
+  AchievementBonusGoal,
+  AchievementBonusMetric,
   AchievementBonusMode,
-  AchievementBonusType,
   APP_SOUNDS_DIR,
+  type AchievementBonuses,
   type AppSettings,
   DEFAULT_APP_SETTINGS,
+  DEFAULT_ACHIEVEMENT_BONUS_RULES,
   DEFAULT_GAME_SETTINGS,
   DEFAULT_SETTINGS,
   FirstBonusMultiplier,
@@ -117,45 +122,101 @@ namespace Schemas {
             z.object({ mode: z.literal('off') }).transform(() => null),
             z.object({
               mode: z.literal(AchievementBonusMode.MANUAL),
-              enabledTypes: z.array(z.enum(AchievementBonusType)),
+              enabledTypes: z.array(z.string()),
             }),
             z.object({
               mode: z.literal(AchievementBonusMode.RANDOM),
-              randomCount: z
-                .number()
-                .int()
-                .positive()
-                .lt(Object.keys(AchievementBonusType).length, {
-                  error: `'randomCount' must be smaller than the total number of available achievement bonus types (${Object.keys(AchievementBonusType).length})`,
-                }),
+              randomCount: z.number(),
             }),
           ])
           .nullable()
       )
+      .optional()
       .catch(fallbackWithWarning('achievementBonuses', DEFAULT_GAME_SETTINGS.achievementBonuses)),
   });
 
-  const appSoundsSchema = z.object({
-    sounds: z
-      .object({
-        finalResultsJingle: z
-          .string()
-          .nonempty()
-          .refine(...fileExistsAtValidLocation(APP_SOUNDS_DIR))
-          .nullish(),
-        finalResultsLoop: z
-          .string()
-          .nonempty()
-          .refine(...fileExistsAtValidLocation(APP_SOUNDS_DIR))
-          .nullish(),
-      })
-      .catch(fallbackWithWarning('sounds', DEFAULT_APP_SETTINGS.sounds)),
+  const achievementBonusRuleSchema = z.object({
+    name: z.string().trim().min(1).max(64),
+    metric: z.enum(AchievementBonusMetric),
+    filter: z.enum(AchievementBonusFilter).optional(),
+    aggregate: z.enum(AchievementBonusAggregate).optional(),
+    goal: z.enum(AchievementBonusGoal),
+    reward: z.number().nonnegative().default(100),
+    description: z.string().optional(),
   });
 
-  export const fullSettingsSchema = z.object({
-    gameSettings: gameSettingsSchema.readonly().catch(DEFAULT_GAME_SETTINGS),
-    appSettings: appSoundsSchema.readonly().catch(DEFAULT_APP_SETTINGS),
-  });
+  const appSettingsSchema = z
+    .object({
+      sounds: z
+        .object({
+          finalResultsJingle: z
+            .string()
+            .nonempty()
+            .refine(...fileExistsAtValidLocation(APP_SOUNDS_DIR))
+            .nullish(),
+          finalResultsLoop: z
+            .string()
+            .nonempty()
+            .refine(...fileExistsAtValidLocation(APP_SOUNDS_DIR))
+            .nullish(),
+        })
+        .catch(fallbackWithWarning('sounds', DEFAULT_APP_SETTINGS.sounds)),
+      achievementBonuses: z
+        .array(achievementBonusRuleSchema)
+        .optional()
+        .catch(fallbackWithWarning('achievementBonuses', undefined)),
+    })
+    .readonly()
+    .catch(fallbackWithWarning('appSettings', DEFAULT_APP_SETTINGS));
+
+  export const fullSettingsSchema = z
+    .object({
+      gameSettings: gameSettingsSchema.readonly().catch(DEFAULT_GAME_SETTINGS),
+      appSettings: appSettingsSchema,
+    })
+    .transform(({ gameSettings, appSettings }) => {
+      const configuredRules = appSettings.achievementBonuses;
+      const availableTypes = (configuredRules ?? DEFAULT_ACHIEVEMENT_BONUS_RULES).map(rule => rule.name);
+      const defaultAchievementBonuses: AchievementBonuses | null = configuredRules
+        ? availableTypes.length > 0
+          ? { mode: AchievementBonusMode.MANUAL, enabledTypes: availableTypes }
+          : null
+        : DEFAULT_GAME_SETTINGS.achievementBonuses;
+      const achievementBonusesSchema = z
+        .preprocess(
+          val => (val === 'off' ? null : val),
+          z
+            .discriminatedUnion('mode', [
+              z.object({ mode: z.literal('off') }).transform(() => null),
+              z.object({
+                mode: z.literal(AchievementBonusMode.MANUAL),
+                enabledTypes: z.array(z.string()).refine(types => types.every(type => availableTypes.includes(type)), {
+                  error: 'enabledTypes must contain only available achievement bonus names.',
+                }),
+              }),
+              z.object({
+                mode: z.literal(AchievementBonusMode.RANDOM),
+                randomCount: z
+                  .number()
+                  .int()
+                  .positive()
+                  .lt(availableTypes.length, {
+                    error: `'randomCount' must be smaller than the total number of available achievement bonus types (${availableTypes.length})`,
+                  }),
+              }),
+            ])
+            .nullable()
+        )
+        .catch(fallbackWithWarning('achievementBonuses', defaultAchievementBonuses));
+
+      return {
+        gameSettings: {
+          ...gameSettings,
+          achievementBonuses: achievementBonusesSchema.parse(gameSettings.achievementBonuses),
+        },
+        appSettings,
+      };
+    });
 }
 
 type Settings = z.infer<typeof Schemas.fullSettingsSchema>;

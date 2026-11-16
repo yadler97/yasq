@@ -11,7 +11,6 @@ import {
   RoundResultDto,
   Tag,
 } from '@yasq/shared';
-import defaultCover from '@yasq/shared/assets/default.svg?url';
 import { gameStatus, participants, useBackend } from '@globals';
 
 import { NonDraggableImg } from '@components/NonDraggableImg';
@@ -127,10 +126,10 @@ export const RoundResultsView = ({ isHost }: { isHost: boolean }) => {
 
         <div className="track-details">
           <NonDraggableImg
-            src={roundData.value.gameCover || defaultCover}
+            src={roundData.value.gameCover || '/default.svg'}
             alt={`Cover of ${roundData.value.correctAnswer}`}
             onError={e => {
-              (e.currentTarget as HTMLImageElement).src = defaultCover;
+              (e.currentTarget as HTMLImageElement).src = '/default.svg';
             }}
           />
           <div>
