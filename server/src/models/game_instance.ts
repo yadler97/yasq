@@ -47,7 +47,7 @@ import {
   AchievementBonusMetric,
   getConfiguredAchievementBonusRules,
 } from './achievement_bonus.js';
-import { getDefaultGameSettings } from '../config/settings.js';
+import { getGameSettings } from '../config/settings.js';
 
 type UserId = string;
 
@@ -84,7 +84,7 @@ export class GameInstance {
     this.instanceId = instanceId;
     this.hostId = hostId;
 
-    const settingsToApply = initialSettings ?? getDefaultGameSettings();
+    const settingsToApply = initialSettings ?? getGameSettings();
     this.settings = structuredClone(settingsToApply);
   }
 

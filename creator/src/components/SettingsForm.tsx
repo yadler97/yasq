@@ -302,481 +302,485 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="card creator-form"
+      className="card creator-form settings-form"
     >
-      <h3>Game Settings</h3>
+      <div className="settings-section">
+        <h3>Game Settings</h3>
 
-      <div className="field">
-        <label htmlFor="rounds">Rounds</label>
-        <input
-          id="rounds"
-          type="number"
-          value={settings.gameSettings.rounds}
-          onInput={e => handleGameChange('rounds', Number((e.target as HTMLInputElement).value))}
-        />
-      </div>
-
-      <div className="field">
-        <label htmlFor="maxGuessTime">Max Guess Time (seconds)</label>
-        <input
-          id="maxGuessTime"
-          type="number"
-          step="1"
-          value={settings.gameSettings.maxGuessTime}
-          onInput={e => handleGameChange('maxGuessTime', Number((e.target as HTMLInputElement).value))}
-        />
-      </div>
-
-      <div className="field">
-        <label>Enabled Jokers</label>
-        <div className="tag-checkboxes-list">
-          {Object.values(Joker).map(joker => (
-            <label
-              key={joker}
-              className="tag-checkbox-label"
-            >
-              <div className="tag-checkbox-content">
-                <input
-                  type="checkbox"
-                  checked={settings.gameSettings.enabledJokers.includes(joker)}
-                  onChange={() => handleToggleJoker(joker)}
-                />
-                <span>{joker}</span>
-              </div>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="field">
-        <label>First Bonus Multiplier</label>
-        <div className="radio-group-pills">
-          {FIRST_BONUS_OPTIONS.map(opt => (
-            <label
-              key={opt.value}
-              className={`radio-pill ${settings.gameSettings.firstBonusMultiplier === opt.value ? 'active' : ''}`}
-            >
-              <input
-                type="radio"
-                name="firstBonusMultiplier"
-                value={opt.value}
-                checked={settings.gameSettings.firstBonusMultiplier === opt.value}
-                onChange={() => handleGameChange('firstBonusMultiplier', opt.value)}
-                style={{ display: 'none' }}
-              />
-              <span>{opt.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="field">
-        <label htmlFor="streakBonusMultiplier">Streak Bonus Multiplier</label>
-        <div className="radio-group-pills">
-          {STREAK_BONUS_OPTIONS.map(opt => (
-            <label
-              key={opt.value}
-              className={`radio-pill ${settings.gameSettings.streakBonusMultiplier === opt.value ? 'active' : ''}`}
-            >
-              <input
-                type="radio"
-                name="streakBonusMultiplier"
-                value={opt.value}
-                checked={settings.gameSettings.streakBonusMultiplier === opt.value}
-                onChange={() => handleGameChange('streakBonusMultiplier', opt.value)}
-                style={{ display: 'none' }}
-              />
-              <span>{opt.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <div className="field">
-        <label htmlFor="timeBonus">Time Bonus</label>
-        <div className="radio-group-pills">
-          {TIME_BONUS_OPTIONS.map(opt => (
-            <label
-              key={opt.value}
-              className={`radio-pill ${settings.gameSettings.timeBonus === opt.value ? 'active' : ''}`}
-            >
-              <input
-                type="radio"
-                name="timeBonus"
-                checked={settings.gameSettings.timeBonus === opt.value}
-                onChange={() => handleGameChange('timeBonus', opt.value)}
-                style={{ display: 'none' }}
-              />
-              <span>{opt.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      <h4>Achievement Bonuses</h4>
-      <div className="field">
-        <label>Mode</label>
-        <div
-          className="radio-group-pills"
-          style={{ gridTemplateColumns: `repeat(${achievementModeOptions.length}, 1fr)` }}
-        >
-          {achievementModeOptions.map(opt => (
-            <label
-              key={opt.value}
-              className={`radio-pill ${currentMode === opt.value ? 'active' : ''}`}
-            >
-              <input
-                type="radio"
-                name="achievementMode"
-                checked={currentMode === opt.value}
-                onChange={() => handleAchievementModeChange(opt.value)}
-                style={{ display: 'none' }}
-              />
-              <span>{opt.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {achievementBonuses?.mode === AchievementBonusMode.MANUAL && (
         <div className="field">
-          <label>Enabled Achievement Types</label>
+          <label htmlFor="rounds">Rounds</label>
+          <input
+            id="rounds"
+            type="number"
+            value={settings.gameSettings.rounds}
+            onInput={e => handleGameChange('rounds', Number((e.target as HTMLInputElement).value))}
+          />
+        </div>
+
+        <div className="field">
+          <label htmlFor="maxGuessTime">Max Guess Time (seconds)</label>
+          <input
+            id="maxGuessTime"
+            type="number"
+            step="1"
+            value={settings.gameSettings.maxGuessTime}
+            onInput={e => handleGameChange('maxGuessTime', Number((e.target as HTMLInputElement).value))}
+          />
+        </div>
+
+        <div className="field">
+          <label>Enabled Jokers</label>
           <div className="tag-checkboxes-list">
-            {availableRules.map(rule => (
+            {Object.values(Joker).map(joker => (
               <label
-                key={rule.name}
+                key={joker}
                 className="tag-checkbox-label"
               >
                 <div className="tag-checkbox-content">
                   <input
                     type="checkbox"
-                    checked={achievementBonuses.enabledTypes?.includes(rule.name)}
-                    onChange={() => handleToggleAchievementType(rule.name)}
+                    checked={settings.gameSettings.enabledJokers.includes(joker)}
+                    onChange={() => handleToggleJoker(joker)}
                   />
-                  <span>{rule.name === rule.name.toUpperCase() ? capitalize(rule.name) : rule.name}</span>
+                  <span>{joker}</span>
                 </div>
               </label>
             ))}
           </div>
         </div>
-      )}
 
-      {achievementBonuses?.mode === AchievementBonusMode.RANDOM && (
         <div className="field">
-          <label htmlFor="randomCount">Random Count</label>
-          <input
-            id="randomCount"
-            type="number"
-            min="1"
-            max={availableRules.length - 1}
-            value={achievementBonuses.randomCount}
-            onInput={e => {
-              const val = Number((e.target as HTMLInputElement).value);
-              const maxAllowed = availableRules.length - 1;
-              const clamped = Math.min(Math.max(1, val), maxAllowed);
-              handleGameChange('achievementBonuses', {
-                ...achievementBonuses,
-                randomCount: clamped,
-              });
-            }}
-          />
+          <label>First Bonus Multiplier</label>
+          <div className="radio-group-pills">
+            {FIRST_BONUS_OPTIONS.map(opt => (
+              <label
+                key={opt.value}
+                className={`radio-pill ${settings.gameSettings.firstBonusMultiplier === opt.value ? 'active' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="firstBonusMultiplier"
+                  value={opt.value}
+                  checked={settings.gameSettings.firstBonusMultiplier === opt.value}
+                  onChange={() => handleGameChange('firstBonusMultiplier', opt.value)}
+                  style={{ display: 'none' }}
+                />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      )}
 
-      <h3>App Settings</h3>
+        <div className="field">
+          <label htmlFor="streakBonusMultiplier">Streak Bonus Multiplier</label>
+          <div className="radio-group-pills">
+            {STREAK_BONUS_OPTIONS.map(opt => (
+              <label
+                key={opt.value}
+                className={`radio-pill ${settings.gameSettings.streakBonusMultiplier === opt.value ? 'active' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="streakBonusMultiplier"
+                  value={opt.value}
+                  checked={settings.gameSettings.streakBonusMultiplier === opt.value}
+                  onChange={() => handleGameChange('streakBonusMultiplier', opt.value)}
+                  style={{ display: 'none' }}
+                />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
 
-      <div className="tag-filter-header">
-        <label>Achievement Bonuses</label>
-        {hasMissingDefaultRules && (
-          <button
-            type="button"
-            className="secondary-btn"
-            onClick={restoreDefaultAchievementRules}
+        <div className="field">
+          <label htmlFor="timeBonus">Time Bonus</label>
+          <div className="radio-group-pills">
+            {TIME_BONUS_OPTIONS.map(opt => (
+              <label
+                key={opt.value}
+                className={`radio-pill ${settings.gameSettings.timeBonus === opt.value ? 'active' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="timeBonus"
+                  checked={settings.gameSettings.timeBonus === opt.value}
+                  onChange={() => handleGameChange('timeBonus', opt.value)}
+                  style={{ display: 'none' }}
+                />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <h4>Achievement Bonuses</h4>
+        <div className="field">
+          <label>Mode</label>
+          <div
+            className="radio-group-pills"
+            style={{ gridTemplateColumns: `repeat(${achievementModeOptions.length}, 1fr)` }}
           >
-            Restore Default Bonuses
-          </button>
+            {achievementModeOptions.map(opt => (
+              <label
+                key={opt.value}
+                className={`radio-pill ${currentMode === opt.value ? 'active' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="achievementMode"
+                  checked={currentMode === opt.value}
+                  onChange={() => handleAchievementModeChange(opt.value)}
+                  style={{ display: 'none' }}
+                />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {achievementBonuses?.mode === AchievementBonusMode.MANUAL && (
+          <div className="field">
+            <label>Enabled Achievement Types</label>
+            <div className="tag-checkboxes-list">
+              {availableRules.map(rule => (
+                <label
+                  key={rule.name}
+                  className="tag-checkbox-label"
+                >
+                  <div className="tag-checkbox-content">
+                    <input
+                      type="checkbox"
+                      checked={achievementBonuses.enabledTypes?.includes(rule.name)}
+                      onChange={() => handleToggleAchievementType(rule.name)}
+                    />
+                    <span>{rule.name === rule.name.toUpperCase() ? capitalize(rule.name) : rule.name}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {achievementBonuses?.mode === AchievementBonusMode.RANDOM && (
+          <div className="field">
+            <label htmlFor="randomCount">Random Count</label>
+            <input
+              id="randomCount"
+              type="number"
+              min="1"
+              max={availableRules.length - 1}
+              value={achievementBonuses.randomCount}
+              onInput={e => {
+                const val = Number((e.target as HTMLInputElement).value);
+                const maxAllowed = availableRules.length - 1;
+                const clamped = Math.min(Math.max(1, val), maxAllowed);
+                handleGameChange('achievementBonuses', {
+                  ...achievementBonuses,
+                  randomCount: clamped,
+                });
+              }}
+            />
+          </div>
         )}
       </div>
-      <ul
-        className="achievement-bonus-list"
-        aria-label="Achievement bonuses"
-      >
-        {configuredRules.map(rule => (
-          <li key={rule.name}>
-            {rule.name}
+
+      <div className="settings-section">
+        <h3>App Settings</h3>
+
+        <div className="tag-filter-header">
+          <label>Achievement Bonuses</label>
+          {hasMissingDefaultRules && (
             <button
               type="button"
               className="secondary-btn"
-              aria-label={`Remove ${rule.name}`}
-              onClick={() => updateAchievementRules(configuredRules.filter(existing => existing.name !== rule.name))}
+              onClick={restoreDefaultAchievementRules}
             >
-              Remove
+              Restore Default Bonuses
             </button>
-          </li>
-        ))}
-      </ul>
-      <button
-        type="button"
-        className="secondary-btn"
-        aria-expanded={isAchievementRuleFormOpen}
-        aria-controls="achievement-bonus-form"
-        onClick={() => setIsAchievementRuleFormOpen(isOpen => !isOpen)}
-      >
-        {isAchievementRuleFormOpen ? 'Cancel' : 'Add custom achievement bonus'}
-      </button>
-      <div
-        id="achievement-bonus-form"
-        className="achievement-bonus-form"
-        hidden={!isAchievementRuleFormOpen}
-      >
-        <div className="field">
-          <label htmlFor="achievement-rule-name">Name</label>
-          <input
-            id="achievement-rule-name"
-            type="text"
-            maxLength={64}
-            value={achievementRuleDraft.name}
-            onInput={e => setAchievementRuleDraft(prev => ({ ...prev, name: (e.target as HTMLInputElement).value }))}
-          />
+          )}
         </div>
-        <div className="field">
-          <label htmlFor="achievement-rule-description">Description (optional)</label>
-          <input
-            id="achievement-rule-description"
-            type="text"
-            value={achievementRuleDraft.description}
-            onInput={e =>
-              setAchievementRuleDraft(prev => ({ ...prev, description: (e.target as HTMLInputElement).value }))
-            }
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="achievement-rule-metric">Metric</label>
-          <select
-            id="achievement-rule-metric"
-            value={achievementRuleDraft.metric}
-            onChange={e =>
-              setAchievementRuleDraft(prev => ({
-                ...prev,
-                metric: (e.target as HTMLSelectElement).value as AchievementBonusMetric,
-              }))
-            }
-          >
-            {Object.values(AchievementBonusMetric).map(metric => (
-              <option
-                key={metric}
-                value={metric}
+        <ul
+          className="achievement-bonus-list"
+          aria-label="Achievement bonuses"
+        >
+          {configuredRules.map(rule => (
+            <li key={rule.name}>
+              {rule.name}
+              <button
+                type="button"
+                className="secondary-btn"
+                aria-label={`Remove ${rule.name}`}
+                onClick={() => updateAchievementRules(configuredRules.filter(existing => existing.name !== rule.name))}
               >
-                {metric}
-              </option>
-            ))}
-          </select>
-        </div>
-        {achievementRuleDraft.metric !== AchievementBonusMetric.STREAK && (
-          <>
-            <div className="field">
-              <label htmlFor="achievement-rule-filter">Filter</label>
-              <select
-                id="achievement-rule-filter"
-                value={achievementRuleDraft.filter}
-                onChange={e =>
-                  setAchievementRuleDraft(prev => ({
-                    ...prev,
-                    filter: (e.target as HTMLSelectElement).value as AchievementBonusFilter,
-                  }))
-                }
-              >
-                {Object.values(AchievementBonusFilter).map(filter => (
-                  <option
-                    key={filter}
-                    value={filter}
-                  >
-                    {filter}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="achievement-rule-aggregate">Aggregate</label>
-              <select
-                id="achievement-rule-aggregate"
-                value={achievementRuleDraft.aggregate}
-                onChange={e =>
-                  setAchievementRuleDraft(prev => ({
-                    ...prev,
-                    aggregate: (e.target as HTMLSelectElement).value as AchievementBonusAggregate,
-                  }))
-                }
-              >
-                {Object.values(AchievementBonusAggregate).map(aggregate => (
-                  <option
-                    key={aggregate}
-                    value={aggregate}
-                  >
-                    {aggregate}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </>
-        )}
-        <div className="field">
-          <label htmlFor="achievement-rule-goal">Goal</label>
-          <select
-            id="achievement-rule-goal"
-            value={achievementRuleDraft.goal}
-            onChange={e =>
-              setAchievementRuleDraft(prev => ({
-                ...prev,
-                goal: (e.target as HTMLSelectElement).value as AchievementBonusGoal,
-              }))
-            }
-          >
-            {Object.values(AchievementBonusGoal).map(goal => (
-              <option
-                key={goal}
-                value={goal}
-              >
-                {goal}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="achievement-rule-reward">Reward</label>
-          <input
-            id="achievement-rule-reward"
-            type="number"
-            min="0"
-            step="1"
-            value={achievementRuleDraft.reward}
-            onInput={e =>
-              setAchievementRuleDraft(prev => ({ ...prev, reward: Number((e.target as HTMLInputElement).value) }))
-            }
-          />
-        </div>
-        {achievementRuleError && <p role="alert">{achievementRuleError}</p>}
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
         <button
           type="button"
           className="secondary-btn"
-          onClick={addAchievementRule}
+          aria-expanded={isAchievementRuleFormOpen}
+          aria-controls="achievement-bonus-form"
+          onClick={() => setIsAchievementRuleFormOpen(isOpen => !isOpen)}
         >
-          Add Achievement Bonus
+          {isAchievementRuleFormOpen ? 'Cancel' : 'Add custom achievement bonus'}
         </button>
-      </div>
-
-      <div className="field">
-        <label htmlFor="final-results-jingle-file-input">Final Results Jingle File</label>
-        <div className="file-input-wrapper">
-          <input
-            ref={finalResultsJingleFileRef}
-            id="final-results-jingle-file-input"
-            type="file"
-            accept="audio/*"
-            onChange={e => {
-              const files = (e.target as HTMLInputElement).files;
-              if (files && files[0]) {
-                setFinalResultsJingleFile(files[0]);
-                handleSoundChange('finalResultsJingle', files[0].name);
+        <div
+          id="achievement-bonus-form"
+          className="achievement-bonus-form"
+          hidden={!isAchievementRuleFormOpen}
+        >
+          <div className="field">
+            <label htmlFor="achievement-rule-name">Name</label>
+            <input
+              id="achievement-rule-name"
+              type="text"
+              maxLength={64}
+              value={achievementRuleDraft.name}
+              onInput={e => setAchievementRuleDraft(prev => ({ ...prev, name: (e.target as HTMLInputElement).value }))}
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="achievement-rule-description">Description (optional)</label>
+            <input
+              id="achievement-rule-description"
+              type="text"
+              value={achievementRuleDraft.description}
+              onInput={e =>
+                setAchievementRuleDraft(prev => ({ ...prev, description: (e.target as HTMLInputElement).value }))
               }
-            }}
-          />
-
-          {settings.appSettings.sounds.finalResultsJingle !== null && (
-            <button
-              type="button"
-              className="secondary-btn"
-              onClick={() => {
-                handleSoundChange('finalResultsJingle', null);
-                setFinalResultsJingleFile(null);
-                if (finalResultsJingleFileRef.current) {
-                  finalResultsJingleFileRef.current.value = '';
-                }
-              }}
-            >
-              Turn Off
-            </button>
-          )}
-
-          {settings.appSettings.sounds.finalResultsJingle !== undefined && (
-            <button
-              type="button"
-              className="secondary-btn"
-              onClick={() => {
-                handleSoundChange('finalResultsJingle', undefined);
-                setFinalResultsJingleFile(null);
-                if (finalResultsJingleFileRef.current) {
-                  finalResultsJingleFileRef.current.value = '';
-                }
-              }}
-            >
-              Reset to Default
-            </button>
-          )}
-        </div>
-        {settings.appSettings.sounds.finalResultsJingle !== undefined &&
-          (settings.appSettings.sounds.finalResultsJingle === null ? (
-            <small>Final Results Jingle is turned off.</small>
-          ) : (
-            <small>Current audio file: {settings.appSettings.sounds.finalResultsJingle}</small>
-          ))}
-      </div>
-
-      <div className="field">
-        <label htmlFor="final-results-loop-file-input">Final Results Loop File</label>
-        <div className="file-input-wrapper">
-          <input
-            ref={finalResultsLoopFileRef}
-            id="final-results-loop-file-input"
-            type="file"
-            accept="audio/*"
-            onChange={e => {
-              const files = (e.target as HTMLInputElement).files;
-              if (files && files[0]) {
-                setFinalResultsLoopFile(files[0]);
-                handleSoundChange('finalResultsLoop', files[0].name);
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="achievement-rule-metric">Metric</label>
+            <select
+              id="achievement-rule-metric"
+              value={achievementRuleDraft.metric}
+              onChange={e =>
+                setAchievementRuleDraft(prev => ({
+                  ...prev,
+                  metric: (e.target as HTMLSelectElement).value as AchievementBonusMetric,
+                }))
               }
-            }}
-          />
-
-          {settings.appSettings.sounds.finalResultsLoop !== null && (
-            <button
-              type="button"
-              className="secondary-btn"
-              onClick={() => {
-                handleSoundChange('finalResultsLoop', null);
-                setFinalResultsLoopFile(null);
-                if (finalResultsLoopFileRef.current) {
-                  finalResultsLoopFileRef.current.value = '';
-                }
-              }}
             >
-              Turn Off
-            </button>
+              {Object.values(AchievementBonusMetric).map(metric => (
+                <option
+                  key={metric}
+                  value={metric}
+                >
+                  {metric}
+                </option>
+              ))}
+            </select>
+          </div>
+          {achievementRuleDraft.metric !== AchievementBonusMetric.STREAK && (
+            <>
+              <div className="field">
+                <label htmlFor="achievement-rule-filter">Filter</label>
+                <select
+                  id="achievement-rule-filter"
+                  value={achievementRuleDraft.filter}
+                  onChange={e =>
+                    setAchievementRuleDraft(prev => ({
+                      ...prev,
+                      filter: (e.target as HTMLSelectElement).value as AchievementBonusFilter,
+                    }))
+                  }
+                >
+                  {Object.values(AchievementBonusFilter).map(filter => (
+                    <option
+                      key={filter}
+                      value={filter}
+                    >
+                      {filter}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="achievement-rule-aggregate">Aggregate</label>
+                <select
+                  id="achievement-rule-aggregate"
+                  value={achievementRuleDraft.aggregate}
+                  onChange={e =>
+                    setAchievementRuleDraft(prev => ({
+                      ...prev,
+                      aggregate: (e.target as HTMLSelectElement).value as AchievementBonusAggregate,
+                    }))
+                  }
+                >
+                  {Object.values(AchievementBonusAggregate).map(aggregate => (
+                    <option
+                      key={aggregate}
+                      value={aggregate}
+                    >
+                      {aggregate}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
           )}
-
-          {settings.appSettings.sounds.finalResultsLoop !== undefined && (
-            <button
-              type="button"
-              className="secondary-btn"
-              onClick={() => {
-                handleSoundChange('finalResultsLoop', undefined);
-                setFinalResultsLoopFile(null);
-                if (finalResultsLoopFileRef.current) {
-                  finalResultsLoopFileRef.current.value = '';
-                }
-              }}
+          <div className="field">
+            <label htmlFor="achievement-rule-goal">Goal</label>
+            <select
+              id="achievement-rule-goal"
+              value={achievementRuleDraft.goal}
+              onChange={e =>
+                setAchievementRuleDraft(prev => ({
+                  ...prev,
+                  goal: (e.target as HTMLSelectElement).value as AchievementBonusGoal,
+                }))
+              }
             >
-              Reset to Default
-            </button>
-          )}
+              {Object.values(AchievementBonusGoal).map(goal => (
+                <option
+                  key={goal}
+                  value={goal}
+                >
+                  {goal}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="achievement-rule-reward">Reward</label>
+            <input
+              id="achievement-rule-reward"
+              type="number"
+              min="0"
+              step="1"
+              value={achievementRuleDraft.reward}
+              onInput={e =>
+                setAchievementRuleDraft(prev => ({ ...prev, reward: Number((e.target as HTMLInputElement).value) }))
+              }
+            />
+          </div>
+          {achievementRuleError && <p role="alert">{achievementRuleError}</p>}
+          <button
+            type="button"
+            className="secondary-btn"
+            onClick={addAchievementRule}
+          >
+            Add Achievement Bonus
+          </button>
         </div>
-        {settings.appSettings.sounds.finalResultsLoop !== undefined &&
-          (settings.appSettings.sounds.finalResultsLoop === null ? (
-            <small>Final Results Loop is turned off.</small>
-          ) : (
-            <small>Current audio file: {settings.appSettings.sounds.finalResultsLoop}</small>
-          ))}
+
+        <div className="field">
+          <label htmlFor="final-results-jingle-file-input">Final Results Jingle File</label>
+          <div className="file-input-wrapper">
+            <input
+              ref={finalResultsJingleFileRef}
+              id="final-results-jingle-file-input"
+              type="file"
+              accept="audio/*"
+              onChange={e => {
+                const files = (e.target as HTMLInputElement).files;
+                if (files && files[0]) {
+                  setFinalResultsJingleFile(files[0]);
+                  handleSoundChange('finalResultsJingle', files[0].name);
+                }
+              }}
+            />
+
+            {settings.appSettings.sounds.finalResultsJingle !== null && (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  handleSoundChange('finalResultsJingle', null);
+                  setFinalResultsJingleFile(null);
+                  if (finalResultsJingleFileRef.current) {
+                    finalResultsJingleFileRef.current.value = '';
+                  }
+                }}
+              >
+                Turn Off
+              </button>
+            )}
+
+            {settings.appSettings.sounds.finalResultsJingle !== undefined && (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  handleSoundChange('finalResultsJingle', undefined);
+                  setFinalResultsJingleFile(null);
+                  if (finalResultsJingleFileRef.current) {
+                    finalResultsJingleFileRef.current.value = '';
+                  }
+                }}
+              >
+                Reset to Default
+              </button>
+            )}
+          </div>
+          {settings.appSettings.sounds.finalResultsJingle !== undefined &&
+            (settings.appSettings.sounds.finalResultsJingle === null ? (
+              <small>Final Results Jingle is turned off.</small>
+            ) : (
+              <small>Current audio file: {settings.appSettings.sounds.finalResultsJingle}</small>
+            ))}
+        </div>
+
+        <div className="field">
+          <label htmlFor="final-results-loop-file-input">Final Results Loop File</label>
+          <div className="file-input-wrapper">
+            <input
+              ref={finalResultsLoopFileRef}
+              id="final-results-loop-file-input"
+              type="file"
+              accept="audio/*"
+              onChange={e => {
+                const files = (e.target as HTMLInputElement).files;
+                if (files && files[0]) {
+                  setFinalResultsLoopFile(files[0]);
+                  handleSoundChange('finalResultsLoop', files[0].name);
+                }
+              }}
+            />
+
+            {settings.appSettings.sounds.finalResultsLoop !== null && (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  handleSoundChange('finalResultsLoop', null);
+                  setFinalResultsLoopFile(null);
+                  if (finalResultsLoopFileRef.current) {
+                    finalResultsLoopFileRef.current.value = '';
+                  }
+                }}
+              >
+                Turn Off
+              </button>
+            )}
+
+            {settings.appSettings.sounds.finalResultsLoop !== undefined && (
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  handleSoundChange('finalResultsLoop', undefined);
+                  setFinalResultsLoopFile(null);
+                  if (finalResultsLoopFileRef.current) {
+                    finalResultsLoopFileRef.current.value = '';
+                  }
+                }}
+              >
+                Reset to Default
+              </button>
+            )}
+          </div>
+          {settings.appSettings.sounds.finalResultsLoop !== undefined &&
+            (settings.appSettings.sounds.finalResultsLoop === null ? (
+              <small>Final Results Loop is turned off.</small>
+            ) : (
+              <small>Current audio file: {settings.appSettings.sounds.finalResultsLoop}</small>
+            ))}
+        </div>
       </div>
 
       <div className="form-actions">

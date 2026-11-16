@@ -35,25 +35,24 @@ let userDefinedAppSettings: AppSettings | null = null;
 
 /**
  * Loads the default settings of any new {@link GameInstance} from a given config file. Upon passing validation,
- * the settings are exposed globally via the {@link getDefaultGameSettings} function.
+ * the settings are exposed globally via the {@link getGameSettings} function.
  */
-export function loadSettingsConfig(configPath: string): GameSettings<Set<Joker>> {
+export function loadSettingsConfig(configPath: string) {
   const settings = readSettings(configPath);
 
   userDefinedGameSettings = {
     ...settings.gameSettings,
     enabledJokers: new Set(settings.gameSettings.enabledJokers),
   };
-  userDefinedAppSettings = settings.appSettings;
 
-  return userDefinedGameSettings;
+  userDefinedAppSettings = settings.appSettings;
 }
 
 /**
  * Returns the default settings that shall be applied to any new {@link GameInstance} based on hard-coded defaults,
  * optionally overridden by a user-defined settings config applied through {@link loadSettingsConfig}.
  */
-export function getDefaultGameSettings(): GameSettings<Set<Joker>> {
+export function getGameSettings(): GameSettings<Set<Joker>> {
   const baseSettings = userDefinedGameSettings ?? {
     ...DEFAULT_GAME_SETTINGS,
     enabledJokers: new Set(DEFAULT_GAME_SETTINGS.enabledJokers),
