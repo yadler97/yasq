@@ -186,16 +186,13 @@ img {
 }
 
 .logo {
-  height: 6em;
-  padding: 1.5em;
+  width: 14em;
+  height: 9em;
+  background-color: var(--text-main);
+  -webkit-mask: url('/logo.svg') center / 11em 6em no-repeat;
+  mask: url('/logo.svg') center / 11em 6em no-repeat;
   will-change: filter;
   transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
 }
 
 .centered {
