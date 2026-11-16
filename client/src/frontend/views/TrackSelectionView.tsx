@@ -1,8 +1,10 @@
 import { computed, signal, useSignal } from '@preact/signals';
 import { useEffect } from 'preact/hooks';
 
-import { useBackend } from '@globals';
 import { GAME_COVERS_DIR, GameEvent, Playlist } from '@yasq/shared';
+import defaultCover from '@yasq/shared/assets/default.svg?url';
+
+import { useBackend } from '@globals';
 import { TrackViewModel } from '../../common/types';
 import {
   getAvailableTagsByType,
@@ -189,10 +191,10 @@ export const TrackSelectionView = ({ isHost }: { isHost: boolean }) => {
             >
               <div className="cover-wrapper">
                 <NonDraggableImg
-                  src={track.cover ? `/${GAME_COVERS_DIR}/${track.cover}` : '/default.svg'}
+                  src={track.cover ? `/${GAME_COVERS_DIR}/${track.cover}` : defaultCover}
                   alt={`Cover of ${track.game}`}
                   onError={e => {
-                    (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                    (e.currentTarget as HTMLImageElement).src = defaultCover;
                   }}
                 />
                 {track.played && <span className="played-overlay">PLAYED</span>}

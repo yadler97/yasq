@@ -2,6 +2,7 @@ import { render } from 'preact';
 import { useState, useEffect, useRef, useMemo } from 'preact/hooks';
 
 import type { Playlist, Track } from '@yasq/shared';
+import defaultCover from '@yasq/shared/assets/default.svg?url';
 
 import { TrackList } from './components/TrackList';
 import { TrackForm } from './components/TrackForm';
@@ -569,10 +570,10 @@ export function App() {
             <div className="player-meta">
               <img
                 loading="lazy"
-                src={activeTrack.cover ? `/covers/${activeTrack.cover}` : '/default.svg'}
+                src={activeTrack.cover ? `/covers/${activeTrack.cover}` : defaultCover}
                 alt={`Cover of ${activeTrack.game}`}
                 onError={e => {
-                  (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                  (e.currentTarget as HTMLImageElement).src = defaultCover;
                 }}
               />
               <div className="track-info">

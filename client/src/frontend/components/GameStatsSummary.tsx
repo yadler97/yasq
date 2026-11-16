@@ -7,6 +7,8 @@ import {
   Participant,
   TrackInfo,
 } from '@yasq/shared';
+import defaultCover from '@yasq/shared/assets/default.svg?url';
+
 import { findUser, getGameDuration } from '../../utils/helper';
 import { DiscordAvatar } from './DiscordAvatar';
 import { NonDraggableImg } from './NonDraggableImg';
@@ -118,10 +120,10 @@ export const GameStatsSummary = ({
                   {item.trackInfo && (
                     <div className="game-stat-track-container">
                       <NonDraggableImg
-                        src={item.trackInfo.gameCoverUrl || '/default.svg'}
+                        src={item.trackInfo.gameCoverUrl || defaultCover}
                         alt={`Cover of ${item.trackInfo.track.game}`}
                         onError={e => {
-                          (e.currentTarget as HTMLImageElement).src = '/default.svg';
+                          (e.currentTarget as HTMLImageElement).src = defaultCover;
                         }}
                       />
                       <div className="game-stat-track-details">
