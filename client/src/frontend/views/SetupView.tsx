@@ -21,7 +21,6 @@ import { formatBonusMultiplier } from '../../utils/helper';
 import { useTimeBonusSamples } from '../hooks/useTimeBonusSamples';
 
 import { ALL_JOKER_ICONS } from '@components/Icons';
-import { NonDraggableImg } from '@components/NonDraggableImg';
 import { HostTransferDropdown } from '@components/HostTransferDropdown';
 import { TimeBonusPlot } from '@components/TimeBonusPlot';
 import { WithTooltip } from '@components/Tooltip';
@@ -99,10 +98,10 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
 
   return (
     <div className="view-container centered">
-      <NonDraggableImg
-        src="/rocket.png"
+      <div
         className="logo"
-        alt="Discord"
+        role="img"
+        aria-label="YASQ logo"
       />
       <h1>Welcome to YASQ!</h1>
 
