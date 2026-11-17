@@ -251,7 +251,10 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
 
                 <div className="setting-item">
                   <span>Achievement Bonus</span>
-                  <AchievementBonusSettingsPanel settingsSignal={achievementBonuses} />
+                  <AchievementBonusSettingsPanel
+                    settingsSignal={achievementBonuses}
+                    rules={gameStatus.value.achievementBonusRules}
+                  />
                 </div>
               </div>
             )}
