@@ -103,7 +103,6 @@ export const SetupView = ({ isHost }: { isHost: boolean }) => {
         role="img"
         aria-label="YASQ logo"
       />
-      <h1>Welcome to YASQ!</h1>
 
       {!isHost ? (
         <div id="waiting-setup-msg">
