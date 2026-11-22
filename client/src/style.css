@@ -1329,12 +1329,9 @@ input[type='radio']:checked + .btn-radio {
 }
 
 .choice-button {
-  color: var(--text-main);
   padding: 12px 8px;
-  border-radius: var(--border-radius-medium);
   font-size: 0.9rem;
   font-weight: 600;
-  cursor: pointer;
   transition: all 0.2s ease;
   white-space: normal;
   word-break: break-word;
@@ -1356,6 +1353,9 @@ input[type='radio']:checked + .btn-radio {
 }
 
 .spy-hint-player-list {
+  display: flex;
+  flex-flow: column;
+  gap: var(--space-tiny);
   height: 200px;
   overflow-y: scroll;
   padding: var(--space-small);
@@ -1379,6 +1379,7 @@ input[type='radio']:checked + .btn-radio {
   display: flex;
   align-items: center;
   gap: var(--space-small);
+  background: none;
 }
 
 .spy-target-info {
@@ -2134,6 +2135,7 @@ input[value='1']:checked + .btn-radio.correct {
   color: var(--text-main);
   padding: 8px 12px;
   border-radius: var(--border-radius-medium);
+  border: 1px solid var(--border-muted);
   font-size: 12px;
   text-align: left;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
@@ -2158,10 +2160,21 @@ input[value='1']:checked + .btn-radio.correct {
   left: 50%;
   /* Counter-shift arrow so it never detaches from the trigger element */
   transform: translateX(calc(-50% - var(--tooltip-shift, 0px)));
+  border-left: 9.5px solid transparent;
+  border-right: 9.5px solid transparent;
+  border-bottom: 9.5px solid var(--border-muted);
+  filter: drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.2));
+}
+
+.has-tooltip .tooltip-content::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(calc(-50% - var(--tooltip-shift, 0px)));
   border-left: 8px solid transparent;
   border-right: 8px solid transparent;
   border-bottom: 8px solid var(--bg-dark);
-  filter: drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.2));
 }
 
 /* --- Trigger Activation --- */
