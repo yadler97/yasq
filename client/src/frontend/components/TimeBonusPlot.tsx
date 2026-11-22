@@ -312,6 +312,12 @@ const PlayerMarker = memo(
 
         {/* Player avatar at the bottom of the plot */}
         <g class="player-avatar-bundle">
+          <circle
+            cx={plotX}
+            cy={avatarCenterY}
+            r={markers.avatarRadius}
+            class="player-avatar-background"
+          />
           {avatarUrl !== null && (
             <image
               href={avatarUrl}
