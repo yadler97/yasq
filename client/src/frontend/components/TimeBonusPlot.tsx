@@ -536,7 +536,8 @@ export const TimeBonusPlot = ({ data, participants, currentPlayer }: TimeBonusPl
   };
 
   const getMarkerColor = (playerGuess: PlayerTimeBonusPoint) => {
-    if (playerGuess.playerId === currentPlayerId) return 'var(--color-marker-current)';
+    if (playerGuess.playerId === currentPlayerId && playerGuess.multiplier === null)
+      return 'var(--color-marker-current)';
     if (playerGuess.multiplier === null) return 'var(--color-marker-incorrect)';
     if (playerGuess.fullyCorrect) return 'var(--color-marker-correct)';
     return 'var(--color-marker-partial)';
