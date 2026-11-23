@@ -673,6 +673,7 @@ export const TimeBonusPlot = ({ data, participants, currentPlayer }: TimeBonusPl
   const handleTouchEnd = (e: TouchEvent) => {
     touchGestureStartRef.current = null;
     touchGestureDirectionRef.current = GestureDirection.NONE;
+    if (e.cancelable) e.preventDefault();
     handlePointerLeave(e);
   };
 
