@@ -117,6 +117,9 @@ const renderJokerHint = (activeHint: JokerHintDto, submit: SubmitFunction) => {
         </div>
       );
 
+    case Joker.SHIELD:
+      return activeHint.data ? <p>Shield activated! Your streak is protected for this round.</p> : null;
+
     default:
       return null;
   }
@@ -464,7 +467,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
         </div>
       ) : (
         <div id="game-guesser-ui">
-          {isSelectingSpyTarget.value && (
+          {isSelectingSpyTarget.value && !hasSubmitted.value && (
             <div className="card-container">
               <h2>Pick a player to spy on:</h2>
               <hr className="divider" />
@@ -495,7 +498,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
             </div>
           )}
 
-          {activeHint.value && !hasSubmitted.value && (
+          {activeHint.value && (!hasSubmitted.value || activeHint.value.type === Joker.SHIELD) && (
             <div className="card-container">{renderJokerHint(activeHint.value, submitGuess)}</div>
           )}
 
@@ -538,58 +541,6 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
                   Submit Guess
                 </button>
               </form>
-
-              <div className="joker-list">
-                {ALL_JOKER_ICONS
-                  // Only show jokers that were enabled by the host during setup
-                  .filter(Icon => gameStatus.value.settings.enabledJokers.includes(Icon.jokerType))
-                  .map((Icon, index) => {
-                    const type = Icon.jokerType;
-                    const isAvailable = availableJokers.value.includes(type);
-                    const hasUsedJokerThisRound = activeHint.value !== null;
-
-                    // Format name: MULTIPLE_CHOICE -> Multiple Choice
-                    const jokerName = capitalize(Icon.jokerType);
-
-                    // Construct the tooltip text
-                    const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
-
-                    useKeyboardShortcut(
-                      {
-                        key: (index + 1).toString(),
-                        altKey: !isMac,
-                        metaKey: isMac,
-                      },
-                      () => {
-                        if (isAvailable && !hasUsedJokerThisRound) {
-                          void handleJokerUsage(type);
-                        }
-                      }
-                    );
-
-                    return (
-                      <div
-                        key={type}
-                        className="joker-btn-wrapper"
-                      >
-                        <WithTooltip text={tooltipText}>
-                          <button
-                            className="joker-icon-btn"
-                            id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
-                            onClick={() => handleJokerUsage(type)}
-                            disabled={!isAvailable || hasUsedJokerThisRound}
-                          >
-                            <Icon />
-                          </button>
-                        </WithTooltip>
-
-                        <span className="shortcut-badge">
-                          <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>{index + 1}</kbd>
-                        </span>
-                      </div>
-                    );
-                  })}
-              </div>
             </div>
           ) : (
             <div className="waiting-container">
@@ -601,6 +552,62 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
               </p>
             </div>
           )}
+
+          <div className="card-container">
+            <div className="joker-list">
+              {ALL_JOKER_ICONS
+                // Only show jokers that were enabled by the host during setup
+                .filter(Icon => gameStatus.value.settings.enabledJokers.includes(Icon.jokerType))
+                .map((Icon, index) => {
+                  const type = Icon.jokerType;
+                  const isAvailable = availableJokers.value.includes(type);
+                  const hasUsedJokerThisRound = activeHint.value !== null;
+                  const blockedBySubmission = type !== Joker.SHIELD && hasSubmitted.value;
+                  const isDisabled = !isAvailable || hasUsedJokerThisRound || blockedBySubmission;
+
+                  // Format name: MULTIPLE_CHOICE -> Multiple Choice
+                  const jokerName = capitalize(Icon.jokerType);
+
+                  // Construct the tooltip text
+                  const tooltipText = isAvailable ? jokerName : `${jokerName} (Already Used)`;
+
+                  useKeyboardShortcut(
+                    {
+                      key: (index + 1).toString(),
+                      altKey: !isMac,
+                      metaKey: isMac,
+                    },
+                    () => {
+                      if (!isDisabled) {
+                        void handleJokerUsage(type);
+                      }
+                    }
+                  );
+
+                  return (
+                    <div
+                      key={type}
+                      className="joker-btn-wrapper"
+                    >
+                      <WithTooltip text={tooltipText}>
+                        <button
+                          className="joker-icon-btn"
+                          id={`btn-joker-${type.toLowerCase().replace(/_/g, '-')}`}
+                          onClick={() => handleJokerUsage(type)}
+                          disabled={isDisabled}
+                        >
+                          <Icon />
+                        </button>
+                      </WithTooltip>
+
+                      <span className="shortcut-badge">
+                        <kbd>{getActionKeyLabel(isMac)}</kbd>+<kbd>{index + 1}</kbd>
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
         </div>
       )}
 
