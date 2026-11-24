@@ -30,14 +30,7 @@ type SubmitFunction = (guess: string) => Promise<void>;
 const renderJokerHint = (activeHint: JokerHintDto, submit: SubmitFunction) => {
   switch (activeHint.type) {
     case Joker.OBFUSCATION:
-      return (
-        <p
-          className="obfuscated-text"
-          id="obfuscation-hint-text"
-        >
-          {activeHint.data}
-        </p>
-      );
+      return <p className="obfuscated-text">{activeHint.data}</p>;
 
     case Joker.TRIVIA:
       return (
@@ -133,7 +126,7 @@ enum PlayingViewPhase {
 
 export const PlayingView = ({ isHost }: { isHost: boolean }) => {
   const backend = useBackend();
-  const hasSubmitted = useSignal(false);
+  const submittedGuess = useSignal<string | null>(null);
   const isAudioBuffered = useSignal(false);
 
   // Phases: SETUP ("Ready?") -> COUNTDOWN (3, 2, 1) -> PLAYING
@@ -149,6 +142,8 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
   const availableJokers = useSignal<string[]>([]);
   const isSelectingSpyTarget = useSignal(false);
   const activeTrackInfo = useSignal<any>(null);
+
+  const hasSubmitted = submittedGuess.value !== null;
 
   useEffect(() => {
     if (isHost) return;
@@ -180,13 +175,13 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
   };
 
   const submitGuess = async (guess: string) => {
-    hasSubmitted.value = true;
+    submittedGuess.value = guess;
     await backend.submitGuess(guess, getSyncedServerTime());
   };
 
   // Autofocus input when playing phase starts
   useEffect(() => {
-    if (currentViewPhase.value === PlayingViewPhase.PLAYING && !isHost && !hasSubmitted.value && inputRef.current) {
+    if (currentViewPhase.value === PlayingViewPhase.PLAYING && !isHost && !hasSubmitted && inputRef.current) {
       inputRef.current?.focus();
     }
   }, [isHost, currentViewPhase.value, inputRef.current]);
@@ -286,7 +281,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
 
   // Initialize round (load audio track and send ready event)
   useEffect(() => {
-    if (hasSubmitted.value) return;
+    if (hasSubmitted) return;
 
     // Ensure audio player is immediately halted when entering/switching rounds
     audioPlayer.pause();
@@ -467,7 +462,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
         </div>
       ) : (
         <div id="game-guesser-ui">
-          {isSelectingSpyTarget.value && !hasSubmitted.value && (
+          {isSelectingSpyTarget.value && !hasSubmitted && (
             <div className="card-container">
               <h2>Pick a player to spy on:</h2>
               <hr className="divider" />
@@ -498,8 +493,13 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
             </div>
           )}
 
-          {activeHint.value && (!hasSubmitted.value || activeHint.value.type === Joker.SHIELD) && (
-            <div className="card-container">{renderJokerHint(activeHint.value, submitGuess)}</div>
+          {activeHint.value && (!hasSubmitted || activeHint.value.type === Joker.SHIELD) && (
+            <div
+              className="card-container"
+              id="hint-container"
+            >
+              {renderJokerHint(activeHint.value, submitGuess)}
+            </div>
           )}
 
           {jokerError.value && (
@@ -509,16 +509,14 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
             </div>
           )}
 
-          {!hasSubmitted.value ? (
-            <div className="card-container">
+          <div className="card-container">
+            {!hasSubmitted ? (
               <form
                 id="game-guesser-form"
                 className="game-guesser-form"
                 onSubmit={async e => {
                   e.preventDefault();
-                  const form = e.currentTarget;
-                  const input = form.elements.namedItem('guess-input') as HTMLInputElement;
-                  const guess = input.value.trim();
+                  const guess = inputRef.current?.value.trim();
                   if (!guess) return;
 
                   await submitGuess(guess);
@@ -541,19 +539,24 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
                   Submit Guess
                 </button>
               </form>
-            </div>
-          ) : (
-            <div className="waiting-container">
-              <p
-                className="waiting-msg"
-                id="waiting-msg"
-              >
-                Guess submitted! Waiting for others...
-              </p>
-            </div>
-          )}
+            ) : (
+              <>
+                <p
+                  className="waiting-msg"
+                  id="waiting-msg"
+                >
+                  Guess submitted! Waiting for others...
+                </p>
+                <span className="guess-label">Your guess:</span>
+                <span
+                  id="guess"
+                  className="user-guess guess-text"
+                >
+                  {submittedGuess.value || 'No guess submitted'}
+                </span>
+              </>
+            )}
 
-          <div className="card-container">
             <div className="joker-list">
               {ALL_JOKER_ICONS
                 // Only show jokers that were enabled by the host during setup
@@ -562,7 +565,7 @@ export const PlayingView = ({ isHost }: { isHost: boolean }) => {
                   const type = Icon.jokerType;
                   const isAvailable = availableJokers.value.includes(type);
                   const hasUsedJokerThisRound = activeHint.value !== null;
-                  const blockedBySubmission = type !== Joker.SHIELD && hasSubmitted.value;
+                  const blockedBySubmission = type !== Joker.SHIELD && hasSubmitted;
                   const isDisabled = !isAvailable || hasUsedJokerThisRound || blockedBySubmission;
 
                   // Format name: MULTIPLE_CHOICE -> Multiple Choice
